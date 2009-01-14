@@ -365,6 +365,9 @@ static void init_gcc_specs (struct obstack *, const char *, const char *,
 #if defined(HAVE_TARGET_OBJECT_SUFFIX) || defined(HAVE_TARGET_EXECUTABLE_SUFFIX)
 static const char *convert_filename (const char *, int, int);
 #endif
+#if !(defined (__MSDOS__) || defined (OS2) || defined (VMS))
+static void retry_ice (const char *prog, const char **argv);
+#endif
 
 static const char *getenv_spec_function (int, const char **);
 static const char *if_exists_spec_function (int, const char **);
@@ -3015,7 +3018,7 @@ execute (void)
 	    }
 	}
 
-      if (string != commands[i].prog)
+      if (i && string != commands[i].prog)
 	free (CONST_CAST (char *, string));
     }
 
@@ -3072,6 +3075,16 @@ See %s for instructions.",
 	else if (WIFEXITED (status)
 		 && WEXITSTATUS (status) >= MIN_FATAL_STATUS)
 	  {
+#if !(defined (__MSDOS__) || defined (OS2) || defined (VMS))
+	    /* For ICEs in cc1, cc1obj, cc1plus see if it is
+	       reproducible or not.  */
+	    char *p;
+	    if (WEXITSTATUS (status) == ICE_EXIT_CODE
+		&& i == 0
+		&& (p = strrchr (commands[0].argv[0], DIR_SEPARATOR))
+		&& ! strncmp (p + 1, "cc1", 3))
+	      retry_ice (commands[0].prog, commands[0].argv);
+#endif
 	    if (WEXITSTATUS (status) > greatest_status)
 	      greatest_status = WEXITSTATUS (status);
 	    ret_code = -1;
@@ -3091,6 +3104,9 @@ See %s for instructions.",
 	      notice ("# %s %.2f %.2f\n", commands[i].prog, ut, st);
 	  }
       }
+
+    if (commands[0].argv[0] != commands[0].prog)
+      free ((PTR) commands[0].argv[0]);
 
     return ret_code;
   }
@@ -6106,6 +6122,224 @@ give_switch (int switchnum, int omit_first_word)
   do_spec_1 (" ", 0, NULL);
   switches[switchnum].validated = 1;
 }
+
+#if !(defined (__MSDOS__) || defined (OS2) || defined (VMS))
+#define RETRY_ICE_ATTEMPTS 2
+
+static void
+retry_ice (const char *prog, const char **argv)
+{
+  int nargs, out_arg = -1, quiet = 0, attempt;
+  int pid, retries, sleep_interval;
+  const char **new_argv;
+  char *temp_filenames[RETRY_ICE_ATTEMPTS * 2 + 2];
+
+  if (input_filename == NULL || ! strcmp (input_filename, "-"))
+    return;
+
+  for (nargs = 0; argv[nargs] != NULL; ++nargs)
+    /* Only retry compiler ICEs, not preprocessor ones.  */
+    if (! strcmp (argv[nargs], "-E"))
+      return;
+    else if (argv[nargs][0] == '-' && argv[nargs][1] == 'o')
+      {
+	if (out_arg == -1)
+	  out_arg = nargs;
+	else
+	  return;
+      }
+    /* If the compiler is going to output any time information,
+       it might varry between invocations.  */
+    else if (! strcmp (argv[nargs], "-quiet"))
+      quiet = 1;
+    else if (! strcmp (argv[nargs], "-ftime-report"))
+      return;
+
+  if (out_arg == -1 || !quiet)
+    return;
+
+  memset (temp_filenames, '\0', sizeof (temp_filenames));
+  new_argv = alloca ((nargs + 3) * sizeof (const char *));
+  memcpy (new_argv, argv, (nargs + 1) * sizeof (const char *));
+  new_argv[nargs++] = "-frandom-seed=0";
+  new_argv[nargs] = NULL;
+  if (new_argv[out_arg][2] == '\0')
+    new_argv[out_arg + 1] = "-";
+  else
+    new_argv[out_arg] = "-o-";
+
+  for (attempt = 0; attempt < RETRY_ICE_ATTEMPTS + 1; ++attempt)
+    {
+      int fd = -1;
+      int status;
+
+      temp_filenames[attempt * 2] = make_temp_file (".out");
+      temp_filenames[attempt * 2 + 1] = make_temp_file (".err");
+
+      if (attempt == RETRY_ICE_ATTEMPTS)
+        {
+	  int i;
+	  int fd1, fd2;
+	  struct stat st1, st2;
+	  size_t n, len;
+	  char *buf;
+
+	  buf = xmalloc (8192);
+
+	  for (i = 0; i < 2; ++i)
+	    {
+	      fd1 = open (temp_filenames[i], O_RDONLY);
+	      fd2 = open (temp_filenames[2 + i], O_RDONLY);
+
+	      if (fd1 < 0 || fd2 < 0)
+		{
+		  i = -1;
+		  close (fd1);
+		  close (fd2);
+		  break;
+		}
+
+	      if (fstat (fd1, &st1) < 0 || fstat (fd2, &st2) < 0)
+		{
+		  i = -1;
+		  close (fd1);
+		  close (fd2);
+		  break;
+		}
+
+	      if (st1.st_size != st2.st_size)
+		{
+		  close (fd1);
+		  close (fd2);
+		  break;
+		}
+
+	      len = 0;
+	      for (n = st1.st_size; n; n -= len)
+		{
+		  len = n;
+		  if (len > 4096)
+		    len = 4096;
+
+		  if (read (fd1, buf, len) != (int) len
+		      || read (fd2, buf + 4096, len) != (int) len)
+		    {
+		      i = -1;
+		      break;
+		    }
+
+		  if (memcmp (buf, buf + 4096, len) != 0)
+		    break;
+		}
+
+	      close (fd1);
+	      close (fd2);
+
+	      if (n)
+		break;
+	    }
+
+	  free (buf);
+	  if (i == -1)
+	    break;
+
+	  if (i != 2)
+	    {
+	      notice ("The bug is not reproducible, so it is likely a hardware or OS problem.\n");
+	      break;
+	    }
+
+          fd = open (temp_filenames[attempt * 2], O_RDWR);
+	  if (fd < 0)
+	    break;
+	  write (fd, "//", 2);
+	  for (i = 0; i < nargs; i++)
+	    {
+	      write (fd, " ", 1);
+	      write (fd, new_argv[i], strlen (new_argv[i]));
+	    }
+	  write (fd, "\n", 1);
+	  new_argv[nargs] = "-E";
+	  new_argv[nargs + 1] = NULL;
+        }
+
+      /* Fork a subprocess; wait and retry if it fails.  */
+      sleep_interval = 1;
+      pid = -1;
+      for (retries = 0; retries < 4; retries++)
+	{
+	  pid = fork ();
+	  if (pid >= 0)
+	    break;
+	  sleep (sleep_interval);
+	  sleep_interval *= 2;
+	}
+
+      if (pid < 0)
+	break;
+      else if (pid == 0)
+	{
+	  if (attempt != RETRY_ICE_ATTEMPTS)
+	    fd = open (temp_filenames[attempt * 2], O_RDWR);
+	  if (fd < 0)
+	    exit (-1);
+	  if (fd != 1)
+	    {
+	      close (1);
+	      dup (fd);
+	      close (fd);
+	    }
+
+	  fd = open (temp_filenames[attempt * 2 + 1], O_RDWR);
+	  if (fd < 0)
+	    exit (-1);
+	  if (fd != 2)
+	    {
+	      close (2);
+	      dup (fd);
+	      close (fd);
+	    }
+
+	  if (prog == new_argv[0])
+	    execvp (prog, (char *const *) new_argv);
+	  else
+	    execv (new_argv[0], (char *const *) new_argv);
+	  exit (-1);
+	}
+
+      if (waitpid (pid, &status, 0) < 0)
+	break;
+
+      if (attempt < RETRY_ICE_ATTEMPTS
+	  && (! WIFEXITED (status) || WEXITSTATUS (status) != ICE_EXIT_CODE))
+	{
+	  notice ("The bug is not reproducible, so it is likely a hardware or OS problem.\n");
+	  break;
+	}
+      else if (attempt == RETRY_ICE_ATTEMPTS)
+	{
+	  close (fd);
+	  if (WIFEXITED (status)
+	      && WEXITSTATUS (status) == SUCCESS_EXIT_CODE)
+	    {
+	      notice ("Preprocessed source stored into %s file, please attach this to your bugreport.\n",
+		      temp_filenames[attempt * 2]);
+	      /* Make sure it is not deleted.  */
+	      free (temp_filenames[attempt * 2]);
+	      temp_filenames[attempt * 2] = NULL;
+	      break;
+	    }
+	}
+    }
+
+  for (attempt = 0; attempt < RETRY_ICE_ATTEMPTS * 2 + 2; attempt++)
+    if (temp_filenames[attempt])
+      {
+	unlink (temp_filenames[attempt]);
+	free (temp_filenames[attempt]);
+      }
+}
+#endif
 
 /* Search for a file named NAME trying various prefixes including the
    user's -B prefix and some standard ones.

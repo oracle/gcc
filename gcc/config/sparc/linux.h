@@ -86,7 +86,7 @@ along with GCC; see the file COPYING3.  If not see
 #define GLIBC_DYNAMIC_LINKER "/lib/ld-linux.so.2"
 
 #undef  LINK_SPEC
-#define LINK_SPEC "-m elf32_sparc -Y P,/usr/lib %{shared:-shared} \
+#define LINK_SPEC "-m elf32_sparc --hash-style=gnu -Y P,/usr/lib %{shared:-shared} \
   %{!mno-relax:%{!r:-relax}} \
   %{!shared: \
     %{!ibcs: \

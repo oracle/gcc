@@ -179,3 +179,7 @@ ffi_call_LINUX64:
 	.align 3
 .LEFDE1:
 #endif
+
+#if defined __ELF__ && defined __linux__
+	.section	.note.GNU-stack,"",@progbits
+#endif

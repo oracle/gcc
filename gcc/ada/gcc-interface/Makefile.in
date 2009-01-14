@@ -442,7 +442,7 @@ ifeq ($(strip $(filter-out m68k% wrs vx%,$(targ))),)
   endif
 endif
 
-ifeq ($(strip $(filter-out powerpc% wrs vxworks,$(targ))),)
+ifeq ($(strip $(filter-out powerpc% ppc% wrs vxworks,$(targ))),)
   LIBGNAT_TARGET_PAIRS = \
   a-intnam.ads<a-intnam-vxworks.ads \
   a-numaux.ads<a-numaux-vxworks.ads \
@@ -508,7 +508,7 @@ ifeq ($(strip $(filter-out powerpc% wrs vxworks,$(targ))),)
 endif
 
 # vxworksae / vxworks 653
-ifeq ($(strip $(filter-out powerpc% wrs vxworksae,$(targ))),)
+ifeq ($(strip $(filter-out powerpc% ppc% wrs vxworksae,$(targ))),)
   # target pairs for kernel + vthreads runtime
   LIBGNAT_TARGET_PAIRS = \
   a-elchha.adb<a-elchha-vxworks-ppc-full.adb \
@@ -1470,7 +1470,7 @@ ifeq ($(strip $(filter-out mipsel linux%,$(arch) $(osys))),)
   LIBRARY_VERSION := $(LIB_VERSION)
 endif
 
-ifeq ($(strip $(filter-out powerpc% linux%,$(arch) $(osys))),)
+ifeq ($(strip $(filter-out powerpc% ppc% linux%,$(arch) $(osys))),)
   LIBGNAT_TARGET_PAIRS_COMMON = \
   a-intnam.ads<a-intnam-linux.ads \
   s-inmaop.adb<s-inmaop-posix.adb \
@@ -2061,13 +2061,13 @@ gnatlib-shared-default:
 	     THREAD_KIND="$(THREAD_KIND)" \
              gnatlib
 	$(RM) $(RTSDIR)/libgna*$(soext)
-	cd $(RTSDIR); ../../xgcc -B../../ -shared $(GNATLIBCFLAGS) \
+	cd $(RTSDIR); ../../xgcc -B../../ -shared -Wl,-z,nodlopen $(GNATLIBCFLAGS) \
 		$(TARGET_LIBGCC2_CFLAGS) \
 		-o libgnat$(hyphen)$(LIBRARY_VERSION)$(soext) \
 		$(GNATRTL_NONTASKING_OBJS) $(LIBGNAT_OBJS) \
 		$(SO_OPTS)libgnat$(hyphen)$(LIBRARY_VERSION)$(soext) \
 		$(MISCLIB) -lm
-	cd $(RTSDIR); ../../xgcc -B../../ -shared $(GNATLIBCFLAGS) \
+	cd $(RTSDIR); ../../xgcc -B../../ -shared -Wl,-z,nodlopen $(GNATLIBCFLAGS) \
 		$(TARGET_LIBGCC2_CFLAGS) \
 		-o libgnarl$(hyphen)$(LIBRARY_VERSION)$(soext) \
 		$(GNATRTL_TASKING_OBJS) \

@@ -14,13 +14,13 @@ TARGET_LIBGCC2_CFLAGS += -mno-minimal-toc
 # it doesn't tell anything about the 32bit libraries on those systems.  Set
 # MULTILIB_OSDIRNAMES according to what is found on the target.
 
-MULTILIB_OPTIONS        = m64/m32 msoft-float
-MULTILIB_DIRNAMES       = 64 32 nof
+MULTILIB_OPTIONS        = m64/m32
+MULTILIB_DIRNAMES       = 64 32
 MULTILIB_EXTRA_OPTS     = fPIC mstrict-align
-MULTILIB_EXCEPTIONS     = m64/msoft-float
-MULTILIB_EXCLUSIONS     = m64/!m32/msoft-float
-MULTILIB_OSDIRNAMES	= ../lib64 $(if $(wildcard $(shell echo $(SYSTEM_HEADER_DIR))/../../usr/lib32),../lib32,../lib) nof
-MULTILIB_MATCHES        = $(MULTILIB_MATCHES_FLOAT)
+MULTILIB_EXCEPTIONS     = 
+MULTILIB_EXCLUSIONS     = 
+MULTILIB_OSDIRNAMES	= ../lib64 $(if $(wildcard $(shell echo $(SYSTEM_HEADER_DIR))/../../usr/lib32),../lib32,../lib)
+MULTILIB_MATCHES        = 
 
 softfp_wrap_start := '\#ifndef __powerpc64__'
 softfp_wrap_end := '\#endif'

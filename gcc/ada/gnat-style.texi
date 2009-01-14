@@ -29,7 +29,7 @@ Texts.  A copy of the license is included in the section entitled
 
 @include gcc-common.texi
 
-@dircategory Software development
+@dircategory GNU Ada Tools
 @direntry
 * gnat-style: (gnat-style).      GNAT Coding Style
 @end direntry

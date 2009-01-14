@@ -375,7 +375,7 @@ builtin_define_fixed_point_constants (const char *name_prefix,
 static void
 define__GNUC__ (void)
 {
-  int major, minor, patchlevel;
+  int major, minor, patchlevel, rhrevision;
 
   if (sscanf (BASEVER, "%d.%d.%d", &major, &minor, &patchlevel) != 3)
     {
@@ -388,6 +388,9 @@ define__GNUC__ (void)
 
   if (c_dialect_cxx ())
     cpp_define_formatted (parse_in, "__GNUG__=%d", major);
+
+  if (sscanf (DEVPHASE, " (Red Hat %*d.%*d.%*d-%d", &rhrevision) == 1)
+    cpp_define_formatted (parse_in, "__GNUC_RH_RELEASE__=%d", rhrevision);
 }
 
 /* Define macros used by <stdint.h>.  Currently only defines limits

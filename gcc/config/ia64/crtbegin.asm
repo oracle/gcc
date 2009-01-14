@@ -255,3 +255,7 @@ __do_jv_register_classes:
 .weak __cxa_finalize
 #endif
 .weak _Jv_RegisterClasses
+
+#ifdef __linux__
+.section .note.GNU-stack; .previous
+#endif

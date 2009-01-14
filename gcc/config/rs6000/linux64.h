@@ -137,16 +137,16 @@ extern int dot_symbols;
 #ifndef	RS6000_BI_ARCH
 #define	ASM_DEFAULT_SPEC "-mppc64"
 #define	ASM_SPEC	 "%(asm_spec64) %(asm_spec_common)"
-#define	LINK_OS_LINUX_SPEC "%(link_os_linux_spec64)"
+#define	LINK_OS_LINUX_SPEC "--hash-style=gnu %(link_os_linux_spec64)"
 #else
 #if DEFAULT_ARCH64_P
 #define	ASM_DEFAULT_SPEC "-mppc%{!m32:64}"
 #define	ASM_SPEC	 "%{m32:%(asm_spec32)}%{!m32:%(asm_spec64)} %(asm_spec_common)"
-#define	LINK_OS_LINUX_SPEC "%{m32:%(link_os_linux_spec32)}%{!m32:%(link_os_linux_spec64)}"
+#define	LINK_OS_LINUX_SPEC "--hash-style=gnu %{m32:%(link_os_linux_spec32)}%{!m32:%(link_os_linux_spec64)}"
 #else
 #define	ASM_DEFAULT_SPEC "-mppc%{m64:64}"
 #define	ASM_SPEC	 "%{!m64:%(asm_spec32)}%{m64:%(asm_spec64)} %(asm_spec_common)"
-#define	LINK_OS_LINUX_SPEC "%{!m64:%(link_os_linux_spec32)}%{m64:%(link_os_linux_spec64)}"
+#define	LINK_OS_LINUX_SPEC "--hash-style=gnu %{!m64:%(link_os_linux_spec32)}%{m64:%(link_os_linux_spec64)}"
 #endif
 #endif
 

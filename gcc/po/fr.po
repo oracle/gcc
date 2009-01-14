@@ -33908,17 +33908,17 @@ msgstr "%s liste d'expressions traitée comme une expression composée"
 #: cp/typeck.c:4971
 #, fuzzy, gcc-internal-format
 msgid "cast from type %qT to type %qT casts away constness"
-msgstr "%S à partir du « %T » vers le type « %T » provoque un transtypage sans constante"
+msgstr "transtypage à partir du « %T » vers le type « %T » provoque un transtypage sans constante"
 
 #: cp/typeck.c:4976
 #, fuzzy, gcc-internal-format
 msgid "static_cast from type %qT to type %qT casts away constness"
-msgstr "%S à partir du « %T » vers le type « %T » provoque un transtypage sans constante"
+msgstr "static_cast à partir du « %T » vers le type « %T » provoque un transtypage sans constante"
 
 #: cp/typeck.c:4981
 #, fuzzy, gcc-internal-format
 msgid "reinterpret_cast from type %qT to type %qT casts away constness"
-msgstr "%S à partir du « %T » vers le type « %T » provoque un transtypage sans constante"
+msgstr "reinterpret_cast à partir du « %T » vers le type « %T » provoque un transtypage sans constante"
 
 #: cp/typeck.c:5301
 #, fuzzy, gcc-internal-format

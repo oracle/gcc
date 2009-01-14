@@ -11,9 +11,16 @@
 
 gccflags="-O2"
 gnatflags="-gnatws"
+timeout=120
 
 target_run () {
+  sh -c "(sleep $timeout; kill \$\$) &
+x=\$!
 $*
+s=\$?
+kill \$x
+exit \$s
+"
 }
 
 # End of customization section.

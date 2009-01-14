@@ -113,7 +113,7 @@ along with GCC; see the file COPYING3.  If not see
   { "dynamic_linker", LINUX_DYNAMIC_LINKER }
 
 #undef	LINK_SPEC
-#define LINK_SPEC "-m %(link_emulation) %{shared:-shared} \
+#define LINK_SPEC "-m %(link_emulation) --hash-style=gnu %{shared:-shared} \
   %{!shared: \
     %{!ibcs: \
       %{!static: \

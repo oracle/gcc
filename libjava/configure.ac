@@ -1460,6 +1460,7 @@ case ${version_specific_libs} in
     multi_os_directory=`$CC -print-multi-os-directory`
     case $multi_os_directory in
       .) toolexeclibdir=$toolexecmainlibdir ;; # Avoid trailing /.
+      ../lib*) toolexeclibdir='$(subst /lib/../lib,/lib,'$toolexecmainlibdir/$multi_os_directory')' ;;
       *) toolexeclibdir=$toolexecmainlibdir/$multi_os_directory ;;
     esac
     ;;
@@ -1482,6 +1483,9 @@ multi_os_directory=`$CC -print-multi-os-directory`
 case $multi_os_directory in
   .)
    dbexecdir='$(libdir)/'$gcjsubdir # Avoid /.
+   ;;
+  ../lib*)
+   dbexecdir='$(subst /lib/../lib,/lib,$(libdir)/'$multi_os_directory/$gcjsubdir')'
    ;;
   *)
    dbexecdir='$(libdir)/'$multi_os_directory/$gcjsubdir
