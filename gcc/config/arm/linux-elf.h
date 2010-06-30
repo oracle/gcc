@@ -66,6 +66,7 @@
 
 #define LINUX_TARGET_LINK_SPEC  "%{h*} %{version:-v} \
    %{b} \
+   --hash-style=gnu \
    %{static:-Bstatic} \
    %{shared:-shared} \
    %{symbolic:-Bsymbolic} \

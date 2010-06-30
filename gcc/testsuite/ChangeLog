@@ -1,5 +1,8 @@
-2010-06-29  Jason Merrill  <jason@redhat.com>
+2010-06-30  Jakub Jelinek  <jakub@redhat.com>
 
+	* g++.dg/opt/ctor1.C: New test.
+
+2010-06-29  Jason Merrill  <jason@redhat.com>
 	PR c++/44587
 	* g++.dg/template/qualified-id2.C: New.
 	* g++.dg/template/qualified-id3.C: New.

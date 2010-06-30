@@ -29818,12 +29818,12 @@ msgstr ""
 #: cp/typeck.c:5481
 #, fuzzy, gcc-internal-format
 msgid "cast from type %qT to type %qT casts away qualifiers"
-msgstr "%S à partir du « %T » vers le type « %T » provoque un transtypage sans constante"
+msgstr "transtypage à partir du « %T » vers le type « %T » provoque un transtypage sans constante"
 
 #: cp/typeck.c:5486
 #, fuzzy, gcc-internal-format
 msgid "static_cast from type %qT to type %qT casts away qualifiers"
-msgstr "%S à partir du « %T » vers le type « %T » provoque un transtypage sans constante"
+msgstr "static_cast à partir du « %T » vers le type « %T » provoque un transtypage sans constante"
 
 #: cp/typeck.c:5491
 #, fuzzy, gcc-internal-format

@@ -321,14 +321,14 @@ CLASSPATH_TOOLEXECLIBDIR
 dnl -----------------------------------------------------------
 dnl Sets the native libraries installation dir
 dnl -----------------------------------------------------------
-dnl GCJ LOCAL: default to ${toolexeclibdir}/gcj-${gcc_version}-${libgcj_soversion}
+dnl GCJ LOCAL: default to ${toolexeclibdir}/gcj-${gcc_version}
 AC_ARG_WITH([native-libdir],
 	    [AS_HELP_STRING(--with-native-libdir,sets the installation directory for native libraries [default='${libdir}/${PACKAGE}'])],
 	    [
 	     nativeexeclibdir=${withval}
 	    ],
 	    [
-	     nativeexeclibdir='${toolexeclibdir}/gcj-'`cat ${srcdir}/../../gcc/BASE-VER`-`awk -F: '/^[[^#]].*:/ { print $1 }' ${srcdir}/../libtool-version`
+	     nativeexeclibdir='${toolexeclibdir}/gcj-'`cat ${srcdir}/../../gcc/BASE-VER`
 	    ])
 
 AC_SUBST(nativeexeclibdir)
