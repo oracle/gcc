@@ -38029,7 +38029,7 @@ msgstr "PURE yordamda %s deyimine izin verilmez (%C'de)"
 #: fortran/parse.c:2558
 #, fuzzy, gcc-internal-format
 msgid "%s statement must appear in a MODULE"
-msgstr "%S deyimi bir MODULE'de görünmemeli"
+msgstr "%s deyimi bir MODULE'de görünmemeli"
 
 #: fortran/parse.c:2566
 #, gcc-internal-format

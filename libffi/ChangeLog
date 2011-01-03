@@ -1,3 +1,9 @@
+2010-06-30  Jakub Jelinek  <jakub@redhat.com>
+
+	* src/powerpc/linux64.S: Add .note.GNU-stack on Linux.
+	* src/powerpc/linux64_closure.S: Likewise.
+	* src/ia64/unix.S: Likewise.
+
 2010-12-18  Iain Sandoe  <iains@gcc.gnu.org>
 
 	PR libffi/29152

@@ -3446,7 +3446,7 @@ msgstr "ogiltig operand till %%R"
 #: config/sh/sh.c:1215
 #, c-format
 msgid "invalid operand to %%S"
-msgstr "ogiltig operand till %%R"
+msgstr "ogiltig operand till %%S"
 
 #: config/sh/sh.c:9254
 msgid "created and used with different architectures / ABIs"

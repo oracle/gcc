@@ -3979,9 +3979,9 @@ PREPROCESSOR_DEFINES = \
   @TARGET_SYSTEM_ROOT_DEFINE@
 
 cppbuiltin.o: cppbuiltin.c $(CONFIG_H) $(SYSTEM_H) coretypes.h $(TM_H) \
-	cppbuiltin.h Makefile
+	cppbuiltin.h Makefile $(BASEVER) $(DEVPHASE)
 	$(COMPILER) $(ALL_COMPILERFLAGS) $(ALL_CPPFLAGS) \
-	  $(PREPROCESSOR_DEFINES) -DBASEVER=$(BASEVER_s) \
+	  $(PREPROCESSOR_DEFINES) -DBASEVER=$(BASEVER_s) -DDEVPHASE=$(DEVPHASE_s) \
 	  -c $(srcdir)/cppbuiltin.c $(OUTPUT_OPTION)
 
 cppdefault.o: cppdefault.c $(CONFIG_H) $(SYSTEM_H) coretypes.h $(TM_H) \

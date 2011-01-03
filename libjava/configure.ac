@@ -1575,6 +1575,7 @@ case ${version_specific_libs} in
     multi_os_directory=`$CC -print-multi-os-directory`
     case $multi_os_directory in
       .) toolexeclibdir=$toolexecmainlibdir ;; # Avoid trailing /.
+      ../lib*) toolexeclibdir='$(subst /lib/../lib,/lib,'$toolexecmainlibdir/$multi_os_directory')' ;;
       *) toolexeclibdir=$toolexecmainlibdir/$multi_os_directory ;;
     esac
     ;;
@@ -1592,11 +1593,14 @@ AC_DEFINE_UNQUOTED(GCJVERSION, "$GCJVERSION", [Short GCJ version ID])
 
 # Determine where the standard .db file and GNU Classpath JNI
 # libraries are found.
-gcjsubdir=gcj-$gcjversion-$libgcj_soversion
+gcjsubdir=gcj-$gcjversion
 multi_os_directory=`$CC -print-multi-os-directory`
 case $multi_os_directory in
   .)
    dbexecdir='$(libdir)/'$gcjsubdir # Avoid /.
+   ;;
+  ../lib*)
+   dbexecdir='$(subst /lib/../lib,/lib,$(libdir)/'$multi_os_directory/$gcjsubdir')'
    ;;
   *)
    dbexecdir='$(libdir)/'$multi_os_directory/$gcjsubdir
