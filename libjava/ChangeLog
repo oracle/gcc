@@ -1,3 +1,12 @@
+2010-06-30  Jakub Jelinek  <jakub@redhat.com>
+
+	* configure.ac (toolexeclibdir, dbexecdir): Canonicalize /lib/../lib
+	to /lib.
+	* configure: Rebuilt.
+
+	* configure.host (slow_pthread_self): Set to empty unconditionally
+	on Linux targets.
+
 2011-12-20  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
 
 	* configure.ac (i?86-*-linux*): Set SIGNAL_HANDLER_AUX.

@@ -1,3 +1,14 @@
+2010-06-30  Jakub Jelinek  <jakub@redhat.com>
+
+	* cppbuiltin.c (define__GNUC__): Also define __GNUC_RH_RELEASE__.
+
+	* config/ia64/lib1funcs.S: Add .note.GNU-stack section on
+	ia64-linux.
+	* config/ia64/crtbegin.S: Likewise.
+	* config/ia64/crtend.S: Likewise.
+	* config/ia64/crti.S: Likewise.
+	* config/ia64/crtn.S: Likewise.
+
 2011-12-20  Uros Bizjak  <ubizjak@gmail.com>
 
 	* config/alpha/linux-unwind.h: Update copyright years.

@@ -24,6 +24,8 @@ a copy of the GCC Runtime Library Exception along with this program;
 see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 <http://www.gnu.org/licenses/>.  */
 
+#define TARGET_ASM_FILE_END ia64_linux_file_end
+
 /* This is for -profile to use -lc_p instead of -lc.  */
 #undef CC1_SPEC
 #define CC1_SPEC "%{profile:-p} %{G*}"
@@ -86,3 +88,8 @@ do {						\
 
 #undef TARGET_INIT_LIBFUNCS
 #define TARGET_INIT_LIBFUNCS ia64_soft_fp_init_libfuncs
+
+#ifdef TARGET_LIBC_PROVIDES_SSP
+/* IA-64 glibc provides __stack_chk_guard in [r13-8].  */
+#define TARGET_THREAD_SSP_OFFSET	-8
+#endif
