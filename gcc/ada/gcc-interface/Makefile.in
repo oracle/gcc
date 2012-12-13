@@ -503,7 +503,7 @@ ifeq ($(strip $(filter-out m68k% wrs vx%,$(targ))),)
 endif
 
 # PowerPC and e500v2 VxWorks
-ifeq ($(strip $(filter-out e500% powerpc% wrs vxworks,$(targ))),)
+ifeq ($(strip $(filter-out e500% powerpc% ppc% wrs vxworks,$(targ))),)
   LIBGNAT_TARGET_PAIRS = \
   a-intnam.ads<a-intnam-vxworks.ads \
   a-numaux.ads<a-numaux-vxworks.ads \
@@ -598,7 +598,7 @@ ifeq ($(strip $(filter-out e500% powerpc% wrs vxworks,$(targ))),)
 endif
 
 # PowerPC and e500v2 VxWorks 653
-ifeq ($(strip $(filter-out powerpc% e500v2 wrs vxworksae,$(targ))),)
+ifeq ($(strip $(filter-out powerpc% ppc% e500v2 wrs vxworksae,$(targ))),)
   # target pairs for vthreads runtime
   LIBGNAT_TARGET_PAIRS = \
   a-elchha.adb<a-elchha-vxworks-ppc-full.adb \
@@ -660,7 +660,7 @@ ifeq ($(strip $(filter-out powerpc% e500v2 wrs vxworksae,$(targ))),)
 endif
 
 # PowerPC and e500v2 VxWorks MILS
-ifeq ($(strip $(filter-out e500% powerpc% wrs vxworksmils,$(targ))),)
+ifeq ($(strip $(filter-out e500% powerpc% ppc% wrs vxworksmils,$(targ))),)
   # target pairs for vthreads runtime
   LIBGNAT_TARGET_PAIRS = \
   a-elchha.adb<a-elchha-vx6-raven-cert.adb \
@@ -1580,7 +1580,7 @@ ifeq ($(strip $(filter-out alpha64 ia64 dec hp vms% openvms% alphavms%,$(targ)))
 endif
 
 # *-elf
-ifeq ($(strip $(filter-out avr none powerpc% eabispe leon% erc32% unknown elf,$(targ))),)
+ifeq ($(strip $(filter-out avr none powerpc% ppc% eabispe leon% erc32% unknown elf,$(targ))),)
   TOOLS_TARGET_PAIRS=\
   mlib-tgt-specific.adb<mlib-tgt-specific-xi.adb \
   indepsw.adb<indepsw-gnu.adb
@@ -1813,7 +1813,7 @@ ifeq ($(strip $(filter-out mips64el linux%,$(arch) $(osys))),)
 endif
 
 # PowerPC and e500v2 Linux
-ifeq ($(strip $(filter-out powerpc% e500% linux%,$(arch) $(osys))),)
+ifeq ($(strip $(filter-out powerpc% ppc% e500% linux%,$(arch) $(osys))),)
   LIBGNAT_TARGET_PAIRS_COMMON = \
   a-exetim.adb<a-exetim-posix.adb \
   a-exetim.ads<a-exetim-default.ads \
@@ -2238,7 +2238,7 @@ ifeq ($(strip $(filter-out darwin%,$(osys))),)
     EXTRA_GNATRTL_NONTASKING_OBJS=g-sse.o g-ssvety.o
   endif
 
-  ifeq ($(strip $(filter-out powerpc%,$(arch))),)
+  ifeq ($(strip $(filter-out powerpc% ppc%,$(arch))),)
     LIBGNAT_TARGET_PAIRS += \
       s-intman.adb<s-intman-posix.adb \
       s-osprim.adb<s-osprim-posix.adb \
@@ -2691,14 +2691,14 @@ gnatlib-shared-default:
              gnatlib
 	$(RM) $(RTSDIR)/libgna*$(soext)
 	cd $(RTSDIR); `echo "$(GCC_FOR_TARGET)" \
-                | sed -e 's,\./xgcc,../../xgcc,' -e 's,-B\./,-B../../,'` -shared $(GNATLIBCFLAGS) \
+                | sed -e 's,\./xgcc,../../xgcc,' -e 's,-B\./,-B../../,'` -shared -Wl,-z,nodlopen $(GNATLIBCFLAGS) \
 		$(PICFLAG_FOR_TARGET) \
 		-o libgnat$(hyphen)$(LIBRARY_VERSION)$(soext) \
 		$(GNATRTL_NONTASKING_OBJS) $(LIBGNAT_OBJS) \
 		$(SO_OPTS)libgnat$(hyphen)$(LIBRARY_VERSION)$(soext) \
 		$(MISCLIB) -lm
 	cd $(RTSDIR); `echo "$(GCC_FOR_TARGET)" \
-                | sed -e 's,\./xgcc,../../xgcc,' -e 's,-B\./,-B../../,'` -shared $(GNATLIBCFLAGS) \
+                | sed -e 's,\./xgcc,../../xgcc,' -e 's,-B\./,-B../../,'` -shared -Wl,-z,nodlopen $(GNATLIBCFLAGS) \
 		$(PICFLAG_FOR_TARGET) \
 		-o libgnarl$(hyphen)$(LIBRARY_VERSION)$(soext) \
 		$(GNATRTL_TASKING_OBJS) \
