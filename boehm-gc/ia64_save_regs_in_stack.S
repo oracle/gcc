@@ -10,3 +10,6 @@ GC_save_regs_in_stack:
         br.ret.sptk.few rp
         .endp GC_save_regs_in_stack
 
+#ifdef __linux__
+	.section .note.GNU-stack,"",@progbits
+#endif

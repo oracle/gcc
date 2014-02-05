@@ -1,3 +1,7 @@
+2010-06-30  Jakub Jelinek  <jakub@redhat.com>
+
+	* g++.dg/opt/ctor1.C: New test.
+
 2014-02-05  Yury Gribov  <y.gribov@samsung.com>
 
 	* gcc.dg/asan/nosanitize-and-inline.c: : New test.
