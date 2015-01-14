@@ -1,3 +1,11 @@
+2010-06-30  Jakub Jelinek  <jakub@redhat.com>
+
+	* gnat_ugn.texi: Add : and . to direntry.
+	* gnat-style.texi: Change dircategory to GNU Ada tools.
+
+	* gcc-interface/Makefile.in (gnatlib-shared-default): Disallow
+	dlopening of libgnat.so.
+
 2015-01-09  Michael Collison  <michael.collison@linaro.org>
 
 	* gcc-interface/cuintp.c: Include hash-set.h, machmode.h,
