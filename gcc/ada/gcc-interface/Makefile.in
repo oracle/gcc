@@ -502,7 +502,7 @@ ifeq ($(strip $(filter-out m68k% wrs vx%,$(target_cpu) $(target_vendor) $(target
 endif
 
 # PowerPC and e500v2 VxWorks
-ifeq ($(strip $(filter-out powerpc% wrs vxworks vxworks7,$(target_cpu) $(target_vendor) $(target_os))),)
+ifeq ($(strip $(filter-out powerpc% ppc% wrs vxworks vxworks7,$(target_cpu) $(target_vendor) $(target_os))),)
 
   ifeq ($(strip $(filter-out e500%, $(target_alias))),)
      ARCH_STR=e500
@@ -627,7 +627,7 @@ ifeq ($(strip $(filter-out powerpc% wrs vxworks vxworks7,$(target_cpu) $(target_
 endif
 
 # PowerPC and e500v2 VxWorks 653
-ifeq ($(strip $(filter-out powerpc% wrs vxworksae,$(target_cpu) $(target_vendor) $(target_os))),)
+ifeq ($(strip $(filter-out powerpc% ppc% wrs vxworksae,$(target_cpu) $(target_vendor) $(target_os))),)
 
   ifeq ($(strip $(filter-out e500%, $(target_alias))),)
      ARCH_STR=e500
@@ -698,7 +698,7 @@ ifeq ($(strip $(filter-out powerpc% wrs vxworksae,$(target_cpu) $(target_vendor)
 endif
 
 # PowerPC and e500v2 VxWorks MILS
-ifeq ($(strip $(filter-out powerpc% wrs vxworksmils,$(target_cpu) $(target_vendor) $(target_os))),)
+ifeq ($(strip $(filter-out powerpc% ppc% wrs vxworksmils,$(target_cpu) $(target_vendor) $(target_os))),)
   # target pairs for vthreads runtime
   LIBGNAT_TARGET_PAIRS = \
   a-elchha.adb<a-elchha-vx6-raven-cert.adb \
@@ -1692,7 +1692,7 @@ ifeq ($(strip $(filter-out rtems%,$(target_os))),)
 endif
 
 # PikeOS
-ifeq ($(strip $(filter-out powerpc% %86 sysgo pikeos,$(target_cpu) $(target_vendor) $(target_os)))),)
+ifeq ($(strip $(filter-out powerpc% ppc% %86 sysgo pikeos,$(target_cpu) $(target_vendor) $(target_os)))),)
   TOOLS_TARGET_PAIRS=\
   mlib-tgt-specific.adb<mlib-tgt-specific-xi.adb \
   indepsw.adb<indepsw-gnu.adb
@@ -1865,7 +1865,7 @@ ifeq ($(strip $(filter-out mipsel mips64el linux%,$(target_cpu) $(target_os))),)
 endif
 
 # PowerPC and e500v2 Linux
-ifeq ($(strip $(filter-out powerpc% linux%,$(target_cpu) $(target_os))),)
+ifeq ($(strip $(filter-out powerpc% ppc% linux%,$(target_cpu) $(target_os))),)
   LIBGNAT_TARGET_PAIRS_COMMON = \
   a-exetim.adb<a-exetim-posix.adb \
   a-exetim.ads<a-exetim-default.ads \
@@ -2335,7 +2335,7 @@ ifeq ($(strip $(filter-out darwin%,$(target_os))),)
     EXTRA_GNATRTL_NONTASKING_OBJS=g-sse.o g-ssvety.o
   endif
 
-  ifeq ($(strip $(filter-out powerpc%,$(target_cpu))),)
+  ifeq ($(strip $(filter-out powerpc% ppc%,$(target_cpu))),)
     LIBGNAT_TARGET_PAIRS += \
       s-intman.adb<s-intman-posix.adb \
       s-osprim.adb<s-osprim-posix.adb \

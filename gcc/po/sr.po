@@ -57489,7 +57489,7 @@ msgstr "Не могу се променити атрибути USE-придру�
 #, fuzzy, gcc-internal-format, gfc-internal-format
 #| msgid "Duplicate %s attribute specified at %L"
 msgid "Duplicate %s attribute specified at %L"
-msgstr "Удвостручени атрибут %S наведен код %L"
+msgstr "Удвостручени атрибут %s наведен код %L"
 
 #: fortran/symbol.c:899
 #, gcc-internal-format, gfc-internal-format
@@ -57571,7 +57571,7 @@ msgstr "Одредница ACCESS код %L је већ наведена "
 #, fuzzy, gcc-internal-format, gfc-internal-format
 #| msgid "Duplicate %s attribute specified at %L"
 msgid "Duplicate BIND attribute specified at %L"
-msgstr "Удвостручени атрибут %S наведен код %L"
+msgstr "Удвостручени атрибут BIND наведен код %L"
 
 #: fortran/symbol.c:1627
 #, gcc-internal-format, gfc-internal-format

@@ -1,3 +1,12 @@
+2010-06-30  Jakub Jelinek  <jakub@redhat.com>
+
+	* config/ia64/lib1funcs.S: Add .note.GNU-stack section on
+	ia64-linux.
+	* config/ia64/crtbegin.S: Likewise.
+	* config/ia64/crtend.S: Likewise.
+	* config/ia64/crti.S: Likewise.
+	* config/ia64/crtn.S: Likewise.
+
 2016-01-15  Nick Clifton  <nickc@redhat.com>
 
 	* config/msp430/t-msp430 (lib2_mul_none.o): Only use the first

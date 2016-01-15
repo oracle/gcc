@@ -1,3 +1,9 @@
+2010-06-30  Jakub Jelinek  <jakub@redhat.com>
+
+	* ia64_save_regs_in_stack.s: Moved to...
+	* ia64_save_regs_in_stack.S: ... this.  Add .note.GNU-stack
+	on Linux.
+
 2015-10-09  David Malcolm  <dmalcolm@redhat.com>
 
 	* testsuite/lib/boehm-gc.exp: Load multiline.exp before

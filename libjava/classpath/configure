@@ -5593,7 +5593,7 @@ if test "${with_native_libdir+set}" = set; then :
 
 else
 
-	     nativeexeclibdir='${toolexeclibdir}/gcj-'`cat ${srcdir}/../../gcc/BASE-VER`-`awk -F: '/^[^#].*:/ { print $1 }' ${srcdir}/../libtool-version`
+	     nativeexeclibdir='${toolexeclibdir}/gcj-'`cat ${srcdir}/../../gcc/BASE-VER`
 
 fi
 

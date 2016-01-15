@@ -287,6 +287,8 @@ static section *ia64_select_rtx_section (machine_mode, rtx,
 static void ia64_output_dwarf_dtprel (FILE *, int, rtx)
      ATTRIBUTE_UNUSED;
 static unsigned int ia64_section_type_flags (tree, const char *, int);
+static void ia64_linux_file_end (void)
+     ATTRIBUTE_UNUSED;
 static void ia64_init_libfuncs (void)
      ATTRIBUTE_UNUSED;
 static void ia64_hpux_init_libfuncs (void)
@@ -2918,6 +2920,9 @@ ia64_compute_frame_size (HOST_WIDE_INT size)
   else
     pretend_args_size = crtl->args.pretend_args_size;
 
+  if (FRAME_GROWS_DOWNWARD)
+    size = IA64_STACK_ALIGN (size);
+
   total_size = (spill_size + extra_spill_size + size + pretend_args_size
 		+ crtl->outgoing_args_size);
   total_size = IA64_STACK_ALIGN (total_size);
@@ -2952,29 +2957,19 @@ ia64_can_eliminate (const int from ATTRIBUTE_UNUSED, const int to)
 HOST_WIDE_INT
 ia64_initial_elimination_offset (int from, int to)
 {
-  HOST_WIDE_INT offset;
+  HOST_WIDE_INT offset, size = get_frame_size ();
 
-  ia64_compute_frame_size (get_frame_size ());
+  ia64_compute_frame_size (size);
   switch (from)
     {
     case FRAME_POINTER_REGNUM:
-      switch (to)
-	{
-	case HARD_FRAME_POINTER_REGNUM:
-	  offset = -current_frame_info.total_size;
-	  if (!crtl->is_leaf || cfun->calls_alloca)
-	    offset += 16 + crtl->outgoing_args_size;
-	  break;
-
-	case STACK_POINTER_REGNUM:
-	  offset = 0;
-	  if (!crtl->is_leaf || cfun->calls_alloca)
-	    offset += 16 + crtl->outgoing_args_size;
-	  break;
-
-	default:
-	  gcc_unreachable ();
-	}
+      offset = FRAME_GROWS_DOWNWARD ? IA64_STACK_ALIGN (size) : 0;
+      if (!crtl->is_leaf || cfun->calls_alloca)
+	offset += 16 + crtl->outgoing_args_size;
+      if (to == HARD_FRAME_POINTER_REGNUM)
+	offset -= current_frame_info.total_size;
+      else
+	gcc_assert (to == STACK_POINTER_REGNUM);
       break;
 
     case ARG_POINTER_REGNUM:
@@ -11786,6 +11781,15 @@ ia64_expand_vec_perm_even_odd (rtx target, rtx op0, rtx op1, int odd)
 
   ok = ia64_expand_vec_perm_const_1 (&d);
   gcc_assert (ok);
+}
+
+static void
+ia64_linux_file_end (void)
+{
+  int saved_trampolines_created = trampolines_created;
+  trampolines_created = 0;
+  file_end_indicate_exec_stack ();
+  trampolines_created = saved_trampolines_created;
 }
 
 #include "gt-ia64.h"

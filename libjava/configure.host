@@ -232,6 +232,7 @@ case "${host}" in
   sh-linux* | sh[34]*-linux*)
   	can_unwind_signal=yes
 	libgcj_ld_symbolic='-Wl,-Bsymbolic'
+	slow_pthread_self=
 	if test x$slow_pthread_self = xyes \
 	   && test x$cross_compiling != xyes; then
 	  cat > conftest.c <<EOF

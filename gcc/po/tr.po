@@ -53756,7 +53756,7 @@ msgstr "PURE yordamda %s deyimine izin verilmez (%C'de)"
 #, fuzzy, gcc-internal-format, gfc-internal-format
 #| msgid "%s statement must appear in a MODULE"
 msgid "%s statement must appear in a MODULE"
-msgstr "%S deyimi bir MODULE'de görünmemeli"
+msgstr "%s deyimi bir MODULE'de görünmemeli"
 
 #: fortran/parse.c:3272
 #, gcc-internal-format, gfc-internal-format

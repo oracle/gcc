@@ -1,3 +1,7 @@
+2010-06-30  Jakub Jelinek  <jakub@redhat.com>
+
+	* g++.dg/opt/ctor1.C: New test.
+
 2016-01-15  Christian Bruel  <christian.bruel@st.com>
 
 	PR target/65837
