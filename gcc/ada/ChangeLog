@@ -1,3 +1,7 @@
+2010-06-30  Jakub Jelinek  <jakub@redhat.com>
+
+	* gnat-style.texi: Change dircategory to GNU Ada tools.
+
 2017-01-09  Hristian Kirtchev  <kirtchev@adacore.com>
 
 	* einfo.ads, einfo.adb: Remove uses of flags Has_Default_Init_Cond,
