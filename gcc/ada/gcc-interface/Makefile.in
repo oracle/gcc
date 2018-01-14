@@ -483,7 +483,7 @@ GCC_SPEC_FILES=
 # If what's left is null then it's a match.
 
 # PowerPC and e500v2 VxWorks
-ifeq ($(strip $(filter-out powerpc% wrs vxworks vxworksspe vxworks7 vxworks7spe,$(target_cpu) $(target_vendor) $(target_os))),)
+ifeq ($(strip $(filter-out powerpc% ppc% wrs vxworks vxworksspe vxworks7 vxworks7spe,$(target_cpu) $(target_vendor) $(target_os))),)
 
   ifeq ($(strip $(filter-out e500%, $(target_alias))),)
      ARCH_STR=e500
@@ -492,7 +492,7 @@ ifeq ($(strip $(filter-out powerpc% wrs vxworks vxworksspe vxworks7 vxworks7spe,
      # generating s-oscons.ads.
      target=$(target_alias)
   else
-     ifeq ($(strip $(filter-out powerpc64, $(target_cpu))),)
+     ifeq ($(strip $(filter-out powerpc64 ppc64, $(target_cpu))),)
         ARCH_STR=ppc64
      else
         ARCH_STR=ppc
@@ -602,7 +602,7 @@ ifeq ($(strip $(filter-out powerpc% wrs vxworks vxworksspe vxworks7 vxworks7spe,
   GCC_SPEC_FILES+=vxworks-gnat-crtbe-link.spec
 
   ifeq ($(strip $(filter-out vxworks7%, $(target_os))),)
-    ifeq ($(strip $(filter-out powerpc64, $(target_cpu))),)
+    ifeq ($(strip $(filter-out powerpc64 ppc64, $(target_cpu))),)
       GCC_SPEC_FILES+=vxworks7-ppc64-rtp-base-link.spec
     else
       GCC_SPEC_FILES+=vxworks7-rtp-base-link.spec
@@ -1390,7 +1390,7 @@ ifeq ($(strip $(filter-out rtems%,$(target_os))),)
 endif
 
 # PikeOS
-ifeq ($(strip $(filter-out powerpc% %86 sysgo pikeos,$(target_cpu) $(target_vendor) $(target_os)))),)
+ifeq ($(strip $(filter-out powerpc% ppc% %86 sysgo pikeos,$(target_cpu) $(target_vendor) $(target_os)))),)
   TOOLS_TARGET_PAIRS=indepsw.adb<indepsw-gnu.adb
 endif
 
@@ -1531,7 +1531,7 @@ ifeq ($(strip $(filter-out mips% linux%,$(target_cpu) $(target_os))),)
 endif
 
 # PowerPC and e500v2 Linux
-ifeq ($(strip $(filter-out powerpc% linux%,$(target_cpu) $(target_os))),)
+ifeq ($(strip $(filter-out powerpc% ppc% linux%,$(target_cpu) $(target_os))),)
   LIBGNAT_TARGET_PAIRS_COMMON = \
   a-exetim.adb<libgnarl/a-exetim__posix.adb \
   a-exetim.ads<libgnarl/a-exetim__default.ads \
@@ -1975,7 +1975,7 @@ ifeq ($(strip $(filter-out darwin%,$(target_os))),)
     EXTRA_GNATRTL_TASKING_OBJS=a-exetim.o
   endif
 
-  ifeq ($(strip $(filter-out powerpc%,$(target_cpu))),)
+  ifeq ($(strip $(filter-out powerpc% ppc%,$(target_cpu))),)
     LIBGNAT_TARGET_PAIRS += \
       s-intman.adb<libgnarl/s-intman__posix.adb \
       s-osprim.adb<libgnat/s-osprim__posix.adb \

@@ -1,3 +1,7 @@
+2010-06-30  Jakub Jelinek  <jakub@redhat.com>
+
+	* gnat-style.texi: Change dircategory to GNU Ada tools.
+
 2018-01-11  Gary Dismukes  <dismukes@adacore.com>
 
 	* exp_ch3.adb (Default_Initialize_Object): Call New_Copy_Tree on the
