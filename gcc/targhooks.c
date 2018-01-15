@@ -82,6 +82,7 @@ along with GCC; see the file COPYING3.  If not see
 #include "params.h"
 #include "real.h"
 #include "langhooks.h"
+#include "sbitmap.h"
 
 bool
 default_legitimate_address_p (machine_mode mode ATTRIBUTE_UNUSED,
@@ -170,9 +171,8 @@ default_legitimize_address (rtx x, rtx orig_x ATTRIBUTE_UNUSED,
 }
 
 bool
-default_legitimize_address_displacement (rtx *disp ATTRIBUTE_UNUSED,
-					 rtx *offset ATTRIBUTE_UNUSED,
-					 machine_mode mode ATTRIBUTE_UNUSED)
+default_legitimize_address_displacement (rtx *, rtx *, poly_int64,
+					 machine_mode)
 {
   return false;
 }
@@ -1319,6 +1319,14 @@ default_get_mask_mode (poly_uint64 nunits, poly_uint64 vector_size)
   return opt_machine_mode ();
 }
 
+/* By default consider masked stores to be expensive.  */
+
+bool
+default_empty_mask_is_expensive (unsigned ifn)
+{
+  return ifn == IFN_MASK_STORE;
+}
+
 /* By default, the cost model accumulates three separate costs (prologue,
    loop body, and epilogue) for a vectorized loop or block.  So allocate an
    array of three unsigned ints, set it to zero, and return its address.  */
@@ -2319,6 +2327,13 @@ bool
 default_stack_clash_protection_final_dynamic_probe (rtx residual ATTRIBUTE_UNUSED)
 {
   return 0;
+}
+
+/* The default implementation of TARGET_EARLY_REMAT_MODES.  */
+
+void
+default_select_early_remat_modes (sbitmap)
+{
 }
 
 #include "gt-targhooks.h"

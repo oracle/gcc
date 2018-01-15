@@ -1,3 +1,65 @@
+2018-01-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/83830
+	* include/std/type_traits (has_unique_object_representations_v): Add
+	variable template.
+	* testsuite/20_util/has_unique_object_representations/value.cc: Check
+	variable template.
+
+2018-01-15  Ville Voutilainen  <ville.voutilainen@gmail.com>
+
+	Make optional conditionally
+	trivially_{copy,move}_{constructible,assignable}
+	* include/std/optional (_Optional_payload): Fix the comment in
+	the class head and turn into a primary and one specialization.
+	(_Optional_payload::_M_engaged): Strike the NSDMI.
+	(_Optional_payload<_Tp, false>::operator=(const _Optional_payload&)):
+	New.
+	(_Optional_payload<_Tp, false>::operator=(_Optional_payload&&)):
+	Likewise.
+	(_Optional_payload<_Tp, false>::_M_get): Likewise.
+	(_Optional_payload<_Tp, false>::_M_reset): Likewise.
+	(_Optional_base_impl): Likewise.
+	(_Optional_base): Turn into a primary and three specializations.
+	(optional(nullopt)): Change the base init.
+	* testsuite/20_util/optional/assignment/8.cc: New.
+	* testsuite/20_util/optional/cons/trivial.cc: Likewise.
+	* testsuite/20_util/optional/cons/value_neg.cc: Adjust.
+
+2018-01-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/80276
+	* python/libstdcxx/v6/printers.py (strip_inline_namespaces): New.
+	(get_template_arg_list): New.
+	(StdVariantPrinter._template_args): Remove, use get_template_arg_list
+	instead.
+	(TemplateTypePrinter): Rewrite to work with gdb.Type objects instead
+	of strings and regular expressions.
+	(add_one_template_type_printer): Adapt to new TemplateTypePrinter.
+	(FilteringTypePrinter): Add docstring. Match using startswith. Use
+	strip_inline_namespaces instead of strip_versioned_namespace.
+	(add_one_type_printer): Prepend namespace to match argument.
+	(register_type_printers): Add type printers for char16_t and char32_t
+	string types and for types using cxx11 ABI. Update calls to
+	add_one_template_type_printer to provide default argument dicts.
+	* testsuite/libstdc++-prettyprinters/80276.cc: New test.
+	* testsuite/libstdc++-prettyprinters/whatis.cc: Remove tests for
+	basic_string<unsigned char> and basic_string<signed char>.
+	* testsuite/libstdc++-prettyprinters/whatis2.cc: Duplicate whatis.cc
+	to test local variables, without overriding _GLIBCXX_USE_CXX11_ABI.
+
+2018-01-14  Andreas Schwab  <schwab@linux-m68k.org>
+
+	PR libstdc++/81092
+	* config/abi/post/ia64-linux-gnu/baseline_symbols.txt: Update.
+
+2018-01-13  Tim Shen  <timshen@google.com>
+
+	PR libstdc++/83601
+	* include/bits/regex.tcc (regex_replace): Fix escaping in sed.
+	* testsuite/28_regex/algorithms/regex_replace/char/pr83601.cc: Tests.
+	* testsuite/28_regex/algorithms/regex_replace/wchar_t/pr83601.cc: Tests.
+
 2018-01-12  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
 
 	PR libstdc++/64054
@@ -63,7 +125,8 @@
 	* testsuite/23_containers/unordered_map/insert/83709.cc: New.
 	* testsuite/23_containers/unordered_set/insert/83709.cc: New.
 
-2018-01-09  Jonathan Wakely  <jwakely@redhat.com>
+2018-01-09  Juraj Oršulić  <juraj.orsulic@fer.hr>
+	    Jonathan Wakely  <jwakely@redhat.com>
 
 	PR libstdc++/59253 (partial)
 	* python/libstdcxx/v6/printers.py (SmartPtrIterator): Common iterator
