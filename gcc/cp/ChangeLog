@@ -1,3 +1,22 @@
+2018-01-16  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/83817
+	* pt.c (tsubst_copy_and_build) <case CALL_EXPR>: If function
+	is AGGR_INIT_EXPR rather than CALL_EXPR, set AGGR_INIT_FROM_THUNK_P
+	instead of CALL_FROM_THUNK_P.
+
+	PR c++/83825
+	* name-lookup.c (member_vec_dedup): Return early if len is 0.
+	(resort_type_member_vec, set_class_bindings,
+	insert_late_enum_def_bindings): Use vec qsort method instead of
+	calling qsort directly.
+
+2018-01-15  Martin Sebor  <msebor@redhat.com>
+
+	PR c++/83588
+	* class.c (find_flexarrays): Make a record of multiple flexible array
+	members.
+
 2018-01-12  Jason Merrill  <jason@redhat.com>
 
 	PR c++/83186 - ICE with static_cast of list-initialized temporary.

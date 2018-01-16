@@ -1,3 +1,172 @@
+2018-01-16  Jakub Jelinek  <jakub@redhat.com>
+	    Richard Biener  <rguenth@suse.de>
+
+	PR libgomp/83590
+	* gimplify.c (gimplify_one_sizepos): For is_gimple_constant (expr)
+	return early, inline manually is_gimple_sizepos.  Make sure if we
+	call gimplify_expr we don't end up with a gimple constant.
+	* tree.c (variably_modified_type_p): Don't return true for
+	is_gimple_constant (_t).  Inline manually is_gimple_sizepos.
+	* gimplify.h (is_gimple_sizepos): Remove.
+
+2018-01-16  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	PR tree-optimization/83857
+	* tree-vect-loop.c (vect_analyze_loop_operations): Don't call
+	vectorizable_live_operation for pure SLP statements.
+	(vectorizable_live_operation): Handle PHIs.
+
+2018-01-16  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/83867
+	* tree-vect-stmts.c (vect_transform_stmt): Precompute
+	nested_in_vect_loop_p since the scalar stmt may get invalidated.
+
+2018-01-16  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c/83844
+	* stor-layout.c (handle_warn_if_not_align): Use byte_position and
+	multiple_of_p instead of unchecked tree_to_uhwi and UHWI check.
+	If off is not INTEGER_CST, issue a may not be aligned warning
+	rather than isn't aligned.  Use isn%'t rather than isn't.
+	* fold-const.c (multiple_of_p) <case BIT_AND_EXPR>: Don't fall through
+	into MULT_EXPR.
+	<case MULT_EXPR>: Improve the case when bottom and one of the
+	MULT_EXPR operands are INTEGER_CSTs and bottom is multiple of that
+	operand, in that case check if the other operand is multiple of
+	bottom divided by the INTEGER_CST operand.
+
+2018-01-16  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	PR target/83858
+	* config/pa/pa.h (FUNCTION_ARG_SIZE): Delete.
+	* config/pa/pa-protos.h (pa_function_arg_size): Declare.
+	* config/pa/som.h (ASM_DECLARE_FUNCTION_NAME): Use
+	pa_function_arg_size instead of FUNCTION_ARG_SIZE.
+	* config/pa/pa.c (pa_function_arg_advance): Likewise.
+	(pa_function_arg, pa_arg_partial_bytes): Likewise.
+	(pa_function_arg_size): New function.
+
+2018-01-16  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	* fold-const.c (fold_ternary_loc): Construct the vec_perm_indices
+	in a separate statement.
+
+2018-01-16  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	PR tree-optimization/83847
+	* tree-vect-data-refs.c (vect_analyze_data_ref_accesses): Don't
+	group gathers and scatters.
+
+2018-01-16  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/86620
+	* params.def (max-sched-ready-insns): Bump minimum value to 1.
+
+	PR rtl-optimization/83213
+	* recog.c (peep2_attempt): Copy over CROSSING_JUMP_P from peepinsn
+	to last if both are JUMP_INSNs.
+
+	PR tree-optimization/83843
+	* gimple-ssa-store-merging.c
+	(imm_store_chain_info::output_merged_store): Handle bit_not_p on
+	store_immediate_info for bswap/nop orig_stores.
+
+2018-01-15  Andrew Waterman  <andrew@sifive.com>
+
+	* config/riscv/riscv.c (riscv_rtx_costs) <MULT>: Increase cost if
+	!TARGET_MUL.
+	<UDIV>: Increase cost if !TARGET_DIV.
+
+2018-01-15  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	* config/rs6000/rs6000.md (define_attr "type"): Remove delayed_cr.
+	(define_attr "cr_logical_3op"): New.
+	(cceq_ior_compare): Adjust.
+	(cceq_ior_compare_complement): Adjust.
+	(*cceq_rev_compare): Adjust.
+	* config/rs6000/rs6000.c (rs6000_adjust_cost): Adjust.
+	(is_cracked_insn): Adjust.
+	(insn_must_be_first_in_group): Adjust.
+	* config/rs6000/40x.md: Adjust.
+	* config/rs6000/440.md: Adjust.
+	* config/rs6000/476.md: Adjust.
+	* config/rs6000/601.md: Adjust.
+	* config/rs6000/603.md: Adjust.
+	* config/rs6000/6xx.md: Adjust.
+	* config/rs6000/7450.md: Adjust.
+	* config/rs6000/7xx.md: Adjust.
+	* config/rs6000/8540.md: Adjust.
+	* config/rs6000/cell.md: Adjust.
+	* config/rs6000/e300c2c3.md: Adjust.
+	* config/rs6000/e500mc.md: Adjust.
+	* config/rs6000/e500mc64.md: Adjust.
+	* config/rs6000/e5500.md: Adjust.
+	* config/rs6000/e6500.md: Adjust.
+	* config/rs6000/mpc.md: Adjust.
+	* config/rs6000/power4.md: Adjust.
+	* config/rs6000/power5.md: Adjust.
+	* config/rs6000/power6.md: Adjust.
+	* config/rs6000/power7.md: Adjust.
+	* config/rs6000/power8.md: Adjust.
+	* config/rs6000/power9.md: Adjust.
+	* config/rs6000/rs64.md: Adjust.
+	* config/rs6000/titan.md: Adjust.
+
+2018-01-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* config/i386/predicates.md (indirect_branch_operand): Rewrite
+	ix86_indirect_branch_register logic.
+
+2018-01-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* config/i386/constraints.md (Bs): Update
+	ix86_indirect_branch_register check.  Don't check
+	ix86_indirect_branch_register with GOT_memory_operand.
+	(Bw): Likewise.
+	* config/i386/predicates.md (GOT_memory_operand): Don't check
+	ix86_indirect_branch_register here.
+	(GOT32_symbol_operand): Likewise.
+
+2018-01-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* config/i386/predicates.md (constant_call_address_operand):
+	Rewrite ix86_indirect_branch_register logic.
+	(sibcall_insn_operand): Likewise.
+
+2018-01-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* config/i386/constraints.md (Bs): Replace
+	ix86_indirect_branch_thunk_register with
+	ix86_indirect_branch_register.
+	(Bw): Likewise.
+	* config/i386/i386.md (indirect_jump): Likewise.
+	(tablejump): Likewise.
+	(*sibcall_memory): Likewise.
+	(*sibcall_value_memory): Likewise.
+	Peepholes of indirect call and jump via memory: Likewise.
+	* config/i386/i386.opt: Likewise.
+	* config/i386/predicates.md (indirect_branch_operand): Likewise.
+	(GOT_memory_operand): Likewise.
+	(call_insn_operand): Likewise.
+	(sibcall_insn_operand): Likewise.
+	(GOT32_symbol_operand): Likewise.
+
+2018-01-15  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/83837
+	* omp-expand.c (expand_omp_atomic_pipeline): Use loaded_val
+	type rather than type addr's type points to.
+	(expand_omp_atomic_mutex): Likewise.
+	(expand_omp_atomic): Likewise.
+
+2018-01-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	PR target/83839
+	* config/i386/i386.c (output_indirect_thunk_function): Use
+	ASM_OUTPUT_LABEL, instead of ASM_OUTPUT_DEF, for TARGET_MACHO
+	for  __x86_return_thunk.
+
 2018-01-15  Richard Biener  <rguenther@suse.de>
 
 	PR middle-end/83850
