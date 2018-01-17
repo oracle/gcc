@@ -16153,26 +16153,40 @@ tsubst_expr (tree t, tree args, tsubst_flags_t complain, tree in_decl,
 
     case RANGE_FOR_STMT:
       {
+	/* Construct another range_for, if this is not a final
+	   substitution (for inside inside a generic lambda of a
+	   template).  Otherwise convert to a regular for.  */
         tree decl, expr;
-        stmt = begin_for_stmt (NULL_TREE, NULL_TREE);
+        stmt = (processing_template_decl
+		? begin_range_for_stmt (NULL_TREE, NULL_TREE)
+		: begin_for_stmt (NULL_TREE, NULL_TREE));
         decl = RANGE_FOR_DECL (t);
         decl = tsubst (decl, args, complain, in_decl);
         maybe_push_decl (decl);
         expr = RECUR (RANGE_FOR_EXPR (t));
-	const unsigned short unroll
-	  = RANGE_FOR_UNROLL (t) ? tree_to_uhwi (RANGE_FOR_UNROLL (t)) : 0;
+
+	tree decomp_first = NULL_TREE;
+	unsigned decomp_cnt = 0;
 	if (VAR_P (decl) && DECL_DECOMPOSITION_P (decl))
+	  decl = tsubst_decomp_names (decl, RANGE_FOR_DECL (t), args,
+				      complain, in_decl,
+				      &decomp_first, &decomp_cnt);
+
+	if (processing_template_decl)
 	  {
-	    unsigned int cnt;
-	    tree first;
-	    decl = tsubst_decomp_names (decl, RANGE_FOR_DECL (t), args,
-					complain, in_decl, &first, &cnt);
-	    stmt = cp_convert_range_for (stmt, decl, expr, first, cnt,
-					 RANGE_FOR_IVDEP (t), unroll);
+	    RANGE_FOR_IVDEP (stmt) = RANGE_FOR_IVDEP (t);
+	    RANGE_FOR_UNROLL (stmt) = RANGE_FOR_UNROLL (t);
+	    finish_range_for_decl (stmt, decl, expr);
 	  }
 	else
-	  stmt = cp_convert_range_for (stmt, decl, expr, NULL_TREE, 0,
-				       RANGE_FOR_IVDEP (t), unroll);
+	  {
+	    unsigned short unroll = (RANGE_FOR_UNROLL (t)
+				     ? tree_to_uhwi (RANGE_FOR_UNROLL (t)) : 0);
+	    stmt = cp_convert_range_for (stmt, decl, expr,
+					 decomp_first, decomp_cnt,
+					 RANGE_FOR_IVDEP (t), unroll);
+	  }
+
 	bool prev = note_iteration_stmt_body_start ();
         RECUR (RANGE_FOR_BODY (t));
 	note_iteration_stmt_body_end (prev);
@@ -20356,6 +20370,7 @@ unify_pack_expansion (tree tparms, tree targs, tree packed_parms,
 
   /* Add in any args remembered from an earlier partial instantiation.  */
   targs = add_to_template_args (PACK_EXPANSION_EXTRA_ARGS (parm), targs);
+  int levels = TMPL_ARGS_DEPTH (targs);
 
   packed_args = expand_template_argument_pack (packed_args);
 
@@ -20371,6 +20386,8 @@ unify_pack_expansion (tree tparms, tree targs, tree packed_parms,
 
       /* Determine the index and level of this parameter pack.  */
       template_parm_level_and_index (parm_pack, &level, &idx);
+      if (level < levels)
+	continue;
 
       /* Keep track of the parameter packs and their corresponding
          argument packs.  */
@@ -24223,6 +24240,8 @@ type_dependent_expression_p (tree expression)
   if (expression == NULL_TREE || expression == error_mark_node)
     return false;
 
+  STRIP_ANY_LOCATION_WRAPPER (expression);
+
   /* An unresolved name is always dependent.  */
   if (identifier_p (expression)
       || TREE_CODE (expression) == USING_DECL
@@ -26661,12 +26680,48 @@ test_build_non_dependent_expr ()
 	     build_non_dependent_expr (wrapped_string_lit));
 }
 
+/* Verify that type_dependent_expression_p () works correctly, even
+   in the presence of location wrapper nodes.  */
+
+static void
+test_type_dependent_expression_p ()
+{
+  location_t loc = BUILTINS_LOCATION;
+
+  tree name = get_identifier ("foo");
+
+  /* If no templates are involved, nothing is type-dependent.  */
+  gcc_assert (!processing_template_decl);
+  ASSERT_FALSE (type_dependent_expression_p (name));
+
+  ++processing_template_decl;
+
+  /* Within a template, an unresolved name is always type-dependent.  */
+  ASSERT_TRUE (type_dependent_expression_p (name));
+
+  /* Ensure it copes with NULL_TREE and errors.  */
+  ASSERT_FALSE (type_dependent_expression_p (NULL_TREE));
+  ASSERT_FALSE (type_dependent_expression_p (error_mark_node));
+
+  /* A USING_DECL in a template should be type-dependent, even if wrapped
+     with a location wrapper (PR c++/83799).  */
+  tree using_decl = build_lang_decl (USING_DECL, name, NULL_TREE);
+  TREE_TYPE (using_decl) = integer_type_node;
+  ASSERT_TRUE (type_dependent_expression_p (using_decl));
+  tree wrapped_using_decl = maybe_wrap_with_location (using_decl, loc);
+  ASSERT_TRUE (location_wrapper_p (wrapped_using_decl));
+  ASSERT_TRUE (type_dependent_expression_p (wrapped_using_decl));
+
+  --processing_template_decl;
+}
+
 /* Run all of the selftests within this file.  */
 
 void
 cp_pt_c_tests ()
 {
   test_build_non_dependent_expr ();
+  test_type_dependent_expression_p ();
 }
 
 } // namespace selftest

@@ -1,3 +1,137 @@
+2018-01-17  David Malcolm  <dmalcolm@redhat.com>
+
+	PR lto/83121
+	* ipa-devirt.c (add_type_duplicate): When comparing memory layout,
+	call the lto_location_cache before reading the
+	DECL_SOURCE_LOCATION of the types.
+
+2018-01-17  Wilco Dijkstra  <wdijkstr@arm.com>
+	    Richard Sandiford  <richard.sandiford@linaro.org>
+
+	* config/aarch64/aarch64.md (movti_aarch64): Use Uti constraint.
+	* config/aarch64/aarch64.c (aarch64_mov128_immediate): New function.
+	(aarch64_legitimate_constant_p): Just support CONST_DOUBLE 
+	SF/DF/TF mode to avoid creating illegal CONST_WIDE_INT immediates.
+	* config/aarch64/aarch64-protos.h (aarch64_mov128_immediate):
+	Add declaration.
+	* config/aarch64/constraints.md (aarch64_movti_operand):
+	Limit immediates.
+	* config/aarch64/predicates.md (Uti): Add new constraint.
+
+2018-01-17 Carl Love  <cel@us.ibm.com>
+	* config/rs6000/vsx.md (define_expand xl_len_r,
+	define_expand stxvl, define_expand *stxvl): Add match_dup argument.
+	(define_insn): Add, match_dup 1 argument to define_insn stxvll and
+	lxvll.
+	(define_expand, define_insn): Move the shift left from	the
+	define_insn to the define_expand for lxvl and stxvl instructions.
+	* config/rs6000/rs6000-builtin.def (BU_P9V_64BIT_VSX_2): Change LXVL
+	and XL_LEN_R definitions to PURE.
+
+2018-01-17  Uros Bizjak  <ubizjak@gmail.com>
+
+	* config/i386/i386.c (indirect_thunk_name): Declare regno
+	as unsigned int.  Compare regno with INVALID_REGNUM.
+	(output_indirect_thunk): Ditto.
+	(output_indirect_thunk_function): Ditto.
+	(ix86_code_end): Declare regno as unsigned int.  Use INVALID_REGNUM
+	in the call to output_indirect_thunk_function.
+
+2018-01-17  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	PR middle-end/83884
+	* expr.c (expand_expr_real_1): Use the size of GET_MODE (op0)
+	rather than the size of inner_type to determine the stack slot size
+	when handling VIEW_CONVERT_EXPRs on strict-alignment targets.
+
+2018-01-16  Sebastian Peryt  <sebastian.peryt@intel.com>
+
+	PR target/83546
+	* config/i386/i386.c (ix86_option_override_internal): Add PTA_RDRND
+	to PTA_SILVERMONT.
+
+2018-01-16  Michael Meissner  <meissner@linux.vnet.ibm.com>
+
+	* config.gcc (powerpc*-linux*-*): Add support for 64-bit little
+	endian Linux systems to optionally enable multilibs for selecting
+	the long double type if the user configured an explicit type.
+	* config/rs6000/rs6000.h (TARGET_IEEEQUAD_MULTILIB): Indicate we
+	have no long double multilibs if not defined.
+	* config/rs6000/rs6000.c (rs6000_option_override_internal): Do not
+	warn if the user used -mabi={ieee,ibm}longdouble and we built
+	multilibs for long double.
+	* config/rs6000/linux64.h (MULTILIB_DEFAULTS_IEEE): Define as the
+	appropriate multilib option.
+	(MULTILIB_DEFAULTS): Add MULTILIB_DEFAULTS_IEEE to the default
+	multilib options.
+	* config/rs6000/t-ldouble-linux64le-ibm: New configuration files
+	for building long double multilibs.
+	* config/rs6000/t-ldouble-linux64le-ieee: Likewise.
+
+2018-01-16  John David Anglin  <danglin@gcc.gnu.org>
+
+	* config.gcc (hppa*-*-linux*): Change callee copies ABI to caller
+	copies.
+
+	* config/pa.h (MALLOC_ABI_ALIGNMENT): Set 32-bit alignment default to
+	64 bits.
+	* config/pa/pa32-linux.h (MALLOC_ABI_ALIGNMENT): Set alignment to
+	128 bits.
+
+	* config/pa/som.h (ASM_DECLARE_FUNCTION_NAME): Cleanup type and mode
+	variables.
+
+	* config/pa/pa.c (pa_function_arg_size): Apply CEIL to GET_MODE_SIZE
+	return value.
+
+2018-01-16  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* gimple-ssa-warn-restrict.c (builtin_memref::builtin_memref): For an
+	ADDR_EXPR, do not count the offset of a COMPONENT_REF twice.
+
+2018-01-16  Kelvin Nilsen  <kelvin@gcc.gnu.org>
+
+	* config/rs6000/rs6000-p8swap.c (rs6000_gen_stvx): Generate
+	different rtl trees depending on TARGET_64BIT.
+	(rs6000_gen_lvx): Likewise.
+
+2018-01-16  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* config/visium/visium.md (nop): Tweak comment.
+	(hazard_nop): Likewise.
+
+2018-01-16  Bill Schmidt  <wschmidt@linux.vnet.ibm.com>
+
+	* config/rs6000/rs6000.c (rs6000_opt_vars): Add entry for
+	-mspeculate-indirect-jumps.
+	* config/rs6000/rs6000.md (*call_indirect_elfv2<mode>): Disable
+	for -mno-speculate-indirect-jumps.
+	(*call_indirect_elfv2<mode>_nospec): New define_insn.
+	(*call_value_indirect_elfv2<mode>): Disable for
+	-mno-speculate-indirect-jumps.
+	(*call_value_indirect_elfv2<mode>_nospec): New define_insn.
+	(indirect_jump): Emit different RTL for
+	-mno-speculate-indirect-jumps.
+	(*indirect_jump<mode>): Disable for
+	-mno-speculate-indirect-jumps.
+	(*indirect_jump<mode>_nospec): New define_insn.
+	(tablejump): Emit different RTL for
+	-mno-speculate-indirect-jumps.
+	(tablejumpsi): Disable for -mno-speculate-indirect-jumps.
+	(tablejumpsi_nospec): New define_expand.
+	(tablejumpdi): Disable for -mno-speculate-indirect-jumps.
+	(tablejumpdi_nospec): New define_expand.
+	(*tablejump<mode>_internal1): Disable for
+	-mno-speculate-indirect-jumps.
+	(*tablejump<mode>_internal1_nospec): New define_insn.
+	* config/rs6000/rs6000.opt (mspeculate-indirect-jumps): New
+	option.
+
+2018-01-16  Artyom Skrobov tyomitch@gmail.com
+
+        * caller-save.c (insert_save): Drop unnecessary parameter.  All
+	callers updated.
+
 2018-01-16  Jakub Jelinek  <jakub@redhat.com>
 	    Richard Biener  <rguenth@suse.de>
 
@@ -1581,7 +1715,7 @@
 	* config/alpha/alpha.md (*saddsi_1): New insn_ans_split pattern.
 	(*saddl_se_1): Ditto.
 	(*ssubsi_1): Ditto.
-	(*saddl_se_1): Ditto.
+	(*ssubl_se_1): Ditto.
 
 2018-01-12  Richard Sandiford  <richard.sandiford@linaro.org>
 

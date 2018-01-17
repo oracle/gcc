@@ -1,7 +1,7 @@
 /* PR tree-optimization/83843 */
 /* { dg-do run } */
 /* { dg-options "-O2 -fdump-tree-store-merging" } */
-/* { dg-final { scan-tree-dump-times "Merging successful" 3 "store-merging" { target store_merge } } } */
+/* { dg-final { scan-tree-dump-times "Merging successful" 3 "store-merging" { target { store_merge && { ! arm*-*-* } } } } } */
 
 __attribute__((noipa)) void
 foo (unsigned char *buf, unsigned char *tab)
