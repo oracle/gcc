@@ -1,7 +1,7 @@
-/* { dg-do compile { target { powerpc64le-*-* } } } */
+/* { dg-do compile { target { lp64 } } } */
 /* { dg-additional-options "-mno-speculate-indirect-jumps" } */
 
-/* Test for deliberate misprediction of indirect calls for ELFv2.  */
+/* Test for deliberate misprediction of indirect calls.  */
 
 extern int (*f)();
 

@@ -6091,6 +6091,7 @@ reshape_init (tree type, tree init, tsubst_flags_t complain)
       if (check_narrowing (ENUM_UNDERLYING_TYPE (type), elt, complain))
 	{
 	  warning_sentinel w (warn_useless_cast);
+	  warning_sentinel w2 (warn_ignored_qualifiers);
 	  return cp_build_c_cast (type, elt, tf_warning_or_error);
 	}
       else
@@ -6810,8 +6811,12 @@ cp_finish_decl (tree decl, tree init, bool init_const_expr_p,
       cp_apply_type_quals_to_decl (cp_type_quals (type), decl);
     }
 
-  if (!ensure_literal_type_for_constexpr_object (decl))
-    DECL_DECLARED_CONSTEXPR_P (decl) = 0;
+  if (ensure_literal_type_for_constexpr_object (decl)
+      == error_mark_node)
+    {
+      DECL_DECLARED_CONSTEXPR_P (decl) = 0;
+      return;
+    }
 
   if (VAR_P (decl)
       && DECL_CLASS_SCOPE_P (decl)
@@ -11487,9 +11492,15 @@ grokdeclarator (const cp_declarator *declarator,
       && declarator->kind == cdk_id
       && declarator->std_attributes
       && attrlist != NULL)
-    /* [dcl.meaning]/1: The optional attribute-specifier-seq following
-       a declarator-id appertains to the entity that is declared.  */
-    *attrlist = chainon (*attrlist, declarator->std_attributes);
+    {
+      /* [dcl.meaning]/1: The optional attribute-specifier-seq following
+	 a declarator-id appertains to the entity that is declared.  */
+      if (declarator->std_attributes != error_mark_node)
+	*attrlist = chainon (*attrlist, declarator->std_attributes);
+      else
+	/* We should have already diagnosed the issue (c++/78344).  */
+	gcc_assert (seen_error ());
+    }
 
   /* Handle parameter packs. */
   if (parameter_pack_p)
@@ -13791,7 +13802,10 @@ xref_basetypes (tree ref, tree base_list)
       CLASSTYPE_NON_LAYOUT_POD_P (ref) = true;
 
       if (TREE_CODE (ref) == UNION_TYPE)
-	error ("derived union %qT invalid", ref);
+	{
+	  error ("derived union %qT invalid", ref);
+	  return;
+	}
     }
 
   if (max_bases > 1)

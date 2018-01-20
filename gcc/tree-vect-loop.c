@@ -1294,6 +1294,12 @@ vect_verify_full_masking (loop_vec_info loop_vinfo)
   struct loop *loop = LOOP_VINFO_LOOP (loop_vinfo);
   unsigned int min_ni_width;
 
+  /* Use a normal loop if there are no statements that need masking.
+     This only happens in rare degenerate cases: it means that the loop
+     has no loads, no stores, and no live-out values.  */
+  if (LOOP_VINFO_MASKS (loop_vinfo).is_empty ())
+    return false;
+
   /* Get the maximum number of iterations that is representable
      in the counter type.  */
   tree ni_type = TREE_TYPE (LOOP_VINFO_NITERSM1 (loop_vinfo));
@@ -1739,6 +1745,33 @@ vect_update_vf_for_slp (loop_vec_info loop_vinfo)
     }
 }
 
+/* Return true if STMT_INFO describes a double reduction phi and if
+   the other phi in the reduction is also relevant for vectorization.
+   This rejects cases such as:
+
+      outer1:
+	x_1 = PHI <x_3(outer2), ...>;
+	...
+
+      inner:
+	x_2 = ...;
+	...
+
+      outer2:
+	x_3 = PHI <x_2(inner)>;
+
+   if nothing in x_2 or elsewhere makes x_1 relevant.  */
+
+static bool
+vect_active_double_reduction_p (stmt_vec_info stmt_info)
+{
+  if (STMT_VINFO_DEF_TYPE (stmt_info) != vect_double_reduction_def)
+    return false;
+
+  gimple *other_phi = STMT_VINFO_REDUC_DEF (stmt_info);
+  return STMT_VINFO_RELEVANT_P (vinfo_for_stmt (other_phi));
+}
+
 /* Function vect_analyze_loop_operations.
 
    Scan the loop stmts and make sure they are all vectorizable.  */
@@ -1786,8 +1819,7 @@ vect_analyze_loop_operations (loop_vec_info loop_vinfo)
                  i.e., this phi is vect_reduction_def), cause this case
                  requires to actually do something here.  */
               if (STMT_VINFO_LIVE_P (stmt_info)
-                  && STMT_VINFO_DEF_TYPE (stmt_info)
-                     != vect_double_reduction_def)
+		  && !vect_active_double_reduction_p (stmt_info))
                 {
                   if (dump_enabled_p ())
 		    dump_printf_loc (MSG_MISSED_OPTIMIZATION, vect_location,
@@ -7678,27 +7710,32 @@ vectorizable_induction (gimple *phi,
   init_expr = PHI_ARG_DEF_FROM_EDGE (phi,
 				     loop_preheader_edge (iv_loop));
 
-  /* Convert the initial value and step to the desired type.  */
   stmts = NULL;
-  init_expr = gimple_convert (&stmts, TREE_TYPE (vectype), init_expr);
-  step_expr = gimple_convert (&stmts, TREE_TYPE (vectype), step_expr);
-
-  /* If we are using the loop mask to "peel" for alignment then we need
-     to adjust the start value here.  */
-  tree skip_niters = LOOP_VINFO_MASK_SKIP_NITERS (loop_vinfo);
-  if (skip_niters != NULL_TREE)
+  if (!nested_in_vect_loop)
     {
-      if (FLOAT_TYPE_P (vectype))
-	skip_niters = gimple_build (&stmts, FLOAT_EXPR, TREE_TYPE (vectype),
-				    skip_niters);
-      else
-	skip_niters = gimple_convert (&stmts, TREE_TYPE (vectype),
-				      skip_niters);
-      tree skip_step = gimple_build (&stmts, MULT_EXPR, TREE_TYPE (vectype),
-				     skip_niters, step_expr);
-      init_expr = gimple_build (&stmts, MINUS_EXPR, TREE_TYPE (vectype),
-				init_expr, skip_step);
+      /* Convert the initial value to the desired type.  */
+      tree new_type = TREE_TYPE (vectype);
+      init_expr = gimple_convert (&stmts, new_type, init_expr);
+
+      /* If we are using the loop mask to "peel" for alignment then we need
+	 to adjust the start value here.  */
+      tree skip_niters = LOOP_VINFO_MASK_SKIP_NITERS (loop_vinfo);
+      if (skip_niters != NULL_TREE)
+	{
+	  if (FLOAT_TYPE_P (vectype))
+	    skip_niters = gimple_build (&stmts, FLOAT_EXPR, new_type,
+					skip_niters);
+	  else
+	    skip_niters = gimple_convert (&stmts, new_type, skip_niters);
+	  tree skip_step = gimple_build (&stmts, MULT_EXPR, new_type,
+					 skip_niters, step_expr);
+	  init_expr = gimple_build (&stmts, MINUS_EXPR, new_type,
+				    init_expr, skip_step);
+	}
     }
+
+  /* Convert the step to the desired type.  */
+  step_expr = gimple_convert (&stmts, TREE_TYPE (vectype), step_expr);
 
   if (stmts)
     {
@@ -7717,15 +7754,6 @@ vectorizable_induction (gimple *phi,
     {
       /* Enforced above.  */
       unsigned int const_nunits = nunits.to_constant ();
-
-      /* Convert the init to the desired type.  */
-      stmts = NULL;
-      init_expr = gimple_convert (&stmts, TREE_TYPE (vectype), init_expr);
-      if (stmts)
-	{
-	  new_bb = gsi_insert_seq_on_edge_immediate (pe, stmts);
-	  gcc_assert (!new_bb);
-	}
 
       /* Generate [VF*S, VF*S, ... ].  */
       if (SCALAR_FLOAT_TYPE_P (TREE_TYPE (step_expr)))

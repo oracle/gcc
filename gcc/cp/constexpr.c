@@ -75,7 +75,8 @@ literal_type_p (tree t)
 }
 
 /* If DECL is a variable declared `constexpr', require its type
-   be literal.  Return the DECL if OK, otherwise NULL.  */
+   be literal.  Return error_mark_node if we give an error, the
+   DECL otherwise.  */
 
 tree
 ensure_literal_type_for_constexpr_object (tree decl)
@@ -97,6 +98,7 @@ ensure_literal_type_for_constexpr_object (tree decl)
 	      error ("the type %qT of %<constexpr%> variable %qD "
 		     "is not literal", type, decl);
 	      explain_non_literal_class (type);
+	      decl = error_mark_node;
 	    }
 	  else
 	    {
@@ -105,10 +107,10 @@ ensure_literal_type_for_constexpr_object (tree decl)
 		  error ("variable %qD of non-literal type %qT in %<constexpr%> "
 			 "function", decl, type);
 		  explain_non_literal_class (type);
+		  decl = error_mark_node;
 		}
 	      cp_function_chain->invalid_constexpr = true;
 	    }
-	  return NULL;
 	}
     }
   return decl;
@@ -4929,22 +4931,21 @@ fold_simple_1 (tree t)
 }
 
 /* If T is a simple constant expression, returns its simplified value.
-   Otherwise returns T.  In contrast to maybe_constant_value do we
+   Otherwise returns T.  In contrast to maybe_constant_value we
    simplify only few operations on constant-expressions, and we don't
    try to simplify constexpressions.  */
 
 tree
 fold_simple (tree t)
 {
-  tree r = NULL_TREE;
   if (processing_template_decl)
     return t;
 
-  r = fold_simple_1 (t);
-  if (!r)
-    r = t;
+  tree r = fold_simple_1 (t);
+  if (r)
+    return r;
 
-  return r;
+  return t;
 }
 
 /* If T is a constant expression, returns its reduced value.
@@ -5724,7 +5725,8 @@ potential_constant_expression_1 (tree t, bool want_rval, bool strict, bool now,
       return RECUR (TREE_OPERAND (t, 1), want_rval);
 
     case TARGET_EXPR:
-      if (!literal_type_p (TREE_TYPE (t)))
+      if (!TARGET_EXPR_DIRECT_INIT_P (t)
+	  && !literal_type_p (TREE_TYPE (t)))
 	{
 	  if (flags & tf_error)
 	    {

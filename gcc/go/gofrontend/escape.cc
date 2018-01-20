@@ -360,6 +360,7 @@ Node::op_format() const
 		  break;
 
 		case Runtime::MAKECHAN:
+		case Runtime::MAKECHAN64:
 		case Runtime::MAKEMAP:
 		case Runtime::MAKESLICE:
 		case Runtime::MAKESLICE64:
@@ -873,13 +874,12 @@ escape_hash_match(std::string suffix, std::string name)
 void
 Gogo::analyze_escape()
 {
-  if (!optimize_allocation_flag.is_enabled() || saw_errors())
+  if (saw_errors())
     return;
 
-  // Currently runtime is hard-coded to non-escape in various places.
-  // Don't run escape analysis for runtime.
-  // TODO: remove this once it works for runtime.
-  if (this->compiling_runtime() && this->package_name() == "runtime")
+  if (!optimize_allocation_flag.is_enabled()
+      && !this->compiling_runtime())
+    // We always run escape analysis when compiling runtime.
     return;
 
   // Discover strongly connected groups of functions to analyze for escape
@@ -1473,6 +1473,35 @@ Escape_analysis_assign::statement(Block*, size_t*, Statement* s)
   return TRAVERSE_SKIP_COMPONENTS;
 }
 
+// Helper function to emit moved-to-heap diagnostics.
+
+static void
+move_to_heap(Gogo* gogo, Expression *expr)
+{
+  Named_object* no;
+  if (expr->var_expression() != NULL)
+    no = expr->var_expression()->named_object();
+  else if (expr->enclosed_var_expression() != NULL)
+    no = expr->enclosed_var_expression()->variable();
+  else
+    return;
+
+  if ((no->is_variable()
+       && !no->var_value()->is_global())
+      || no->is_result_variable())
+    {
+      Node* n = Node::make_node(expr);
+      if (gogo->debug_escape_level() != 0)
+        go_inform(n->definition_location(),
+                  "moved to heap: %s",
+                  n->ast_format(gogo).c_str());
+      if (gogo->compiling_runtime() && gogo->package_name() == "runtime")
+        go_error_at(expr->location(),
+                    "%s escapes to heap, not allowed in runtime",
+                    n->ast_format(gogo).c_str());
+    }
+}
+
 // Model expressions within a function as assignments and flows between nodes.
 
 int
@@ -1489,13 +1518,7 @@ Escape_analysis_assign::expression(Expression** pexpr)
       if (debug_level > 1)
 	go_inform((*pexpr)->location(), "%s too large for stack",
                   n->ast_format(gogo).c_str());
-      if (debug_level != 0
-          && ((*pexpr)->var_expression() != NULL
-              || (*pexpr)->enclosed_var_expression() != NULL))
-        go_inform(n->definition_location(),
-                  "moved to heap: %s",
-                  n->ast_format(gogo).c_str());
-
+      move_to_heap(gogo, *pexpr);
       n->set_encoding(Node::ESCAPE_HEAP);
       (*pexpr)->address_taken(true);
       this->assign(this->context_->sink(), n);
@@ -1580,6 +1603,7 @@ Escape_analysis_assign::expression(Expression** pexpr)
 	    switch (fe->runtime_code())
 	      {
 	      case Runtime::MAKECHAN:
+	      case Runtime::MAKECHAN64:
 	      case Runtime::MAKEMAP:
 	      case Runtime::MAKESLICE:
 	      case Runtime::MAKESLICE64:
@@ -2262,6 +2286,7 @@ Escape_analysis_assign::assign(Node* dst, Node* src)
 		switch (fe->runtime_code())
 		  {
 		  case Runtime::MAKECHAN:
+		  case Runtime::MAKECHAN64:
 		  case Runtime::MAKEMAP:
 		  case Runtime::MAKESLICE:
 		  case Runtime::MAKESLICE64:
@@ -2968,25 +2993,20 @@ Escape_analysis_flood::flood(Level level, Node* dst, Node* src,
 	  if (src_leaks)
 	    {
 	      src->set_encoding(Node::ESCAPE_HEAP);
-	      if (debug_level != 0 && osrcesc != src->encoding())
-		{
-                  if (underlying->var_expression() != NULL
-                      || underlying->enclosed_var_expression() != NULL)
-                    go_inform(underlying_node->definition_location(),
-                              "moved to heap: %s",
-                              underlying_node->ast_format(gogo).c_str());
-
-		  if (debug_level > 1)
-		    go_inform(src->location(),
-			      "%s escapes to heap, level={%d %d}, "
-			      "dst.eld=%d, src.eld=%d",
-			      src->ast_format(gogo).c_str(), level.value(),
-			      level.suffix_value(), dst_state->loop_depth,
-			      mod_loop_depth);
-		  else
-		    go_inform(src->location(), "%s escapes to heap",
-			      src->ast_format(gogo).c_str());
-		}
+              if (osrcesc != src->encoding())
+                {
+                  move_to_heap(gogo, underlying);
+                  if (debug_level > 1)
+                    go_inform(src->location(),
+                              "%s escapes to heap, level={%d %d}, "
+                              "dst.eld=%d, src.eld=%d",
+                              src->ast_format(gogo).c_str(), level.value(),
+                              level.suffix_value(), dst_state->loop_depth,
+                              mod_loop_depth);
+                  else if (debug_level > 0)
+                    go_inform(src->location(), "%s escapes to heap",
+                              src->ast_format(gogo).c_str());
+                }
 
 	      this->flood(level.decrease(), dst,
 			  underlying_node, mod_loop_depth);
@@ -3039,6 +3059,7 @@ Escape_analysis_flood::flood(Level level, Node* dst, Node* src,
               switch (call->fn()->func_expression()->runtime_code())
                 {
                 case Runtime::MAKECHAN:
+		case Runtime::MAKECHAN64:
                 case Runtime::MAKEMAP:
                 case Runtime::MAKESLICE:
                 case Runtime::MAKESLICE64:

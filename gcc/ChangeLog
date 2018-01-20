@@ -1,3 +1,232 @@
+2018-01-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/83945
+	* tree-emutls.c: Include gimplify.h.
+	(lower_emutls_2): New function.
+	(lower_emutls_1): If ADDR_EXPR is a gimple invariant and walk_tree
+	with lower_emutls_2 callback finds some TLS decl in it, unshare_expr
+	it before further processing.
+
+	PR target/83930
+	* simplify-rtx.c (simplify_binary_operation_1) <case UMOD>: Use
+	UINTVAL (trueop1) instead of INTVAL (op1).
+
+2018-01-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR debug/81570
+	PR debug/83728
+	* dwarf2cfi.c (DEFAULT_INCOMING_FRAME_SP_OFFSET): Define to
+	INCOMING_FRAME_SP_OFFSET if not defined.
+	(scan_trace): Add ENTRY argument.  If true and
+	DEFAULT_INCOMING_FRAME_SP_OFFSET != INCOMING_FRAME_SP_OFFSET,
+	emit a note to adjust the CFA offset.
+	(create_cfi_notes): Adjust scan_trace callers.
+	(create_cie_data): Use DEFAULT_INCOMING_FRAME_SP_OFFSET rather than
+	INCOMING_FRAME_SP_OFFSET in the CIE.
+	* config/i386/i386.h (DEFAULT_INCOMING_FRAME_SP_OFFSET): Define.
+	* config/stormy16/stormy16.h (DEFAULT_INCOMING_FRAME_SP_OFFSET):
+	Likewise.
+	* doc/tm.texi.in (DEFAULT_INCOMING_FRAME_SP_OFFSET): Document.
+	* doc/tm.texi: Regenerated.
+
+2018-01-19  Andreas Krebbel  <krebbel@linux.vnet.ibm.com>
+
+	PR rtl-optimization/83147
+	* lra-constraints.c (remove_inheritance_pseudos): Use
+	lra_substitute_pseudo_within_insn.
+
+2018-01-19  Tom de Vries  <tom@codesourcery.com>
+	    Cesar Philippidis  <cesar@codesourcery.com>
+
+	PR target/83920
+	* config/nvptx/nvptx.c (nvptx_single): Fix jit workaround.
+
+2018-01-19  Cesar Philippidis  <cesar@codesourcery.com>
+
+	PR target/83790
+	* config/nvptx/nvptx.c (output_init_frag): Don't use generic address
+	spaces for function labels.
+
+2018-01-19  Martin Liska  <mliska@suse.cz>
+
+	* predict.def (PRED_LOOP_EXIT): Change from 85 to 89.
+	(PRED_LOOP_EXIT_WITH_RECURSION): Change from 72 to 78.
+	(PRED_LOOP_EXTRA_EXIT): Change from 83 to 67.
+	(PRED_OPCODE_POSITIVE): Change from 64 to 59.
+	(PRED_TREE_OPCODE_POSITIVE): Change from 64 to 59.
+	(PRED_CONST_RETURN): Change from 69 to 65.
+	(PRED_NULL_RETURN): Change from 91 to 71.
+	(PRED_LOOP_IV_COMPARE_GUESS): Change from 98 to 64.
+	(PRED_LOOP_GUARD): Change from 66 to 73.
+
+2018-01-19  Martin Liska  <mliska@suse.cz>
+
+	* predict.c (predict_insn_def): Add new assert.
+	(struct branch_predictor): Change type to signed integer.
+	(test_prediction_value_range): Amend test to cover
+	PROB_UNINITIALIZED.
+	* predict.def (PRED_LOOP_ITERATIONS): Use the new constant.
+	(PRED_LOOP_ITERATIONS_GUESSED): Likewise.
+	(PRED_LOOP_ITERATIONS_MAX): Likewise.
+	(PRED_LOOP_IV_COMPARE): Likewise.
+	* predict.h (PROB_UNINITIALIZED): Define new constant.
+
+2018-01-19  Martin Liska  <mliska@suse.cz>
+
+	* predict.c (dump_prediction): Add new format for
+	analyze_brprob.py script which is enabled with -details
+	suboption.
+	* profile-count.h (precise_p): New function.
+
+2018-01-19  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	PR tree-optimization/83922
+	* tree-vect-loop.c (vect_verify_full_masking): Return false if
+	there are no statements that need masking.
+	(vect_active_double_reduction_p): New function.
+	(vect_analyze_loop_operations): Use it when handling phis that
+	are not in the loop header.
+
+2018-01-19  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	PR tree-optimization/83914
+	* tree-vect-loop.c (vectorizable_induction): Don't convert
+	init_expr or apply the peeling adjustment for inductions
+	that are nested within the vectorized loop.
+
+2018-01-19  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* config/arm/thumb2.md (*thumb2_negsi2_short): Use RSB mnemonic
+	instead of NEG.
+
+2018-01-18  Jakub Jelinek  <jakub@redhat.com>
+
+	PR sanitizer/81715
+	PR testsuite/83882
+	* function.h (gimplify_parameters): Add gimple_seq * argument.
+	* function.c: Include gimple.h and options.h.
+	(gimplify_parameters): Add cleanup argument, add CLOBBER stmts
+	for the added local temporaries if needed.
+	* gimplify.c (gimplify_body): Adjust gimplify_parameters caller,
+	if there are any parameter cleanups, wrap whole body into a
+	try/finally with the cleanups.
+
+2018-01-18  Wilco Dijkstra  <wdijkstr@arm.com>
+
+	PR target/82964
+	* config/aarch64/aarch64.c (aarch64_legitimate_constant_p):
+	Use GET_MODE_CLASS for scalar floating point.
+
+2018-01-18  Jan Hubicka  <hubicka@ucw.cz>
+
+	PR ipa/82256
+	patch by PaX Team
+	* cgraphclones.c (cgraph_node::create_version_clone_with_body):
+	Fix call of call_cgraph_insertion_hooks.
+
+2018-01-18  Martin Sebor  <msebor@redhat.com>
+
+	* doc/invoke.texi (-Wclass-memaccess): Tweak text.
+
+2018-01-18  Jan Hubicka  <hubicka@ucw.cz>
+
+	PR ipa/83619
+	* cgraph.c (cgraph_edge::redirect_call_stmt_to_callee): Update edge
+	frequencies.
+
+2018-01-18  Boris Kolpackov  <boris@codesynthesis.com>
+
+        PR other/70268
+        * common.opt: (-ffile-prefix-map): New option.
+        * opts.c (common_handle_option): Defer it.
+        * opts-global.c (handle_common_deferred_options): Handle it.
+        * debug.h (remap_debug_filename, add_debug_prefix_map): Move to...
+        * file-prefix-map.h: New file.
+        (remap_debug_filename, add_debug_prefix_map): ...here.
+        (add_macro_prefix_map, add_file_prefix_map, remap_macro_filename): New.
+        * final.c (debug_prefix_map, add_debug_prefix_map
+        remap_debug_filename): Move to...
+        * file-prefix-map.c: New file.
+        (file_prefix_map, add_prefix_map, remap_filename) ...here and rename,
+        generalize, get rid of alloca(), use strrchr() instead of strchr().
+        (add_macro_prefix_map, add_debug_prefix_map, add_file_prefix_map):
+        Implement in terms of add_prefix_map().
+        (remap_macro_filename, remap_debug_filename): Implement in term of
+        remap_filename().
+        * Makefile.in (OBJS, PLUGIN_HEADERS): Add new files.
+        * builtins.c (fold_builtin_FILE): Call remap_macro_filename().
+        * dbxout.c: Include file-prefix-map.h.
+        * varasm.c: Likewise.
+        * vmsdbgout.c: Likewise.
+        * xcoffout.c: Likewise.
+        * dwarf2out.c: Likewise plus omit new options from DW_AT_producer.
+        * doc/cppopts.texi (-fmacro-prefix-map): Document.
+        * doc/invoke.texi (-ffile-prefix-map): Document.
+	(-fdebug-prefix-map): Update description.
+
+2018-01-18  Martin Liska  <mliska@suse.cz>
+
+	* config/i386/i386.c (indirect_thunk_name): Document that also
+	lfence is emitted.
+	(output_indirect_thunk): Document why both instructions
+	(pause and lfence) are generated.
+
+2018-01-18  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/83887
+	* graphite-scop-detection.c
+	(scop_detection::get_nearest_dom_with_single_entry): Remove.
+	(scop_detection::get_nearest_pdom_with_single_exit): Likewise.
+	(scop_detection::merge_sese): Re-implement with a flood-fill
+	algorithm that properly finds a SESE region if it exists.
+
+2018-01-18  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c/61240
+	* match.pd ((P + A) - P, P - (P + A), (P + A) - (P + B)): For
+	pointer_diff optimizations use view_convert instead of convert.
+
+2018-01-17  Bill Schmidt  <wschmidt@linux.vnet.ibm.com>
+
+	* config/rs6000/rs6000.md (*call_indirect_nonlocal_sysv<mode>):
+	Generate different code for -mno-speculate-indirect-jumps.
+	(*call_value_indirect_nonlocal_sysv<mode>): Likewise.
+	(*call_indirect_aix<mode>): Disable for
+	-mno-speculate-indirect-jumps.
+	(*call_indirect_aix<mode>_nospec): New define_insn.
+	(*call_value_indirect_aix<mode>): Disable for
+	-mno-speculate-indirect-jumps.
+	(*call_value_indirect_aix<mode>_nospec): New define_insn.
+	(*sibcall_nonlocal_sysv<mode>): Generate different code for
+	-mno-speculate-indirect-jumps.
+	(*sibcall_value_nonlocal_sysv<mode>): Likewise.
+
+2018-01-17  Michael Meissner  <meissner@linux.vnet.ibm.com>
+
+	* config/rs6000/rs6000.c (rs6000_emit_move): If we load or store a
+	long double type, set the flags for noting the default long double
+	type, even if we don't pass or return a long double type.
+
+2018-01-17  Jan Hubicka  <hubicka@ucw.cz>
+
+	PR ipa/83051
+	* ipa-inline.c (flatten_function): Do not overwrite final inlining
+	failure.
+
+2018-01-17  Will Schmidt  <will_schmidt@vnet.ibm.com>
+
+	* config/rs6000/rs6000.c (rs6000_gimple_builtin): Add gimple folding
+	support for merge[hl].
+	(fold_mergehl_helper): New helper function.
+	(tree-vector-builder.h): New #include for tree_vector_builder usage.
+	* config/rs6000/altivec.md (altivec_vmrghw_direct): Add xxmrghw insn.
+	(altivec_vmrglw_direct): Add xxmrglw insn.
+
+2018-01-17  Andrew Waterman  <andrew@sifive.com>
+
+	* config/riscv/riscv.c (riscv_conditional_register_usage): If
+	UNITS_PER_FP_ARG is 0, set call_used_regs to 1 for all FP regs.
+
 2018-01-17  David Malcolm  <dmalcolm@redhat.com>
 
 	PR lto/83121
@@ -10,7 +239,7 @@
 
 	* config/aarch64/aarch64.md (movti_aarch64): Use Uti constraint.
 	* config/aarch64/aarch64.c (aarch64_mov128_immediate): New function.
-	(aarch64_legitimate_constant_p): Just support CONST_DOUBLE 
+	(aarch64_legitimate_constant_p): Just support CONST_DOUBLE
 	SF/DF/TF mode to avoid creating illegal CONST_WIDE_INT immediates.
 	* config/aarch64/aarch64-protos.h (aarch64_mov128_immediate):
 	Add declaration.

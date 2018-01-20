@@ -1,3 +1,260 @@
+2018-01-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/83945
+	* gcc.dg/tls/pr83945.c: New test.
+
+	PR target/83930
+	* gcc.dg/pr83930.c: New test.
+
+2018-01-19  Steven G. Kargl  <kargl@gcc.gnu.org>
+
+	PR fortran/83900
+	* gfortran.dg/matmul_17.f90: New test.
+
+2018-01-19  Steven G. Kargl  <kargl@gcc.gnu.org>
+
+	PR fortran/80768
+	* gfortran.dg/num_images_1.f90:  New test that tests fix in r250734.
+
+2018-01-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/81167
+	* g++.dg/cpp0x/pr81167.C: New test.
+
+	PR c++/83919
+	* g++.dg/cpp0x/pr83919.C: New test.
+
+2018-01-19  Jeff Law  <law@redhat.com>
+	    Jakub Jelinek  <jakub@redhat.com>
+
+	* gcc.dg/stack-check-16.c: New test.
+
+2018-01-19  Cesar Philippidis  <cesar@codesourcery.com>
+
+	PR target/83790
+	* gcc.target/nvptx/indirect_call.c: New test.
+
+2018-01-19  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
+
+	* g++.dg/torture/pr83619.C: Remove dg-message.
+
+2018-01-19  Martin Liska  <mliska@suse.cz>
+
+	* gcc.dg/predict-1.c: Adjust expected probability.
+	* gcc.dg/predict-3.c: Likewise.
+	* gcc.dg/predict-5.c: Likewise.
+	* gcc.dg/predict-6.c: Likewise.
+	* gcc.dg/predict-9.c: Likewise.
+
+2018-01-19  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	PR tree-optimization/83922
+	* gcc.dg/pr83922.c: New test.
+
+2018-01-19  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	PR tree-optimization/83914
+	* gcc.dg/vect/pr83914.c: New test.
+
+2018-01-19  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* gcc.target/arm/negdi-1.c: Remove bogus assembler scan for negs.
+	* gcc.target/arm/negdi-2.c: Likewise.
+	* gcc.target/arm/thumb-16bit-ops.c: Replace scan for NEGS with RSBS.
+
+2018-01-19  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* gcc.target/arm/pr40956.c: Adjust scan-assembler pattern.
+
+2018-01-19  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* gcc.target/arm/pr79058.c: Add arm_arm_ok check and -marm to options.
+
+2018-01-18  John David Anglin  <danglin@gcc.gnu.org>
+
+	* gcc.dg/torture/pr52451.c (main): Skip long double test on
+	hppa*-*-hpux*.
+
+2018-01-18  Jakub Jelinek  <jakub@redhat.com>
+
+	PR ipa/83619
+	PR testsuite/83934
+	* g++.dg/torture/pr83619.C (e): Define before first use instead of
+	forward declaration.
+
+2018-01-18  Carl Love  <cel@us.ibm.com>
+
+	* gcc.target/powerpc/builtins-6.h (foo): Add missing closing bracket
+	to the function.
+
+2018-01-18  Paolo Carlini  <paolo.carlini@oracle.com>
+
+	PR c++/81013
+	* g++.dg/inherit/union3.C: New.
+
+2018-01-18  Christophe Lyon <christophe.lyon@linaro.org>
+
+	* gcc.dg/rtl/arm/stl-cond.c: Enable on arm*.
+
+2018-01-18  Jan Hubicka  <hubicka@ucw.cz>
+
+	PR ipa/83619
+	* g++.dg/torture/pr83619.C: New testcase.
+
+2018-01-18  Christophe Lyon <christophe.lyon@linaro.org>
+
+	* lib/target-supports.exp (check_effective_target_arm_arch_FUNC_ok):
+	Add function body to force error messages in some configurations.
+
+2018-01-18  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* gcc.target/arm/pr70278.c: Add effective target checks for armv4t
+	and arm_thumb1_ok.
+
+2018-01-18  Boris Kolpackov  <boris@codesynthesis.com>
+
+	PR other/70268
+	* c-c++-common/ffile-prefix-map.c: New test.
+	* c-c++-common/fmacro-prefix-map.c: New test.
+	* c-c++-common/cpp/ffile-prefix-map.c: New test.
+	* c-c++-common/cpp/fmacro-prefix-map.c: New test.
+
+2018-01-18  Martin Liska  <mliska@suse.cz>
+
+	* gcc.target/i386/indirect-thunk-3.c: Remove duplicate options.
+	* gcc.target/i386/indirect-thunk-4.c: Likewise.
+	* gcc.target/i386/indirect-thunk-6.c: Likewise.
+	* gcc.target/i386/indirect-thunk-bnd-4.c: Likewise.
+	* gcc.target/i386/ret-thunk-10.c: Likewise.
+	* gcc.target/i386/ret-thunk-11.c: Likewise.
+	* gcc.target/i386/ret-thunk-12.c: Likewise.
+	* gcc.target/i386/ret-thunk-15.c: Likewise.
+	* gcc.target/i386/ret-thunk-9.c: Likewise.
+
+2018-01-18  Christophe Lyon  <christophe.lyon@linaro.org>
+
+	* gcc.target/arm/xor-and.c: Fix dg-options and dg-add-options
+	order.
+
+2018-01-18  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/83160
+	* g++.dg/cpp0x/pr83160.C: New.
+
+2018-01-18  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/83887
+	* gcc.dg/graphite/pr83887.c: New testcase.
+	* gfortran.dg/graphite/pr83887.f90: Likewise.
+	* gfortran.dg/graphite/pr83887.f: Likewise.
+
+2018-01-18  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	PR target/65578
+	* gcc.target/arm/builtin-bswap.x: New file.
+	* gcc.target/arm/builtin-bswap-1.c: Include the above.  Add checks
+	and options for armv6t2.
+	* gcc.target/arm/builtin-bswap-2.c: Include the above.  Add checks
+	and options for Thumb1.
+	* gcc.target/arm/builtin-bswap16.x: New file.
+	* gcc.target/arm/builtin-bswap16-1.c: Include the above.  Add checks
+	and options for armv6t2.
+	* gcc.target/arm/builtin-bswap16-2.c: Include the above.  Add checks
+	and options for Thumb1.
+
+2018-01-18  Christophe Lyon  <christophe.lyon@linaro.org>
+
+	* gcc.target/arm/pr40887.c: Fix dg-options and dg-add-options
+	order.
+
+2018-01-18  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c/61240
+	* gcc.dg/pr61240.c: New test.
+
+2018-01-17  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/83864
+	* gfortran.dg/pr83864.f90: New test.
+
+2018-01-17  Jeff Law  <law@redhat.com>
+
+	PR testsuite/83883
+	* gcc.dg/tree-ssa/ssa-dse-26.c: Tighten expected output.
+
+2018-01-17  Bill Schmidt  <wschmidt@linux.vnet.ibm.com>
+
+	* gcc.target/powerpc/safe-indirect-jump-1.c: Remove endian
+	restriction, but still restrict to 64-bit.
+	* gcc.target/powerpc/safe-indirect-jump-7.c: New file.
+	* gcc.target/powerpc/safe-indirect-jump-8.c: New file.
+
+2018-01-17  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/83874
+	* gfortran.dg/pr83874.f90: New test.
+
+2018-01-18  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/83824
+	* g++.dg/cpp0x/pr83824.C: New test.
+
+2018-01-17  Michael Meissner  <meissner@linux.vnet.ibm.com>
+
+	* gcc.target/powerpc/gnuattr1.c: New test to make sure we set the
+	appropriate .gnu_attribute for the long double type, if we use the
+	long double type, but do not generate any calls.
+	* gcc.target/powerpc/gnuattr2.c: Likewise.
+	* gcc.target/powerpc/gnuattr3.c: Likewise.
+
+2018-01-17  Paolo Carlini  <paolo.carlini@oracle.com>
+
+	PR c++/78344
+	* g++.dg/cpp0x/alignas13.C: New.
+
+2018-01-17  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/83897
+	* g++.dg/cpp0x/pr83897.C: New test.
+
+2018-01-17  Jan Hubicka  <hubicka@ucw.cz>
+
+	PR ipa/83051
+	* gcc.c-torture/compile/pr83051-2.c: New testcase.
+
+2018-01-17  Paolo Carlini  <paolo.carlini@oracle.com>
+
+	PR c++/81054
+	* g++.dg/cpp0x/constexpr-ice19.C: New.
+
+2018-01-17  Will Schmidt  <will_schmidt@vnet.ibm.com>
+
+	* gcc.target/powerpc/fold-vec-mergehl-char.c: New.
+	* gcc.target/powerpc/fold-vec-mergehl-double.c: New.
+	* gcc.target/powerpc/fold-vec-mergehl-float.c: New.
+	* gcc.target/powerpc/fold-vec-mergehl-int.c: New.
+	* gcc.target/powerpc/fold-vec-mergehl-longlong.c: New.
+	* gcc.target/powerpc/fold-vec-mergehl-pixel.c: New.
+	* gcc.target/powerpc/fold-vec-mergehl-short.c: New.
+	* gcc.target/powerpc/builtins-1-be-folded.c: New.
+	* gcc.target/powerpc/builtins-1-le-folded.c: New.
+	* gcc.target/powerpc/builtins-1.fold.h: New.
+
+2018-01-17  Will Schmidt  <will_schmidt@vnet.ibm.com>
+
+	* gcc.target/powerpc/builtins-1-be.c: Disable gimple-folding.
+	* gcc.target/powerpc/builtins-1-le.c: Disable gimple-folding.
+
+2018-01-17  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* gcc.target/arm/g2.c: Add -marm to dg-options.
+	* gcc.target/arm/scd42-2.c: Likewise.
+
+2018-01-17  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/83287
+	* g++.dg/lookup/pr83287-2.C: New.
+
 2018-01-17  David Malcolm  <dmalcolm@redhat.com>
 
 	PR c++/83814
@@ -39,6 +296,7 @@
 	target check autogenerator for armv8.1-a and armv8.2-a.
 
 2018-01-17  Carl Love  <cel@us.ibm.com>
+
 	* gcc.target/powerpc/builtins-6-p9-runnable.c: Add additional tests.
 	Add debug print statements.
 	* gcc.target/powerpc/builtins-5-p9-runnable.c: Add test to do

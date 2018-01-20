@@ -407,7 +407,7 @@ extern GTY(()) tree cp_global_trees[CPTI_MAX];
       ICS_BAD_FLAG (in _CONV)
       FN_TRY_BLOCK_P (in TRY_BLOCK)
       BIND_EXPR_BODY_BLOCK (in BIND_EXPR)
-      DECL_NON_TRIVIALLY_INITIALIZED_P (in VAR_DECL)
+      DECL_NONTRIVIALLY_INITIALIZED_P (in VAR_DECL)
       CALL_EXPR_ORDERED_ARGS (in CALL_EXPR, AGGR_INIT_EXPR)
       DECLTYPE_FOR_REF_CAPTURE (in DECLTYPE_TYPE)
       CONSTRUCTOR_C99_COMPOUND_LITERAL (in CONSTRUCTOR)
@@ -6328,6 +6328,9 @@ extern tree create_try_catch_expr               (tree, tree);
 
 /* in expr.c */
 extern tree cplus_expand_constant		(tree);
+extern tree mark_use (tree expr, bool rvalue_p, bool read_p,
+		      location_t = UNKNOWN_LOCATION,
+		      bool reject_builtin = true);
 extern tree mark_rvalue_use			(tree,
                                                  location_t = UNKNOWN_LOCATION,
                                                  bool reject_builtin = true);
