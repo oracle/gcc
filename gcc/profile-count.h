@@ -26,34 +26,36 @@ struct function;
 /* Quality of the profile count.  Because gengtype does not support enums
    inside of classes, this is in global namespace.  */
 enum profile_quality {
+  /* Uninitialized value.  */
+  profile_uninitialized,
   /* Profile is based on static branch prediction heuristics and may
      or may not match reality.  It is local to function and can not be compared
      inter-procedurally.  Never used by probabilities (they are always local).
    */
-  profile_guessed_local = 1,
+  profile_guessed_local,
   /* Profile was read by feedback and was 0, we used local heuristics to guess
      better.  This is the case of functions not run in profile fedback.
      Never used by probabilities.  */
-  profile_guessed_global0 = 2,
+  profile_guessed_global0,
 
   /* Same as profile_guessed_global0 but global count is adjusted 0.  */
-  profile_guessed_global0adjusted = 3,
+  profile_guessed_global0adjusted,
 
   /* Profile is based on static branch prediction heuristics.  It may or may
      not reflect the reality but it can be compared interprocedurally
      (for example, we inlined function w/o profile feedback into function
       with feedback and propagated from that).
      Never used by probablities.  */
-  profile_guessed = 4,
+  profile_guessed,
   /* Profile was determined by autofdo.  */
-  profile_afdo = 5,
+  profile_afdo,
   /* Profile was originally based on feedback but it was adjusted
      by code duplicating optimization.  It may not precisely reflect the
      particular code path.  */
-  profile_adjusted = 6,
+  profile_adjusted,
   /* Profile was read from profile feedback or determined by accurate static
      method.  */
-  profile_precise = 7
+  profile_precise
 };
 
 /* The base value for branch probability notes and edge probabilities.  */
@@ -164,7 +166,7 @@ public:
     {
       /* Be consistent with PROB_VERY_UNLIKELY in predict.h.  */
       profile_probability r
-	 = profile_probability::always ().apply_scale (1, 2000);
+	 = profile_probability::guessed_always ().apply_scale (1, 2000);
       r.m_val--;
       return r;
     }
@@ -172,13 +174,13 @@ public:
     {
       /* Be consistent with PROB_VERY_LIKELY in predict.h.  */
       profile_probability r
-	 = profile_probability::always ().apply_scale (1, 5);
+	 = profile_probability::guessed_always ().apply_scale (1, 5);
       r.m_val--;
       return r;
     }
   static profile_probability even ()
     {
-      return profile_probability::always ().apply_scale (1, 2);
+      return profile_probability::guessed_always ().apply_scale (1, 2);
     }
   static profile_probability very_likely ()
     {
@@ -410,6 +412,30 @@ public:
       return *this;
     }
 
+  /* Split *THIS (ORIG) probability into 2 probabilities, such that
+     the returned one (FIRST) is *THIS * CPROB and *THIS is
+     adjusted (SECOND) so that FIRST + FIRST.invert () * SECOND
+     == ORIG.  This is useful e.g. when splitting a conditional
+     branch like:
+     if (cond)
+       goto lab; // ORIG probability
+     into
+     if (cond1)
+       goto lab; // FIRST = ORIG * CPROB probability
+     if (cond2)
+       goto lab; // SECOND probability
+     such that the overall probability of jumping to lab remains
+     the same.  CPROB gives the relative probability between the
+     branches.  */
+  profile_probability split (const profile_probability &cprob)
+    {
+      profile_probability ret = *this * cprob;
+      /* The following is equivalent to:
+         *this = cprob.invert () * *this / ret.invert ();  */
+      *this = (*this - ret) / ret.invert ();
+      return ret;
+    }
+
   gcov_type apply (gcov_type val) const
     {
       if (*this == profile_probability::uninitialized ())
@@ -505,8 +531,7 @@ public:
   /* Return false if profile_probability is bogus.  */
   bool verify () const
     {
-      gcc_checking_assert (profile_guessed_local <= m_quality
-			   && m_quality <= profile_precise);
+      gcc_checking_assert (m_quality != profile_uninitialized);
       if (m_val == uninitialized_probability)
 	return m_quality == profile_guessed;
       else if (m_quality < profile_guessed)
@@ -791,8 +816,7 @@ public:
   /* Return false if profile_count is bogus.  */
   bool verify () const
     {
-      gcc_checking_assert (profile_guessed_local <= m_quality
-			   && m_quality <= profile_precise);
+      gcc_checking_assert (m_quality != profile_uninitialized);
       return m_val != uninitialized_count || m_quality == profile_guessed_local;
     }
 

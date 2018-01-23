@@ -15582,6 +15582,12 @@ altivec_expand_builtin (tree exp, rtx target, bool *expandedp)
        unaligned-supporting store, so use a generic expander.  For
        little-endian, the exact element-reversing instruction must
        be used.  */
+   case VSX_BUILTIN_ST_ELEMREV_V1TI:
+     {
+        enum insn_code code = (BYTES_BIG_ENDIAN ? CODE_FOR_vsx_store_v1ti
+			       : CODE_FOR_vsx_st_elemrev_v1ti);
+        return altivec_expand_stv_builtin (code, exp);
+      }
     case VSX_BUILTIN_ST_ELEMREV_V2DF:
       {
 	enum insn_code code = (BYTES_BIG_ENDIAN ? CODE_FOR_vsx_store_v2df
@@ -15854,6 +15860,12 @@ altivec_expand_builtin (tree exp, rtx target, bool *expandedp)
       {
 	enum insn_code code = (BYTES_BIG_ENDIAN ? CODE_FOR_vsx_load_v2df
 			       : CODE_FOR_vsx_ld_elemrev_v2df);
+	return altivec_expand_lv_builtin (code, exp, target, false);
+      }
+    case VSX_BUILTIN_LD_ELEMREV_V1TI:
+      {
+	enum insn_code code = (BYTES_BIG_ENDIAN ? CODE_FOR_vsx_load_v1ti
+			       : CODE_FOR_vsx_ld_elemrev_v1ti);
 	return altivec_expand_lv_builtin (code, exp, target, false);
       }
     case VSX_BUILTIN_LD_ELEMREV_V2DI:
@@ -17457,6 +17469,10 @@ altivec_init_builtins (void)
     = build_function_type_list (void_type_node,
 				V2DF_type_node, long_integer_type_node,
 				pvoid_type_node, NULL_TREE);
+  tree void_ftype_v1ti_long_pvoid
+    = build_function_type_list (void_type_node,
+				V1TI_type_node, long_integer_type_node,
+				pvoid_type_node, NULL_TREE);
   tree void_ftype_v2di_long_pvoid
     = build_function_type_list (void_type_node,
 				V2DI_type_node, long_integer_type_node,
@@ -17612,6 +17628,8 @@ altivec_init_builtins (void)
 	       VSX_BUILTIN_LD_ELEMREV_V16QI);
   def_builtin ("__builtin_vsx_st_elemrev_v2df", void_ftype_v2df_long_pvoid,
 	       VSX_BUILTIN_ST_ELEMREV_V2DF);
+  def_builtin ("__builtin_vsx_st_elemrev_v1ti", void_ftype_v1ti_long_pvoid,
+	       VSX_BUILTIN_ST_ELEMREV_V1TI);
   def_builtin ("__builtin_vsx_st_elemrev_v2di", void_ftype_v2di_long_pvoid,
 	       VSX_BUILTIN_ST_ELEMREV_V2DI);
   def_builtin ("__builtin_vsx_st_elemrev_v4sf", void_ftype_v4sf_long_pvoid,
@@ -17935,6 +17953,8 @@ altivec_init_builtins (void)
 	= build_function_type_list (void_type_node,
 				    V1TI_type_node, long_integer_type_node,
 				    pvoid_type_node, NULL_TREE);
+      def_builtin ("__builtin_vsx_ld_elemrev_v1ti", v1ti_ftype_long_pcvoid,
+		   VSX_BUILTIN_LD_ELEMREV_V1TI);
       def_builtin ("__builtin_vsx_lxvd2x_v1ti", v1ti_ftype_long_pcvoid,
 		   VSX_BUILTIN_LXVD2X_V1TI);
       def_builtin ("__builtin_vsx_stxvd2x_v1ti", void_ftype_v1ti_long_pvoid,
@@ -23402,49 +23422,6 @@ rs6000_emit_minmax (rtx dest, enum rtx_code code, rtx op0, rtx op1)
   gcc_assert (target);
   if (target != dest)
     emit_move_insn (dest, target);
-}
-
-/* Split a signbit operation on 64-bit machines with direct move.  Also allow
-   for the value to come from memory or if it is already loaded into a GPR.  */
-
-void
-rs6000_split_signbit (rtx dest, rtx src)
-{
-  machine_mode d_mode = GET_MODE (dest);
-  machine_mode s_mode = GET_MODE (src);
-  rtx dest_di = (d_mode == DImode) ? dest : gen_lowpart (DImode, dest);
-  rtx shift_reg = dest_di;
-
-  gcc_assert (FLOAT128_IEEE_P (s_mode) && TARGET_POWERPC64);
-
-  if (MEM_P (src))
-    {
-      rtx mem = (WORDS_BIG_ENDIAN
-		 ? adjust_address (src, DImode, 0)
-		 : adjust_address (src, DImode, 8));
-      emit_insn (gen_rtx_SET (dest_di, mem));
-    }
-
-  else
-    {
-      unsigned int r = reg_or_subregno (src);
-
-      if (INT_REGNO_P (r))
-	shift_reg = gen_rtx_REG (DImode, r + (BYTES_BIG_ENDIAN == 0));
-
-      else
-	{
-	  /* Generate the special mfvsrd instruction to get it in a GPR.  */
-	  gcc_assert (VSX_REGNO_P (r));
-	  if (s_mode == KFmode)
-	    emit_insn (gen_signbitkf2_dm2 (dest_di, src));
-	  else
-	    emit_insn (gen_signbittf2_dm2 (dest_di, src));
-	}
-    }
-
-  emit_insn (gen_lshrdi3 (dest_di, shift_reg, GEN_INT (63)));
-  return;
 }
 
 /* A subroutine of the atomic operation splitters.  Jump to LABEL if

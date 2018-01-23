@@ -275,7 +275,7 @@ init_result_expr (gfc_expr *e, int init, gfc_expr *array)
   else if (e && e->expr_type == EXPR_CONSTANT)
     {
       int i = gfc_validate_kind (e->ts.type, e->ts.kind, false);
-      int length;
+      HOST_WIDE_INT length;
       gfc_char_t *string;
 
       switch (e->ts.type)
@@ -313,14 +313,14 @@ init_result_expr (gfc_expr *e, int init, gfc_expr *array)
 	    if (init == INT_MIN)
 	      {
 		gfc_expr *len = gfc_simplify_len (array, NULL);
-		gfc_extract_int (len, &length);
+		gfc_extract_hwi (len, &length);
 		string = gfc_get_wide_string (length + 1);
 		gfc_wide_memset (string, 0, length);
 	      }
 	    else if (init == INT_MAX)
 	      {
 		gfc_expr *len = gfc_simplify_len (array, NULL);
-		gfc_extract_int (len, &length);
+		gfc_extract_hwi (len, &length);
 		string = gfc_get_wide_string (length + 1);
 		gfc_wide_memset (string, 255, length);
 	      }
@@ -4415,7 +4415,7 @@ gfc_expr *
 gfc_simplify_len_trim (gfc_expr *e, gfc_expr *kind)
 {
   gfc_expr *result;
-  int count, len, i;
+  size_t count, len, i;
   int k = get_kind (BT_INTEGER, kind, "LEN_TRIM", gfc_default_integer_kind);
 
   if (k == -1)
@@ -4590,9 +4590,23 @@ gfc_simplify_matmul (gfc_expr *matrix_a, gfc_expr *matrix_b)
       || !is_constant_array_expr (matrix_b))
     return NULL;
 
-  result = gfc_get_array_expr (matrix_a->ts.type,
-			       matrix_a->ts.kind,
-			       &matrix_a->where);
+  /* MATMUL should do mixed-mode arithmetic.  Set the result type.  */
+  if (matrix_a->ts.type != matrix_b->ts.type)
+    {
+      gfc_expr e;
+      e.expr_type = EXPR_OP;
+      gfc_clear_ts (&e.ts);
+      e.value.op.op = INTRINSIC_NONE;
+      e.value.op.op1 = matrix_a;
+      e.value.op.op2 = matrix_b;
+      gfc_type_convert_binary (&e, 1);
+      result = gfc_get_array_expr (e.ts.type, e.ts.kind, &matrix_a->where);
+    }
+  else
+    {
+      result = gfc_get_array_expr (matrix_a->ts.type, matrix_a->ts.kind,
+				   &matrix_a->where);
+    }
 
   if (matrix_a->rank == 1 && matrix_b->rank == 2)
     {

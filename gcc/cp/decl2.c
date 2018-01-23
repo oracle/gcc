@@ -2416,7 +2416,7 @@ determine_visibility (tree decl)
 	     but have no TEMPLATE_INFO.  Their containing template
 	     function does, and the local class could be constrained
 	     by that.  */
-	  if (template_decl)
+	  if (DECL_LANG_SPECIFIC (fn) && DECL_USE_TEMPLATE (fn))
 	    template_decl = fn;
 	}
       else if (VAR_P (decl) && DECL_TINFO_P (decl)

@@ -1,3 +1,274 @@
+2018-01-23  Bin Cheng  <bin.cheng@arm.com>
+
+	PR tree-optimization/82604
+	* tree-loop-distribution.c (enum partition_kind): New enum item
+	PKIND_PARTIAL_MEMSET.
+	(partition_builtin_p): Support above new enum item.
+	(generate_code_for_partition): Ditto.
+	(compute_access_range): Differentiate cases that equality can be
+	proven at all loops, the innermost loops or no loops.
+	(classify_builtin_st, classify_builtin_ldst): Adjust call to above
+	function.  Set PKIND_PARTIAL_MEMSET for partition appropriately.
+	(finalize_partitions, distribute_loop): Don't fuse partition of
+	PKIND_PARTIAL_MEMSET kind when distributing 3-level loop nest.
+	(prepare_perfect_loop_nest): Distribute 3-level loop nest only if
+	parloop is enabled.
+
+2018-01-23  Martin Liska  <mliska@suse.cz>
+
+	* predict.def (PRED_INDIR_CALL): Set probability to PROB_EVEN in
+	order to ignore the predictor.
+	(PRED_POLYMORPHIC_CALL): Likewise.
+	(PRED_RECURSIVE_CALL): Likewise.
+
+2018-01-23  Martin Liska  <mliska@suse.cz>
+
+	* tree-profile.c (tree_profiling): Print function header to
+	aware reader which function we are working on.
+	* value-prof.c (gimple_find_values_to_profile): Do not print
+	not interesting value histograms.
+
+2018-01-23  Martin Liska  <mliska@suse.cz>
+
+	* profile-count.h (enum profile_quality): Add
+	profile_uninitialized as the first value. Do not number values
+	as they are zero based.
+	(profile_count::verify): Update sanity check.
+	(profile_probability::verify): Likewise.
+
+2018-01-23  Nathan Sidwell  <nathan@acm.org>
+
+	* doc/invoke.texi (ffor-scope): Deprecate.
+
+2018-01-23  David Malcolm  <dmalcolm@redhat.com>
+
+	PR tree-optimization/83510
+	* domwalk.c (set_all_edges_as_executable): New function.
+	(dom_walker::dom_walker): Convert bool param
+	"skip_unreachable_blocks" to enum reachability.  Move setup of
+	edge flags to set_all_edges_as_executable and only do it when
+	reachability is REACHABLE_BLOCKS.
+	* domwalk.h (enum dom_walker::reachability): New enum.
+	(dom_walker::dom_walker): Convert bool param
+	"skip_unreachable_blocks" to enum reachability.
+	(set_all_edges_as_executable): New decl.
+	* graphite-scop-detection.c  (gather_bbs::gather_bbs): Convert
+	from false for "skip_unreachable_blocks" to ALL_BLOCKS for
+	"reachability".
+	* tree-ssa-dom.c (dom_opt_dom_walker::dom_opt_dom_walker): Likewise,
+	but converting true to REACHABLE_BLOCKS.
+	* tree-ssa-sccvn.c (sccvn_dom_walker::sccvn_dom_walker): Likewise.
+	* tree-vrp.c
+	(check_array_bounds_dom_walker::check_array_bounds_dom_walker):
+	Likewise, but converting it to REACHABLE_BLOCKS_PRESERVING_FLAGS.
+	(vrp_dom_walker::vrp_dom_walker): Likewise, but converting it to
+	REACHABLE_BLOCKS.
+	(vrp_prop::vrp_finalize): Call set_all_edges_as_executable
+	if check_all_array_refs will be called.
+
+2018-01-23  David Malcolm  <dmalcolm@redhat.com>
+
+	* tree.c (selftest::test_location_wrappers): Add more test
+	coverage.
+
+2018-01-23  David Malcolm  <dmalcolm@redhat.com>
+
+	* sbitmap.c (selftest::test_set_range): Fix memory leaks.
+	(selftest::test_bit_in_range): Likewise.
+
+2018-01-23  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	PR testsuite/83888
+	* doc/sourcebuild.texi (vect_float): Say that the selector
+	only describes the situation when -funsafe-math-optimizations is on.
+	(vect_float_strict): Document.
+
+2018-01-23  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	PR tree-optimization/83965
+	* tree-vect-patterns.c (vect_reassociating_reduction_p): New function.
+	(vect_recog_dot_prod_pattern, vect_recog_sad_pattern): Use it
+	instead of checking only for a reduction.
+	(vect_recog_widen_sum_pattern): Likewise.
+
+2018-01-23  Jan Hubicka  <hubicka@ucw.cz>
+
+	* predict.c (probably_never_executed): Only use precise profile info.
+	(compute_function_frequency): Skip after inlining hack since we now
+	have quality checking.
+
+2018-01-23  Jan Hubicka  <hubicka@ucw.cz>
+
+	* profile-count.h (profile_probability::very_unlikely,
+	profile_probability::unlikely, profile_probability::even): Set
+	precision to guessed.
+
+2018-01-23  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/83963
+	* graphite-scop-detection.c (scop_detection::harmful_loop_in_region):
+	Properly terminate dominator walk when crossing the exit edge not
+	when visiting its source block.
+
+2018-01-23  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/83918
+	* tree.c (maybe_wrap_with_location): Use NON_LVALUE_EXPR rather than
+	VIEW_CONVERT_EXPR to wrap CONST_DECLs.
+
+2018-01-22  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/83957
+	* omp-expand.c (expand_omp_for_generic): Ignore virtual PHIs.  Remove
+	semicolon after for body surrounded by braces.
+
+	PR tree-optimization/83081
+	* profile-count.h (profile_probability::split): New method.
+	* dojump.c (do_jump_1) <case TRUTH_ANDIF_EXPR, case TRUTH_ORIF_EXPR>:
+	Use profile_probability::split.
+	(do_compare_rtx_and_jump): Fix adjustment of probabilities
+	when splitting a single conditional jump into 2.
+
+2018-01-22  David Malcolm  <dmalcolm@redhat.com>
+
+	PR tree-optimization/69452
+	* tree-ssa-loop-im.c (class move_computations_dom_walker): Remove
+	decl.
+
+2018-01-22  Sebastian Perta  <sebastian.perta@renesas.com>
+
+	* config/rl78/rl78-expand.md: New define_expand "bswaphi2"
+	* config/rl78/rl78-virt.md: New define_insn "*bswaphi2_virt"
+	* config/rl78/rl78-real.md: New define_insn "*bswaphi2_real"
+
+2018-01-22  Sebastian Perta  <sebastian.perta@renesas.com>
+
+	* config/rl78/rl78-protos.h: New function declaration rl78_split_movdi
+	* config/rl78/rl78.md: New define_expand "movdi"
+	* config/rl78/rl78.c: New function definition rl78_split_movdi
+
+2018-01-22  Michael Meissner  <meissner@linux.vnet.ibm.com>
+
+	PR target/83862
+	* config/rs6000/rs6000-protos.h (rs6000_split_signbit): Delete,
+	no longer used.
+	* config/rs6000/rs6000.c (rs6000_split_signbit): Likewise.
+	* config/rs6000/rs6000.md (signbit<mode>2): Change code for IEEE
+	128-bit to produce an UNSPEC move to get the double word with the
+	signbit and then a shift directly to do signbit.
+	(signbit<mode>2_dm): Replace old IEEE 128-bit signbit
+	implementation with a new version that just does either a direct
+	move or a regular move.  Move memory interface to separate insns.
+	Move insns so they are next to the expander.
+	(signbit<mode>2_dm_mem_be): New combiner insns to combine load
+	with signbit move.  Split big and little endian case.
+	(signbit<mode>2_dm_mem_le): Likewise.
+	(signbit<mode>2_dm_<su>ext): Delete, no longer used.
+	(signbit<mode>2_dm2): Likewise.
+
+2018-01-22  Sebastian Perta  <sebastian.perta@renesas.com>
+
+	* config/rl78/rl78.md: New define_expand "anddi3".
+
+2018-01-22  Sebastian Perta  <sebastian.perta@renesas.com>
+
+	* config/rl78/rl78.md: New define_expand "umindi3".
+
+2018-01-22  Sebastian Perta  <sebastian.perta@renesas.com>
+
+	* config/rl78/rl78.md: New define_expand "smindi3".
+
+2018-01-22  Sebastian Perta  <sebastian.perta@renesas.com>
+
+	* config/rl78/rl78.md: New define_expand "smaxdi3".
+
+2018-01-22 Carl Love <cel@us.ibm.com>
+
+	* config/rs6000/rs6000-builtin.def (ST_ELEMREV_V1TI, LD_ELEMREV_V1TI,
+	LVX_V1TI): Add macro expansion.
+	* config/rs6000/rs6000-c.c (altivec_builtin_types): Add argument
+	definitions for VSX_BUILTIN_VEC_XST_BE, VSX_BUILTIN_VEC_ST,
+	VSX_BUILTIN_VEC_XL, LD_ELEMREV_V1TI builtins.
+	* config/rs6000/rs6000-p8swap.c (insn_is_swappable_p);
+	Change check to determine if the instruction is a byte reversing
+	entry.  Fix typo in comment.
+	* config/rs6000/rs6000.c (altivec_expand_builtin): Add case entry
+	for VSX_BUILTIN_ST_ELEMREV_V1TI and VSX_BUILTIN_LD_ELEMREV_V1TI.
+	Add def_builtin calls for new builtins.
+	* config/rs6000/vsx.md (vsx_st_elemrev_v1ti, vsx_ld_elemrev_v1ti):
+	Add define_insn expansion.
+
+2018-01-22  Sebastian Perta  <sebastian.perta@renesas.com>
+
+	* config/rl78/rl78.md: New define_expand "umaxdi3".
+
+2018-01-22  Sebastian Perta  <sebastian.perta@renesas.com>
+	
+	* config/rl78/rl78.c (rl78_note_reg_set): fixed dead reg check 
+	for non-QImode registers
+
+2018-01-22  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/83963
+	* graphite-scop-detection.c (scop_detection::get_sese): Delay
+	including the loop exit block.
+	(scop_detection::merge_sese): Likewise.
+	(scop_detection::add_scop): Do it here instead.
+
+2018-01-22  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* doc/sourcebuild.texi (arm_softfloat): Document.
+
+2018-01-21  John David Anglin  <danglin@gcc.gnu.org>
+
+	PR gcc/77734
+	* config/pa/pa.c (pa_function_ok_for_sibcall): Use
+	targetm.binds_local_p instead of TREE_PUBLIC to check local binding.
+	Move TARGET_PORTABLE_RUNTIME check after TARGET_64BIT check.
+
+2018-01-21  Bill Schmidt  <wschmidt@linux.vnet.ibm.com>
+	    David Edelsohn <dje.gcc@gmail.com>
+
+	PR target/83946
+	* config/rs6000/rs6000.md (*call_indirect_nonlocal_sysv<mode>):
+	Change "crset eq" to "crset 2".
+	(*call_value_indirect_nonlocal_sysv<mode>): Likewise.
+	(*call_indirect_aix<mode>_nospec): Likewise.
+	(*call_value_indirect_aix<mode>_nospec): Likewise.
+	(*call_indirect_elfv2<mode>_nospec): Likewise.
+	(*call_value_indirect_elfv2<mode>_nospec): Likewise.
+	(*sibcall_nonlocal_sysv<mode>): Change "crset eq" to "crset 2";
+	change assembly output from . to $.
+	(*sibcall_value_nonlocal_sysv<mode>): Likewise.
+	(indirect_jump<mode>_nospec): Change assembly output from . to $.
+	(*tablejump<mode>_internal1_nospec): Likewise.
+
+2018-01-21  Oleg Endo  <olegendo@gcc.gnu.org>
+
+	PR target/80870
+	* config/sh/sh_optimize_sett_clrt.cc:
+	Use INCLUDE_ALGORITHM and INCLUDE_VECTOR instead of direct includes.
+
+2018-01-20  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	PR tree-optimization/83940
+	* tree-vect-stmts.c (vect_truncate_gather_scatter_offset): Set
+	offset_dt to vect_constant_def rather than vect_unknown_def_type.
+	(vect_check_load_store_mask): Add a mask_dt_out parameter and
+	use it to pass back the definition type.
+	(vect_check_store_rhs): Likewise rhs_dt_out.
+	(vect_build_gather_load_calls): Add a mask_dt argument and use
+	it instead of a call to vect_is_simple_use.
+	(vectorizable_store): Update calls to vect_check_load_store_mask
+	and vect_check_store_rhs.  Use the dt returned by the latter instead
+	of scatter_src_dt.  Use the cached mask_dt and gs_info.offset_dt
+	instead of calls to vect_is_simple_use.  Pass the scalar rather
+	than the vector operand to vect_is_simple_use when handling
+	second and subsequent copies of an rhs value.
+	(vectorizable_load): Update calls to vect_check_load_store_mask
+	and vect_build_gather_load_calls.  Use the cached mask_dt and
+	gs_info.offset_dt instead of calls to vect_is_simple_use.
+
 2018-01-20  Jakub Jelinek  <jakub@redhat.com>
 
 	PR middle-end/83945

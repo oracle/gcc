@@ -598,6 +598,18 @@ rl78_split_movsi (rtx *operands, machine_mode omode)
     }
 }
 
+void
+rl78_split_movdi (rtx *operands, enum machine_mode omode)
+{
+    rtx op00, op04, op10, op14;
+    op00 = rl78_subreg (SImode, operands[0], omode, 0);
+    op04 = rl78_subreg (SImode, operands[0], omode, 4);
+    op10 = rl78_subreg (SImode, operands[1], omode, 0);
+    op14 = rl78_subreg (SImode, operands[1], omode, 4);
+    emit_insn (gen_movsi (op00, op10));
+    emit_insn (gen_movsi (op04, op14));
+}
+
 /* Used by various two-operand expanders which cannot accept all
    operands in the "far" namespace.  Force some such operands into
    registers so that each pattern has at most one far operand.  */
@@ -3792,16 +3804,21 @@ static void
 rl78_note_reg_set (char *dead, rtx d, rtx insn)
 {
   int r, i;
-
+  bool is_dead;
   if (GET_CODE (d) == MEM)
     rl78_note_reg_uses (dead, XEXP (d, 0), insn);
 
   if (GET_CODE (d) != REG)
     return;
 
+  /* Do not mark the reg unused unless all QImode parts of it are dead.  */
   r = REGNO (d);
-  if (dead [r])
-    add_reg_note (insn, REG_UNUSED, gen_rtx_REG (GET_MODE (d), r));
+  is_dead = true;
+  for (i = 0; i < GET_MODE_SIZE (GET_MODE (d)); i ++)
+	  if (!dead [r + i])
+		  is_dead = false;
+  if(is_dead)
+	add_reg_note (insn, REG_UNUSED, gen_rtx_REG (GET_MODE (d), r));
   if (dump_file)
     fprintf (dump_file, "note set reg %d size %d\n", r, GET_MODE_SIZE (GET_MODE (d)));
   for (i = 0; i < GET_MODE_SIZE (GET_MODE (d)); i ++)

@@ -1,3 +1,156 @@
+2018-01-23  Martin Liska  <mliska@suse.cz>
+
+	PR lto/81440
+	* gcc.dg/lto/pr81440.h: New test.
+	* gcc.dg/lto/pr81440_0.c: New test.
+	* gcc.dg/lto/pr81440_1.c: New test.
+
+2018-01-23  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/83988
+	* g++.dg/template/pr83988.C: New.
+
+2018-01-23  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/82882
+	PR c++/83978
+	* g++.dg/cpp0x/pr82882.C: New test.
+	* g++.dg/cpp0x/pr83978.C: New test.
+
+	PR c++/83958
+	* g++.dg/cpp1z/decomp35.C: New test.
+
+2018-01-23  Nathan Sidwell  <nathan@acm.org>
+
+	* g++.dg/cpp0x/range-for10.C: Adjust.
+	* g++.dg/ext/forscope1.C: Adjust.
+	* g++.dg/ext/forscope2.C: Adjust.
+	* g++.dg/template/for1.C: Adjust.
+
+2018-01-23  David Malcolm  <dmalcolm@redhat.com>
+
+	PR tree-optimization/83510
+	* gcc.c-torture/compile/pr83510.c: New test case.
+
+2018-01-23  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	PR testsuite/83888
+	* lib/target-supports.exp (check_effective_target_vect_float): Say
+	that the result only holds when -funsafe-math-optimizations is on.
+	(check_effective_target_vect_float_strict): New procedure.
+	* gcc.dg/vect/no-fast-math-vect16.c: Use vect_float_strict instead
+	of vect_float.
+	* gcc.dg/vect/vect-reduc-6.c: Likewise.
+
+2018-01-23  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	PR tree-optimization/83965
+	* gcc.dg/vect/pr83965.c: New test.
+
+2018-01-23  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/83963
+	* gfortran.dg/graphite/pr83963.f: New testcase.
+	* gcc.dg/graphite/pr83963-2.c: Likewise.
+
+2018-01-23  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/83918
+	* g++.dg/cpp1z/pr83918.C: New test.
+
+2018-01-22  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/83957
+	* gcc.dg/autopar/pr83957.c: New test.
+
+	PR tree-optimization/83081
+	* gcc.dg/predict-8.c: Adjust expected probability.
+
+2018-01-22  Michael Meissner  <meissner@linux.vnet.ibm.com>
+
+	PR target/83862
+	* gcc.target/powerpc/pr83862.c: New test.
+
+2018-01-22  Carl Love  <cel@us.ibm.com>
+	* gcc.target/powerpc/powerpc.exp: Add torture tests for
+	builtins-4-runnable.c, builtins-6-runnable.c,
+	builtins-5-p9-runnable.c, builtins-6-p9-runnable.c.
+	* gcc.target/powerpc/builtins-6-runnable.c: New test file.
+	* gcc.target/powerpc/builtins-4-runnable.c: Add additional tests
+	for signed/unsigned 128-bit and long long int loads.
+
+2018-01-22  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/81933
+	* g++.dg/cpp1y/constexpr-empty4.C: New test.
+
+2018-01-22  Will Schmidt <will_schmidt@vnet.ibm.com>
+
+	* gcc.target/powerpc/fold-vec-abs-short-fwrap.c: Add xxspltib to
+	scan-asembler valid instructions list.
+	* gcc.target/powerpc/fold-vec-abs-short.c: Same.
+	* gcc.target/powerpc/fold-vec-shift-left-longlong.c: Clean up
+	power8-vector requirement and option.
+	* gcc.target/powerpc/fold-vec-shift-left-fwrapv.c: Same.
+
+2018-01-22  Janne Blomqvist  <jb@gcc.gnu.org>
+
+	PR 78534
+	PR 83704
+	* gfortran.dg/string_1.f90: Remove printing the length.
+
+2018-01-22  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/83963
+	* gcc.dg/graphite/pr83963.c: New testcase.
+
+2018-01-22  Sudakshina Das  <sudi.das@arm.com>
+
+	* gcc.c-torture/compile/pr82096.c: Add dg-skip-if and
+	dg-require-effective-target directives.
+
+2018-01-22  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* lib/target-supports.exp (check_effective_target_arm_softfloat):
+	New procedure.
+	* gcc.target/arm/copysign_softfloat_1.c: Allow running everywhere.
+	Adjust scan-assembler checks for soft-float.
+
+2018-01-21  Bill Schmidt  <wschmidt@linux.vnet.ibm.com>
+
+	PR target/83946
+	* gcc.target/powerpc/safe-indirect-jump-8.c: Skip for AIX.
+
+2018-01-21  John David Anglin  <danglin@gcc.gnu.org>
+
+	* gcc.dg/pr83621.c: Add -fno-common additional option on hppa*-&-hpux*.
+	* gcc.dg/pr83623.c: Likewise.
+	* gcc.dg/pr83666.c: Likewise.
+
+2018-01-21  Bill Schmidt  <wschmidt@linux.vnet.ibm.com>
+	    David Edelsohn <dje.gcc@gmail.com>
+
+	PR target/83946
+	* gcc.target/powerpc/safe-indirect-jump-1.c: Change expected
+	assembly output from "crset eq" to "crset 2".
+	* gcc.target/powerpc/safe-indirect-jump-2.c: Change expected
+	assembly output from . to $.
+	* gcc.target/powerpc/safe-indirect-jump-3.c: Likewise.
+	* gcc.target/powerpc/safe-indirect-jump-1.c: Change expected
+	assembly output from "crset eq" to "crset 2".
+	* gcc.target/powerpc/safe-indirect-jump-8.c: Change expected
+	assembly output from "crset eq" to "crset 2", and from . to $.
+
+2018-01-20  Steven G. Kargl  <kargl@gcc.gnu.org>
+
+	PR fortran/83900
+	* gfortran.dg/matmul_18.f90: New test.
+
+2018-01-20  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	PR tree-optimization/83940
+	* gcc.dg/torture/pr83940.c: New test.
+
 2018-01-20  Jakub Jelinek  <jakub@redhat.com>
 
 	PR middle-end/83945

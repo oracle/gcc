@@ -14085,8 +14085,10 @@ maybe_wrap_with_location (tree expr, location_t loc)
   if (EXCEPTIONAL_CLASS_P (expr))
     return expr;
 
-  tree_code code = (CONSTANT_CLASS_P (expr) && TREE_CODE (expr) != STRING_CST
-		    ? NON_LVALUE_EXPR : VIEW_CONVERT_EXPR);
+  tree_code code
+    = (((CONSTANT_CLASS_P (expr) && TREE_CODE (expr) != STRING_CST)
+	|| (TREE_CODE (expr) == CONST_DECL && !TREE_STATIC (expr)))
+       ? NON_LVALUE_EXPR : VIEW_CONVERT_EXPR);
   tree wrapper = build1_loc (loc, code, TREE_TYPE (expr), expr);
   /* Mark this node as being a wrapper.  */
   EXPR_LOCATION_WRAPPER_P (wrapper) = 1;
@@ -14490,6 +14492,8 @@ test_location_wrappers ()
 {
   location_t loc = BUILTINS_LOCATION;
 
+  ASSERT_EQ (NULL_TREE, maybe_wrap_with_location (NULL_TREE, loc));
+
   /* Wrapping a constant.  */
   tree int_cst = build_int_cst (integer_type_node, 42);
   ASSERT_FALSE (CAN_HAVE_LOCATION_P (int_cst));
@@ -14499,6 +14503,14 @@ test_location_wrappers ()
   ASSERT_TRUE (location_wrapper_p (wrapped_int_cst));
   ASSERT_EQ (loc, EXPR_LOCATION (wrapped_int_cst));
   ASSERT_EQ (int_cst, tree_strip_any_location_wrapper (wrapped_int_cst));
+
+  /* We shouldn't add wrapper nodes for UNKNOWN_LOCATION.  */
+  ASSERT_EQ (int_cst, maybe_wrap_with_location (int_cst, UNKNOWN_LOCATION));
+
+  /* We shouldn't add wrapper nodes for nodes that CAN_HAVE_LOCATION_P.  */
+  tree cast = build1 (NOP_EXPR, char_type_node, int_cst);
+  ASSERT_TRUE (CAN_HAVE_LOCATION_P (cast));
+  ASSERT_EQ (cast, maybe_wrap_with_location (cast, loc));
 
   /* Wrapping a STRING_CST.  */
   tree string_cst = build_string (4, "foo");
