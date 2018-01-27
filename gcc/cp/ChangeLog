@@ -1,3 +1,63 @@
+2018-01-26  Jason Merrill  <jason@redhat.com>
+
+	PR c++/83956 - wrong dtor error with anonymous union
+	* method.c (walk_field_subobs): Variant members only affect
+	deletedness.
+	(maybe_explain_implicit_delete): Pass &deleted_p for diagnostic.
+
+	PR c++/84036 - ICE with variadic capture.
+	PR c++/82249
+	* pt.c (tsubst_pack_expansion): When optimizing a simple
+	substitution, pull a single pack expansion out of its pack.
+
+	PR c++/82514 - ICE with local class in generic lambda.
+	* pt.c (regenerated_lambda_fn_p): Remove.
+	(enclosing_instantiation_of): Don't use it.
+	(tsubst_function_decl): Call enclosing_instantiation_of.
+
+	* pt.c (lookup_template_class_1): Add sanity check.
+	* name-lookup.c (do_pushtag): Don't add closures to local_classes.
+
+2018-01-25  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/84031
+	* decl.c (find_decomp_class_base): Ignore unnamed bitfields.  Ignore
+	recursive calls that return ret.
+	(cp_finish_decomp): Ignore unnamed bitfields.
+
+2018-01-23  Jason Merrill  <jason@redhat.com>
+
+	PR c++/82249 - wrong mismatched pack length error.
+	* pt.c (extract_fnparm_pack, tsubst_pack_expansion): Handle
+	unsubstituted function parameter pack.
+
+2018-01-23  Paolo Carlini  <paolo.carlini@oracle.com>
+
+	PR c++/83921
+	* decl.c (check_for_uninitialized_const_var): Not static; add
+	bool and tsubst_flags_t parameters; adjust to be used both in
+	constexpr context and not.
+	* constexpr.c (potential_constant_expression_1): Use the above.
+	* cp-tree.h (check_for_uninitialized_const_var): Declare.
+
+2018-01-23  Jason Merrill  <jason@redhat.com>
+
+	PR c++/83947 - ICE with auto declarations.
+	* pt.c (do_auto_deduction): Don't deduce from an auto decl.
+	* decl.c (undeduced_auto_decl): Limit to vars and fns.
+
+2018-01-23  David Malcolm  <dmalcolm@redhat.com>
+
+	PR c++/83974
+	* pt.c (tsubst_copy_and_build) <CONSTRUCTOR>: Remove early bailout
+	for pointer to member function types.
+
+2018-01-23  Jakub Jelinek  <jakub@redhat.com>
+
+	PR sanitizer/83987
+	* tree.c (cp_free_lang_data): Change DECL_VALUE_EXPR of
+	DECL_OMP_PRIVATIZED_MEMBER vars to error_mark_node.
+
 2018-01-23  Nathan Sidwell  <nathan@acm.org>
 
 	PR c++/83988

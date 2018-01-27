@@ -354,9 +354,14 @@ compute_dot_product (gfc_expr *matrix_a, int stride_a, int offset_a,
 {
   gfc_expr *result, *a, *b, *c;
 
-  result = gfc_get_constant_expr (matrix_a->ts.type, matrix_a->ts.kind,
-				  &matrix_a->where);
-  init_result_expr (result, 0, NULL);
+  /* Set result to an INTEGER(1) 0 for numeric types and .false. for 
+     LOGICAL.  Mixed-mode math in the loop will promote result to the
+     correct type and kind.  */
+  if (matrix_a->ts.type == BT_LOGICAL)
+    result = gfc_get_logical_expr (gfc_default_logical_kind, NULL, false);
+  else
+    result = gfc_get_int_expr (1, NULL, 0);
+  result->where = matrix_a->where;
 
   a = gfc_constructor_lookup_expr (matrix_a->value.constructor, offset_a);
   b = gfc_constructor_lookup_expr (matrix_b->value.constructor, offset_b);
@@ -2253,22 +2258,19 @@ gfc_simplify_dim (gfc_expr *x, gfc_expr *y)
 gfc_expr*
 gfc_simplify_dot_product (gfc_expr *vector_a, gfc_expr *vector_b)
 {
-
-  gfc_expr temp;
+  /* If vector_a is a zero-sized array, the result is 0 for INTEGER, 
+     REAL, and COMPLEX types and .false. for LOGICAL.  */
+  if (vector_a->shape && mpz_get_si (vector_a->shape[0]) == 0)
+    {
+      if (vector_a->ts.type == BT_LOGICAL)
+	return gfc_get_logical_expr (gfc_default_logical_kind, NULL, false);
+      else
+	return gfc_get_int_expr (gfc_default_integer_kind, NULL, 0);
+    }
 
   if (!is_constant_array_expr (vector_a)
       || !is_constant_array_expr (vector_b))
     return NULL;
-
-  gcc_assert (vector_a->rank == 1);
-  gcc_assert (vector_b->rank == 1);
-
-  temp.expr_type = EXPR_OP;
-  gfc_clear_ts (&temp.ts);
-  temp.value.op.op = INTRINSIC_NONE;
-  temp.value.op.op1 = vector_a;
-  temp.value.op.op2 = vector_b;
-  gfc_type_convert_binary (&temp, 1);
 
   return compute_dot_product (vector_a, 1, 0, vector_b, 1, 0, true);
 }
@@ -2891,6 +2893,30 @@ gfc_simplify_failed_or_stopped_images (gfc_expr *team ATTRIBUTE_UNUSED,
 
 
 gfc_expr *
+gfc_simplify_get_team (gfc_expr *level ATTRIBUTE_UNUSED)
+{
+  if (flag_coarray == GFC_FCOARRAY_NONE)
+    {
+      gfc_current_locus = *gfc_current_intrinsic_where;
+      gfc_fatal_error ("Coarrays disabled at %C, use %<-fcoarray=%> to enable");
+      return &gfc_bad_expr;
+    }
+
+  if (flag_coarray == GFC_FCOARRAY_SINGLE)
+    {
+      gfc_expr *result;
+      result = gfc_get_array_expr (BT_INTEGER, gfc_default_integer_kind, &gfc_current_locus);
+      result->rank = 0;
+      return result;
+    }
+
+  /* For fcoarray = lib no simplification is possible, because it is not known
+     what images failed or are stopped at compile time.  */
+  return NULL;
+}
+
+
+gfc_expr *
 gfc_simplify_float (gfc_expr *a)
 {
   gfc_expr *result;
@@ -3056,7 +3082,7 @@ gfc_simplify_fraction (gfc_expr *x)
 
 #if MPFR_VERSION < MPFR_VERSION_NUM(3,1,0)
 
-  /* MPFR versions before 3.1.0 do not include mpfr_frexp.  
+  /* MPFR versions before 3.1.0 do not include mpfr_frexp.
      TODO: remove the kludge when MPFR 3.1.0 or newer will be required */
 
   if (mpfr_sgn (x->value.real) == 0)
@@ -7346,7 +7372,7 @@ gfc_simplify_transfer (gfc_expr *source, gfc_expr *mold, gfc_expr *size)
 	|| !gfc_is_constant_expr (size))
     return NULL;
 
-  if (!gfc_calculate_transfer_sizes (source, mold, size, &source_size, 
+  if (!gfc_calculate_transfer_sizes (source, mold, size, &source_size,
 				     &result_size, &result_length))
     return NULL;
 

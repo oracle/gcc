@@ -1,3 +1,376 @@
+2018-01-27  Bernd Edlinger  <bernd.edlinger@hotmail.de>
+
+	PR diagnostic/84034
+	* diagnostic-show-locus.c (get_line_width_without_trailing_whitespace):
+	Handle CR like TAB.
+	(layout::print_source_line): Likewise.
+	(test_get_line_width_without_trailing_whitespace): Add test cases.
+
+2018-01-27  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/84040
+	* sched-deps.c (sched_macro_fuse_insns): Return immediately for
+	debug insns.
+
+2018-01-26  Jim Wilson  <jimw@sifive.com>
+
+	* config/riscv/riscv.h (MAX_FIXED_MODE_SIZE): New.
+
+	* config/riscv/elf.h (LIB_SPEC): Don't include -lgloss when nosys.specs
+	specified.
+
+2018-01-26  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* config/aarch64/aarch64.md: Add peepholes for CMP + SUB -> SUBS
+	and CMP + SUB-immediate -> SUBS.
+
+2018-01-26  Martin Sebor  <msebor@redhat.com>
+
+	PR tree-optimization/83896
+	* tree-ssa-strlen.c (get_string_len): Rename...
+	(get_string_cst_length): ...to this.  Return HOST_WIDE_INT.
+	Avoid assuming length is constant.
+	(handle_char_store): Use HOST_WIDE_INT for string length.
+
+2018-01-26  Uros Bizjak  <ubizjak@gmail.com>
+
+	PR target/81763
+	* config/i386/i386.md (*andndi3_doubleword): Add earlyclobber
+	to (=&r,r,rm) alternative. Add (=r,0,rm) and (=r,r,0) alternatives.
+
+2018-01-26  Richard Biener  <rguenther@suse.de>
+
+	PR rtl-optimization/84003
+	* dse.c (record_store): Only record redundant stores when
+	the earlier store aliases at least all accesses the later one does.
+
+2018-01-26  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/83985
+	* dce.c (deletable_insn_p): Return false for separate shrink wrapping
+	REG_CFA_RESTORE insns.
+	(delete_unmarked_insns): Don't ignore separate shrink wrapping
+	REG_CFA_RESTORE insns here.
+
+	PR c/83989
+	* gimple-ssa-warn-restrict.c (builtin_memref::builtin_memref): Don't
+	use SSA_NAME_VAR as base for SSA_NAMEs with non-NULL SSA_NAME_VAR.
+
+2018-01-26  Claudiu Zissulescu  <claziss@synopsys.com>
+
+	* config/arc/arc-arch.h (arc_tune_attr): Add ARC_TUNE_CORE_3.
+	* config/arc/arc.c (arc_sched_issue_rate): Use ARC_TUNE_... .
+	(arc_init): Likewise.
+	(arc_override_options): Likewise.
+	(arc_file_start): Choose Tag_ARC_CPU_variation based on arc_tune
+	value.
+	(hwloop_fail): Use TARGET_DBNZ when we want to check for dbnz insn
+	support.
+	* config/arc/arc.h (TARGET_DBNZ): Define.
+	* config/arc/arc.md (attr tune): Add core_3, use ARC_TUNE_... to
+	properly set the tune attribute.
+	(dbnz): Use TARGET_DBNZ guard.
+	* config/arc/arc.opt (mtune): Add core3 option.
+
+2018-01-26  Claudiu Zissulescu  <claziss@synopsys.com>
+
+	* config/arc/arc.c (arc_delegitimize_address_0): Refactored to
+	recognize new pic like addresses.
+	(arc_delegitimize_address): Clean up.
+
+2018-01-26  Claudiu Zissulescu  <claziss@synopsys.com>
+
+	* config/arc/arc-arches.def: Option mrf16 valid for all
+	architectures.
+	* config/arc/arc-c.def (__ARC_RF16__): New predefined macro.
+	* config/arc/arc-cpus.def (em_mini): New cpu with rf16 on.
+	* config/arc/arc-options.def (FL_RF16): Add mrf16 option.
+	* config/arc/arc-tables.opt: Regenerate.
+	* config/arc/arc.c (arc_conditional_register_usage): Handle
+	reduced register file case.
+	(arc_file_start): Set must have build attributes.
+	* config/arc/arc.h (MAX_ARC_PARM_REGS): Conditional define using
+	mrf16 option value.
+	* config/arc/arc.opt (mrf16): Add new option.
+	* config/arc/elf.h (ATTRIBUTE_PCS): Define.
+	* config/arc/genmultilib.awk: Handle new mrf16 option.
+	* config/arc/linux.h (ATTRIBUTE_PCS): Define.
+	* config/arc/t-multilib: Regenerate.
+	* doc/invoke.texi (ARC Options): Document mrf16 option.
+
+2018-01-26  Claudiu Zissulescu  <claziss@synopsys.com>
+
+	* config/arc/arc-protos.h: Add arc_is_secure_call_p proto.
+	* config/arc/arc.c (arc_handle_secure_attribute): New function.
+	(arc_attribute_table): Add 'secure_call' attribute.
+	(arc_print_operand): Print secure call operand.
+	(arc_function_ok_for_sibcall): Don't optimize tail calls when
+	secure.
+	(arc_is_secure_call_p): New function.  * config/arc/arc.md
+	(call_i): Add support for sjli instruction.
+	(call_value_i): Likewise.
+	* config/arc/constraints.md (Csc): New constraint.
+
+2018-01-26  Claudiu Zissulescu  <claziss@synopsys.com>
+	    John Eric Martin <John.Martin@emmicro-us.com>
+
+	* config/arc/arc-protos.h: Add arc_is_jli_call_p proto.
+	* config/arc/arc.c (_arc_jli_section): New struct.
+	(arc_jli_section): New type.
+	(rc_jli_sections): New static variable.
+	(arc_handle_jli_attribute): New function.
+	(arc_attribute_table): Add jli_always and jli_fixed attribute.
+	(arc_file_end): New function.
+	(TARGET_ASM_FILE_END): Define.
+	(arc_print_operand): Reuse 'S' letter for JLI output instruction.
+	(arc_add_jli_section): New function.
+	(jli_call_scan): Likewise.
+	(arc_reorg): Call jli_call_scan.
+	(arc_output_addsi): Remove 'S' from printing asm operand.
+	(arc_is_jli_call_p): New function.
+	* config/arc/arc.md (movqi_insn): Remove 'S' from printing asm
+	operand.
+	(movhi_insn): Likewise.
+	(movsi_insn): Likewise.
+	(movsi_set_cc_insn): Likewise.
+	(loadqi_update): Likewise.
+	(load_zeroextendqisi_update): Likewise.
+	(load_signextendqisi_update): Likewise.
+	(loadhi_update): Likewise.
+	(load_zeroextendhisi_update): Likewise.
+	(load_signextendhisi_update): Likewise.
+	(loadsi_update): Likewise.
+	(loadsf_update): Likewise.
+	(movsicc_insn): Likewise.
+	(bset_insn): Likewise.
+	(bxor_insn): Likewise.
+	(bclr_insn): Likewise.
+	(bmsk_insn): Likewise.
+	(bicsi3_insn): Likewise.
+	(cmpsi_cc_c_insn): Likewise.
+	(movsi_ne): Likewise.
+	(movsi_cond_exec): Likewise.
+	(clrsbsi2): Likewise.
+	(norm_f): Likewise.
+	(normw): Likewise.
+	(swap): Likewise.
+	(divaw): Likewise.
+	(flag): Likewise.
+	(sr): Likewise.
+	(kflag): Likewise.
+	(ffs): Likewise.
+	(ffs_f): Likewise.
+	(fls): Likewise.
+	(call_i): Remove 'S' asm letter, add jli instruction.
+	(call_value_i): Likewise.
+	* config/arc/arc.op (mjli-always): New option.
+	* config/arc/constraints.md (Cji): New constraint.
+	* config/arc/fpx.md (addsf3_fpx): Remove 'S' from printing asm
+	operand.
+	(subsf3_fpx): Likewise.
+	(mulsf3_fpx): Likewise.
+	* config/arc/simdext.md (vendrec_insn): Remove 'S' from printing
+	asm operand.
+	* doc/extend.texi (ARC): Document 'jli-always' and 'jli-fixed'
+	function attrbutes.
+	* doc/invoke.texi (ARC): Document mjli-always option.
+
+2018-01-26  Sebastian Perta  <sebastian.perta@renesas.com>
+
+	* config/rl78/rl78.c: if operand 2 is const avoid addition with 0
+	and use incw and decw where possible
+	* testsuite/gcc.target/rl78/test_addsi3_internal.c: new file
+
+2018-01-26  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/81082
+	* fold-const.c (fold_plusminus_mult_expr): Do not perform the
+	association if it requires casting to unsigned.
+	* match.pd ((A * C) +- (B * C) -> (A+-B)): New patterns derived
+	from fold_plusminus_mult_expr to catch important cases late when
+	range info is available.
+
+2018-01-26  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
+
+	* config/i386/sol2.h (USE_HIDDEN_LINKONCE): Remove.
+	* configure.ac (hidden_linkonce): New test.
+	* configure: Regenerate.
+	* config.in: Regenerate.
+
+2018-01-26  Julia Koval  <julia.koval@intel.com>
+
+	* config/i386/avx512bitalgintrin.h (_mm512_bitshuffle_epi64_mask,
+	_mm512_mask_bitshuffle_epi64_mask, _mm256_bitshuffle_epi64_mask,
+	_mm256_mask_bitshuffle_epi64_mask, _mm_bitshuffle_epi64_mask,
+	_mm_mask_bitshuffle_epi64_mask): Fix type.
+	* config/i386/i386-builtin-types.def (UHI_FTYPE_V2DI_V2DI_UHI,
+	USI_FTYPE_V4DI_V4DI_USI): Remove.
+	* config/i386/i386-builtin.def (__builtin_ia32_vpshufbitqmb512_mask,
+	__builtin_ia32_vpshufbitqmb256_mask,
+	__builtin_ia32_vpshufbitqmb128_mask): Fix types.
+	* config/i386/i386.c (ix86_expand_args_builtin): Remove old types.
+	* config/i386/sse.md (VI1_AVX512VLBW): Change types.
+
+2018-01-26  Alan Modra  <amodra@gmail.com>
+
+	PR target/84033
+	* config/rs6000/rs6000-p8swap.c (rtx_is_swappable_p): Exclude
+	UNSPEC_VBPERMQ.  Sort other unspecs.
+
+2018-01-25  David Edelsohn  <dje.gcc@gmail.com>
+
+	* doc/invoke.texi (PowerPC Options): Document 'native' cpu type.
+
+2018-01-25  Jan Hubicka  <hubicka@ucw.cz>
+
+	PR middle-end/83055
+	* predict.c (drop_profile): Do not push/pop cfun; update also
+	node->count.
+	(handle_missing_profiles): Fix logic looking for zero profiles.
+
+2018-01-25  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/83977
+	* ipa-fnsummary.c (compute_fn_summary): Clear can_change_signature
+	on functions with #pragma omp declare simd or functions with simd
+	attribute.
+	* omp-simd-clone.c (expand_simd_clones): Revert 2018-01-24 change.
+	* config/i386/i386.c (ix86_simd_clone_compute_vecsize_and_simdlen):
+	Remove trailing \n from warning_at calls.
+
+2018-01-25  Tom de Vries  <tom@codesourcery.com>
+
+	PR target/84028
+	* config/nvptx/nvptx.c (nvptx_single): Add exit insn after noreturn call
+	for neutered workers.
+
+2018-01-24  Joseph Myers  <joseph@codesourcery.com>
+
+	PR target/68467
+	* config/m68k/m68k.c (m68k_promote_function_mode): New function.
+	(TARGET_PROMOTE_FUNCTION_MODE): New macro.
+
+2017-01-08  Jeff Law  <law@redhat.com>
+
+	PR target/83994
+	* i386.c (get_probe_interval): Move to earlier point.
+	(ix86_compute_frame_layout): If -fstack-clash-protection and
+	the frame is larger than the probe interval, then use pushes
+	to save registers rather than reg->mem moves.
+	(ix86_expand_prologue): Remove conditional for int_registers_saved
+	assertion.
+
+2018-01-24  Vladimir Makarov  <vmakarov@redhat.com>
+
+	PR target/84014
+	* ira-build.c (setup_min_max_allocno_live_range_point): Set up
+	min/max for never referenced object.
+
+2018-01-24  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/83977
+	* tree.c (free_lang_data_in_decl): Don't clear DECL_ABSTRACT_ORIGIN
+	here.
+	* omp-low.c (create_omp_child_function): Remove "omp declare simd"
+	attributes from DECL_ATTRIBUTES (decl) without affecting
+	DECL_ATTRIBUTES (current_function_decl).
+	* omp-simd-clone.c (expand_simd_clones): Ignore DECL_ARTIFICIAL
+	functions with non-NULL DECL_ABSTRACT_ORIGIN.
+
+2018-01-24  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	PR tree-optimization/83979
+	* fold-const.c (fold_comparison): Use constant_boolean_node
+	instead of boolean_{true,false}_node.
+
+2018-01-24  Jan Hubicka  <hubicka@ucw.cz>
+
+	* ipa-profile.c (ipa_propagate_frequency_1): Fix logic skipping calls
+	with zero counts.
+
+2018-01-24  Bill Schmidt  <wschmidt@linux.vnet.ibm.com>
+
+	* config/rs6000/rs6000.md (*call_indirect_nonlocal_sysv<mode>):
+	Simplify the clause that sets the length attribute.
+	(*call_value_indirect_nonlocal_sysv<mode>): Likewise.
+	(*sibcall_nonlocal_sysv<mode>): Clean up code block; simplify the
+	clause that sets the length attribute.
+	(*sibcall_value_nonlocal_sysv<mode>): Likewise.
+
+2018-01-24  Tom de Vries  <tom@codesourcery.com>
+
+	PR target/83589
+	* config/nvptx/nvptx.c (WORKAROUND_PTXJIT_BUG_2): Define to 1.
+	(nvptx_pc_set, nvptx_condjump_label): New function. Copy from jump.c.
+	Add strict parameter.
+	(prevent_branch_around_nothing): Insert dummy insn between branch to
+	label and label with no ptx insn inbetween.
+	* config/nvptx/nvptx.md (define_insn "fake_nop"): New insn.
+
+2018-01-24  Tom de Vries  <tom@codesourcery.com>
+
+	PR target/81352
+	* config/nvptx/nvptx.c (nvptx_single): Add exit insn after noreturn call
+	for neutered threads in warp.
+	* config/nvptx/nvptx.md (define_insn "exit"): New insn.
+
+2018-01-24  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/83176
+	* tree-chrec.c (chrec_fold_plus_1): Handle (signed T){(T) .. }
+	operands.
+
+2018-01-24  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/82819
+	* graphite-isl-ast-to-gimple.c (binary_op_to_tree): Avoid
+	code generating pluses that are no-ops in the target precision.
+
+2018-01-24  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/84000
+	* tree-cfg.c (replace_loop_annotate): Handle annot_expr_parallel_kind.
+
+2018-01-23  Jan Hubicka  <hubicka@ucw.cz>
+
+	* cfgcleanup.c (try_crossjump_to_edge): Use combine_with_count
+	to merge probabilities.
+	* predict.c (probably_never_executed): Also mark as cold functions
+	with global 0 profile and guessed local profile.
+	* profile-count.c (profile_probability::combine_with_count): New
+	member function.
+	* profile-count.h (profile_probability::operator*,
+	profile_probability::operator*=, profile_probability::operator/,
+	profile_probability::operator/=): Reduce precision to adjusted
+	and set value to guessed on contradictory divisions.
+	(profile_probability::combine_with_freq): Remove.
+	(profile_probability::combine_wiht_count): Declare.
+	(profile_count::force_nonzero):: Set to adjusted.
+	(profile_count::probability_in):: Set quality to adjusted.
+	* tree-ssa-tail-merge.c (replace_block_by): Use
+	combine_with_count.
+
+2018-01-23  Andrew Waterman  <andrew@sifive.com>
+	    Jim Wilson  <jimw@sifive.com>
+
+	* config/riscv/riscv.c (riscv_stack_boundary): New.
+	(riscv_option_override): Set riscv_stack_boundary.  Handle
+	riscv_preferred_stack_boundary_arg.
+	* config/riscv/riscv.h (MIN_STACK_BOUNDARY, ABI_STACK_BOUNDARY): New.
+	(BIGGEST_ALIGNMENT): Set to STACK_BOUNDARY.
+	(STACK_BOUNDARY): Set to riscv_stack_boundary.
+	(RISCV_STACK_ALIGN): Use STACK_BOUNDARY.
+	* config/riscv/riscv.opt (mpreferred-stack-boundary): New.
+	* doc/invoke.tex (RISC-V Options): Add -mpreferred-stack-boundary.
+
+2018-01-23  H.J. Lu  <hongjiu.lu@intel.com>
+
+	PR target/83905
+	* config/i386/i386.c (ix86_expand_prologue): Use cost reference
+	of struct ix86_frame.
+	(ix86_expand_epilogue): Likewise.  Add a local variable for
+	the reg_save_offset field in struct ix86_frame.
+
 2018-01-23  Bin Cheng  <bin.cheng@arm.com>
 
 	PR tree-optimization/82604
@@ -203,8 +576,8 @@
 	* config/rl78/rl78.md: New define_expand "umaxdi3".
 
 2018-01-22  Sebastian Perta  <sebastian.perta@renesas.com>
-	
-	* config/rl78/rl78.c (rl78_note_reg_set): fixed dead reg check 
+
+	* config/rl78/rl78.c (rl78_note_reg_set): fixed dead reg check
 	for non-QImode registers
 
 2018-01-22  Richard Biener  <rguenther@suse.de>
@@ -407,32 +780,32 @@
 
 2018-01-18  Boris Kolpackov  <boris@codesynthesis.com>
 
-        PR other/70268
-        * common.opt: (-ffile-prefix-map): New option.
-        * opts.c (common_handle_option): Defer it.
-        * opts-global.c (handle_common_deferred_options): Handle it.
-        * debug.h (remap_debug_filename, add_debug_prefix_map): Move to...
-        * file-prefix-map.h: New file.
-        (remap_debug_filename, add_debug_prefix_map): ...here.
-        (add_macro_prefix_map, add_file_prefix_map, remap_macro_filename): New.
-        * final.c (debug_prefix_map, add_debug_prefix_map
-        remap_debug_filename): Move to...
-        * file-prefix-map.c: New file.
-        (file_prefix_map, add_prefix_map, remap_filename) ...here and rename,
-        generalize, get rid of alloca(), use strrchr() instead of strchr().
-        (add_macro_prefix_map, add_debug_prefix_map, add_file_prefix_map):
-        Implement in terms of add_prefix_map().
-        (remap_macro_filename, remap_debug_filename): Implement in term of
-        remap_filename().
-        * Makefile.in (OBJS, PLUGIN_HEADERS): Add new files.
-        * builtins.c (fold_builtin_FILE): Call remap_macro_filename().
-        * dbxout.c: Include file-prefix-map.h.
-        * varasm.c: Likewise.
-        * vmsdbgout.c: Likewise.
-        * xcoffout.c: Likewise.
-        * dwarf2out.c: Likewise plus omit new options from DW_AT_producer.
-        * doc/cppopts.texi (-fmacro-prefix-map): Document.
-        * doc/invoke.texi (-ffile-prefix-map): Document.
+	PR other/70268
+	* common.opt: (-ffile-prefix-map): New option.
+	* opts.c (common_handle_option): Defer it.
+	* opts-global.c (handle_common_deferred_options): Handle it.
+	* debug.h (remap_debug_filename, add_debug_prefix_map): Move to...
+	* file-prefix-map.h: New file.
+	(remap_debug_filename, add_debug_prefix_map): ...here.
+	(add_macro_prefix_map, add_file_prefix_map, remap_macro_filename): New.
+	* final.c (debug_prefix_map, add_debug_prefix_map
+	remap_debug_filename): Move to...
+	* file-prefix-map.c: New file.
+	(file_prefix_map, add_prefix_map, remap_filename) ...here and rename,
+	generalize, get rid of alloca(), use strrchr() instead of strchr().
+	(add_macro_prefix_map, add_debug_prefix_map, add_file_prefix_map):
+	Implement in terms of add_prefix_map().
+	(remap_macro_filename, remap_debug_filename): Implement in term of
+	remap_filename().
+	* Makefile.in (OBJS, PLUGIN_HEADERS): Add new files.
+	* builtins.c (fold_builtin_FILE): Call remap_macro_filename().
+	* dbxout.c: Include file-prefix-map.h.
+	* varasm.c: Likewise.
+	* vmsdbgout.c: Likewise.
+	* xcoffout.c: Likewise.
+	* dwarf2out.c: Likewise plus omit new options from DW_AT_producer.
+	* doc/cppopts.texi (-fmacro-prefix-map): Document.
+	* doc/invoke.texi (-ffile-prefix-map): Document.
 	(-fdebug-prefix-map): Update description.
 
 2018-01-18  Martin Liska  <mliska@suse.cz>
@@ -629,7 +1002,7 @@
 
 2018-01-16  Artyom Skrobov tyomitch@gmail.com
 
-        * caller-save.c (insert_save): Drop unnecessary parameter.  All
+	* caller-save.c (insert_save): Drop unnecessary parameter.  All
 	callers updated.
 
 2018-01-16  Jakub Jelinek  <jakub@redhat.com>
@@ -860,9 +1233,9 @@
 
 2018-01-14  Nathan Rossi  <nathan@nathanrossi.com>
 
-        PR target/83013
-        * config/microblaze/microblaze.c (microblaze_asm_output_ident):
-        Use .pushsection/.popsection.
+	PR target/83013
+	* config/microblaze/microblaze.c (microblaze_asm_output_ident):
+	Use .pushsection/.popsection.
 
 2018-01-14  Martin Sebor  <msebor@redhat.com>
 

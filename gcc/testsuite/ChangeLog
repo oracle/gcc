@@ -1,3 +1,286 @@
+2018-01-26  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	* gcc.target/powerpc/safe-indirect-jump-1.c: Build on all targets.
+	Make expected output depend on whether we expect sibcalls or not.
+	* gcc.target/powerpc/safe-indirect-jump-8.c: Delete (merged into
+	safe-indirect-jump-1.c).
+
+2018-01-26  Damian Rouson  <damian@sourceryinstitute.org>
+	    Alessandro Fanfarillo  <fanfarillo.gcc@gmail.com>
+	    Soren Rasmussen  <s.c.rasmussen@gmail.com>
+
+	Fortran 2018 teams tests.
+
+	* gfortran.dg/team_number_1.f90: new test for team_number.
+	* gfortran.dg/team_change_1.f90: new test for change team.
+	* gfortran.dg/team_end_1.f90: new test for end team.
+	* gfortran.dg/team_form_1.f90: new test for form team.
+
+2018-01-26  Steven G. Kargl  <kargl@gcc.gnu.org>
+
+	PR fortran/83998
+	* gfortran.dg/dot_product_4.f90
+
+2018-01-26  Martin Sebor  <msebor@redhat.com>
+
+	PR tree-optimization/83896
+	* gcc.dg/strlenopt-43.c: New.
+
+2018-01-26  Will Schmidt  <will_schmidt@vnet.ibm.com>
+
+	* gcc.target/powerpc/fold-vec-abs-int.c: Remove scan-assembler stanzas.
+	* gcc.target/powerpc/fold-vec-abs-int-fwrap.c: Same.
+	* gcc.target/powerpc/fold-vec-abs-int.p7.c: New.
+	* gcc.target/powerpc/fold-vec-abs-int.p8.c: New.
+	* gcc.target/powerpc/fold-vec-abs-int.p9.c: New.
+	* gcc.target/powerpc/fold-vec-abs-int-fwrapv.p7.c: New.
+	* gcc.target/powerpc/fold-vec-abs-int-fwrapv.p8.c: New.
+	* gcc.target/powerpc/fold-vec-abs-int-fwrapv.p9.c: New.
+	* gcc.target/powerpc/fold-vec-abs-longlong.c: Remove scan-assembler
+	stanzas.
+	* gcc.target/powerpc/fold-vec-abs-longlong-fwrap.c: Same.
+	* gcc.target/powerpc/fold-vec-abs-longlong.p7.c: New.
+	* gcc.target/powerpc/fold-vec-abs-longlong.p8.c: New.
+	* gcc.target/powerpc/fold-vec-abs-longlong.p9.c: New.
+	* gcc.target/powerpc/fold-vec-abs-longlong-fwrapv.p7.c: New.
+	* gcc.target/powerpc/fold-vec-abs-longlong-fwrapv.p8.c: New.
+	* gcc.target/powerpc/fold-vec-abs-longlong-fwrapv.p9.c: New.
+	* gcc.target/powerpc/fold-vec-abs-short.c: Add xxspltib to valid
+	instruction list.
+	* gcc.target/powerpc/fold-vec-abs-short-fwrapv.c: Same.
+
+2018-01-26  Will Schmidt  <will_schmidt@vnet.ibm.com>
+
+	* gcc.target/powerpc/fold-vec-cmp-int.c: Delete.
+	* gcc.target/powerpc/fold-vec-cmp-int.h: New.
+	* gcc.target/powerpc/fold-vec-cmp-int.p7.c: New.
+	* gcc.target/powerpc/fold-vec-cmp-int.p8.c: New.
+	* gcc.target/powerpc/fold-vec-cmp-int.p9.c: New.
+	* gcc.target/powerpc/fold-vec-cmp-short.c: Delete.
+	* gcc.target/powerpc/fold-vec-cmp-short.h: New.
+	* gcc.target/powerpc/fold-vec-cmp-short.p8.c: New.
+	* gcc.target/powerpc/fold-vec-cmp-short.p9.c: New.
+	* gcc.target/powerpc/fold-vec-cmp-char.c: Delete.
+	* gcc.target/powerpc/fold-vec-cmp-char.h: New.
+	* gcc.target/powerpc/fold-vec-cmp-char.p8.c: New.
+	* gcc.target/powerpc/fold-vec-cmp-char.p9.c: New.
+
+2018-01-26  Martin Liska  <mliska@suse.cz>
+
+	* lib/target-supports.exp: Return a value, otherwise -Wreturn-type
+	warning is seen.
+
+2018-01-26  Will Schmidt  <will_schmidt@vnet.ibm.com>
+
+	* gcc.target/powerpc/fold-vec-neg-longlong.h:  New.
+	* gcc.target/powerpc/fold-vec-neg-longlong.p8.c:  New.
+	* gcc.target/powerpc/fold-vec-neg-longlong.p9.c:  New.
+	* gcc.target/powerpc/fold-vec-neg-longlong.c:  Delete.
+	* gcc.target/powerpc/fold-vec-neg-int.c: Remove scan-assembler stanzas.
+	* gcc.target/powerpc/fold-vec-neg-int.p7.c: New.
+	* gcc.target/powerpc/fold-vec-neg-int.p8.c: New.
+	* gcc.target/powerpc/fold-vec-neg-int.p9.c: New.
+
+2018-01-26  Richard Biener  <rguenther@suse.de>
+
+	PR rtl-optimization/84003
+	* g++.dg/torture/pr77745.C: Mark foo noinline to trigger
+	latent bug in DSE if NOINLINE is appropriately defined.
+	* g++.dg/torture/pr77745-2.C: New testcase including pr77745.C
+	and defining NOINLINE.
+
+2018-01-26  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* gcc.target/aarch64/advsimd-intrinsics/vld1x2.c: Make float64
+	tests specific to aarch64.  XFAIL test on arm.
+
+2018-01-26  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/83985
+	* gcc.dg/pr83985.c: New test.
+
+	PR c/83989
+	* c-c++-common/Wrestrict-3.c: New test.
+
+2018-01-26  Claudiu Zissulescu  <claziss@synopsys.com>
+
+	* testsuite/gcc.target/arc/tdelegitimize_addr.c: New test.
+
+2018-01-26  Claudiu Zissulescu  <claziss@synopsys.com>
+
+	* gcc.target/arc/jli-1.c: New file.
+	* gcc.target/arc/jli-2.c: Likewise.
+
+2018-01-26  Szabolcs Nagy  <szabolcs.nagy@arm.com>
+
+	* gcc.target/aarch64/sve/peel_ind_1.c: Match (adrp|adr) in scan-assembler.
+	* gcc.target/aarch64/sve/peel_ind_2.c: Likewise.
+	* gcc.target/aarch64/sve/peel_ind_3.c: Likewise.
+
+2018-01-26  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/81082
+	* gcc.dg/vect/pr81082.c: New testcase.
+	* gcc.dg/tree-ssa/loop-15.c: XFAIL the (int)((unsigned)n + -1U) * n + n
+	simplification to n * n.
+
+2018-01-26  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
+
+	* gcc.target/i386/mcount_pic.c: Only xfail get_pc_thunk scan on
+	Solaris 10.
+	* gcc.target/i386/pr63620.c: Likewise.
+
+2018-01-26  Julia Koval  <julia.koval@intel.com>
+
+	* gcc.target/i386/avx512bitalg-vpshufbitqmb-1.c: Add -mavx512f -mavx512bw.
+	* gcc.target/i386/avx512bitalgvl-vpshufbitqmb-1.c: Add -mavx512bw.
+	* gcc.target/i386/i386.exp: Fix types.
+
+2018-01-26  Alan Modra  <amodra@gmail.com>
+
+	PR target/84033
+	* gcc.target/powerpc/swaps-p8-46.c: New.
+
+2018-25-01  Paul Thomas  <pault@gcc.gnu.org>
+
+	PR fortran/37577
+	* gfortran.dg/coarray_18.f90: Allow dimension 15 for F2008.
+	* gfortran.dg/coarray_lib_this_image_2.f90: Change 'array1' to
+	'array01' in the tree dump comparison.
+	* gfortran.dg/coarray_lib_token_4.f90: Likewise.
+	* gfortran.dg/inline_sum_1.f90: Similar - allow two digits.
+	* gfortran.dg/rank_1.f90: Allow dimension 15 for F2008.
+
+2018-01-25  Jan Hubicka  <hubicka@ucw.cz>
+
+	PR middle-end/83055
+	* gcc.dg/torture/pr83055.c: New testcase.
+
+2018-01-25  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/84031
+	* g++.dg/cpp1z/decomp36.C: New test.
+
+	PR middle-end/83977
+	* c-c++-common/gomp/pr83977-1.c: Add -w to dg-options.
+
+2018-01-25  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	* gcc.dg/vect/vect-reduc-or_1.c: Require whole_vector_shift for
+	the shift dump line.
+	* gcc.dg/vect/vect-reduc-or_2.c: Likewise.
+
+2018-01-24  Michael Meissner  <meissner@linux.vnet.ibm.com>
+
+	PR target/81550
+	* gcc.target/powerpc/loop_align.c: Use unsigned long for the loop
+	index instead of int, which allows IVOPTs to properly optimize the
+	loop.
+
+2018-01-24  David Malcolm  <dmalcolm@redhat.com>
+
+	PR jit/82846
+	* jit.dg/test-alignment.c (create_aligned_code): Fix return type
+	of "fn_type" typedef.
+	* jit.dg/test-alignment.cc (verify_aligned_code): Likewise.
+
+2018-01-24  Ian Lance Taylor  <iant@golang.org>
+
+	* go.go-torture/execute/names-1.go: New test.
+
+2018-01-19  Jeff Law  <law@redhat.com>
+
+	PR target/83994
+	* gcc.target/i386/pr83994.c: New test.
+
+2018-01-24  Vladimir Makarov  <vmakarov@redhat.com>
+
+	PR target/84014
+	* gcc.target/powerpc/pr84014.c: New.
+
+2018-01-24  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/83977
+	* c-c++-common/gomp/pr83977-1.c: New test.
+	* c-c++-common/gomp/pr83977-2.c: New test.
+	* c-c++-common/gomp/pr83977-3.c: New test.
+	* gfortran.dg/gomp/pr83977.f90: New test.
+
+2018-01-24  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	PR testsuite/83889
+	* gcc.dg/vect/pr79920.c: Remove explicit dg-do run.
+	* gcc.dg/vect/pr80631-1.c: Likewise.
+	* gcc.dg/vect/pr80631-2.c: Likewise.
+	* gcc.dg/vect/pr81410.c: Likewise.
+	* gcc.dg/vect/pr81633.c: Likewise.
+	* gcc.dg/vect/pr81815.c: Likewise.
+	* gcc.dg/vect/pr82108.c: Likewise.
+	* gcc.dg/vect/pr83857.c: Likewise.
+	* gcc.dg/vect/vect-alias-check-8.c: Likewise.
+	* gcc.dg/vect/vect-alias-check-9.c: Likewise.
+	* gcc.dg/vect/vect-alias-check-10.c: Likewise.
+	* gcc.dg/vect/vect-alias-check-11.c: Likewise.
+	* gcc.dg/vect/vect-alias-check-12.c: Likewise.
+	* gcc.dg/vect/vect-reduc-11.c: Likewise.
+	* gcc.dg/vect/vect-tail-nomask-1.c: Likewise.
+	* gcc.dg/vect/vect-reduc-in-order-1.c: Remove dg-do run and use
+	dg-xfail-run-if instead.
+	* gcc.dg/vect/vect-reduc-in-order-2.c: Likewise.
+	* gcc.dg/vect/vect-reduc-in-order-3.c: Likewise.
+	* gcc.dg/vect/vect-reduc-in-order-4.c: Likewise.
+	* gcc.dg/vect/vect-reduc-or_1.c: Remove conditional dg-do run.
+	* gcc.dg/vect/vect-reduc-or_2.c: Likewise.
+
+2018-01-24  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	PR tree-optimization/83979
+	* g++.dg/pr83979.c: New test.
+
+2018-01-24  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* gcc.dg/lto/20110201-1_0.c: Remove explicit -mfloat-abi=softfp
+	option.  Add arm_neon_ok_no_float_abi check.
+
+2018-01-24  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/83176
+	* gcc.dg/graphite/pr83176.c: New testcase.
+
+2018-01-24  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/82819
+	* gcc.dg/graphite/pr82819.c: New testcase.
+
+2018-01-23  Paolo Carlini  <paolo.carlini@oracle.com>
+
+	PR c++/83921
+	* g++.dg/cpp1y/constexpr-83921-1.C: New.
+	* g++.dg/cpp1y/constexpr-83921-2.C: Likewise.
+	* g++.dg/cpp1y/constexpr-83921-3.C: Likewise.
+	* g++.dg/ext/stmtexpr20.C: Likewise.
+	* g++.dg/ext/stmtexpr21.C: Likewise.
+
+2018-01-23  David Malcolm  <dmalcolm@redhat.com>
+
+	PR c++/83974
+	* g++.dg/warn/pr83974.C: New test case.
+
+2018-01-23  Jakub Jelinek  <jakub@redhat.com>
+
+	PR sanitizer/83987
+	* g++.dg/ubsan/pr83987.C: New test.
+
+2018-01-23  Paul Thomas  <pault@gcc.gnu.org>
+
+	PR fortran/83866
+	* gfortran.dg/pdt_29.f03: New test.
+
+2018-01-23  Paul Thomas  <pault@gcc.gnu.org>
+
+	PR fortran/83898
+	* gfortran.dg/associate_33.f03: New test.
+
 2018-01-23  Martin Liska  <mliska@suse.cz>
 
 	PR lto/81440
@@ -1694,7 +1977,7 @@
 2018-01-13  Paul Thomas  <pault@gcc.gnu.org>
 
 	PR fortran/52162
-	* gfortran.dg/bounds_check_19.f90 : New test.
+	* gfortran.dg/bounds_check_19.f90: New test.
 
 2010-06-30  Jakub Jelinek  <jakub@redhat.com>
 
@@ -2256,12 +2539,12 @@
 2018-01-08  Paul Thomas  <pault@gcc.gnu.org>
 
 	PR fortran/83611
-	* gfortran.dg/pdt_15.f03 : Bump count of 'n.data = 0B' to 8.
-	* gfortran.dg/pdt_26.f03 : Bump count of '_malloc' to 9.
-	* gfortran.dg/pdt_27.f03 : New test.
+	* gfortran.dg/pdt_15.f03: Bump count of 'n.data = 0B' to 8.
+	* gfortran.dg/pdt_26.f03: Bump count of '_malloc' to 9.
+	* gfortran.dg/pdt_27.f03: New test.
 
 	PR fortran/83731
-	* gfortran.dg/pdt_28.f03 : New test.
+	* gfortran.dg/pdt_28.f03: New test.
 
 2018-01-08  Tom de Vries  <tom@codesourcery.com>
 
@@ -2556,10 +2839,10 @@
 2018-01-01  Paul Thomas  <pault@gcc.gnu.org>
 
 	PR fortran/83076
-	* gfortran.dg/coarray_45.f90 : New test.
+	* gfortran.dg/coarray_45.f90: New test.
 
 	PR fortran/83319
-	* gfortran.dg/coarray_46.f90 : New test.
+	* gfortran.dg/coarray_46.f90: New test.
 
 2018-01-01  Jakub Jelinek  <jakub@redhat.com>
 

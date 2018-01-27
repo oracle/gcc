@@ -11497,6 +11497,18 @@ static void warn_once_call_ms2sysv_xlogues (const char *feature)
     }
 }
 
+/* Return the probing interval for -fstack-clash-protection.  */
+
+static HOST_WIDE_INT
+get_probe_interval (void)
+{
+  if (flag_stack_clash_protection)
+    return (HOST_WIDE_INT_1U
+	    << PARAM_VALUE (PARAM_STACK_CLASH_PROTECTION_PROBE_INTERVAL));
+  else
+    return (HOST_WIDE_INT_1U << STACK_CHECK_PROBE_INTERVAL_EXP);
+}
+
 /* When using -fsplit-stack, the allocation routines set a field in
    the TCB to the bottom of the stack plus this much space, measured
    in bytes.  */
@@ -11773,7 +11785,14 @@ ix86_compute_frame_layout (void)
   to_allocate = offset - frame->sse_reg_save_offset;
 
   if ((!to_allocate && frame->nregs <= 1)
-      || (TARGET_64BIT && to_allocate >= HOST_WIDE_INT_C (0x80000000)))
+      || (TARGET_64BIT && to_allocate >= HOST_WIDE_INT_C (0x80000000))
+      /* If stack clash probing needs a loop, then it needs a
+	 scratch register.  But the returned register is only guaranteed
+	 to be safe to use after register saves are complete.  So if
+	 stack clash protections are enabled and the allocated frame is
+	 larger than the probe interval, then use pushes to save
+	 callee saved registers.  */
+      || (flag_stack_clash_protection && to_allocate > get_probe_interval ()))
     frame->save_regs_using_mov = false;
 
   if (ix86_using_red_zone ()
@@ -12565,18 +12584,6 @@ release_scratch_register_on_entry (struct scratch_reg *sr)
       add_reg_note (insn, REG_FRAME_RELATED_EXPR, x);
       m->fs.sp_offset -= UNITS_PER_WORD;
     }
-}
-
-/* Return the probing interval for -fstack-clash-protection.  */
-
-static HOST_WIDE_INT
-get_probe_interval (void)
-{
-  if (flag_stack_clash_protection)
-    return (HOST_WIDE_INT_1U
-	    << PARAM_VALUE (PARAM_STACK_CLASH_PROTECTION_PROBE_INTERVAL));
-  else
-    return (HOST_WIDE_INT_1U << STACK_CHECK_PROBE_INTERVAL_EXP);
 }
 
 /* Emit code to adjust the stack pointer by SIZE bytes while probing it.
@@ -13376,7 +13383,6 @@ ix86_expand_prologue (void)
 {
   struct machine_function *m = cfun->machine;
   rtx insn, t;
-  struct ix86_frame frame;
   HOST_WIDE_INT allocate;
   bool int_registers_saved;
   bool sse_registers_saved;
@@ -13404,7 +13410,7 @@ ix86_expand_prologue (void)
   m->fs.sp_valid = true;
   m->fs.sp_realigned = false;
 
-  frame = m->frame;
+  const struct ix86_frame &frame = cfun->machine->frame;
 
   if (!TARGET_64BIT && ix86_function_ms_hook_prologue (current_function_decl))
     {
@@ -13727,12 +13733,11 @@ ix86_expand_prologue (void)
       && (flag_stack_check == STATIC_BUILTIN_STACK_CHECK
 	  || flag_stack_clash_protection))
     {
-      /* This assert wants to verify that integer registers were saved
-	 prior to probing.  This is necessary when probing may be implemented
-	 as a function call (Windows).  It is not necessary for stack clash
-	 protection probing.  */
-      if (!flag_stack_clash_protection)
-	gcc_assert (int_registers_saved);
+      /* We expect the GP registers to be saved when probes are used
+	 as the probing sequences might need a scratch register and
+	 the routine to allocate one assumes the integer registers
+	 have already been saved.  */
+      gcc_assert (int_registers_saved);
 
       if (flag_stack_clash_protection)
 	{
@@ -14282,7 +14287,6 @@ ix86_expand_epilogue (int style)
 {
   struct machine_function *m = cfun->machine;
   struct machine_frame_state frame_state_save = m->fs;
-  struct ix86_frame frame;
   bool restore_regs_via_mov;
   bool using_drap;
   bool restore_stub_is_tail = false;
@@ -14295,7 +14299,7 @@ ix86_expand_epilogue (int style)
     }
 
   ix86_finalize_stack_frame_flags ();
-  frame = m->frame;
+  const struct ix86_frame &frame = cfun->machine->frame;
 
   m->fs.sp_realigned = stack_realign_fp;
   m->fs.sp_valid = stack_realign_fp
@@ -14339,11 +14343,13 @@ ix86_expand_epilogue (int style)
 				  + UNITS_PER_WORD);
     }
 
+  HOST_WIDE_INT reg_save_offset = frame.reg_save_offset;
+
   /* Special care must be taken for the normal return case of a function
      using eh_return: the eax and edx registers are marked as saved, but
      not restored along this path.  Adjust the save location to match.  */
   if (crtl->calls_eh_return && style != 2)
-    frame.reg_save_offset -= 2 * UNITS_PER_WORD;
+    reg_save_offset -= 2 * UNITS_PER_WORD;
 
   /* EH_RETURN requires the use of moves to function properly.  */
   if (crtl->calls_eh_return)
@@ -14359,11 +14365,11 @@ ix86_expand_epilogue (int style)
   else if (TARGET_EPILOGUE_USING_MOVE
 	   && cfun->machine->use_fast_prologue_epilogue
 	   && (frame.nregs > 1
-	       || m->fs.sp_offset != frame.reg_save_offset))
+	       || m->fs.sp_offset != reg_save_offset))
     restore_regs_via_mov = true;
   else if (frame_pointer_needed
 	   && !frame.nregs
-	   && m->fs.sp_offset != frame.reg_save_offset)
+	   && m->fs.sp_offset != reg_save_offset)
     restore_regs_via_mov = true;
   else if (frame_pointer_needed
 	   && TARGET_USE_LEAVE
@@ -14431,7 +14437,7 @@ ix86_expand_epilogue (int style)
       rtx t;
 
       if (frame.nregs)
-	ix86_emit_restore_regs_using_mov (frame.reg_save_offset, style == 2);
+	ix86_emit_restore_regs_using_mov (reg_save_offset, style == 2);
 
       /* eh_return epilogues need %ecx added to the stack pointer.  */
       if (style == 2)
@@ -14526,19 +14532,19 @@ ix86_expand_epilogue (int style)
 	 in epilogues.  */
       if (!m->fs.sp_valid || m->fs.sp_realigned
  	  || (TARGET_SEH
-	      && (m->fs.sp_offset - frame.reg_save_offset
+	      && (m->fs.sp_offset - reg_save_offset
 		  >= SEH_MAX_FRAME_SIZE)))
 	{
 	  pro_epilogue_adjust_stack (stack_pointer_rtx, hard_frame_pointer_rtx,
 				     GEN_INT (m->fs.fp_offset
-					      - frame.reg_save_offset),
+					      - reg_save_offset),
 				     style, false);
 	}
-      else if (m->fs.sp_offset != frame.reg_save_offset)
+      else if (m->fs.sp_offset != reg_save_offset)
 	{
 	  pro_epilogue_adjust_stack (stack_pointer_rtx, stack_pointer_rtx,
 				     GEN_INT (m->fs.sp_offset
-					      - frame.reg_save_offset),
+					      - reg_save_offset),
 				     style,
 				     m->fs.cfa_reg == stack_pointer_rtx);
 	}
@@ -34733,8 +34739,6 @@ ix86_expand_args_builtin (const struct builtin_description *d,
     case HI_FTYPE_V16SF_INT_UHI:
     case QI_FTYPE_V8SF_INT_UQI:
     case QI_FTYPE_V4SF_INT_UQI:
-    case UHI_FTYPE_V2DI_V2DI_UHI:
-    case USI_FTYPE_V4DI_V4DI_USI:
     case V4SI_FTYPE_V4SI_V4SI_UHI:
     case V8SI_FTYPE_V8SI_V8SI_UHI:
       nargs = 3;
@@ -50218,7 +50222,7 @@ ix86_simd_clone_compute_vecsize_and_simdlen (struct cgraph_node *node,
 	break;
       default:
 	warning_at (DECL_SOURCE_LOCATION (node->decl), 0,
-		    "unsupported return type %qT for simd\n", ret_type);
+		    "unsupported return type %qT for simd", ret_type);
 	return 0;
       }
 
@@ -50240,7 +50244,7 @@ ix86_simd_clone_compute_vecsize_and_simdlen (struct cgraph_node *node,
 	break;
       default:
 	warning_at (DECL_SOURCE_LOCATION (node->decl), 0,
-		    "unsupported argument type %qT for simd\n", TREE_TYPE (t));
+		    "unsupported argument type %qT for simd", TREE_TYPE (t));
 	return 0;
       }
 
