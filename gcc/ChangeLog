@@ -1,3 +1,129 @@
+2018-01-30  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
+
+	PR target/40411
+	* config/sol2.h (STARTFILE_ARCH_SPEC): Use -std=c*,
+	-std=iso9899:199409 instead of -pedantic to select values-Xc.o.
+
+2018-01-30  Vladimir Makarov  <vmakarov@redhat.com>
+
+	PR target/84112
+	* lra-constraints.c (curr_insn_transform): Process AND in the
+	address.
+
+2018-01-30  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/83986
+	* sched-deps.c (sched_analyze_insn): For frame related insns, add anti
+	dependence against last_pending_memory_flush in addition to
+	pending_jump_insns.
+
+2018-01-30  Alexandre Oliva <aoliva@redhat.com>
+
+	PR tree-optimization/81611
+	* tree-ssa-dom.c (simple_iv_increment_p): Skip intervening
+	copies.
+
+2018-01-30  Aaron Sawdey  <acsawdey@linux.vnet.ibm.com>
+
+	* config/rs6000/rs6000.c (rs6000_internal_arg_pointer): Only return
+	a reg rtx.
+
+2018-01-30  Richard Biener  <rguenther@suse.de>
+	    Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/84111
+	* tree-ssa-loop-ivcanon.c (tree_unroll_loops_completely_1): Skip
+	inner loops added during recursion, as they don't have up-to-date
+	SSA form.
+
+2018-01-30  Jan Hubicka  <hubicka@ucw.cz>
+
+	PR ipa/81360
+	* ipa-inline.c (can_inline_edge_p): Break out late tests to...
+	(can_inline_edge_by_limits_p): ... here.
+	(can_early_inline_edge_p, check_callers,
+	update_caller_keys, update_callee_keys, recursive_inlining,
+	add_new_edges_to_heap, speculation_useful_p,
+	inline_small_functions,
+	inline_small_functions, flatten_function,
+	inline_to_all_callers_1): Update.
+
+2018-01-30  Jan Hubicka  <hubicka@ucw.cz>
+
+	* profile-count.c (profile_count::combine_with_ipa_count): Handle
+	zeros correctly.
+
+2018-01-30  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/83008
+	* tree-vect-slp.c (vect_analyze_slp_cost_1): Properly cost
+	invariant and constant vector uses in stmts when they need
+	more than one stmt.
+
+2018-01-30  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
+
+	PR bootstrap/84017
+	* configure.ac (gcc_cv_as_shf_merge): Disable on Solaris 10/x86.
+	* configure: Regenerate.
+
+2018-01-30  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	* config/aarch64/aarch64-sve.md (*vec_extract<mode><Vel>_0): New
+	pattern.
+	(*vec_extract<mode><Vel>_v128): Require a nonzero lane number.
+	Use gen_rtx_REG rather than gen_lowpart.
+
+2018-01-30  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	* lra-constraints.c (match_reload): Use subreg_lowpart_offset
+	rather than 0 when creating partial subregs.
+
+2018-01-30  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	* vec-perm-indices.c (vec_perm_indices::series_p): Give examples
+	of usage.
+
+2018-01-29  Michael Meissner  <meissner@linux.vnet.ibm.com>
+
+	PR target/81550
+	* config/rs6000/rs6000.c (rs6000_setup_reg_addr_masks): If DFmode
+	and SFmode can go in Altivec registers (-mcpu=power7 for DFmode,
+	-mcpu=power8 for SFmode) don't set the PRE_INCDEC or PRE_MODIFY
+	flags.  This restores the settings used before the 2017-07-24.
+	Turning off pre increment/decrement/modify allows IVOPTS to
+	optimize DF/SF loops where the index is an int.
+
+2018-01-29  Richard Biener <rguenther@suse.de>
+	    Kelvin Nilsen  <kelvin@gcc.gnu.org>
+
+	PR bootstrap/80867
+	* tree-vect-stmts.c (vectorizable_call): Don't call
+	targetm.vectorize_builtin_md_vectorized_function if callee is
+	NULL.
+
+2018-01-22 Carl Love <cel@us.ibm.com>
+
+	* doc/extend.tex: Fix typo in second arg in
+	__builtin_bcdadd_{lt|eq|gt|ov} and __builtin_bcdsub_{lt|eq|gt|ov}.
+
+2018-01-29  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/84086
+	* tree-ssanames.c: Include cfgloop.h and tree-scalar-evolution.h.
+	(flush_ssaname_freelist): When SSA names were released reset
+	the SCEV hash table.
+
+2018-01-29  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/84057
+	* tree-ssa-loop-ivcanon.c (unloop_loops): Deal with already
+	removed paths when removing edges.
+
+2018-01-27  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* doc/invoke.texi: Replace -mfunction-return==@var{choice} with
+	-mfunction-return=@var{choice}.
+
 2018-01-27  Bernd Edlinger  <bernd.edlinger@hotmail.de>
 
 	PR diagnostic/84034

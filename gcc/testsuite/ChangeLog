@@ -1,3 +1,106 @@
+2018-01-30  Janus Weil  <janus@gcc.gnu.org>
+
+	* gfortran.dg/pr68318_1.f90: Add closing bracket in dejagnu directive.
+
+2018-01-30  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	PR fortran/84133
+	* gfortran.dg/inline_matmul_21.f90: New test case.
+
+2018-01-30  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
+
+	* g++.dg/torture/pr81360.C: Add -fdump-ipa-icf to dg-options.
+
+2018-01-30  Vladimir Makarov  <vmakarov@redhat.com>
+
+	PR target/84112
+	* gcc.target/powerpc/pr84112.c: New.
+
+2018-01-30  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/83986
+	* gcc.dg/pr83986.c: New test.
+
+2018-01-30  Bill Seurer  <seurer@linux.vnet.ibm.com>
+
+	PR 58684
+	* gcc/testsuite/gcc.dg/torture/inf-compare-1.c: Add xfail.
+	* gcc/testsuite/gcc.dg/torture/inf-compare-2.c: Add xfail.
+	* gcc/testsuite/gcc.dg/torture/inf-compare-3.c: Add xfail.
+	* gcc/testsuite/gcc.dg/torture/inf-compare-4.c: Add xfail.
+
+2018-01-30  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/84111
+	* gcc.c-torture/compile/pr84111.c: New test.
+
+2018-01-30  Jan Hubicka  <hubicka@ucw.cz>
+
+	PR ipa/83179
+	* gcc.dg/ipa/inline-2.c: Fix template.
+	* gcc.dg/ipa/inline-3.c: Fix template.
+
+2018-01-30  Jan Hubicka  <hubicka@ucw.cz>
+
+	PR ipa/81360
+	* g++.dg/torture/pr81360.C: New testcase.
+
+2018-01-30  Jan Hubicka  <hubicka@ucw.cz>
+
+	PR lto/83954
+	* gcc.dg/lto/pr83954.h: New testcase.
+	* gcc.dg/lto/pr83954_0.c: New testcase.
+	* gcc.dg/lto/pr83954_1.c: New testcase.
+
+2018-01-30  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
+
+	PR bootstrap/84017
+	* gcc.dg/debug/dwarf2/prod-options.c: Add -fno-merge-debug-strings
+	to dg-options.
+	Simplify DW_AT_producer scan.
+
+2018-01-30  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* gcc.dg/tree-ssa/ssa-dom-cse-2.c: XFAIL on !arm_neon arm targets.
+
+2018-01-30  Kirill Yukhin  <kirill.yukhin@gmail.com>
+
+        PR target/83828
+	* gcc.target/i386/avx512bitalg-vpopcntb-1.c: Fix test.
+	* gcc.target/i386/avx512bitalg-vpopcntw-1.c: Ditto.
+	* gcc.target/i386/avx512bitalgvl-vpopcntb-1.c: Ditto.
+	* gcc.target/i386/avx512bitalgvl-vpopcntw-1.c: Ditto.
+
+2018-01-19  Jeff Law  <law@redhat.com>
+
+	PR testsuite/81010
+	* gcc.target/powerpc/pr56605.c: Update various dg- directives to
+	better match other tests which require vsx.  Verify the zero
+	extension is part of the test in the combiner dump.
+
+2018-01-29  Marek Polacek  <polacek@redhat.com>
+
+	PR c/83966
+	* gcc.dg/format/Wsuggest-attribute-1.c: New test.
+
+	PR c++/83996
+	* g++.dg/ext/pr83996.C: New test.
+
+2018-01-29  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/84057
+	* gcc.dg/graphite/pr84057.c: New testcase.
+
+2017-01-29  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	PR fortran/84073
+	* gfortran.dg/bind_c_usage_31.f90: New test.
+
+2018-01-27  Paolo Carlini  <paolo.carlini@oracle.com>
+
+	PR c++/83924
+	* g++.dg/warn/Wduplicated-branches5.C: New.
+
 2018-01-26  Segher Boessenkool  <segher@kernel.crashing.org>
 
 	* gcc.target/powerpc/safe-indirect-jump-1.c: Build on all targets.

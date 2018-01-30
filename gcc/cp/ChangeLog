@@ -1,3 +1,29 @@
+2018-01-30  Jason Merrill  <jason@redhat.com>
+
+	PR c++/84091 - ICE with local class in lambda in template.
+	* decl2.c (determine_visibility): Look for outer containing template
+	instantiation.
+
+	PR c++/84098 - ICE with lambda in template NSDMI.
+	* pt.c (instantiate_class_template_1): Ignore more lambdas.
+
+2018-01-29  Jason Merrill  <jason@redhat.com>
+
+	PR c++/68810 - wrong location for reinterpret_cast error.
+	* cvt.c (cp_convert_to_pointer): Always build a CONVERT_EXPR when
+	!dofold.
+
+2018-01-29  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/83996
+	* constexpr.c (cxx_fold_indirect_ref): Compute ((foo *)&fooarray)[1]
+	=> fooarray[1] in offset_int.
+
+2018-01-29  Jason Merrill  <jason@redhat.com>
+
+	PR c++/83942 - wrong unused warning with static_cast.
+	* cvt.c (ocp_convert): Call mark_rvalue_use.
+
 2018-01-26  Jason Merrill  <jason@redhat.com>
 
 	PR c++/83956 - wrong dtor error with anonymous union
