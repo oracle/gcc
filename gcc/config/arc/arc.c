@@ -227,7 +227,8 @@ static tree arc_handle_interrupt_attribute (tree *, tree, tree, int, bool *);
 static tree arc_handle_fndecl_attribute (tree *, tree, tree, int, bool *);
 static tree arc_handle_jli_attribute (tree *, tree, tree, int, bool *);
 static tree arc_handle_secure_attribute (tree *, tree, tree, int, bool *);
-
+static tree arc_handle_uncached_attribute (tree *, tree, tree, int, bool *);
+static tree arc_handle_aux_attribute (tree *, tree, tree, int, bool *);
 
 /* Initialized arc_attribute_table to NULL since arc doesnot have any
    machine specific supported attributes.  */
@@ -253,14 +254,18 @@ const struct attribute_spec arc_attribute_table[] =
     NULL },
   /* Functions calls made using jli instruction.  The pointer in JLI
      table is found latter.  */
-  { "jli_always",    0, 0, false, true,  true,  NULL, NULL },
+  { "jli_always",    0, 0, false, true,  true, false,  NULL, NULL },
   /* Functions calls made using jli instruction.  The pointer in JLI
      table is given as input parameter.  */
-  { "jli_fixed",    1, 1, false, true,  true,  arc_handle_jli_attribute,
+  { "jli_fixed",    1, 1, false, true,  true, false, arc_handle_jli_attribute,
     NULL },
   /* Call a function using secure-mode.  */
-  { "secure_call",  1, 1, false, true, true, arc_handle_secure_attribute,
+  { "secure_call",  1, 1, false, true, true, false, arc_handle_secure_attribute,
     NULL },
+   /* Bypass caches using .di flag.  */
+  { "uncached", 0, 0, false, true, false, false, arc_handle_uncached_attribute,
+    NULL },
+  { "aux", 0, 1, true, false, false, false, arc_handle_aux_attribute, NULL },
   { NULL, 0, 0, false, false, false, false, NULL, NULL }
 };
 static int arc_comp_type_attributes (const_tree, const_tree);
@@ -4193,7 +4198,8 @@ arc_print_operand (FILE *file, rtx x, int code)
 	 refs are defined to use the cache bypass mechanism.  */
       if (GET_CODE (x) == MEM)
 	{
-	  if (MEM_VOLATILE_P (x) && !TARGET_VOLATILE_CACHE_SET )
+	  if ((MEM_VOLATILE_P (x) && !TARGET_VOLATILE_CACHE_SET)
+	      || arc_is_uncached_mem_p (x))
 	    fputs (".di", file);
 	}
       else
@@ -8102,6 +8108,7 @@ static bool
 arc_in_small_data_p (const_tree decl)
 {
   HOST_WIDE_INT size;
+  tree attr;
 
   /* Only variables are going into small data area.  */
   if (TREE_CODE (decl) != VAR_DECL)
@@ -8123,6 +8130,16 @@ arc_in_small_data_p (const_tree decl)
      gp-relative variant.  */
   if (!TARGET_VOLATILE_CACHE_SET
       && TREE_THIS_VOLATILE (decl))
+    return false;
+
+  /* Likewise for uncached data.  */
+  attr = TYPE_ATTRIBUTES (TREE_TYPE (decl));
+  if (lookup_attribute ("uncached", attr))
+    return false;
+
+  /* and for aux regs.  */
+  attr = DECL_ATTRIBUTES (decl);
+  if (lookup_attribute ("aux", attr))
     return false;
 
   if (DECL_SECTION_NAME (decl) != 0)
@@ -8292,6 +8309,35 @@ compact_sda_memory_operand (rtx op, machine_mode mode, bool short_p)
   return false;
 }
 
+/* Return TRUE if PAT is accessing an aux-reg.  */
+
+static bool
+arc_is_aux_reg_p (rtx pat)
+{
+  tree attrs = NULL_TREE;
+  tree addr;
+
+  if (!MEM_P (pat))
+    return false;
+
+  /* Get the memory attributes.  */
+  addr = MEM_EXPR (pat);
+  if (!addr)
+    return false;
+
+  /* Get the attributes.  */
+  if (TREE_CODE (addr) == VAR_DECL)
+    attrs = DECL_ATTRIBUTES (addr);
+  else if (TREE_CODE (addr) == MEM_REF)
+    attrs = TYPE_ATTRIBUTES (TREE_TYPE (TREE_OPERAND (addr, 0)));
+  else
+    return false;
+
+  if (lookup_attribute ("aux", attrs))
+    return true;
+  return false;
+}
+
 /* Implement ASM_OUTPUT_ALIGNED_DECL_LOCAL.  */
 
 void
@@ -8300,7 +8346,14 @@ arc_asm_output_aligned_decl_local (FILE * stream, tree decl, const char * name,
 				   unsigned HOST_WIDE_INT align,
 				   unsigned HOST_WIDE_INT globalize_p)
 {
-  int in_small_data =   arc_in_small_data_p (decl);
+  int in_small_data = arc_in_small_data_p (decl);
+  rtx mem = decl == NULL_TREE ? NULL_RTX : DECL_RTL (decl);
+
+  /* Don't output aux-reg symbols.  */
+  if (mem != NULL_RTX && MEM_P (mem)
+      && SYMBOL_REF_P (XEXP (mem, 0))
+      && arc_is_aux_reg_p (mem))
+    return;
 
   if (in_small_data)
     switch_to_section (get_named_section (NULL, ".sbss", 0));
@@ -8640,12 +8693,80 @@ arc_expand_movmem (rtx *operands)
   return true;
 }
 
+static bool
+arc_get_aux_arg (rtx pat, int *auxr)
+{
+  tree attr, addr = MEM_EXPR (pat);
+  if (TREE_CODE (addr) != VAR_DECL)
+    return false;
+
+  attr = DECL_ATTRIBUTES (addr);
+  if (lookup_attribute ("aux", attr))
+    {
+      tree arg = TREE_VALUE (attr);
+      if (arg)
+	{
+	  *auxr = TREE_INT_CST_LOW (TREE_VALUE (arg));
+	  return true;
+	}
+    }
+
+  return false;
+}
+
 /* Prepare operands for move in MODE.  Return true iff the move has
    been emitted.  */
 
 bool
 prepare_move_operands (rtx *operands, machine_mode mode)
 {
+  /* First handle aux attribute.  */
+  if (mode == SImode
+      && (MEM_P (operands[0]) || MEM_P (operands[1])))
+    {
+      rtx tmp;
+      int auxr = 0;
+      if (MEM_P (operands[0]) && arc_is_aux_reg_p (operands[0]))
+	{
+	  /* Save operation.  */
+	  if (arc_get_aux_arg (operands[0], &auxr))
+	    {
+	      tmp = gen_reg_rtx (SImode);
+	      emit_move_insn (tmp, GEN_INT (auxr));
+	    }
+	  else
+	    {
+	      tmp = XEXP (operands[0], 0);
+	    }
+
+	  operands[1] = force_reg (SImode, operands[1]);
+	  emit_insn (gen_rtx_UNSPEC_VOLATILE
+		     (VOIDmode, gen_rtvec (2, operands[1], tmp),
+		      VUNSPEC_ARC_SR));
+	  return true;
+	}
+      if (MEM_P (operands[1]) && arc_is_aux_reg_p (operands[1]))
+	{
+	  if (arc_get_aux_arg (operands[1], &auxr))
+	    {
+	      tmp = gen_reg_rtx (SImode);
+	      emit_move_insn (tmp, GEN_INT (auxr));
+	    }
+	  else
+	    {
+	      tmp = XEXP (operands[1], 0);
+	      gcc_assert (GET_CODE (tmp) == SYMBOL_REF);
+	    }
+	  /* Load operation.  */
+	  gcc_assert (REG_P (operands[0]));
+	  emit_insn (gen_rtx_SET (operands[0],
+				  gen_rtx_UNSPEC_VOLATILE
+				  (SImode, gen_rtvec (1, tmp),
+				   VUNSPEC_ARC_LR)));
+	  return true;
+	}
+    }
+
   /* We used to do this only for MODE_INT Modes, but addresses to floating
      point variables may well be in the small data section.  */
   if (!TARGET_NO_SDATA_SET && small_data_pattern (operands[0], Pmode))
@@ -11128,6 +11249,103 @@ arc_is_secure_call_p (rtx pat)
     return true;
 
   return false;
+}
+
+/* Handle "uncached" qualifier.  */
+
+static tree
+arc_handle_uncached_attribute (tree *node,
+			       tree name, tree args,
+			       int flags ATTRIBUTE_UNUSED,
+			       bool *no_add_attrs)
+{
+  if (DECL_P (*node) && TREE_CODE (*node) != TYPE_DECL)
+    {
+      error ("%qE attribute only applies to types",
+	     name);
+      *no_add_attrs = true;
+    }
+  else if (args)
+    {
+      warning (OPT_Wattributes, "argument of %qE attribute ignored", name);
+    }
+  return NULL_TREE;
+}
+
+/* Return TRUE if PAT is a memory addressing an uncached data.  */
+
+bool
+arc_is_uncached_mem_p (rtx pat)
+{
+  tree attrs;
+  tree ttype;
+  struct mem_attrs *refattrs;
+
+  if (!MEM_P (pat))
+    return false;
+
+  /* Get the memory attributes.  */
+  refattrs = MEM_ATTRS (pat);
+  if (!refattrs
+      || !refattrs->expr)
+    return false;
+
+  /* Get the type declaration.  */
+  ttype = TREE_TYPE (refattrs->expr);
+  if (!ttype)
+    return false;
+
+  /* Get the type attributes.  */
+  attrs = TYPE_ATTRIBUTES (ttype);
+  if (lookup_attribute ("uncached", attrs))
+    return true;
+  return false;
+}
+
+/* Handle aux attribute.  The auxiliary registers are addressed using
+   special instructions lr and sr.  The attribute 'aux' indicates if a
+   variable refers to the aux-regs and what is the register number
+   desired.  */
+
+static tree
+arc_handle_aux_attribute (tree *node,
+			  tree name, tree args, int,
+			  bool *no_add_attrs)
+{
+  /* Isn't it better to use address spaces for the aux-regs?  */
+  if (DECL_P (*node))
+    {
+      if (TREE_CODE (*node) != VAR_DECL)
+	{
+	  error ("%qE attribute only applies to variables",  name);
+	  *no_add_attrs = true;
+	}
+      else if (args)
+	{
+	  if (TREE_CODE (TREE_VALUE (args)) == NON_LVALUE_EXPR)
+	    TREE_VALUE (args) = TREE_OPERAND (TREE_VALUE (args), 0);
+	  tree arg = TREE_VALUE (args);
+	  if (TREE_CODE (arg) != INTEGER_CST)
+	    {
+	      warning (0, "%qE attribute allows only an integer "
+		       "constant argument", name);
+	      *no_add_attrs = true;
+	    }
+	  /* FIXME! add range check.  TREE_INT_CST_LOW (arg) */
+	}
+
+      if (TREE_CODE (*node) == VAR_DECL)
+	{
+	  tree fntype = TREE_TYPE (*node);
+	  if (fntype && TREE_CODE (fntype) == POINTER_TYPE)
+	    {
+	      tree attrs = tree_cons (get_identifier ("aux"), NULL_TREE,
+				      TYPE_ATTRIBUTES (fntype));
+	      TYPE_ATTRIBUTES (fntype) = attrs;
+	    }
+	}
+    }
+  return NULL_TREE;
 }
 
 /* Implement TARGET_USE_ANCHORS_FOR_SYMBOL_P.  We don't want to use

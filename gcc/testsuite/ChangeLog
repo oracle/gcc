@@ -1,3 +1,105 @@
+2018-01-31  Jakub Jelinek  <jakub@redhat.com>
+
+	PR fortran/84116
+	* gfortran.dg/gomp/pr84116.f90: New test.
+
+	PR c++/83993
+	* g++.dg/init/pr83993-2.C: New test.
+
+	PR c++/83993
+	* g++.dg/init/pr83993-1.C: New test.
+	* g++.dg/cpp0x/pr83993.C: New test.
+
+2018-01-31  Paul Thomas  <pault@gcc.gnu.org>
+
+	PR fortran/84088
+	* gfortran.dg/pr84088.f90 : New test.
+
+2018-01-31  Vladimir Makarov  <vmakarov@redhat.com>
+
+	PR target/82444
+	* gcc.target/i386/pr82444.c: New.
+
+2018-01-31  Will Schmidt  <will_schmidt@vnet.ibm.com>
+
+	* gcc.target/powerpc/altivec-13.c: Remove VSX-requiring built-ins.
+	* gcc.target/powerpc/vsx-13.c: New.
+
+2018-01-31  Paolo Carlini  <paolo.carlini@oracle.com>
+
+	PR c++/84092
+	* g++.dg/cpp1y/var-templ57.C: New.
+
+2018-01-31  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/84138
+	* g++.dg/diagnostic/pr84138.C: New test.
+
+2018-01-31  Janne Blomqvist  <jb@gcc.gnu.org>
+
+	PR fortran/78534
+	* gfortran.dg/allocate_deferred_char_scalar_1.f03: Prune
+	-Wstringop-overflow warnings due to spurious warning with -O1.
+	* gfortran.dg/char_cast_1.f90: Update dump scan pattern.
+	* gfortran.dg/transfer_intrinsic_1.f90: Likewise.
+
+2018-01-31  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/84132
+	* g++.dg/torture/pr84132.C: New testcase.
+
+2018-01-31  Jan Hubicka  <hubicka@ucw.cz>
+
+	* g++.dg/torture/pr81360.C: Drop unintended -O2 from dg-options and
+	dg-final scan.
+
+2018-01-31  Julia Koval  <julia.koval@intel.com>
+
+	PR target/83618
+	* gcc.target/i386/rdpid.c: Remove "eax".
+
+2018-01-31  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	PR tree-optimization/64946
+	* gcc.target/aarch64/vect-abs-compile.c: XFAIL byte and half-word
+	scan-assembler checks.
+
+2018-01-31  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* gcc.c-torture/execute/20180131-1.c: New test.
+
+2018-01-31  Claudiu Zissulescu  <claziss@synopsys.com>
+
+	* gcc.target/arc/taux-1.c: New test.
+	* gcc.target/arc/taux-2.c: Likewise.
+
+2018-01-31  Claudiu Zissulescu  <claziss@synopsys.com>
+
+	* gcc.target/arc/uncached.c: New test.
+
+2018-01-31  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
+
+	PR lto/83954
+	* gnat.dg/lto20.adb: Remove dg-excess-errors.
+
+2018-01-31  Jakub Jelinek  <jakub@redhat.com>
+
+	PR preprocessor/69869
+	* gcc.dg/cpp/trad/pr69869.c: New test.
+
+	PR c/84100
+	* gcc.dg/pr84100.c: New test.
+
+2018-01-30  Jeff Law  <law@redhat.com>
+
+	PR target/84064
+	* gcc.target/i386/pr84064: New test.
+
+2017-01-30  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	PR fortran/84134
+	* gfortran.dg/data_implied_do_2.f90: New test.
+
 2018-01-30  Janus Weil  <janus@gcc.gnu.org>
 
 	* gfortran.dg/pr68318_1.f90: Add closing bracket in dejagnu directive.
@@ -71,7 +173,7 @@
 	* gcc.target/i386/avx512bitalgvl-vpopcntb-1.c: Ditto.
 	* gcc.target/i386/avx512bitalgvl-vpopcntw-1.c: Ditto.
 
-2018-01-19  Jeff Law  <law@redhat.com>
+2018-01-29  Jeff Law  <law@redhat.com>
 
 	PR testsuite/81010
 	* gcc.target/powerpc/pr56605.c: Update various dg- directives to
