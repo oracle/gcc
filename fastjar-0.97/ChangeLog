@@ -1,0 +1,1652 @@
+2008-10-16  Dalibor Topic  <robilad@kaffe.org>
+
+	* Makefile.am (pscan, flawfinder, rats, splint): Fixed to work when
+	builddir != srcdir.
+
+2008-10-16  Dalibor Topic  <robilad@kaffe.org>
+
+	* m4/ax_cflags_gcc_option.m4, m4/ax_cflags_warn_all.m4: 
+	Added new files from autoconf-archive.
+	* Makefile.am (AM_CFLAGS): Removed.
+	* configure.ac (AX_CFLAGS_WARN_ALL, AX_CFLAGS_GCC_OPTION) Added.
+	(fastjar_warn_cflags) Removed.
+
+2008-10-16  Dalibor Topic  <robilad@kaffe.org>
+
+	* jargrep.c, shift.c: Add guards for inclusion of unistd.h.
+	shift.c: Include config.h.
+
+2008-10-12  Dalibor Topic  <robilad@kaffe.org>
+
+	* Makefile.am (AM_CPPFLAGS): Added generated headers from
+	gnulib. Fix for fastjar bug #20061.
+
+2008-10-12  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (exit_on_error): New function.
+	(main, get_next_arg, looks_like_dir, make_manifest,
+	add_to_jar_with_dir, add_to_jar, add_file_to_jar, 
+	create_central_header, extract_jar, list_jar, consume,
+	add_array_to_jar, get_index_entry) Use exit_on_error,
+	and handle ftrucate and write error conditions.
+
+2008-09-17  Dalibor Topic  <robilad@kaffe.org>
+
+	* jargrep.c (check_crc, check_sig): Use C99's uint32_t instead of ub4.
+
+2008-09-17  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (extract_jar): Use C99's uint32_t instead of ub4.
+ 
+2008-09-17  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (make_manifest): Initialize mod_time before use.
+
+2008-09-17  Xerxes Rånby  <xerxes@zafena.se>
+
+        * jartool.c (extract_jar): Corrected size passed to realloc
+        to prevent memory overwrite. Reported as Debian bug #499015.
+        Fixed memory leak.
+
+2008-09-15  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (make_manifest): Only create META-INF dir when a new 
+	manifest is created, not on updates. Reported as Debian bug #489418.
+
+2008-09-14  Dalibor Topic  <robilad@kaffe.org>
+
+	* configure.ac, fastjar.texi, README, NEWS: Bumped version up to 0.97.
+
+2008-09-14  Dalibor Topic  <robilad@kaffe.org>
+
+	* lib/snprintf.h, lib/string.h: Removed unused files.
+
+2008-09-14  Dalibor Topic  <robilad@kaffe.org>
+
+	* lib/alloca_.h, lib/getopt_.h, lib/stdbool_.h, lib/stdint_.h,
+	lib/stdio_.h, lib/string_.h, lib/unistd_.h, lib/wchar_.h,
+	lib/wctype_.h: Removed no longer used files.
+
+2008-09-14  Dalibor Topic  <robilad@kaffe.org>
+
+	* lib/wctype.in.h, lib/wchar.in.h, lib/unistd.in.h, lib/string.in.h, 
+	lib/stdlib.in.h, lib/stdio.in.h, lib/stdint.in.h, lib/stdbool.in.h, 
+	lib/getopt.in.h, lib/float.in.h,  lib/float+.h, lib/alloca.in.h:
+	Added missing files.
+
+2008-09-14  Dalibor Topic  <robilad@kaffe.org>
+
+	* lib/.cvsignore : Removed.
+
+2008-09-14  Dalibor Topic  <robilad@kaffe.org>
+
+	* Makefile.am (LDADD): Fixed build on cygwin.
+
+2008-08-14  Dalibor Topic  <robilad@kaffe.org>
+
+	* NEWS: Updated for Joshua Sumali's fix.
+
+2008-08-14  Joshua Sumali <jsumali@redhat.com>
+
+	* jartool.c: Made it more compatible with OpenJDK.
+
+	Originally, files underneath a directory were not extracted, so full path names 
+	had to be specified. Also directory names had to be specified as 'dirname/' to 
+	be extracted, which should be just 'dirname'. Fixed this behaviour.
+
+2008-08-06  Dalibor Topic  <robilad@kaffe.org>
+
+	* README: Updated the options and features list.
+
+2008-08-06  Dalibor Topic  <robilad@kaffe.org>
+
+	* configure.ac (AC_INIT), fastjar.texi, README, NEWS: 
+	Bumped version to 0.96. Autoupdated.
+
+	* fastjar.texi: Added 2008 to copyright years.
+
+	* .cvsignore, INSTALL, aclocal.m4, config.guess, config.h.in,
+	config.sub, configure, depcomp, install-sh, ltmain.sh, 
+	texinfo.tex, lib/.cvsignore, lib/Makefile.am, lib/Makefile.in,
+	lib/alloca.c, lib/asnprintf.c, lib/config.charset, lib/getopt.c,
+	lib/getopt1.c, lib/getopt_int.h, lib/gettext.h, 
+	lib/localcharset.c, lib/localcharset.h, lib/malloc.c, 
+	lib/printf-args.c, lib/printf-args.h, lib/printf-parse.c,
+	lib/printf-parse.h, lib/ref-add.sin, lib/ref-del.sin, 
+	lib/regcomp.c, lib/regex.c, lib/regex.h, lib/regex_internal.c,
+	lib/regex_internal.h, lib/regexec.c, lib/size_max.h,
+	lib/snprintf.c, lib/strdup.c, lib/vasnprintf.c,
+	lib/vasnprintf.h, lib/xsize.h, m4/.cvsignore,
+	m4/alloca.m4, m4/extensions.m4, m4/getopt.m4,
+	m4/gnulib-cache.m4, m4/gnulib-common.m4,
+	m4/gnulib-comp.m4, m4/gnulib-tool.m4, m4/intmax_t.m4,
+	m4/libtool.m4, m4/longlong.m4, m4/ltoptions.m4,
+	m4/ltsugar.m4, m4/ltversion.m4, m4/lt~obsolete.m4,
+	m4/regex.m4, m4/snprintf.m4, m4/stdint.m4,
+	m4/stdio_h.m4, m4/string_h.m4, m4/unistd_h.m4
+	m4/vasnprintf.m4, m4/wchar.m4, m4/wctype.m4,
+	m4/wint_t.m4: Regenerated.
+
+2008-08-06  Matthias Klose  <doko@ubuntu.com>
+
+	Implemented @file support.
+
+	* Makefile.am (libfastjar_convenience_la_SOURCES):
+	Added argv.c and argv.h.
+
+	* Makefile.in: Regenerated.
+
+	* jartool.c (OPTION_STRING) Added -J option.
+	(main) Expand @file arguments in the argument list 
+	before processing the list. Ignore -J option.
+	(help) Documented -J and @file options.
+
+	* fastjar.texi: Documented -J and @file options.
+
+	* argv.c, argv.h: New files.
+
+2007-03-31  Dalibor Topic  <robilad@kaffe.org>
+
+	* NEWS: Added news since 0.95.
+
+2007-03-31  Dalibor Topic  <robilad@kaffe.org>
+
+	* Makefile.in,
+	config.h.in
+	configure
+	lib/Makefile.am
+	lib/Makefile.in
+	lib/alloca_.h
+	lib/getopt_.h
+	lib/printf-parse.c
+	lib/regexec.c
+	lib/snprintf.c
+	lib/stdbool_.h
+	lib/stdint_.h
+	lib/stdio_.h
+	lib/string.h
+	lib/string_.h
+	lib/vasnprintf.c
+	lib/vasnprintf.h
+	m4/gnulib-comp.m4
+	m4/snprintf.m4
+	m4/stdio_h.m4
+	m4/vasnprintf.m4:
+	Updated and regenerated.
+
+2007-03-18  Dalibor Topic  <robilad@kaffe.org>
+
+	* jargrep.c, jartool.c: Don't include snprintf.h any more.
+
+	* lib/Makefile.am,
+        lib/Makefile.in,
+        lib/snprintf.c,
+        lib/string.h,
+        lib/string_.h,
+        lib/unistd_.h,
+        lib/vasnprintf.c,
+        m4/gnulib-comp.m4,
+        m4/regex.m4,
+        m4/snprintf.m4,
+        m4/string_h.m4,
+        m4/unistd_h.m4:
+	Updated.
+
+	* aclocal.m4,
+	config.h.in,
+	configure,
+	Makefile.in: Regenerated.
+
+2007-02-28  Dalibor Topic  <robilad@kaffe.org>
+
+	* Makefile.am (EXTRA_DIST): Added CHANGES. Reformatted.
+
+	Reported by:  Petteri Räty  <betelgeuse@gentoo.org>
+
+2007-02-28  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (extract_jar): Exit if write call fails.
+	Added casts.
+	(list_jar) Added casts.
+
+2007-02-18  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (list_jar): Cast usize to unsigned long before
+	printing it. Changed its format modifier accordingly.
+
+2007-02-18  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (list_jar): Added local read_amt variable.
+	Use read_amt to check if the read calls returned an error
+	or didn't read the desired number of bytes. Exit if 
+	filename allocation fails. Added missing cast to ub1.
+
+2007-02-18  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (list_jar): Changed filename_len to ub2.
+
+2007-02-18  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (extract_jar): Changed filename_len to ub2.
+
+2007-02-18  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (list_jar): Exit if strftime call fails.
+
+2007-02-18  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (list_jar): Changed i to ub2.
+
+2007-02-18  Dalibor Topic  <robilad@kaffe.org>
+
+	* TODO: Updated.
+
+2007-02-18  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (list_jar): Introduced local variable 
+	central_header_offset.
+
+2007-02-18  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (consume): Allocate buff dynamically,
+	rather than on the stack.
+
+2007-02-18  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (consume): Documented function.
+
+2007-02-18  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (consume): Use tc to report consumed bytes 
+	in all cases.
+
+2007-02-18  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (extract_jar): Use consume instead of pb_read
+	to consume unneeded bytes.
+
+2007-02-18  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (consume): Changed to return void.
+	Removed unused return statement.
+
+2007-02-18  Dalibor Topic  <robilad@kaffe.org>
+
+	* compress.c (inflate_file): Removed code handling
+	negative return value from pb_read, since it is always
+	non-negative.
+
+2007-02-18  Dalibor Topic  <robilad@kaffe.org>
+
+	* pushback.h (pb_read): Added documentation.
+	* pushback.c: Added myself to authors.
+
+2007-02-15  Dalibor Topic  <robilad@kaffe.org>
+
+	* pushback.c (pb_read): Exit if read fails.
+
+2007-02-15  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (consume): Exit if lseek fails.
+
+2007-02-15  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (consume): Changed amt and tc to size_t.
+
+2007-02-15  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (list_jar): Changed rdamt to size_t.
+	(expand_options) Changed new_argc, args_to_expand to size_t.
+	Added corresponding cast.
+
+2007-02-15  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (add_array_to_jar): Exit if write fails.
+
+2007-02-15  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (get_next_arg): Changed len and pos to size_t.
+
+2007-02-15  Dalibor Topic  <robilad@kaffe.org>
+
+	* Makefile.am (SPLINT_FLAGS): Include headers in lib directory.
+	* Makefile.in: Regenerated.
+
+2007-02-15  Dalibor Topic  <robilad@kaffe.org>
+
+	* jargrep.c (main): Use strdup instead of strcpy.
+	* jartool.c (make_manifest, add_to_jar, add_file_to_jar,
+	add_array_to_jar): Use strdup and strncpy instead of strcpy.
+
+2007-02-15  Dalibor Topic  <robilad@kaffe.org>
+
+	* lib/Makefile.am, lib/strdup.c, lib/string_.h
+	m4/gnulib-cache.m4, m4/gnulib-comp.m4, m4/strdup.m4
+	m4/string_h.m4: Imported strdup module from gnulib.
+
+2007-02-15  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (jt_strdup): Removed.
+	(get_next_arg, expand_options) Use strdup.
+
+2007-02-15  Dalibor Topic  <robilad@kaffe.org>
+
+	*  lib/dummy.c, lib/strcasecmp.c, lib/string_.h, lib/strncasecmp.c,
+	m4/strcase.m4, m4/string_h.m4: Removed.
+
+2007-02-15  Dalibor Topic  <robilad@kaffe.org>
+
+	* Makefile.in, aclocal.m4, config.h.in, configure,
+	lib/Makefile.am, lib/Makefile.in, lib/asnprintf.c,
+	lib/config.charset, lib/localcharset.c, lib/localcharset.h,
+	lib/printf-args.c. lib/printf-args.h, lib/printf-parse.c,
+	lib/printf-parse.h, lib/ref-add.sin, lib/ref-del.sin,
+	lib/regcomp.c, lib/regex_internal.h, lib/size_max.h,
+	lib/snprintf.c, lib/snprintf.h, lib/string.h,
+	lib/vasnprintf.c, lib/vasnprintf.h, lib/xsize.h,
+	m4/eoverflow.m4, m4/glibc21.m4, m4/gnulib-cache.m4,
+	m4/gnulib-comp.m4, m4/intmax_t.m4, m4/inttypes_h.m4,
+	m4/localcharset.m4, m4/longdouble.m4, m4/regex.m4,
+	m4/size_max.m4, m4/snprintf.m4, m4/stdint_h.m4,
+	m4/vasnprintf.m4, m4/wchar_t.m4, m4/xsize.m4: 
+	Import snprintf module from gnulib.
+
+	* jargrep.c, jartool.c: Include "snprintf.h".
+
+2007-02-15  Dalibor Topic  <robilad@kaffe.org>
+
+	* jargrep.c (extract_line): Use snprintf.
+	* jartool.c (make_manifest, build_index): Use snprintf.
+
+2007-02-15  Dalibor Topic  <robilad@kaffe.org>
+
+	* compress.c (write_data): Return ssize_t.
+	(init_compression) Init zs.zalloc and zs.zfree with NULL.
+	(compress_file) Changed rdamt, wramt to size_t. Changed 
+	rtval to ssize_t. Added local variable num_written.
+	Added missing casts. Added checks if num_written is -1.
+	(init_inflation) Init zs.zalloc and zs.zfree with NULL.
+	(inflate_file) Changed rdamt to size_t. Added local
+	variable num_pushed. Added missing casts. Use new local
+	vars num_written and num_to_write. Added checks if 
+	num_written is -1. Exit if pushback fails.
+	(ez_inflate_str) Changed rdamt to size_t. Added missing 
+	casts. Changed fprintf format string to use unsigned longs, 
+	and added casts for parameters.
+	(hrd_inflate_str) Changed rdamt and i to size_t.
+	Added local variable num_pushed. Added missing casts.
+
+2007-02-14  Dalibor Topic  <robilad@kaffe.org>
+
+	* Makefile.am (fastjar_SOURCES): Moved jartool.h ...
+	(libfastjar_convenience_la_SOURCES) ... to here.
+
+2007-02-14  Dalibor Topic  <robilad@kaffe.org>
+
+	* dostime.c (dos2unixtime): Added casts to int.
+	(unix2dostime) Added casts to ub4.
+	* dostime.h (dos2unixtime, unix2dostime): Changed
+	prototypes to use ub4 instead of unsigned long.
+
+2007-02-14  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (extract_jar): Changed rdamt to size_t.
+	* pushback.c (pb_push): Changed in_amt, wrap to size_t.
+	Added a size_t cast, and removed an int cast. 
+	(pb_read) Changed out_amt, wrap, tmp to size_t.
+	Added a size_t cast, and removed an int cast.
+	Added new variable num_read.
+	* pushback.h (pb_push, pb_read): Changed prototypes
+	to use size_t.
+
+2007-02-14  Dalibor Topic  <robilad@kaffe.org>
+
+	* shift.c (shift_down): Changed off to off_t.
+
+2007-02-14  Dalibor Topic  <robilad@kaffe.org>
+
+	* shift.c (shift_up, shift_down): Changed len to size_t.
+	Use new variable num_read to count read bytes.
+
+2007-02-14  Dalibor Topic  <robilad@kaffe.org>
+
+	* configure.ac, README, NEWS: Bump version number to 0.96-pre.
+	* Makefile.am (splint): Use libfastjar_convenience_la_SOURCES.
+        * configure, Makefile.in: Regenerated.
+
+2007-02-13  Dalibor Topic  <robilad@kaffe.org>
+
+	* configure.ac, README, NEWS: Bump version number to 0.95.
+	* configure: Regenerated.
+
+2007-02-13  Matthias Klose  <doko@ubuntu.com>
+
+	* Makefile.am: Build the fastjar library as a convenience library.
+	* Makefile.in: Regenerate.
+
+2007-02-12  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (get_next_arg, add_to_jar_with_dir): Use
+	EXIT_FAILURE.
+
+2007-02-12  Dalibor Topic  <robilad@kaffe.org>
+
+	* Makefile.am (EXTRA_DIST): Removed fastjar.texi.
+	* Makefile.in: Regenerated.
+
+2007-02-12  Alfred M. Szmidt  <ams@gnu.org>
+
+	* jartool.c (MAXPATHLEN) [!MAXPATHLEN]: Removed macro.
+	(get_next_arg): Allocate memory dynamiclly for S.
+	(add_to_jar_with_dir): Allocate memory dynamiclly for OLD_DIR.
+
+2007-02-12  Matthias Klose  <doko@ubuntu.com>
+
+	* fastjar.texi: Set version to 0.95.
+
+2007-02-12  Matthias Klose  <doko@ubuntu.com>
+
+	* fdl.texi, COPYING.DOC: Remove, all documentation is licensed
+	under the GPL.
+	* fastjar.texi: Don't include fdl.texi.
+	* AUTHORS: Add myself as documentation author.
+
+2007-02-09  Dalibor Topic  <robilad@kaffe.org>
+
+	* TODO: Updated.
+
+2007-02-09  Dalibor Topic  <robilad@kaffe.org>
+
+	* Makefile.am (pscan, flawfinder, rats, splint): Added new targets
+	which invoke source code scanners.
+
+	* configure.ac (AC_CHECK_PATH): Check for pscan, flawfinder, rats and
+	splint.
+
+	* Makefile.in, lib/Makefile.in, configure: Regenerated.
+
+2007-02-08  Dalibor Topic  <robilad@kaffe.org>
+
+	* configure.ac (AC_MSG_ERROR): Stop configure if neither ftruncate 
+	or _chsize exists.
+
+	* configure: Regenerated.
+
+	* jartool.c (main): Simplified ftruncate and _chsize handling by moving 
+	the check into the configure script.
+
+2007-02-08  Dalibor Topic  <robilad@kaffe.org>
+
+	* pushback.h: Include jartool.h to declare the types used in struct
+	definition.
+
+2007-02-08  Dalibor Topic  <robilad@kaffe.org>
+
+	* compress.h: Include zlib.h, jartool.h and pushback.h to declare the
+	types used in parameters.
+
+2007-02-08  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (add_file_to_jar, add_array_to_jar): Made file_name_length
+	into a size_t.
+
+2007-02-08  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (make_manifest): Turned mf_len into a size_t.
+
+2007-02-08  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (make_manifest, add_to_jar): Turned nlen into a size_t.
+
+2007-02-08  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (add_array_to_jar): Check if writing succeeded before
+	checking if the number of written bytes matches. New local variable
+	written.
+
+2007-02-08  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (add_array_to_jar): Turn content_length into a size_t.
+
+2007-02-08  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (build_index): Turn index_content_length into a
+	size_t.
+
+2007-02-07  Dalibor Topic  <robilad@kaffe.org>
+
+	* jargrep.c (help, version): Made static.
+
+	* jartool.c (add_array_to_jar, add_entry,
+	add_file_to_jar, add_list_entry, add_to_jar
+	add_to_jar_with_dir, build_index, consume
+	create_central_header, extract_jar,
+	get_index_entry, help, init_headers,
+	list_jar, make_manifest, read_entries, usage
+	version): Made static.
+
+2007-02-07  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (data_descriptor, do_compress, file_header,
+	jarfile, number_of_entries, read_names_from_stdin, seekable,
+	use_explicit_list_only, verbose, ziplist, ziplisthead, 
+	ziplisttail, ziptail): Made static.
+
+2007-02-07  Dalibor Topic  <robilad@kaffe.org>
+
+	* compress.c (write_data): Made static.
+
+2007-02-07  Dalibor Topic  <robilad@kaffe.org>
+
+	* configure.ac (AC_PROG_STDC_CC): Use C99 if possible.
+
+	* configure: Regenerated.
+
+2007-02-07  Dalibor Topic  <robilad@kaffe.org>
+
+	* Makefile.am (POD2MAN): Use VERSION variable.
+
+	* Makefile.in: Regenerated.
+
+2007-02-07  Dalibor Topic  <robilad@kaffe.org>
+
+	* install-defs.sh.in: Removed.
+
+	* configure.ac (AC_CONFIG_FILES): Removed install-defs.sh.
+
+	* Makefile.in, configure: Regenerated.
+
+2007-02-07  Dalibor Topic  <robilad@kaffe.org>
+
+	* configure.ac (ZINCS, ZDEPS): Removed redundant variables.
+
+	* Makefile.am (DEPENDENCIES): Removed. 
+	(AM_CPPFLAGS) Removed redundant ZINCS variable.
+
+	* Makefile.in, configure, lib/Makefile.in: Regenerated.
+
+2007-02-07  Dalibor Topic  <robilad@kaffe.org>
+
+	* configure.ac (AC_ARG_ENABLE): Removed redundant option.
+
+	* configure: Regenerated.
+
+2007-02-07  Dalibor Topic  <robilad@kaffe.org>
+
+	* configure.ac (AC_ARG_WITH): Removed redundant option.
+
+	* configure: Regenerated.
+
+2007-02-07  Dalibor Topic  <robilad@kaffe.org>
+
+	* configure.ac (AC_STRUCT_TM): Removed redundant check.
+
+	* configure: Regenerated.
+
+2007-02-07  Dalibor Topic  <robilad@kaffe.org>
+
+	* configure.ac (AC_PATH_PROG): Don't look for cp, strip 
+	and chmod.
+
+	* Makefile.in, configure, lib/Makefile.in: Regenerated.
+
+2007-02-07  Dalibor Topic  <robilad@kaffe.org>
+
+	* configure.ac (AC_PATH_PROG): Don't look for rm.
+
+	* Makefile.in, configure, lib/Makefile.in: Regenerated.
+
+2007-02-07  Dalibor Topic  <robilad@kaffe.org>
+
+	* TODO: Removed Sun CC task.
+
+2007-02-07  Dalibor Topic  <robilad@kaffe.org>
+
+	PR 18986
+
+	* lib/stdbool_.h, m4/stdbool.m4: New files from
+	gnulib to support stdbool.h on platforms without it.
+
+	* Makefile.in, aclocal.m4, config.h.in, configure,
+	lib/Makefile.am, lib/Makefile.in, m4/gnulib-cache.m4,
+	m4/gnulib-comp.m4: Regenerated.
+
+2007-02-07  Dalibor Topic  <robilad@kaffe.org>
+
+	* TODO: Removed gnulib items.
+
+2007-02-07  Dalibor Topic  <robilad@kaffe.org>
+
+	PR 18972
+
+	* lib/getopt.c, lib/getopt1.c, lib/getopt_.h,
+	lib/getopt_int.h, lib/unistd_.h, m4/getopt.m4,
+	m4/unistd_h.m4: New files from gnulib to support 
+	platforms without a GNU getopt implementation. 
+
+	* jargrep.c: Moved inclusion of getopt.h before 
+	inclusion of regex.h.
+
+	* jartool.c: Include regex.h, as recommended by 
+	gnulib-tool for the gnulib getopt functionality.
+
+	* Makefile.in, aclocal.m4, config.h.in, configure,
+	lib/Makefile.am, lib/Makefile.in, m4/gnulib-cache.m4,
+	m4/gnulib-comp.m4: Regenerated.
+
+2007-02-07  Dalibor Topic  <robilad@kaffe.org>
+
+	* README: Added a 'platforms' section, and documented
+	flags for the MingW32 build on Cygwin.
+
+2007-02-07  Dalibor Topic  <robilad@kaffe.org>
+
+	* NEWS : Added merging status information for 
+	Bryan's 0.94 release on SourceForge. Updated version number
+	to 0.95-pre.
+
+	* README, configure.ac: Updated version number to 0.95-pre.
+
+	* configure: Regenerated.
+
+2007-02-07  Dalibor Topic  <robilad@kaffe.org>
+
+	PR 18973
+
+	* Makefile.am (SUBDIRS, ACLOCAL_AMFLAGS): Added to support
+	using gnulib's functionality.
+	(AM_CPPFLAGS) Added lib directory for regex.h.
+	(LDADD) Added libgnu.la.
+
+	* configure.ac (gl_EARLY, gl_INIT): Added suppor for gnulib. 
+	(AC_CONFIG_FILES) Added lib/Makefile.
+
+	* Makefile.in, aclocal.m4, config.h.in, configure:
+	Regenerated.
+
+	* lib/Makefile.am, lib/Makefile.in, 
+	lib/alloca.c, lib/alloca_.h, lib/dummy.c, 
+	lib/gettext.h, lib/malloc.c, lib/regcomp.c,
+	lib/regex.c, lib/regex.h, 
+	lib/regex_internal.c, lib/regex_internal.h,
+	lib/regexec.c, lib/stdint_.h,
+	lib/strcasecmp.c, lib/string_.h,
+	lib/strncasecmp.c, lib/wchar_.h, lib/wctype_.h,
+	m4/absolute-header.m4, m4/alloca.m4, m4/codeset.m4,
+	m4/extensions.m4, m4/gnulib-cache.m4, 
+	m4/gnulib-common.m4, m4/gnulib-comp.m4,
+	m4/gnulib-tool.m4, m4/longlong.m4, m4/regex.m4,
+	m4/ssize_t.m4, m4/stdint.m4, m4/strcase.m4,
+	m4/string_h.m4, m4/ulonglong.m4, m4/wchar.m4,
+	m4/wctype.m4, m4/wint_t.m4: New files from gnulib
+	to support regex on platforms without a GNU regex
+	implementation. 
+
+2007-02-07  Dalibor Topic  <robilad@kaffe.org>
+
+	* TODO: Removed libfastjar item.
+
+	* NEWS: Added libfastjar information.
+
+2007-02-07  Dalibor Topic  <robilad@kaffe.org>
+
+	* Makefile.am (AM_LDFLAGS, LDADD, DEPENDECIES, 
+	libfastjar_la_LIBADD, libfastjar_la_LIBADD): Added
+	to support building with a shared library with no
+	undefined symbols.
+	(fastjar_LDADD, fastjar_DEPENDENCIES, grepjar_LDADD,
+	grepjar_DEPENDENCIES) Removed, replaced by LDADD and
+	DEPENDENCIES.
+
+	* Makefile.in: Regenerated.
+
+2007-02-07  Dalibor Topic  <robilad@kaffe.org>
+
+	* autogen.sh: Removed -Wall since libtool & automake
+	macros are not up to date with autoconf 2.61 and create
+	too much warning noise.
+
+2007-02-06  Dalibor Topic  <robilad@kaffe.org>
+
+	* Makefile.am (AM_CFLAGS): Shuffled upwards in the file.
+	(fastjar_SOURCES, grepjar_SOURCES) Removed dostime.c, 
+	compress.c, pushback.c, shift.c, jartool.h, zipfile.h, 
+	dostime.h, compress.h, pushback.h and shift.h.
+	(fastjar_LDADD, grepjar_LDADD) Added libfastjar.la.
+	(lib_LTLIBRARIES, libfastjar_la_SOURCES) New primitives.
+	(libtool) New target.
+
+	* configure.ac (AC_DISABLE_STATIC, AC_LIBTOOL_WIN32_DLL,
+	AC_PROG_LIBTOOL, AC_SUBST(LIBTOOL_DEPS)): Added support
+	for native libraries for libfastjar.
+
+	* Makefile.in, aclocal.m4, config.h.in, configure:
+	Regenerated.
+
+	* config.guess, config.sub, ltmain.sh: New files,
+	generated by autogen.sh.
+
+2007-02-06  Dalibor Topic  <robilad@kaffe.org>
+
+	* TODO: New file.
+
+2007-02-06  Dalibor Topic  <robilad@kaffe.org>
+
+	* compress.c (init_compression, write_data, 
+	compress_file, end_compression, init_inflation,
+	inflate_file, report_str_error, ez_inflate_str,
+	hrd_inflate_str): Use EXIT_FAILURE.
+
+	* jargrep.c (create_regexp, read_string, 
+	extract_line, check_crc, fnd_match, main,
+	version): Use EXIT_FAILURE and EXIT_SUCCESS.
+
+	* jartool.c (main, make_manifest, add_to_jar,
+	add_file_to_jar, extract_jar, list_jar, 
+	consume, version, help, add_array_to_jar, 
+	get_index_entry): Use EXIT_FAILURE and EXIT_SUCCESS.
+
+2007-02-06  Dalibor Topic  <robilad@kaffe.org>
+
+	* dostime.c: Updated copyright information.
+
+2007-02-06  Dalibor Topic  <robilad@kaffe.org>
+
+	* compress.c, dostime.c, jargrep.c, jartool.c
+	(HAVE_CONFIG_H): Added guards for include.
+
+2007-02-06  Dalibor Topic  <robilad@kaffe.org>
+
+	* shift.c, jartool.h, jargrep.c, compress.c:
+	Updated copyright information.
+
+2007-02-06  Dalibor Topic  <robilad@kaffe.org>
+
+	* compress.h: Updated copyright information.
+
+2007-02-06  Dalibor Topic  <robilad@kaffe.org>
+
+        * zipfile.h:
+        Added #ifndef __FASTJAR_ZIPFILE_H__.
+	Updated copyright information.
+
+2007-02-06  Dalibor Topic  <robilad@kaffe.org>
+
+        * pushback.h:
+        Added #ifndef __FASTJAR_PUSHBACK_H__.
+	Updated copyright information.
+
+2007-02-06  Dalibor Topic  <robilad@kaffe.org>
+
+        * jargrep.h:
+        Added #ifndef __FASTJAR_JARGREP_H__.
+	Updated copyright information.
+
+2007-02-06  Dalibor Topic  <robilad@kaffe.org>
+
+        * dostime.h:
+        Added #ifndef __FASTJAR_DOSTIME_H__.
+	Updated copyright information.
+
+2007-02-06  Dalibor Topic  <robilad@kaffe.org>
+
+        * compress.h:
+        Added #ifndef __FASTJAR_COMPRESS_H__.
+
+2007-02-06  Dalibor Topic  <robilad@kaffe.org>
+
+	* dostime.c (unix2dostime): Renamed parameter to
+	unix_time.
+
+2007-02-06  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (list_jar, extract_jar, init_args, 
+	get_next_arg): Added const qualifier to char ** 
+	parameter and return types.
+	(main) Added const qualifier to type of new_argv.
+	Modified malloc cast accordingly. Fixed cast of
+	const char * to char *.
+	(args_g) Added const qualifier to type.
+
+2007-02-06  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (main): Replaced unreachable exit call
+	after version call with a break statement.
+
+2007-02-06  Dalibor Topic  <robilad@kaffe.org>
+
+	* compress.c (init_compression, end_compression,
+	init_inflation): Added missing 'void' parameter type.
+
+	* jargrep.c (version): Added missing 'void' parameter
+	type.
+
+2007-02-06  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.h (__attribute__): Remove define.
+
+2007-02-06  Dalibor Topic  <robilad@kaffe.org>
+
+	* Makefile.am (fastjar_CPPFLAGS): Removed.
+	(grepjar_SOURCES) Added shift.c and shift.h.
+
+	* compress.c (seekable, end_of_entries): Removed.
+	(write_data) Removed __attribute__((unused)).
+	Removed WITH_SHIFT_DOWN.
+
+	* configure.ac (AM_PROG_CC_C_O): Removed.
+
+	* jartool.c (end_of_entries): Moved field to ...
+
+	* shift.c (end_of_entries): ... here. New field.
+	(shift_up, shift_down) Removed declarations of
+	end_of_entries.
+
+	* shift.h (end_of_entries): Added field to 
+	exported header as it is used in jartool.c.
+
+	* Makefile.in, aclocal.m4, config.h.in, 
+	configure: Regenerated.
+
+2007-02-06  Wil Mahan  <wmahan@users.sourceforge.net>
+
+	* jartool.c (list_jar): Fall back on 
+	the method used for non-seekable files when 
+	reading the central-header-end section does 
+	not work, i.e. in archives with a zipfile 
+	comment at the end.
+
+	Patch taken from fastjar.sourceforge.net
+	patch repository.
+
+2007-02-05  Dalibor Topic  <robilad@kaffe.org>
+
+	* configure.ac (AC_INIT): Changed version 
+	to 0.94-pre.
+
+2007-02-05  Dalibor Topic  <robilad@kaffe.org>
+
+	* NEWS: Updated with some of the information
+	from the ChangeLog.
+
+2007-02-05  Dalibor Topic  <robilad@kaffe.org>
+
+	* fastjar.texi: -i works now.
+
+2007-02-04  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (build_index): Added comment
+	for previous patch. Added check to ensure
+	that the META-INF directory is not being
+	indexed.
+
+2007-02-04  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (build_index): Replace '\0'
+	character with '\n' before adding the 
+	index to the jar file to avoid having
+	a zero byte at the end of the index file.
+
+2007-02-04  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c: Added 2007 to copyright years,
+	and claimed my changes.
+	(OPTION_STRING) -i takes an argument.
+	(main) Set jarfile to the argument when option 
+	-i is parsed. Modified help string when no
+	action is given to include -i.
+
+2007-02-04  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (build_index): Initialize 
+	a ziplistentry's next_element with NULL
+	before passing it to add_list_entry to
+	fix a crash. Don't re-assign filename
+	of a zip entry with the index name, as 
+	that turns directories into files, and 
+	breaks the zip files.
+
+2007-02-04  Olivier Jolly <olivier.jolly@pcedev.com>
+
+	* jartool.c: Enable fastjar to update an 
+	existing .jar with an META-INF/INDEX.LIST 
+	aka -i support. Still, it doesn't process 
+	the MANIFEST.MF to index files coming from 
+	dependant archives.
+
+2007-02-04  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.h (__attribute__): Explicitely
+	define it as a macro with one parameter.
+	That allows splint to be used for checking 
+	the code.
+
+2007-02-03  Dalibor Topic  <robilad@kaffe.org>
+
+	* configure: Regenerated.
+
+	* configure.ac: Updated AC_INIT and 
+	AM_INIT_AUTOMAKE to use the modern form.
+
+
+2007-02-03  Dalibor Topic  <robilad@kaffe.org>
+
+	* compress.c, compress.h, jargrep.c, 
+	jartool.c, jartool.h, pushback.c, 
+	zipfile.h: Removed Id and Log CVS tags.
+
+2007-02-03  Dalibor Topic  <robilad@kaffe.org>
+
+	* config.h.in, configure: Regenerated.
+
+	* configure.ac: Removed checks for type-widths.
+	Added checks for fixed size types.
+
+	* jartool.h: Use fixed size types to define u1, 
+	u2 and u4. Include inttypes.h and stdint.h if 
+	necessary. Guard the config.h include. Don't
+	include sys/types.h.
+
+2007-02-03  Dalibor Topic  <robilad@kaffe.org>
+
+	* configure.ac: Use AC_CHECK_HEADERS_ONCE instead
+	of AC_CHECK_HEADERS. Use AC_CHECK_FUNCS_ONCE instead
+	of AC_CHECK_FUNCS.
+
+	* configure: Regenerated.
+
+2007-02-03  Dalibor Topic  <robilad@kaffe.org>
+
+	* compile, texinfo.tex: Added new generated files.
+
+	* INSTALL, Makefile.in, aclocal.m4, config.h.in, 
+	configure, depcomp, install-sh, missing: Regenerated.
+
+	* acinclude.m4, configure.ac: Autoupdated with 
+	autoconf 2.61.
+
+	* autogen.sh: Use autoreconf.
+
+2007-02-03  Dalibor Topic  <robilad@kaffe.org>
+
+	* .cvsignore: Added new file.
+
+2007-02-03  Dalibor Topic  <robilad@kaffe.org>
+
+	* README: Updated e-mail addresses, home pages,
+	added section headers, and a history section, and 
+	cleaned up.
+
+2007-02-03  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.h [__GNUC__]: Only define __attribute__
+	if it is not already defined. That fixes the build 
+	with tcc.
+
+2007-02-03  Dalibor Topic  <robilad@kaffe.org>
+
+	* jartool.c (list_jar): Added missing casts to fix
+	compiler warnings on Debian Sarge.
+
+2006-08-07  Richard Guenther  <rguenther@suse.de>
+
+	* jartool.c (extract_jar): Fix directory traversal fix,
+	handle "." path components.
+
+2006-07-12  Richard Guenther  <rguenther@suse.de>
+
+	* jartool.c (extract_jar): Do not allow directory traversal
+	to parents of the extraction root.
+
+2006-05-27  Richard Guenther  <rguenther@suse.de>
+
+	* fastjar.texi: Don't use gcc-vers.texi.
+	* Makefile.am: Don't generate it.
+	* Makefile.in: Re-generate.
+
+2006-05-27  Richard Guenther  <rguenther@suse.de>
+
+	* fastjar.texi: Pull in the only macro we need from
+	gcc-common.texi.
+
+2006-05-27  Richard Guenther  <rguenther@suse.de>
+
+	* texi2pod.pl: Copy from gcc/contrib.
+
+2006-05-27  Richard Guenther  <rguenther@suse.de>
+
+	* configure.ac: Change version to 0.92 from 0.92-gcc.
+	Remove configury for using in-tree zlib, instead always
+	require an installed zlib for build.
+	* Makefile.am: Remove gcc specific parts.
+	* configure: Re-generated.
+	* Makefile.in: Likewise.
+	* aclocal.m4: Likewise.
+
+2006-05-27  Richard Guenther  <rguenther@suse.de>
+
+	* jargrep.c: Include regex.h instead of xregex.h.  Removes
+	dependency on internal libiberty includes.
+
+2006-05-27  Richard Guenther  <rguenther@suse.de>
+
+	* fastjar.texi: Correct menu entry for the now GFDL license.
+
+2006-02-08  Thomas Fitzsimmons  <fitzsim@redhat.com>
+
+	* jartool.h (ACTION_INDEX): New macro.
+	* jartool.c (main): Handle -i option.
+	* fastjar.texi (Invoking fastjar): Add description of -i option.
+
+2006-01-31  Tom Tromey  <tromey@redhat.com>
+
+	* jartool.c (version): Use 2006.
+	* jargrep.c (version): Use 2006.
+
+2005-11-29  Tom Tromey  <tromey@redhat.com>
+
+	* compress.c (write_data): Mark 'ze' as unused.
+	* jartool.h (__attribute__): New define.
+	* shift.c (shift_up): Added cast.
+	(shift_down): Likewise.
+	* jartool.c (help): Split string constant.
+
+2005-06-29  Kelley Cook  <kcook@gcc.gnu.org>
+
+	* all files: Update FSF address.
+
+2005-05-17  Kelley Cook  <kcook@gcc.gnu.org>
+
+	* configure.ac: Use AC_C_BIGENDIAN instead of AC_C_BIGENDIAN_CROSS.
+	Use AC_CHECK_SIZEOF instead of AC_COMPILE_CHECK_SIZEOF.
+	* Makefile.am: Remove ACLOCAL_AMFLAGS.
+	* aclocal.m4, Makefile.in, configure, config.h.in: Regenerate.
+
+2005-03-28  Marcin Dalecki  <martin@dalecki.de>
+
+	* jartool.c (main): Indentation fixlet.
+	(add_entry): Likewise.
+	(init_args): Don't use K&R style.
+	(jt_strdup): Likewise.
+	(get_next_arg): Add explicit '(void)'.
+	(init_headers): Likewise.
+	(version): Likewise.
+
+2005-03-15  Zack Weinberg  <zack@codesourcery.com>
+
+	* Makefile.am (fastjar_TEXINFOS): Add gcc-vers.texi.
+	(BASEVER, DEVPHASE): New variables.
+	(POD2MAN): Adjust setting of --release option.
+	(fastjar.1, grepjar.1, gcc-vers.texi): New rules.
+	* Makefile.in: Regenerate.
+	* configure.ac: Do not invoke TL_AC_GCC_VERSION.
+	* aclocal.m4, configure: Regenerate.
+
+2004-12-02  Richard Sandiford  <rsandifo@redhat.com>
+
+	* configure.ac: Use TL_AC_GCC_VERSION to set gcc_version.
+	* configure, aclocal.m4, Makefile.in: Regenerate.
+
+2004-11-15  Kelley Cook  <kcook@gcc.gnu.org>
+
+	* Makefile.am: Remove -no-dependencies.
+	* Makefile.in: Regenerate.
+
+2004-11-13  Kelley Cook  <kcook@gcc.gnu.org>
+
+	* Makefile.am: Define ACLOCAL_AMFLAGS.
+	* acinclude.m4: Remove unnecessary sinclude.
+	* aclocal.m4, Makefile.in, configure: Regenerate (autoreconf 1.9.3).
+
+2004-09-23  Tom Tromey  <tromey@redhat.com>
+
+	* jartool.c (extract_jar): Unconditionally read extra data in the
+	entry header; don't read it after the file contents.
+
+2004-08-11  Kelley Cook  <kcook@gcc.gnu.org>
+
+	PR bootstrap/16164
+	* Makefile.am: Force fastjar.info to be built in build directory.
+	* Makefile.in: Regenerate.
+
+2004-07-23  Thomas Fitzsimmons  <fitzsim@redhat.com>
+
+	* Makefile.am: Rename jar binary to fastjar.
+	* Makefile.in: Regenerate.
+	* fastjar.texi: Rename references to jar binary with fastjar.
+
+2004-07-19  Bryce McKinlay  <mckinlay@redhat.com>
+
+	* jartool.c (main): Ensure that only one of ftruncate and _chsize
+	is used.
+
+2004-07-11  Bryce McKinlay  <mckinlay@redhat.com>
+
+	PR 16472
+	* configure.ac: Check for ftruncate() and _chsize().
+	* jartool.c (main): Use _chsize if ftruncate not available.
+	* configure, config.h.in: Rebuilt.
+
+2004-07-09  Richard Sandiford  <rsandifo@redhat.com>
+
+	* jartool.c (find_entry, looks_like_dir): Remove inline spec.
+
+2004-07-07  Matthias Klose  <doko@debian.org>
+
+	* Makefile.am (jar_CPPFLAGS): Add AM_CPPFLAGS.
+	* Makefile.in: Regenerate.
+
+2004-07-06  Matthias Klose  <doko@debian.org>
+
+	* Makefile.in: Regenerate.
+	* fastjar.texi: Update for '-u'.
+
+2004-07-06  Casey Marshall <csm@gnu.org>
+
+	PR 7854
+	* Makefile.am
+	(jar_SOURCES): added shift.c, shift.h.
+	(jar_CPPFLAGS): define WITH_SHIFT_DOWN.
+
+	* compress.c
+	Added FSF copyright.
+	(write_data): new function.
+	(compress_file): call write_data.
+
+	* jartool.c
+	Updated copyright year.
+	(progname): new variable.
+	(end_of_entries): new variable.
+	(main): open and read file when updating.
+	(find_entry): new function.
+	(looks_like_dir): new function.
+	(read_entries): new function.
+	(make_manifest): added parameter `updating'.
+	Call `add_file_to_jar' with `updating'.
+	(add_to_jar_with_dir): added parameter `updating'.
+	Call `add_to_jar' with `updating'.
+	(add_to_jar): added parameter `updating'.
+	Call `add_file_to_jar' with `updating'.
+	Don't add directories if they already exist.
+	(add_file_to_jar): added parameter `updating'.
+	Update entries if they already exist.
+
+	* jartool.h
+	Added #ifndef __FASTJAR_JARTOOL_H__.
+	(struct zipentry): added `flags'.
+
+	* shift.c: new file.
+
+	* shift.h: new file.
+
+	* zipfile.h
+	(CEN_FLAGS): new constant.
+
+2004-07-05  Kelley Cook  <kcook@gcc.gnu.org>
+
+	* Makefile.am: Silence two automake warnings.
+	* Makefile.in: Regenerate.
+
+2004-06-25  Kelley Cook  <kcook@gcc.gnu.org>
+
+	PR other/15194
+	* configure.ac: Add check for long long.
+	* jartool.h: Check for long long before using it.
+	* configure: Regenerate
+	* config.h.in: Regenerate.
+
+2004-06-15  Paolo Bonzini  <bonzini@gnu.org>
+
+	* acinclude.m4: Quote first argument of AC_DEFUNs.
+	* aclocal.m4: Regenerate with automake 1.8.
+	* Makefile.in: Likewise.
+	* configure: Regenerate.
+	* .cvsignore: New file.
+
+2004-04-12  Kelley Cook  <kcook@gcc.gnu.org>
+
+	PR bootstrap/14905
+	* configure.ac: Parse --enable-generated-files-in-srcdir.
+	* Makefile.am: Copy man and info files to srcdir if requested.
+	* configure: Regenerate.
+	* Makefile.in Regenerate.
+
+2004-03-10  Kelley Cook  <kcook@gcc.gnu.org>
+
+	* configure.ac: Bump AC_PREREQ to 2.59.
+	* configure: Regenerate.
+
+2004-03-09  Hans-Peter Nilsson  <hp@axis.com>
+
+	* configure: Regenerate for config/accross.m4 correction.
+
+2004-01-09  Kelley Cook  <kcook@gcc.gnu.org>
+
+	* configure.in: Rename file to ...
+	* configure.ac: ... this.  Add in AC_PREREQ(2.57)
+	* config.h.in: Regenerate.
+	* aclocal.m4: Regenerate.
+	* Makefile.in: Regenerate.
+
+2004-01-07  Andreas Tobler  <a.tobler@schweiz.ch>
+
+	* jartool.c (make_manifest): Fix off-by-one bug when creating
+	an empty MANIFEST.MF.
+
+2003-12-01  Kelley Cook  <kcook@gcc.gnu.org>
+
+	* Makefile.am: Define AM_MAKINFOFLAGS.  Remove Automake 1.4 hack.
+	* Makefile.in: Regenerate with automake 1.7.6 & autoconf 2.57 tools.
+	* aclocal.m4, config.h.in, configure: Likewise.
+	* install-sh, missing, mkinstalldirs, stamp-h.in: Remove.
+
+2003-11-21  Kelley Cook  <kcook@gcc.gnu.org>
+
+	* .cvsignore: Delete.
+
+2003-10-30  Kelley Cook  <kcook@gcc.gnu.org>
+
+	* Makefile.am (my_make_i_flags): Add $(srcdir) and update comment
+	to match.
+	(fastjar.info): Update target to write to build directory.
+	(%.1): New implicit rule from a .pod file.
+	(jar.1): Delete.
+	(grepjar.1): Delete.
+	(jar.pod): New intermediate rule.
+	(grepjar.pod): Likewise.
+	* Makefile.in: Regenerate.
+
+2003-08-13  Matthias Klose  <doko@debian.org>
+
+	* fastjar.texi: License manual under the GPL.
+	* Makefile.am: Remove reference to fdl.texi
+	* Makefile.in: Regenerate
+
+2003-07-29  Nathanael Nerode  <neroden@gcc.gnu.org>
+
+	* mkinstalldirs: Import autoconf 2.57 / automake 1.7 version.
+
+2003-07-11  Gerald Pfeifer  <pfeifer@dbai.tuwien.ac.at>
+
+	* README: Note that FastJar is not part of GCC.
+
+2003-07-02  Nathanael Nerode  <neroden@gcc.gnu.org>
+
+	PR java/9532
+	* jartool.c (add_to_jar): Return 1 on failure to open file.
+	Split out -C case to:
+	* jartool.c (add_to_jar_with_dir): New function.
+
+2003-06-15  Nathanael Nerode  <neroden@gcc.gnu.org>
+
+	PR java/9532
+	* jartool.c (main) Give proper error messages with -C, and
+	check for missing arguments properly.  Send error messages
+	to stderr.
+	* jartool.c (add_to_jar): Make getcwd() call portable,
+	and check for error return.
+
+2003-03-30  Joseph S. Myers  <jsm@polyomino.org.uk>
+
+	* fastjar.texi: Remove @ at start of file.
+
+2003-03-10  Mohan Embar  <gnustuff@thisiscool.com>
+
+	* dostime.c: add #include <stddef.h> for definition of NULL
+
+2003-02-04  Joseph S. Myers  <jsm@polyomino.org.uk>
+
+	* fastjar.texi: Update to GFDL 1.2.
+
+2003-01-31  Daiki Ueno  <ueno@unixuser.org>
+
+	* jartool.c (extract_jar): Don't lseek to skip extra fields.
+	(consume): If the stream is seekable, do lseek.
+
+2003-01-28  Ranjit Mathew  <rmathew@hotmail.com>
+
+	* jargrep.c: Include xregex.h from libiberty instead of
+	system regex.h for better portability.
+
+2003-01-21  Ranjit Mathew  <rmathew@hotmail.com>
+
+	* jartool.c (list_jar): Terminate the 'ascii_date' buffer
+	with a '\0' to guard against the case where the formatted
+	time string is more than the size allowed by the buffer.
+
+2003-01-14  Tom Tromey  <tromey@redhat.com>
+
+	* config.h.in: Rebuilt.
+
+2002-12-30  DJ Delorie  <dj@redhat.com>
+
+	* Makefile.am (jar.1, grepjar.1): Protect against
+	texi2pod/pod2man failing.
+	* Makefile.in: Regenerated.
+
+2002-12-23  Joseph S. Myers  <jsm@polyomino.org.uk>
+
+	* fastjar.texi: Include Cover Texts in man page.
+
+2002-12-04  Jakub Jelinek  <jakub@redhat.com>
+
+	* fastjar.texi (jar @direntry, grepjar @direntry): Add (fastjar).
+
+2002-11-23  H.J. Lu <hjl@gnu.org>
+
+	* acinclude.m4: Include ../config/accross.m4.
+	(gcc_AC_COMPILE_CHECK_SIZEOF): Removed.
+	(gcc_AC_EXAMINE_OBJECT): Removed.
+	(gcc_AC_C_COMPILE_ENDIAN): Removed.
+	* aclocal.m4; Rebuild.
+
+	* configure.in: Replace AC_C_BIGENDIAN with AC_C_BIGENDIAN_CROSS.
+	Replace AC_CHECK_SIZEOF with AC_COMPILE_CHECK_SIZEOF.
+	* configure: Likewise.
+
+2002-11-21  Ranjit Mathew <rmathew@hotmail.com>
+
+	* jartool.c (extract_jar): Use "open" with O_BINARY instead of
+	"creat" to create extracted files.
+
+2002-11-11  Tom Tromey  <tromey@redhat.com>
+
+	* dostime.c (dos2unixtime): Mask for seconds is 0x1f.  Correctly
+	compute month.
+	(unix2dostime): Handle years before 1980.  Correctly compute month
+	and day of month.
+
+2002-11-10  Jakub Jelinek  <jakub@redhat.com>
+
+	* jartool.c (add_to_jar): Only compare file to jarfile if jarfile is
+	non-NULL.
+
+	* configure.in (AC_CHECK_HEADERS): Add limits.h.
+	* configure, config.h.in: Rebuilt.
+
+2002-11-07  Tom Tromey  <tromey@redhat.com>
+
+	* dostime.c: Rewrote from scratch.
+	* dostime.h (dostime): Removed.
+
+2002-10-20  Tom Tromey  <tromey@redhat.com>
+
+	* jartool.c: Use mode 0666 when opening new file.
+
+2002-09-16  Volker Reichelt  <reichelt@igpm.rwth-aachen.de>
+
+	* jargrep.c (chk_wrd): Remove unused variable(s).
+	* jartool.c (main, create_central_header, list_jar): Likewise.
+
+2002-10-15  Ranjit Mathew  <rmathew@hotmail.com>
+
+	* configure, config.h.in: Rebuilt.
+	* configure.in: Call gcc_AC_FUNC_MKDIR_TAKES_ONE_ARG.
+
+2002-09-11  Tom Tromey  <tromey@redhat.com>
+
+	* Makefile.in: Rebuilt.
+	* Makefile.am (TEXINFO_TEX): New macro.
+	(info_TEXINFOS): Likewise.
+	(fastjar_TEXINFOS): Likewise.
+	(man_MANS): Likewise.
+	(EXTRA_DIST): Likewise.
+	(my_makei_flags): Likewise.
+	(fastjar.info): New rule.
+	(fastjar_TEXINFOS): Don't mention `$(srcdir)'.
+	(TEXINFO_TEX): Likewise.
+	(AUTOMAKE_OPTIONS): Added `cygnus'.
+
+2002-09-11  Matthias Klose  <doko@debian.org>
+
+	* Makefile.am: Revert the previous patch.
+	* Makefile.in: Regenerated.
+
+2002-09-10  Matthias Klose  <doko@debian.org>
+
+	* fastjar.texi: New.
+	* Makefile.am: Support building info docs and manpages.
+	* Makefile.in: Regenerated.
+	* configure.in: Set gcc_version.
+	* configure: Regenerated.
+	* jargrep.c: Update usage and help strings.
+
+2002-09-09  Tom Tromey  <tromey@redhat.com>
+
+	* jartool.c (mkdir): Define.
+	* config.h.in: Rebuilt.
+	* aclocal.m4, configure: Rebuilt.
+	* acinclude.m4: New file.  Copied gcc_AC_COMPILE_CHECK_SIZEOF,
+	gcc_AC_EXAMINE_OBJECT, and fastjar_AC_COMPILE_C_BIGENDIAN from
+	aclocal.m4.
+
+2002-09-04  Tom Tromey  <tromey@redhat.com>
+
+	From greenrd@hotmail.com:
+	* jartool.c (list_jar): Correctly determine when new `filename'
+	buffer must be allocated.  Fixes PR java/7830.
+
+2002-06-03  Geoffrey Keating  <geoffk@redhat.com>
+
+	* configure.in: Support cross-compiling.
+	* configure: Regenerate.
+	* aclocal.m4 (gcc_AC_COMPILE_CHECK_SIZEOF): New.
+	(gcc_AC_EXAMINE_OBJECT): New.
+	(fastjar_AC_COMPILE_C_BIGENDIAN): New.
+
+2002-03-18  Bryce McKinlay  <bryce@waitaki.otago.ac.nz>
+
+	* jartool.c (expand_options): Handle tar-style argument list with a
+	leading "-".
+
+2002-02-23  Anthony Green  <green@redhat.com>
+
+	* jartool.c (main): Fix handling of -C.
+
+2002-01-30  Tom Tromey  <tromey@redhat.com>
+
+	* jartool.c (main): NULL-terminate new_argv.  Pass 0 as argument
+	to init_args.
+
+2002-01-11  Tom Tromey  <tromey@redhat.com>
+
+	* Makefile.in: Rebuilt.
+	* Makefile.am (AUTOMAKE_OPTIONS): New macro.
+
+2002-01-09  Tom Tromey  <tromey@redhat.com>
+
+	For PR libgcj/5303:
+	* jargrep.h: Removed RCS keywords.
+	(GVERSION): Removed.
+	* configure, Makefile.in, config.h.in: Rebuilt.
+	* configure.in: Added AM_MAINTAINER_MODE.
+	Don't look for getopt.h.  Use `fastjar' as package name.
+	* Makefile.am (INCLUDES): Look in ../include.
+	(LIBIBERTY): New macro.
+	(jar_LDADD): Use it.
+	(jar_DEPENDENCIES): Likewise.
+	(grepjar_LDADD): Likewise.
+	(grepjar_DEPENDENCIES): Likewise.
+	* jargrep.c: Removed RCS keywords.  Always include getopt.h.
+	(LONG_OPT): New macro.
+	(OPT_HELP): Likewise.
+	(main): Use getopt_long.  Let getopt print invalid argument
+	message.  Handle --help.  Use version().
+	(version): New function.
+	(optarg, optind): Don't declare.
+	(option_vec): New global.
+	(help): New function.
+	(Usage): Updated to GNU standards.
+	* jartool.c: Removed RCS keywords.  Include getopt.h.
+	(LONG_OPT): New macro.
+	(OPT_HELP): Likewise.
+	(options): New global.
+	(help): New function.
+	(usage): Print a single line.
+	(version): New function.
+	(expand_options): New function.
+	(main): Use getopt_long and expand_options.  Fail if `-u'
+	specified.  Changed handling of -f, -m, -V options.
+	(OPTION_STRING): New macro.
+	(version_string): Removed.
+
+2001-01-02  Craig Rodrigues  <rodrigc@gcc.gnu.org>
+
+	PR bootstrap/5117
+	* configure.in (AC_CHECK_HEADERS): Check for stdlib.h.
+	* Makefile.am: Move grepjar to bin_PROGRAMS.
+	* config.h.in: Regenerated.
+	* Makefile.in: Regenerated.
+	* aclocal.m4: Regenerated.
+	* stamp-h.in: Regenerated.
+	* jargrep.c: Eliminate some signed/unsigned and default
+	uninitialized warnings. Use HAVE_STDLIB_H instead of
+	STDC_HEADERS macro.
+	* jartool.c: Likewise.
+	* compress.c: Likewise.
+
+2001-09-17  Tom Tromey  <tromey@redhat.com>
+
+	For PR java/4295:
+	* aclocal.m4, configure, Makefile.in: Rebuilt.
+	* configure.in: Added AC_EXEEXT.
+
+2001-10-12  Bryce McKinlay  <bryce@waitaki.otago.ac.nz>
+
+	* jatool.c (extract_jar): Account for null termination when determining
+	whether to expand "filename".
+
+2001-08-28  Alexandre Petit-Bianco  <apbianco@redhat.com>
+
+	* jartool.c (add_to_jar): Return 1 if `stat' initialy failed.
+	Fixes PR java/3949.
+
+2001-08-27  Tom Tromey  <tromey@redhat.com>
+
+	* jartool.c (jarfile): Remove length limitation.
+	(main): Use jt_strdup when initializing jarfile.
+
+2001-07-04  Tom Tromey  <tromey@redhat.com>
+
+	Modified from patch by Julian Hall <jules@acris.co.uk>:
+	* jartool.c (errno): Conditionally declare.
+	(O_BINARY): Conditionally define.
+	(main): Use open, not creat.  Use O_BINARY everywhere.
+	(make_manifest): Use O_BINARY.
+	(add_to_jar): Likewise.
+
+2001-06-28  Tom Tromey  <tromey@redhat.com>
+
+	* configure: Rebuilt.
+	* configure.in: Accept --with-system-zlib.  Fixes PR java/3441.
+
+2001-05-15  Per Bothner  <per@bothner.com>
+
+	* Makefile.am (bin_PROGRAMS):  Renamed from "fastjar" to "jar".
+
+2001-05-03  John David Anglin  <dave@hiauly1.hia.nrc.ca>
+
+	* jartool.c (jt_strdup): New function.
+	(get_next_arg): Use jt_strdup instead of strdup.
+
+2001-01-21  Tom Tromey  <tromey@redhat.com>
+
+	* Makefile.in: Rebuilt.
+	* Makefile.am (bin_PROGRAMS): Remove grepjar.
+	(EXTRA_PROGRAMS): New macro.
+
+2000-12-28  Robert Lipe <robertl@sco.com>
+
+	* jartool.c (MAXPATHLEN): Provide if not defined.
+
+2000-12-15  Tom Tromey  <tromey@redhat.com>
+	    Kelley Cook <kelleycook@home.com>
+
+	* jargrep.c: Include getopt.h if it exists.
+	(optind): Declare.
+	* configure, config.h: Rebuilt.
+	* configure.in: Check for getopt.h.
+
+2000-12-14  Kaveh R. Ghazi  <ghazi@caip.rutgers.edu>
+
+	* configure.in (fastjar_warn_cflags): Set when using gcc.
+
+	* Makefile.am (AM_CFLAGS): Set to @fastjar_warn_cflags@.
+
+2000-12-14  Kaveh R. Ghazi  <ghazi@caip.rutgers.edu>
+
+	* compress.c: Include stdlib.h and compress.h.
+	(rcsid): Delete.
+	(report_str_error): Make static.
+	(ez_inflate_str): Delete unused variable.  Add parens in if-stmt.
+	(hrd_inflate_str): Likewise.
+
+	* compress.h (init_compression, end_compression, init_inflation,
+	end_inflation): Prototype void arguments.
+
+	* dostime.c (rcsid): Delete.
+
+	* jargrep.c: Include ctype.h, stdlib.h, zlib.h and compress.h.
+	Make functions static.  Cast ctype function argument to `unsigned
+	char'.  Add parens in if-stmts.  Constify.
+	(Usage): Change into a macro.
+	(jargrep): Remove unused parameter.
+
+	* jartool.c: Constify.  Add parens in if-stmts.  Align
+	signed/unsigned char pointers in functions calls using casts.
+	(rcsid): Delete.
+	(list_jar): Fix printf format specifier.
+	(usage): Chop long string into bits.  Reformat.
+
+	* pushback.c (rcsid): Delete.
+
+2000-12-13  Tom Tromey  <tromey@redhat.com>
+
+	* jartool.c (extract_jar): Use strchr, not index.
+
+2000-12-11  Alexandre Petit-Bianco  <apbianco@cygnus.com>
+
+	* install-defs.sh: Removed.
+
+2000-12-10  Robert Lipe <robertlipe@usa.net>
+
+	* jargrep.c (jargrep): Added null statement after case.
+
+2000-12-10  Alexandre Petit-Bianco  <apbianco@cygnus.com>
+
+	* Makefile: Removed.
+	* Makefile.in: Rebuilt with `-i' and `--enable-foreign'.
+
+Tue Nov 16 15:11:36 2000  Alexandre Petit-Bianco  <apbianco@cygnus.com>
+
+	* Makefile.am: New file.
+	* Makefile.in: Rebuilt.
+	* aclocal.m4: Likewise.
+	* stamp-h.in: Likewise.
+	* config.h.in: Likewise.
+	* configure.in (AM_INIT_AUTOMAKE): Added.
+	(AM_CONFIG_HEADER): Likewise.
+	(AC_CHECK_HEADERS): Check for sys/param.h
+	(AC_CHECK_LIB): Don't check for system's zlib.
+	(AC_CHECK_FUNC): Removed system's zlib function checks.
+	(ZDEPS. ZLIBS, ZINCS): Added.
+	* configure: Rebuilt.
+	* jartool.c (sys/param.h): Conditionally included or define MAXPATHLEN.
+	(init_args, get_next_arg): New function.
+	(use_explicit_list_only, read_names_from_stdin): New global
+	(main): Parse new non standard options 'E' and '@', check and
+	report their usage if necessary. Use init_args and get_next_arg.
+	Fixed indentation.
+	(add_to_jar): Don't read directory content if `use_explicit_list_only'.
+	(usage): Added `-E' and `-@'.
+	* jartool.h (VERSION): Macro removed.
+
+Tue Nov 14 15:10:44 2000  Alexandre Petit-Bianco  <apbianco@cygnus.com>
+
+	* fastjar imported from sourceforge.net/projects/fastjar with
+	Bryan Burns' permission. Check `CHANGES' for post import changes.
+	* ChangeLog: Created.
+	* NEWS: Likewise.
+	* mkinstalldirs: Likewise.
+	* COPYING: Likewise.
+	* AUTHORS: Likewise.

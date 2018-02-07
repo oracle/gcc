@@ -1,0 +1,46 @@
+New in release 0.97
+-------------------
+
+* Build fix for Cygwin.
+
+New in release 0.96
+-------------------
+
+* Added support for -J and @file options.
+
+* Added CHANGES file to the distribute files.
+
+* Fixed file name extraction, so that it can now be used during OpenJDK build.
+
+* Various splint cleanups.
+
+New in release 0.95
+-------------------
+
+* Fix for directory traversal security issue CVE-2006-3619.
+
+* Support for JAR file indexing and updating.
+
+* Updated to use autoconf 2.61 and automake 1.10.
+
+* Shared code was factored out into internal fastjar library 
+  for fastjar & grepjar to links against.
+
+* Merged in the patches from 0.94 release on SourceForge.
+
+* Many bug fixes and cleanups.
+
+Noteworthy changes in fastjar, 11/2000
+--------------------------------------
+
+Fastjar as been imported from sourceforge.net/projects/fastjar with
+Brian Burns' permission so that it can be used as a replacement to the
+zip utility in order to create the libgcj.zip archive. Several missing
+distribution files were created, most notably Makefile.am.
+
+Two new options were added: `-E' to prevent fastjar from reading the
+content of a directory when specifying one (and instead relying on the
+provided list of files to populate the archive with regard to the
+directory entry) and `-@' to let fastjar read the name of the files to
+add to the archive from the standard input. This last option is
+supported only when creating or augmenting an archive.
