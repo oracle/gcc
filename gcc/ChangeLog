@@ -1,3 +1,12 @@
+2013-09-05  Yufeng Zhang  <yufeng.zhang@arm.com>
+
+	* config/aarch64/aarch64-option-extensions.def: Add
+	AARCH64_OPT_EXTENSION of 'crc'.
+	* config/aarch64/aarch64.h (AARCH64_FL_CRC): New define.
+	(AARCH64_ISA_CRC): Ditto.
+	* doc/invoke.texi (-march and -mcpu feature modifiers): Add
+	description of the CRC extension.
+
 2015-06-23  Release Manager
 
 	* GCC 4.8.5 released.
@@ -2157,6 +2166,99 @@
 
 	* omp-low.c (create_omp_child_function): Don't set DECL_NAMELESS
 	on the FUNCTION_DECL.
+
+2013-09-06  Andreas Krebbel  <Andreas.Krebbel@de.ibm.com>
+
+	* config/s390/s390.md (UNSPEC_FPINT_FLOOR, UNSPEC_FPINT_BTRUNC)
+	(UNSPEC_FPINT_ROUND, UNSPEC_FPINT_CEIL, UNSPEC_FPINT_NEARBYINT)
+	(UNSPEC_FPINT_RINT): New constant definitions.
+	(FPINT, fpint_name, fpint_roundingmode): New integer iterator
+	definition with 2 attributes.
+	("<FPINT:fpint_name><BFP:mode>2", "rint<BFP:mode>2")
+	("<FPINT:fpint_name><DFP:mode>2", "rint<DFP:mode>2"): New pattern
+	definitions.
+
+2013-09-06  Andreas Krebbel  <Andreas.Krebbel@de.ibm.com>
+
+	* config/s390/s390.md: Add "bcr_flush" value to mnemonic
+	attribute.
+	("mem_thread_fence_1"): Use bcr 14,0 for z196 and later.
+	Set the mnemonic attribute to "bcr_flush".  Set the "z196prop"
+	attribute to "z196_alone".
+	* config/s390/2827.md: Add "bcr_flush" to "ooo_groupalone" and
+	"zEC12_simple".
+
+2014-04-22  James Greenhalgh  <james.greenhalgh@arm.com>
+
+	* config/aarch64/aarch64-simd.md
+	(aarch64_cm<optab>di): Always split.
+	(*aarch64_cm<optab>di): New.
+	(aarch64_cmtstdi): Always split.
+	(*aarch64_cmtstdi): New.
+
+2013-05-23  James Greenhalgh  <james.greenhalgh@arm.com>
+
+	* config/aarch64/aarch64-simd.md
+	(aarch64_cm<optab>di): Add clobber of CC_REGNUM to unsplit pattern.
+
+2013-07-02  Ian Bolton  <ian.bolton@arm.com>
+
+	* config/aarch64/aarch64-simd.md (absdi2): Support abs for
+	DI mode.
+
+2013-05-30  Ian Bolton  <ian.bolton@arm.com>
+
+	* config/aarch64/aarch64.md (insv<mode>): New define_expand.
+	(*insv_reg<mode>): New define_insn.
+
+2013-05-02  Ian Bolton  <ian.bolton@arm.com>
+
+	* config/aarch64/aarch64.md (movsi_aarch64): Only allow to/from
+	S reg when fp attribute set.
+	(movdi_aarch64): Only allow to/from D reg when fp attribute set.
+
+2013-04-29  Ian Bolton  <ian.bolton@arm.com>
+
+	* config/aarch64/aarch64.md (movsi_aarch64): Support LDR/STR
+	from/to S register.
+	(movdi_aarch64): Support LDR/STR from/to D register.
+
+2014-02-19  Michael Hudson-Doyle  <michael.hudson@linaro.org>
+
+	PR target/59799
+	* config/aarch64/aarch64.c (aarch64_pass_by_reference): The rules for
+	passing arrays in registers are the same as for structs, so remove the
+	special case for them.
+
+2013-08-22  Paolo Carlini  <paolo.carlini@oracle.com>
+
+	* configure.ac: Add backslashes missing from the last change.
+	* configure: Regenerate.
+
+2013-08-22  Julian Brown  <julian@codesourcery.com>
+
+	* configure.ac: Add aarch64 to list of arches which use "nop" in
+	debug_line test.
+	* configure: Regenerate.
+
+2013-09-30  Venkataramanan Kumar  <venkataramanan.kumar@linaro.org>
+
+	* config/aarch64/aarch64.h (MCOUNT_NAME): Define.
+	(NO_PROFILE_COUNTERS): Likewise.
+	(PROFILE_HOOK): Likewise.
+	(FUNCTION_PROFILER): Likewise.
+	* config/aarch64/aarch64.c (aarch64_function_profiler): Remove.
+
+2013-12-06  Andrew Pinski  <apinski@cavium.com>
+
+	PR target/59092
+	* config/aarch64/aarch64.md (trap): New pattern.
+
+2013-11-13  Christophe Lyon  <christophe.lyon@linaro.org>
+
+	* config/aarch64/aarch64.h (FRAME_GROWS_DOWNWARD): Define to 1.
+	* config/aarch64/aarch64.c (aarch64_initial_elimination_offset):
+	Update offset calculations.
 
 2014-07-10  Tom G. Christensen  <tgc@jupiterrise.com>
 
@@ -8367,6 +8469,16 @@
 	* config/s390/htmintrin.h: Likewise.
 	* config/s390/s390intrin.h: Likewise.
 
+2013-08-28  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/58067
+	* config/i386/i386.md (*tls_global_dynamic_64_largepic): New insn.
+	(*tls_local_dynamic_base_64_largepic): Likewise.
+	(tls_global_dynamic_64_<mode>, tls_local_dynamic_base_64_<mode>):
+	Remove predicate from call operand.
+	* config/i386/i386.c (ix86_tls_get_addr): For -mcmodel=large -fpic
+	return sum of pic_offset_table_rtx and UNSPEC_PLTOFF of the symbol.
+
 2013-08-14  Uros Bizjak  <ubizjak@gmail.com>
 
 	Backport from mainline
@@ -9007,6 +9119,90 @@
 
 	* GCC 4.8.1 released.
 
+2013-06-03  Yuri Rumyantsev  <yuri.s.rumyantsev@intel.com>
+
+	* config/i386/i386.c (ix86_lea_outperforms): Fix formatting.
+	(ix86_avoid_lea_for_addr): Likewise.
+	(exact_dependency_1): Likewise.
+	(ix86_adjust_cost): Likewise.
+	(swap_top_of_ready_list): Fix formatting and !reload_completed check
+	removed.
+	(do_reorder_for_imul): Fix typo, formatting and
+	!reload_completed check removed.
+	(ix86_sched_reorder): Fix typo and formatting.
+	(fold_builtin_cpu): Move M_INTEL_SLM at the end of processor types
+	list.
+
+2013-05-31  Yuri Rumyantsev  <yuri.s.rumyantsev@intel.com>
+	    Igor Zamyatin  <igor.zamyatin@intel.com>
+
+	Silvermont (SLM) architecture performance tuning.
+	* config/i386/i386.h (enum ix86_tune_indices): Add
+	X86_TUNE_SPLIT_MEM_OPND_FOR_FP_CONVERTS.
+	(TARGET_SPLIT_MEM_OPND_FOR_FP_CONVERTS): New define.
+
+	* config/i386/i386.c (initial_ix86_tune_features)
+	<X86_TUNE_SPLIT_MEM_OPND_FOR_FP_CONVERTS>: Initialize.
+	(ix86_lea_outperforms): Handle Silvermont tuning.
+	(ix86_avoid_lea_for_add): Add new argument to ix86_lea_outperforms
+	call.
+	(ix86_use_lea_for_mov): Likewise.
+	(ix86_avoid_lea_for_addr): Likewise.
+	(ix86_lea_for_add_ok): Likewise.
+	(exact_dependency_1): New function.
+	(exact_store_load_dependency): Likewise.
+	(ix86_adjust_cost): Handle Silvermont tuning.
+	(do_reoder_for_imul): Likewise.
+	(swap_top_of_ready_list): New function.
+	(ix86_sched_reorder): Changed to handle Silvermont tuning.
+
+	* config/i386/i386.md (peepholes that split memory operand in fp
+	converts): New.
+
+2013-05-30  Yuri Rumyantsev  <yuri.s.rumyantsev@intel.com>
+	    Igor Zamyatin  <igor.zamyatin@intel.com>
+
+	Silvermont (SLM) architecture pipeline model, tuning and
+	insn selection.
+	* config.gcc: Add slm config options and target.
+
+	* config/i386/slm.md: New.
+
+	* config/i386/driver-i386.c (host_detect_local_cpu): Check movbe.
+
+	* config/i386/i386-c.c (ix86_target_macros_internal):  New case
+	PROCESSOR_SLM.
+	(ix86_target_macros_internal): Likewise.
+
+	* config/i386/i386.c (slm_cost): New cost.
+	(m_SLM): New macro flag.
+	(initial_ix86_tune_features): Set m_SLM.
+	(x86_accumulate_outgoing_args): Likewise.
+	(x86_arch_always_fancy_math_387): Likewise.
+	(processor_target_table): Add slm cost.
+	(cpu_names): Add slm cpu name.
+	(x86_option_override_internal): Set SLM ISA.
+	(ix86_issue_rate): New case PROCESSOR_SLM.
+	(ia32_multipass_dfa_lookahead): Likewise.
+	(fold_builtin_cpu): Add slm.
+
+	* config/i386/i386.h (TARGET_SLM): New target macro.
+	(target_cpu_default): Add TARGET_CPU_DEFAULT_slm.
+	(processor_type): Add PROCESSOR_SLM.
+
+	* config/i386/i386.md (cpu): Add new value "slm".
+	(slm.md): Include slm.md.
+
+2013-05-29  Ganesh Gopalasubramanian  <Ganesh.Gopalasubramanian@amd.com>
+
+	* config/i386/i386.c (initial_ix86_tune_features): Enable
+	FP Reassociation for AMD bdver1 and bdver2.
+
+2013-05-15  Ganesh Gopalasubramanian  <Ganesh.Gopalasubramanian@amd.com>
+
+	* config/i386/i386.c (processor_alias_table): Add instruction
+	FSGSBASE for AMD bdver3 architecture.
+
 2013-05-24  Greta Yorsh  <Greta.Yorsh@arm.com>
 
 	Backport from mainline
@@ -9171,6 +9367,71 @@
 	Add value for EPIPHANY_MSW_ENTITY_CONFIG.
 	(EPIPHANY_MSW_ENTITY_CONFIG, EPIPHANY_MSW_ENTITY_NUM): Define.
 	* config/epiphany/epiphany.md (save_config): New pattern.
+
+2013-05-14  Jakub Jelinek  <jakub@redhat.com>
+
+	* tree.c (warn_deprecated_use): Print file:line using locus color.
+	* diagnostic.c (diagnostic_report_current_module): Print file:line
+	and file:line:column using locus color.
+
+2013-04-26  Jakub Jelinek  <jakub@redhat.com>
+
+	* Makefile.in (toplev.o): Depend on diagnostic-color.h.
+	* diagnostic-color.c (should_colorize): Remove _WIN32 version.
+	(colorize_init): Add argument to _WIN32 version.
+	* toplev.c: Include diagnostic-color.h.
+	(process_options): Default to -fdiagnostics-color=auto if
+	GCC_COLORS env var is in the environment.
+	* common.opt (fdiagnostics-color=): Add Var and Init.
+	* doc/invoke.texi (-fdiagnostics-color=): Document that if
+	GCC_COLORS env var is in the environment, the default is auto
+	rather than never.
+
+	* diagnostic.h (file_name_as_prefix): Add context argument.
+	* diagnostic.c (file_name_as_prefix): Likewise.  Colorize
+	the string as locus.
+	* langhooks.c (lhd_print_error_function): Adjust caller.
+
+2013-04-12  Manuel López-Ibáñez  <manu@gcc.gnu.org>
+	    Jakub Jelinek  <jakub@redhat.com>
+
+	* opts.c: Include diagnostic-color.h.
+	(common_handle_option): Handle OPT_fdiagnostics_color_.
+	* Makefile.in (OBJS-libcommon): Add diagnostic-color.o.
+	(diagnostic.o, opts.o, pretty-print.o): Depend on diagnostic-color.h.
+	(diagnostic-color.o): New.
+	* common.opt (fdiagnostics-color, fdiagnostics-color=): New options.
+	(diagnostic_color_rule): New enum.
+	* dwarf2out.c (gen_producer_string): Don't print -fdiagnostics-color*.
+	* langhooks.c (lhd_print_error_function): Add %r "locus" and %R around
+	the location string.
+	* diagnostic.def: Add 3rd argument to DEFINE_DIAGNOSTIC_KIND macros,
+	either NULL, or color kind.
+	* diagnostic-color.c: New file.
+	* diagnostic-color.h: New file.
+	* diagnostic-core.h (DEFINE_DIAGNOSTIC_KIND): Adjust macro for 3
+	arguments.
+	* doc/invoke.texi (-fdiagnostics-color): Document.
+	* pretty-print.h (pp_show_color): Define.
+	(struct pretty_print_info): Add show_color field.
+	* diagnostic.c: Include diagnostic-color.h.
+	(diagnostic_build_prefix): Adjust for 3 argument DEFINE_DIAGNOSTIC_KIND
+	macros.  Colorize error:, warning: etc. strings and also the location
+	string.
+	(diagnostic_show_locus): Colorize the caret line.
+	* pretty-print.c: Include diagnostic-color.h.
+	(pp_base_format): Handle %r and %R format specifiers.  Colorize strings
+	inside of %< %> quotes or quoted through q format modifier.
+
+2013-05-07  Han Shen  <shenhan@google.com>
+
+	* cfgexpand.c (record_or_union_type_has_array_p): New function.
+	(expand_used_vars): Add logic handling '-fstack-protector-strong'.
+	* common.opt (fstack-protector-strong): New option.
+	* doc/cpp.texi (__SSP_STRONG__): New builtin "__SSP_STRONG__".
+	* doc/invoke.texi (Optimization Options): Document
+	"-fstack-protector-strong".
+	* gcc.c (LINK_SSP_SPEC): Add 'fstack-protector-strong'.
 
 2013-05-10  Sebastian Huber  <sebastian.huber@embedded-brains.de>
 
@@ -9508,6 +9769,15 @@
 	* config/aarch64/aarch64.c (aarch64_print_extension): New function.
 	(aarch64_start_file): Use the new function.
 
+2013-05-06  Maxim Kuznetsov  <maks.kuznetsov@gmail.com>
+
+	* final.c (do_assembler_dialects): Don't handle curly braces and
+	vertical bar escaped by % as dialect delimiters.
+	(output_asm_insn): Print curly braces and vertical bar if escaped
+	by % and ASSEMBLER_DIALECT defined.
+	* doc/tm.texi.in (ASSEMBLER_DIALECT): Document new standard escapes.
+	* doc/tm.texi: Regenerated.
+
 2013-04-18  Jakub Jelinek  <jakub@redhat.com>
 
 	PR tree-optimization/56984
@@ -9838,6 +10108,30 @@
 	PR middle-end/56694
 	* tree-eh.c (lower_eh_must_not_throw): Strip BLOCKs from the
 	must-not-throw stmt location.
+
+2013-03-18  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c/56566
+	* tree.c (tree_int_cst_min_precision): For integer_zerop (value)
+	return 1 even for !unsignedp.
+
+2013-03-21  Jakub Jelinek  <jakub@redhat.com>
+
+	PR debug/55608
+	* dwarf2out.c (tree_add_const_value_attribute): Call ggc_free (array)
+	on failure.
+	(resolve_one_addr): Fail if referenced STRING_CST hasn't been written.
+	(string_cst_pool_decl): New function.
+	(optimize_one_addr_into_implicit_ptr): New function.
+	(resolve_addr_in_expr): Optimize DWARF location expression
+	DW_OP_addr DW_OP_stack_value where DW_OP_addr refers to some variable
+	which doesn't live in memory, but has DW_AT_location or
+	DW_AT_const_value, or refers to a string literal, into
+	DW_OP_GNU_implicit_pointer.
+	(optimize_location_into_implicit_ptr): New function.
+	(resolve_addr): If removing DW_AT_location of a variable because
+	it was DW_OP_addr of address of the variable, but the variable doesn't
+	live in memory, try to emit const value attribute for the initializer.
 
 2012-03-22  Jakub Jelinek  <jakub@redhat.com>
 
@@ -13871,6 +14165,51 @@
 	PR tree-optimization/55831
 	* tree-vect-loop.c (get_initial_def_for_induction): Use
 	gsi_after_labels instead of gsi_start_bb.
+
+2010-06-30  Jakub Jelinek  <jakub@redhat.com>
+
+	* config/rs6000/rs6000.c (rs6000_elf_end_indicate_exec_stack): New.
+	* config/rs6000/linux64.h (TARGET_ASM_FILE_END): Use
+	rs6000_elf_end_indicate_exec_stack.
+	* config/ia64/ia64.c (ia64_linux_file_end): New.
+	* config/ia64/linux.h (TARGET_ASM_FILE_END): Use ia64_linux_file_end.
+
+	* gcc.c (execute): Don't free first string early, but at the end
+	of the function.  Call retry_ice if compiler exited with
+	ICE_EXIT_CODE.
+	(retry_ice): New function.
+	* diagnostic.c (diagnostic_count_diagnostic,
+	diagnostic_action_after_output, error_recursion): Exit with
+	ICE_EXIT_CODE instead of FATAL_EXIT_CODE.
+
+	* cppbuiltin.c (define__GNUC__): Also define __GNUC_RH_RELEASE__.
+
+	* config/ia64/ia64.h (FRAME_GROWS_DOWNWARD): Define to 1 if
+	-fstack-protect.
+	* config/ia64/ia64.c (ia64_compute_frame_size): Make sure
+	size is a multiple of 16 if FRAME_GROWS_DOWNWARD.
+	(ia64_initial_elimination_offset): Support FRAME_GROWS_DOWNWARD
+	layout.
+	* config/ia64/linux.h (TARGET_LIBC_PROVIDES_SSP): Define.
+	* config/ia64/ia64.md (stack_protect_set, stack_protect_test): New
+	expanders.
+
+	Revert:
+	2005-04-29  Alan Modra  <amodra@bigpond.net.au>
+	PR target/21098
+	* config/rs6000/rs6000.c (rs6000_elf_end_indicate_exec_stack): New.
+	* config/rs6000/linux64.h (TARGET_ASM_FILE_END): Use the above.
+
+	* config/rs6000/ppc-asm.h: Add .note.GNU-stack section also
+	on ppc64-linux.
+
+	* config/ia64/linux.h (TARGET_ASM_FILE_END): Define.
+
+	* configure.ac (HAVE_LD_OVERLAPPING_OPD): New test.
+	* configure: Rebuilt.
+	* config.in: Rebuilt.
+	* config/rs6000/rs6000.c (OVERLAPPING_OPD): Define.
+	(rs6000_elf_declare_function_name): Use it.
 
 Copyright (C) 2013 Free Software Foundation, Inc.
 

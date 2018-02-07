@@ -107,6 +107,17 @@
 	* trans-openmp.c (gfc_omp_predetermined_sharing): Return
 	OMP_CLAUSE_DEFAULT_SHARED for parameters or vtables.
 
+2014-09-03  Fritz Reese  <Reese-Fritz@zai.com>
+
+	PR fortran/62174
+	* decl.c (variable_decl): Don't overwrite typespecs of Cray pointees
+	when matching a component declaration.
+
+2013-05-30  Janus Weil  <janus@gcc.gnu.org>
+
+	PR fortran/54189
+	* resolve.c (check_assumed_size_reference): Check for e->ref.
+
 2014-09-03  Marek Polacek  <polacek@redhat.com>
 
 	Backport from trunk

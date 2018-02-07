@@ -19133,6 +19133,10 @@ msgstr "тип је превазиђен (декларисан код %s:%d)"
 msgid "type is deprecated (declared at %s:%d)"
 msgstr "тип је превазиђен (декларисан код %s:%d)"
 
+#: tree.c:11601
+msgid "type is deprecated (declared at %r%s:%d%R)"
+msgstr "тип је превазиђен (декларисан код %r%s:%d%R)"
+
 #: tree.c:11610
 #, fuzzy, gcc-internal-format
 #| msgid "%qs is deprecated"
@@ -48808,7 +48812,7 @@ msgstr "Не могу се променити атрибути USE-придру�
 #, fuzzy, gcc-internal-format, gfc-internal-format
 #| msgid "Duplicate %s attribute specified at %L"
 msgid "Duplicate %s attribute specified at %L"
-msgstr "Удвостручени атрибут %S наведен код %L"
+msgstr "Удвостручени атрибут %s наведен код %L"
 
 #: fortran/symbol.c:884
 #, gcc-internal-format, gfc-internal-format
@@ -48890,12 +48894,12 @@ msgstr "Одредница ACCESS код %L је већ наведена "
 #, fuzzy, gcc-internal-format, gfc-internal-format
 #| msgid "Duplicate %s attribute specified at %L"
 msgid "Duplicate BIND attribute specified at %L"
-msgstr "Удвостручени атрибут %S наведен код %L"
+msgstr "Удвостручени атрибут BIND наведен код %L"
 
 #: fortran/symbol.c:1598
-#, gcc-internal-format, gfc-internal-format
-msgid "BIND(C) at %L"
-msgstr ""
+#, fuzzy, gcc-internal-format, gfc-internal-format
+msgid "Fortran 2003: BIND(C) at %L"
+msgstr "Фортран 2003: Ознака BIND(C) код %L"
 
 #: fortran/symbol.c:1615
 #, fuzzy, gcc-internal-format, gfc-internal-format

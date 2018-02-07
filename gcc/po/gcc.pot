@@ -1058,6 +1058,14 @@ msgstr ""
 msgid "    inlined from %qs at %s:%d"
 msgstr ""
 
+#: langhooks.c:455 cp/error.c:2995
+msgid "    inlined from %qs at %r%s:%d:%d%R"
+msgstr ""
+
+#: langhooks.c:460 cp/error.c:3000
+msgid "    inlined from %qs at %r%s:%d%R"
+msgstr ""
+
 #: langhooks.c:466 cp/error.c:3006
 #, c-format
 msgid "    inlined from %qs"
@@ -4094,6 +4102,14 @@ msgstr ""
 msgid "%s:%d:   "
 msgstr ""
 
+#: cp/error.c:3084
+msgid "%r%s:%d:%d:%R   "
+msgstr ""
+
+#: cp/error.c:3087
+msgid "%r%s:%d:%R   "
+msgstr ""
+
 #: cp/error.c:3095
 #, c-format
 msgid "recursively required by substitution of %qS\n"
@@ -4142,6 +4158,26 @@ msgstr ""
 #: cp/error.c:3235
 #, c-format
 msgid "%s:%d:   in constexpr expansion of %qs"
+msgstr ""
+
+#: cp/error.c:3162
+msgid ""
+"%r%s:%d:%d:%R   [ skipping %d instantiation contexts, use -ftemplate-backtrace-"
+"limit=0 to disable ]\n"
+msgstr ""
+
+#: cp/error.c:3167
+msgid ""
+"%r%s:%d:%R   [ skipping %d instantiation contexts, use -ftemplate-backtrace-"
+"limit=0 to disable ]\n"
+msgstr ""
+
+#: cp/error.c:3231
+msgid "%r%s:%d:%d:%R   in constexpr expansion of %qs"
+msgstr ""
+
+#: cp/error.c:3235
+msgid "%r%s:%d:%R   in constexpr expansion of %qs"
 msgstr ""
 
 #: cp/pt.c:1751
@@ -17922,6 +17958,30 @@ msgstr ""
 #: tree.c:11601
 #, gcc-internal-format, gfc-internal-format
 msgid "type is deprecated (declared at %s:%d)"
+msgstr ""
+
+#: tree.c:11557
+msgid "%qD is deprecated (declared at %r%s:%d%R): %s"
+msgstr ""
+
+#: tree.c:11561
+msgid "%qD is deprecated (declared at %r%s:%d%R)"
+msgstr ""
+
+#: tree.c:11586
+msgid "%qE is deprecated (declared at %r%s:%d%R): %s"
+msgstr ""
+
+#: tree.c:11590
+msgid "%qE is deprecated (declared at %r%s:%d%R)"
+msgstr ""
+
+#: tree.c:11597
+msgid "type is deprecated (declared at %r%s:%d%R): %s"
+msgstr ""
+
+#: tree.c:11601
+msgid "type is deprecated (declared at %r%s:%d%R)"
 msgstr ""
 
 #: tree.c:11610

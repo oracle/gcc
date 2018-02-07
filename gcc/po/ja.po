@@ -17806,6 +17806,30 @@ msgstr "型は廃止されました (宣言位置 %s:%d): %s"
 msgid "type is deprecated (declared at %s:%d)"
 msgstr "型は廃止されました (宣言位置 %s:%d)"
 
+#: tree.c:11557
+msgid "%qD is deprecated (declared at %r%s:%d%R): %s"
+msgstr "%qD は廃止されました (宣言位置 %r%s:%d%R): %s"
+
+#: tree.c:11561
+msgid "%qD is deprecated (declared at %r%s:%d%R)"
+msgstr "%qD は廃止されました (宣言位置 %r%s:%d%R)"
+
+#: tree.c:11586
+msgid "%qE is deprecated (declared at %r%s:%d%R): %s"
+msgstr "%qE は廃止されました (宣言位置 %r%s:%d%R): %s"
+
+#: tree.c:11590
+msgid "%qE is deprecated (declared at %r%s:%d%R)"
+msgstr "%qE は廃止されました (宣言位置 %r%s:%d%R)"
+
+#: tree.c:11597
+msgid "type is deprecated (declared at %r%s:%d%R): %s"
+msgstr "型は廃止されました (宣言位置 %r%s:%d%R): %s"
+
+#: tree.c:11601
+msgid "type is deprecated (declared at %r%s:%d%R)"
+msgstr "型は廃止されました (宣言位置 %r%s:%d%R)"
+
 #: tree.c:11610
 #, gcc-internal-format
 msgid "%qE is deprecated: %s"

@@ -19175,6 +19175,10 @@ msgstr "tür önerilmiyor (%s:%d. satırında bildirilmiş)"
 msgid "type is deprecated (declared at %s:%d)"
 msgstr "tür önerilmiyor (%s:%d. satırında bildirilmiş)"
 
+#: tree.c:11601
+msgid "type is deprecated (declared at %r%s:%d%R)"
+msgstr "tür önerilmiyor (%r%s:%d%R. satırında bildirilmiş)"
+
 #: tree.c:11610
 #, fuzzy, gcc-internal-format
 #| msgid "%qs is deprecated"
@@ -45525,7 +45529,7 @@ msgstr "PURE yordamda %s deyimine izin verilmez (%C'de)"
 #, fuzzy, gcc-internal-format, gfc-internal-format
 #| msgid "%s statement must appear in a MODULE"
 msgid "%s statement must appear in a MODULE"
-msgstr "%S deyimi bir MODULE'de görünmemeli"
+msgstr "%s deyimi bir MODULE'de görünmemeli"
 
 #: fortran/parse.c:2715
 #, gcc-internal-format, gfc-internal-format

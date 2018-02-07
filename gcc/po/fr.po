@@ -19867,6 +19867,10 @@ msgstr "type est obsolète (déclaré à %s:%d)"
 msgid "type is deprecated (declared at %s:%d)"
 msgstr "type est obsolète (déclaré à %s:%d)"
 
+#: tree.c:11601
+msgid "type is deprecated (declared at %r%s:%d%R)"
+msgstr "type est obsolète (déclaré à %r%s:%d%R)"
+
 #: tree.c:11610
 #, fuzzy, gcc-internal-format
 #| msgid "`%s' is deprecated"
@@ -40678,13 +40682,13 @@ msgstr ""
 #, fuzzy, gcc-internal-format
 #| msgid "%s from type `%T' to type `%T' casts away constness"
 msgid "cast from type %qT to type %qT casts away qualifiers"
-msgstr "%S à partir du « %T » vers le type « %T » provoque un transtypage sans constante"
+msgstr "transtypage à partir du « %T » vers le type « %T » provoque un transtypage sans constante"
 
 #: cp/typeck.c:6030
 #, fuzzy, gcc-internal-format
 #| msgid "%s from type `%T' to type `%T' casts away constness"
 msgid "static_cast from type %qT to type %qT casts away qualifiers"
-msgstr "%S à partir du « %T » vers le type « %T » provoque un transtypage sans constante"
+msgstr "static_cast à partir du « %T » vers le type « %T » provoque un transtypage sans constante"
 
 #: cp/typeck.c:6036
 #, fuzzy, gcc-internal-format

@@ -4233,8 +4233,9 @@ esac
 # ??? Once 2.11 is released, probably need to add first known working
 # version to the per-target configury.
 case "$cpu_type" in
-  alpha | arm | avr | bfin | cris | i386 | m32c | m68k | microblaze | mips \
-  | pa | rs6000 | score | sparc | spu | tilegx | tilepro | xstormy16 | xtensa)
+  aarch64 | alpha | arm | avr | bfin | cris | i386 | m32c | m68k | microblaze \
+  | mips | pa | rs6000 | score | sparc | spu | tilegx | tilepro | xstormy16 \
+  | xtensa)
     insn="nop"
     ;;
   ia64 | s390)
@@ -4640,6 +4641,24 @@ EOF
     if test x"$gcc_cv_ld_large_toc" = xyes; then
       AC_DEFINE(HAVE_LD_LARGE_TOC, 1,
     [Define if your PowerPC64 linker supports a large TOC.])
+    fi
+
+    AC_CACHE_CHECK(linker support for overlapping .opd entries,
+    gcc_cv_ld_overlapping_opd,
+    [gcc_cv_ld_overlapping_opd=no
+    if test $in_tree_ld = yes ; then
+      if test "$gcc_cv_gld_major_version" -eq 2 -a "$gcc_cv_gld_minor_version" -ge 16 -o "$gcc_cv_gld_major_version" -gt 2; then
+        gcc_cv_ld_overlapping_opd=yes
+      fi
+    elif test x$gcc_cv_ld != x ; then
+      if $gcc_cv_ld -melf64ppc --help 2>/dev/null | grep non-overlapping-opd > /dev/null; then
+        gcc_cv_ld_overlapping_opd=yes
+      fi
+    fi
+    ])
+    if test x"$gcc_cv_ld_overlapping_opd" = xyes; then
+      AC_DEFINE(HAVE_LD_OVERLAPPING_OPD, 1,
+    [Define if your PowerPC64 linker handles overlapping .opd entries.])
     fi
     ;;
 esac

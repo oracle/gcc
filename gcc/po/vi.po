@@ -1105,6 +1105,14 @@ msgstr "    trực tiếp từ %qs tại %s:%d:%d"
 msgid "    inlined from %qs at %s:%d"
 msgstr "    trực tiếp từ %qs tại %s:%d"
 
+#: langhooks.c:455 cp/error.c:2995
+msgid "    inlined from %qs at %r%s:%d:%d%R"
+msgstr "    trực tiếp từ %qs tại %r%s:%d:%d%R"
+
+#: langhooks.c:460 cp/error.c:3000
+msgid "    inlined from %qs at %r%s:%d%R"
+msgstr "    trực tiếp từ %qs tại %r%s:%d%R"
+
 #: langhooks.c:466 cp/error.c:3006
 #, c-format
 msgid "    inlined from %qs"
@@ -17560,6 +17568,26 @@ msgstr "kiểu bị phản đối (được khai báo tại %s:%d): %s"
 #, gcc-internal-format, gfc-internal-format
 msgid "type is deprecated (declared at %s:%d)"
 msgstr "kiểu bị phản đối (được khai báo tại %s:%d)"
+
+#: tree.c:11557
+msgid "%qD is deprecated (declared at %r%s:%d%R): %s"
+msgstr "%qD bị phản đối (được khai báo tại %r%s:%d%R): %s"
+
+#: tree.c:11561
+msgid "%qD is deprecated (declared at %r%s:%d%R)"
+msgstr "%qD bị phản đối (được khai báo tại %r%s:%d%R)"
+
+#: tree.c:11590
+msgid "%qE is deprecated (declared at %r%s:%d%R)"
+msgstr "%qE bị phản đối (được khai báo tại %r%s:%d%R)"
+
+#: tree.c:11597
+msgid "type is deprecated (declared at %r%s:%d%R): %s"
+msgstr "kiểu bị phản đối (được khai báo tại %r%s:%d%R): %s"
+
+#: tree.c:11601
+msgid "type is deprecated (declared at %r%s:%d%R)"
+msgstr "kiểu bị phản đối (được khai báo tại %r%s:%d%R)"
 
 #: tree.c:11610
 #, gcc-internal-format

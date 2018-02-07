@@ -1131,6 +1131,14 @@ msgstr "    inlined dari %qs di %s:%d:%d"
 msgid "    inlined from %qs at %s:%d"
 msgstr "    inlined dari %qs di %s:%d"
 
+#: langhooks.c:455 cp/error.c:2991
+msgid "    inlined from %qs at %r%s:%d:%d%R"
+msgstr "    inlined dari %qs di %r%s:%d:%d%R"
+
+#: langhooks.c:460 cp/error.c:2996
+msgid "    inlined from %qs at %r%s:%d%R"
+msgstr "    inlined dari %qs di %r%s:%d%R"
+
 #: langhooks.c:466 cp/error.c:3002
 #, c-format
 msgid "    inlined from %qs"
@@ -18816,6 +18824,14 @@ msgstr "tipe sudah ditinggalkan (dideklarasikan di %s:%d)"
 #, gcc-internal-format, gfc-internal-format
 msgid "type is deprecated (declared at %s:%d)"
 msgstr "tipe sudah ditinggalkan (dideklarasikan di %s:%d)"
+
+#: tree.c:11561
+msgid "%qD is deprecated (declared at %r%s:%d%R)"
+msgstr "%qD sudah ditinggalkan (dideklarasikan di %r%s:%d%R)"
+
+#: tree.c:11601
+msgid "type is deprecated (declared at %r%s:%d%R)"
+msgstr "tipe sudah ditinggalkan (dideklarasikan di %r%s:%d%R)"
 
 #: tree.c:11610
 #, fuzzy, gcc-internal-format

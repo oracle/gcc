@@ -49,6 +49,11 @@
 	* config.guess: Update to 2013-06-10 version.
 	* config.sub: Update to 2013-10-01 version.
 
+2013-04-16  Andreas Schwab  <schwab@suse.de>
+
+	* configure.ac (aarch64-*-*): Don't disable java.
+	* configure: Regenerate.
+
 2013-10-16  Release Manager
 
 	* GCC 4.8.2 released.

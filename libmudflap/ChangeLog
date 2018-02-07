@@ -21,6 +21,12 @@
 
 	* GCC 4.8.2 released.
 
+2013-09-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR testsuite/57605
+	* testsuite/lib/libmudflap.exp (libmudflap-init): Append
+	-fdiagnostics-color=never to cxxflags.
+
 2013-05-31  Release Manager
 
 	* GCC 4.8.1 released.

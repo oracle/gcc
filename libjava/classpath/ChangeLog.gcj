@@ -4,6 +4,10 @@
 	native/jni/gtk-peer/gnu_java_awt_peer_gtk_GdkFontPeer.c:
 	Fix freetype includes.
 
+2013-04-16  Andreas Schwab  <schwab@suse.de>
+
+	* native/fdlibm/ieeefp.h: Add support for aarch64.
+
 2013-03-22  Jakub Jelinek  <jakub@redhat.com>
 
 	PR other/43620

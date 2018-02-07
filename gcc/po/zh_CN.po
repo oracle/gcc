@@ -1096,6 +1096,14 @@ msgstr "    内联自%qs于 %s:%d:%d"
 msgid "    inlined from %qs at %s:%d"
 msgstr "    内联自%qs于 %s:%d"
 
+#: langhooks.c:455 cp/error.c:2991
+msgid "    inlined from %qs at %r%s:%d:%d%R"
+msgstr "    内联自%qs于 %r%s:%d:%d%R"
+
+#: langhooks.c:460 cp/error.c:2996
+msgid "    inlined from %qs at %r%s:%d%R"
+msgstr "    内联自%qs于 %r%s:%d%R"
+
 #: langhooks.c:466 cp/error.c:3002
 #, c-format
 msgid "    inlined from %qs"
@@ -4105,6 +4113,14 @@ msgstr "%s:%d:%d：在%qs的广义常表达式扩展中"
 #, c-format
 msgid "%s:%d:   in constexpr expansion of %qs"
 msgstr "%s:%d：在%qs的广义常表达式扩展中"
+
+#: cp/error.c:3227
+msgid "%r%s:%d:%d:%R   in constexpr expansion of %qs"
+msgstr "%r%s:%d:%d：%R在%qs的广义常表达式扩展中"
+
+#: cp/error.c:3231
+msgid "%r%s:%d:%R   in constexpr expansion of %qs"
+msgstr "%r%s:%d：%R在%qs的广义常表达式扩展中"
 
 #: cp/pt.c:1751
 msgid "candidates are:"
@@ -17899,6 +17915,30 @@ msgstr "不建议使用类型(声明于 %s:%d)：%s"
 #, gcc-internal-format, gfc-internal-format
 msgid "type is deprecated (declared at %s:%d)"
 msgstr "不建议使用类型(声明于 %s:%d)"
+
+#: tree.c:11557
+msgid "%qD is deprecated (declared at %r%s:%d%R): %s"
+msgstr "不建议使用%qD(声明于 %r%s:%d%R)：%s"
+
+#: tree.c:11561
+msgid "%qD is deprecated (declared at %r%s:%d%R)"
+msgstr "不建议使用%qD(声明于 %r%s:%d%R)"
+
+#: tree.c:11586
+msgid "%qE is deprecated (declared at %r%s:%d%R): %s"
+msgstr "不建议使用%qE(声明于 %r%s:%d%R)：%s"
+
+#: tree.c:11590
+msgid "%qE is deprecated (declared at %r%s:%d%R)"
+msgstr "不建议使用%qE(声明于 %r%s:%d%R)"
+
+#: tree.c:11597
+msgid "type is deprecated (declared at %r%s:%d%R): %s"
+msgstr "不建议使用类型(声明于 %r%s:%d%R)：%s"
+
+#: tree.c:11601
+msgid "type is deprecated (declared at %r%s:%d%R)"
+msgstr "不建议使用类型(声明于 %r%s:%d%R)"
 
 #: tree.c:11610
 #, gcc-internal-format

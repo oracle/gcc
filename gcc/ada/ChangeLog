@@ -1874,6 +1874,14 @@
 	* sem_prag.adb (Analyze_Pragma, case pragma Check): Omit
 	call to Set_SCO_Pragma_Enabled for Invariant and Predicate.
 	* sem_ch13.adb: Minor comment update.
+
+2010-06-30  Jakub Jelinek  <jakub@redhat.com>
+
+	* gnat_ugn.texi: Add : and . to direntry.
+	* gnat-style.texi: Change dircategory to GNU Ada tools.
+
+	* gcc-interface/Makefile.in (gnatlib-shared-default): Disallow
+	dlopening of libgnat.so.
 
 Copyright (C) 2013 Free Software Foundation, Inc.
 

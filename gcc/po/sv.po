@@ -1089,6 +1089,14 @@ msgstr "    inline:ad från %qs vid %s:%d:%d"
 msgid "    inlined from %qs at %s:%d"
 msgstr "    inline:ad från %qs vid %s:%d"
 
+#: langhooks.c:455 cp/error.c:2995
+msgid "    inlined from %qs at %r%s:%d:%d%R"
+msgstr "    inline:ad från %qs vid %r%s:%d:%d%R"
+
+#: langhooks.c:460 cp/error.c:3000
+msgid "    inlined from %qs at %r%s:%d%R"
+msgstr "    inline:ad från %qs vid %r%s:%d%R"
+
 #: langhooks.c:466 cp/error.c:3006
 #, c-format
 msgid "    inlined from %qs"
@@ -3459,7 +3467,7 @@ msgstr "ogiltig operand till %%R"
 #: config/sh/sh.c:1228
 #, c-format
 msgid "invalid operand to %%S"
-msgstr "ogiltig operand till %%R"
+msgstr "ogiltig operand till %%S"
 
 #: config/sh/sh.c:9772
 msgid "created and used with different architectures / ABIs"
@@ -4036,6 +4044,22 @@ msgstr "%s:%d:%d:   i expansion av konstantuttryck i %qs"
 #, c-format
 msgid "%s:%d:   in constexpr expansion of %qs"
 msgstr "%s:%d:   i expansion av konstantuttryck i från %qs"
+
+#: cp/error.c:3162
+msgid "%r%s:%d:%d:%R   [ skipping %d instantiation contexts, use -ftemplate-backtrace-limit=0 to disable ]\n"
+msgstr "%r%s:%d:%d:%R   [ hoppar över %d instansieringskontexter, använd -ftemplate-backtrace-limit=0 för att avaktivera ]\n"
+
+#: cp/error.c:3167
+msgid "%r%s:%d:%R   [ skipping %d instantiation contexts, use -ftemplate-backtrace-limit=0 to disable ]\n"
+msgstr "%r%s:%d:%R   [ hoppar över %d instansieringskontexter, använd -ftemplate-backtrace-limit=0 för att avaktivera ]\n"
+
+#: cp/error.c:3231
+msgid "%r%s:%d:%d:%R   in constexpr expansion of %qs"
+msgstr "%r%s:%d:%d:%R   i expansion av konstantuttryck i %qs"
+
+#: cp/error.c:3235
+msgid "%r%s:%d:%R   in constexpr expansion of %qs"
+msgstr "%r%s:%d:%R   i expansion av konstantuttryck i från %qs"
 
 #: cp/pt.c:1751
 msgid "candidates are:"
@@ -17374,6 +17398,30 @@ msgstr "typen bör undvikas (deklarerad vid %s:%d): %s"
 #, gcc-internal-format, gfc-internal-format
 msgid "type is deprecated (declared at %s:%d)"
 msgstr "typen bör undvikas (deklarerad vid %s:%d)"
+
+#: tree.c:11557
+msgid "%qD is deprecated (declared at %r%s:%d%R): %s"
+msgstr "%qD bör undvikas (deklarerad vid %r%s:%d%R): %s"
+
+#: tree.c:11561
+msgid "%qD is deprecated (declared at %r%s:%d%R)"
+msgstr "%qD bör undvikas (deklarerad vid %r%s:%d%R)"
+
+#: tree.c:11586
+msgid "%qE is deprecated (declared at %r%s:%d%R): %s"
+msgstr "%qE bör undvikas (deklarerad vid %r%s:%d%R): %s"
+
+#: tree.c:11590
+msgid "%qE is deprecated (declared at %r%s:%d%R)"
+msgstr "%qE bör undvikas (deklarerad vid %r%s:%d%R)"
+
+#: tree.c:11597
+msgid "type is deprecated (declared at %r%s:%d%R): %s"
+msgstr "typen bör undvikas (deklarerad vid %r%s:%d%R): %s"
+
+#: tree.c:11601
+msgid "type is deprecated (declared at %r%s:%d%R)"
+msgstr "typen bör undvikas (deklarerad vid %r%s:%d%R)"
 
 #: tree.c:11610
 #, gcc-internal-format

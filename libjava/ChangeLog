@@ -30,6 +30,11 @@
 	* java/lang/natObject.cc (_Jv_MonitorEnter): Add missing parenthesis
 	around comparison with (address | LOCKED) in JvAssert.
 
+2013-04-16  Andreas Schwab  <schwab@suse.de>
+
+	* configure.host: Add support for aarch64.
+	* sysdep/aarch64/locks.h: New file.
+
 2013-10-16  Release Manager
 
 	* GCC 4.8.2 released.
@@ -66,6 +71,15 @@
 	* gnu/gcj/convert/Convert.java (version): Update copyright notice
 	dates.
 	* gnu/gcj/tools/gcj_dbtool/Main.java (main): Likewise.
+
+2010-06-30  Jakub Jelinek  <jakub@redhat.com>
+
+	* configure.ac (toolexeclibdir, dbexecdir): Canonicalize /lib/../lib
+	to /lib.
+	* configure: Rebuilt.
+
+	* configure.host (slow_pthread_self): Set to empty unconditionally
+	on Linux targets.
 
 Copyright (C) 2013 Free Software Foundation, Inc.
 

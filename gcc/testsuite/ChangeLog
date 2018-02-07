@@ -1015,6 +1015,16 @@
 	PR debug/63284
 	* gcc.dg/pr63284.c: New test.
 
+2014-09-02  Fritz Reese  <Reese-Fritz@zai.com>
+
+	PR fortran/62174
+	* gfortran.dg/cray_pointers_11.f90: New.
+
+2013-05-30  Janus Weil  <janus@gcc.gnu.org>
+
+	PR fortran/54189
+	* gfortran.dg/assumed_size_1.f90: New.
+
 2014-09-09  Richard Biener  <rguenther@suse.de>
 
 	Backport from mainline
@@ -1212,6 +1222,31 @@
 	Backport from trunk.
 	PR fortran/61780
 	* gfortran.dg/dependency_44.f90 : New test
+
+2013-09-06  Andreas Krebbel  <Andreas.Krebbel@de.ibm.com>
+
+	* gcc.target/s390/nearestint-1.c: New testcase.
+
+2013-07-02  Ian Bolton  <ian.bolton@arm.com>
+
+	* gcc.target/aarch64/abs_1.c: New test.
+
+2013-05-30  Ian Bolton  <ian.bolton@arm.com>
+
+	* gcc.target/aarch64/insv_1.c: New test.
+
+2014-01-22  Richard Sandiford  <rdsandiford@googlemail.com>
+
+	* gcc.dg/pr44194-1.c: Match "insn " and "insn:", but not "insn/f".
+
+2014-01-20  Renlin Li  <renlin.li@arm.com>
+
+	* gcc.dg/pr44194-1.c: Tweak regexp.
+
+2013-11-19  Cesar Philippidis  <cesar@codesourcery.com>
+
+	* gcc.c-torture/execute/20101011-1.c (__aarch64__):
+	Remove defined(__linux__).
 
 2014-07-10  Eric Botcazou  <ebotcazou@adacore.com>
 
@@ -3203,6 +3238,13 @@
 	PR c++/58596
 	* g++.dg/cpp0x/lambda/lambda-nsdmi5.C: New
 
+2013-10-17  Michael Meissner  <meissner@linux.vnet.ibm.com>
+
+	PR target/58673
+	* gcc.target/powerpc/pr58673-1.c: New file to test whether
+	-mquad-word + -mno-vsx-timode causes errors.
+	* gcc.target/powerpc/pr58673-2.c: Likewise.
+
 2013-10-16  Paolo Carlini  <paolo.carlini@oracle.com>
 
 	PR c++/58633
@@ -3625,6 +3667,12 @@
 	versions.  Add FIXME and outputs from current system compiler for
 	reference.
 
+2013-06-27  Andreas Krebbel  <Andreas.Krebbel@de.ibm.com>
+
+	* gcc.target/s390/htm-1.c: New file.
+	* gcc.target/s390/htm-nofloat-1.c: New file.
+	* gcc.target/s390/htm-xl-intrin-1.c: New file.
+
 2013-07-10  Janis Johnson  <janisjo@codesourcery.com>
 
 	* gcc.target/powerpc/20020118-1.c: Force 128-bit stack alignment
@@ -3666,6 +3714,21 @@
 
 	PR target/57736
 	* gcc.target/i386/pr57736.c: New test.
+
+2013-07-10  Jakub Jelinek  <jakub@redhat.com>
+
+	PR preprocessor/57824
+	* c-c++-common/raw-string-17.c: New test.
+	* c-c++-common/gomp/pr57824.c: New test.
+
+2013-07-10  Jakub Jelinek  <jakub@redhat.com>
+
+	* c-c++-common/raw-string-18.c: New test.
+	* c-c++-common/raw-string-19.c: New test.
+
+	PR preprocessor/57757
+	* g++.dg/cpp/paste1.C: New test.
+	* g++.dg/cpp/paste2.C: New test.
 
 2013-06-27  Jakub Jelinek  <jakub@redhat.com>
 
@@ -3826,6 +3889,29 @@
 
 	PR tree-optimization/57230
 	* gcc.dg/strlenopt-23.c: New test.
+
+2013-04-26  Jakub Jelinek  <jakub@redhat.com>
+
+	* lib/prune.exp: Add -fdiagnostics-color=never to TEST_ALWAYS_FLAGS.
+	* lib/c-compat.exp (compat-use-alt-compiler, compat_setup_dfp): Handle
+	-fdiagnostics-color=never option similarly to
+	-fno-diagnostics-show-caret option.
+
+2013-05-14  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
+
+	* gcc.dg/fstack-protector-strong.c: Don't include <stdlib.h>.
+	(alloca): Remove declaration.
+	(foo9): Replace alloca by __builtin_alloca.
+
+2013-05-14  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
+
+	* gcc.dg/fstack-protector-strong.c (alloca): Declare.
+
+2013-04-16  Han Shen  <shenhan@google.com>
+
+	Test cases for '-fstack-protector-strong'.
+	* gcc.dg/fstack-protector-strong.c: New.
+	* g++.dg/fstack-protector-strong.C: New.
 
 2013-05-10  Richard Biener  <rguenther@suse.de>
 
@@ -4120,6 +4206,10 @@
 	* gfortran.dg/array_constructor_40.f90:  Adjust number of
 	while loops.
 
+2013-05-06  Maxim Kuznetsov  <maks.kuznetsov@gmail.com>
+
+	* gcc.target/i386/asm-dialect-2.c: New testcase.
+
 2013-04-18  Mikael Morin  <mikael@gcc.gnu.org>
 
 	PR fortran/56816
@@ -4379,6 +4469,11 @@
 	PR testsuite/55994
 	* gcc.c-torture/execute/builtins/builtins.exp: Add
 	-Wl,--allow-multiple-definition for RTEMS targets.
+
+2013-03-18  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c/56566
+	* c-c++-common/pr56566.c: New test.
 
 2013-03-22  Jakub Jelinek  <jakub@redhat.com>
 
@@ -6291,6 +6386,10 @@
 
 	PR tree-optimization/55831
 	* gcc.dg/pr55831.c: New test.
+
+2010-06-30  Jakub Jelinek  <jakub@redhat.com>
+
+	* g++.dg/opt/ctor1.C: New test.
 
 Copyright (C) 2013 Free Software Foundation, Inc.
 

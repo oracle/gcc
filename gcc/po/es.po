@@ -1092,6 +1092,14 @@ msgstr "    incluído en línea de %qs en %s:%d:%d"
 msgid "    inlined from %qs at %s:%d"
 msgstr "    incluído en línea de %qs en %s:%d"
 
+#: langhooks.c:455 cp/error.c:2991
+msgid "    inlined from %qs at %r%s:%d:%d%R"
+msgstr "    incluído en línea de %qs en %r%s:%d:%d%R"
+
+#: langhooks.c:460 cp/error.c:2996
+msgid "    inlined from %qs at %r%s:%d%R"
+msgstr "    incluído en línea de %qs en %r%s:%d%R"
+
 #: langhooks.c:466 cp/error.c:3002
 #, c-format
 msgid "    inlined from %qs"
@@ -4004,6 +4012,14 @@ msgstr "%s:%d:%d:   "
 msgid "%s:%d:   "
 msgstr "%s:%d:   "
 
+#: cp/error.c:3080
+msgid "%r%s:%d:%d:%R   "
+msgstr "%r%s:%d:%d:%R   "
+
+#: cp/error.c:3083
+msgid "%r%s:%d:%R   "
+msgstr "%r%s:%d:%R   "
+
 #: cp/error.c:3091
 #, c-format
 msgid "recursively required by substitution of %qS\n"
@@ -4051,6 +4067,26 @@ msgstr "%s:%d:%d:   en la expansión de la expresión constante de %qs"
 #, c-format
 msgid "%s:%d:   in constexpr expansion of %qs"
 msgstr "%s:%d:   en la expansión de la expresión constante de %qs"
+
+#: cp/error.c:3158
+#, fuzzy
+#| msgid "%r%s:%d:%d:%R   [ skipping %d instantiation contexts ]\n"
+msgid "%r%s:%d:%d:%R   [ skipping %d instantiation contexts, use -ftemplate-backtrace-limit=0 to disable ]\n"
+msgstr "%r%s:%d:%d:%R   [ se saltan %d contextos de instanciación ]\n"
+
+#: cp/error.c:3163
+#, fuzzy
+#| msgid "%r%s:%d:%R   [ skipping %d instantiation contexts ]\n"
+msgid "%r%s:%d:%R   [ skipping %d instantiation contexts, use -ftemplate-backtrace-limit=0 to disable ]\n"
+msgstr "%r%s:%d:%R   [ se saltan %d contextos de instanciación ]\n"
+
+#: cp/error.c:3227
+msgid "%r%s:%d:%d:%R   in constexpr expansion of %qs"
+msgstr "%r%s:%d:%d:%R   en la expansión de la expresión constante de %qs"
+
+#: cp/error.c:3231
+msgid "%r%s:%d:%R   in constexpr expansion of %qs"
+msgstr "%r%s:%d:%R   en la expansión de la expresión constante de %qs"
 
 #: cp/pt.c:1751
 msgid "candidates are:"
@@ -17532,6 +17568,30 @@ msgstr "el tipo es obsoleto (declarado en %s:%d): %s"
 #, gcc-internal-format, gfc-internal-format
 msgid "type is deprecated (declared at %s:%d)"
 msgstr "el tipo es obsoleto (declarado en %s:%d)"
+
+#: tree.c:11557
+msgid "%qD is deprecated (declared at %r%s:%d%R): %s"
+msgstr "%qD es obsoleto (declarado en %r%s:%d%R): %s"
+
+#: tree.c:11561
+msgid "%qD is deprecated (declared at %r%s:%d%R)"
+msgstr "%qD es obsoleto (declarado en %r%s:%d%R)"
+
+#: tree.c:11586
+msgid "%qE is deprecated (declared at %r%s:%d%R): %s"
+msgstr "%qE es obsoleto (declarado en %r%s:%d%R): %s"
+
+#: tree.c:11590
+msgid "%qE is deprecated (declared at %r%s:%d%R)"
+msgstr "%qE es obsoleto (declarado en %r%s:%d%R)"
+
+#: tree.c:11597
+msgid "type is deprecated (declared at %r%s:%d%R): %s"
+msgstr "el tipo es obsoleto (declarado en %r%s:%d%R): %s"
+
+#: tree.c:11601
+msgid "type is deprecated (declared at %r%s:%d%R)"
+msgstr "el tipo es obsoleto (declarado en %r%s:%d%R)"
 
 #: tree.c:11610
 #, gcc-internal-format

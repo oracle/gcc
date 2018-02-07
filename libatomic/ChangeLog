@@ -11,6 +11,11 @@
 
 	* GCC 4.8.4 released.
 
+2013-10-17  Michael Hudson-Doyle  <michael.hudson@linaro.org>
+
+	* libatomic/configure.tgt (aarch64*): Remove code preventing
+	build.
+
 2014-05-22  Release Manager
 
 	* GCC 4.8.3 released.

@@ -19677,6 +19677,10 @@ msgstr "type er forældet (erklæret ved %s:%d)"
 msgid "type is deprecated (declared at %s:%d)"
 msgstr "type er forældet (erklæret ved %s:%d)"
 
+#: tree.c:11601
+msgid "type is deprecated (declared at %r%s:%d%R)"
+msgstr "type er forældet (erklæret ved %r%s:%d%R)"
+
 #: tree.c:11610
 #, fuzzy, gcc-internal-format
 #| msgid "`%s' is deprecated"

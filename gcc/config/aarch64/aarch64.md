@@ -469,6 +469,12 @@
   [(set_attr "v8type" "misc")]
 )
 
+(define_insn "trap"
+  [(trap_if (const_int 1) (const_int 8))]
+  ""
+  "brk #1000"
+  [(set_attr "v8type" "misc")])
+
 (define_expand "prologue"
   [(clobber (const_int 0))]
   ""
@@ -797,26 +803,29 @@
 )
 
 (define_insn "*movsi_aarch64"
-  [(set (match_operand:SI 0 "nonimmediate_operand" "=r,r,r,m, *w, r,*w")
-	(match_operand:SI 1 "aarch64_mov_operand"     " r,M,m,rZ,rZ,*w,*w"))]
+  [(set (match_operand:SI 0 "nonimmediate_operand" "=r,r,r,*w,m,  m,*w, r,*w,*w")
+	(match_operand:SI 1 "aarch64_mov_operand"  " r,M,m, m,rZ,*w, r,*w,*w,Dd"))]
   "(register_operand (operands[0], SImode)
     || aarch64_reg_or_zero (operands[1], SImode))"
   "@
    mov\\t%w0, %w1
    mov\\t%w0, %1
    ldr\\t%w0, %1
+   ldr\\t%s0, %1
    str\\t%w1, %0
+   str\\t%s1, %0
    fmov\\t%s0, %w1
    fmov\\t%w0, %s1
-   fmov\\t%s0, %s1"
-  [(set_attr "v8type" "move,alu,load1,store1,fmov,fmov,fmov")
+   fmov\\t%s0, %s1
+   movi\\t%d0, %1"
+  [(set_attr "v8type" "move,alu,load1,load1,store1,store1,fmov,fmov,fmov,fmov")
    (set_attr "mode" "SI")
-   (set_attr "fp" "*,*,*,*,yes,yes,yes")]
+   (set_attr "fp" "*,*,*,yes,*,yes,yes,yes,yes,yes")]
 )
 
 (define_insn "*movdi_aarch64"
-  [(set (match_operand:DI 0 "nonimmediate_operand" "=r,k,r,r,r,m, r,  r,  *w, r,*w,w")
-	(match_operand:DI 1 "aarch64_mov_operand"  " r,r,k,N,m,rZ,Usa,Ush,rZ,*w,*w,Dd"))]
+  [(set (match_operand:DI 0 "nonimmediate_operand" "=r,k,r,r,r,*w,m,  m,r,  r,  *w, r,*w,*w")
+	(match_operand:DI 1 "aarch64_mov_operand"  " r,r,k,N,m, m,rZ,*w,Usa,Ush, r,*w,*w,Dd"))]
   "(register_operand (operands[0], DImode)
     || aarch64_reg_or_zero (operands[1], DImode))"
   "@
@@ -825,17 +834,19 @@
    mov\\t%x0, %1
    mov\\t%x0, %1
    ldr\\t%x0, %1
+   ldr\\t%d0, %1
    str\\t%x1, %0
+   str\\t%d1, %0
    adr\\t%x0, %a1
    adrp\\t%x0, %A1
    fmov\\t%d0, %x1
    fmov\\t%x0, %d1
    fmov\\t%d0, %d1
    movi\\t%d0, %1"
-  [(set_attr "v8type" "move,move,move,alu,load1,store1,adr,adr,fmov,fmov,fmov,fmov")
+  [(set_attr "v8type" "move,move,move,alu,load1,load1,store1,store1,adr,adr,fmov,fmov,fmov,fmov")
    (set_attr "mode" "DI")
-   (set_attr "fp" "*,*,*,*,*,*,*,*,yes,yes,yes,*")
-   (set_attr "simd" "*,*,*,*,*,*,*,*,*,*,*,yes")]
+   (set_attr "fp" "*,*,*,*,*,yes,*,yes,*,*,yes,yes,yes,yes")
+   (set_attr "simd" "*,*,*,*,*,*,*,*,*,*,*,*,*,yes")]
 )
 
 (define_insn "insv_imm<mode>"
@@ -1825,6 +1836,38 @@
    (set_attr "mode" "SI")]
 )
 
+(define_insn_and_split "absdi2"
+  [(set (match_operand:DI 0 "register_operand" "=r,w")
+	(abs:DI (match_operand:DI 1 "register_operand" "r,w")))
+   (clobber (match_scratch:DI 2 "=&r,X"))]
+  ""
+  "@
+   #
+   abs\\t%d0, %d1"
+  "reload_completed
+   && GP_REGNUM_P (REGNO (operands[0]))
+   && GP_REGNUM_P (REGNO (operands[1]))"
+  [(const_int 0)]
+  {
+    emit_insn (gen_rtx_SET (VOIDmode, operands[2],
+			    gen_rtx_XOR (DImode,
+					 gen_rtx_ASHIFTRT (DImode,
+							   operands[1],
+							   GEN_INT (63)),
+					 operands[1])));
+    emit_insn (gen_rtx_SET (VOIDmode,
+			    operands[0],
+			    gen_rtx_MINUS (DImode,
+					   operands[2],
+					   gen_rtx_ASHIFTRT (DImode,
+							     operands[1],
+							     GEN_INT (63)))));
+    DONE;
+  }
+  [(set_attr "v8type" "alu")
+   (set_attr "mode" "DI")]
+)
+
 (define_insn "neg<mode>2"
   [(set (match_operand:GPI 0 "register_operand" "=r")
 	(neg:GPI (match_operand:GPI 1 "register_operand" "r")))]
@@ -2758,6 +2801,50 @@
 			 (match_operand 3 "const_int_operand" "n")))]
   ""
   "<su>bfx\\t%<w>0, %<w>1, %3, %2"
+  [(set_attr "v8type" "bfm")
+   (set_attr "mode" "<MODE>")]
+)
+
+;; Bitfield Insert (insv)
+(define_expand "insv<mode>"
+  [(set (zero_extract:GPI (match_operand:GPI 0 "register_operand")
+			  (match_operand 1 "const_int_operand")
+			  (match_operand 2 "const_int_operand"))
+	(match_operand:GPI 3 "general_operand"))]
+  ""
+{
+  unsigned HOST_WIDE_INT width = UINTVAL (operands[1]);
+  unsigned HOST_WIDE_INT pos = UINTVAL (operands[2]);
+  rtx value = operands[3];
+
+  if (width == 0 || (pos + width) > GET_MODE_BITSIZE (<MODE>mode))
+    FAIL;
+
+  if (CONST_INT_P (value))
+    {
+      unsigned HOST_WIDE_INT mask = ((unsigned HOST_WIDE_INT)1 << width) - 1;
+
+      /* Prefer AND/OR for inserting all zeros or all ones.  */
+      if ((UINTVAL (value) & mask) == 0
+	   || (UINTVAL (value) & mask) == mask)
+	FAIL;
+
+      /* 16-bit aligned 16-bit wide insert is handled by insv_imm.  */
+      if (width == 16 && (pos % 16) == 0)
+	DONE;
+    }
+  operands[3] = force_reg (<MODE>mode, value);
+})
+
+(define_insn "*insv_reg<mode>"
+  [(set (zero_extract:GPI (match_operand:GPI 0 "register_operand" "+r")
+			  (match_operand 1 "const_int_operand" "n")
+			  (match_operand 2 "const_int_operand" "n"))
+	(match_operand:GPI 3 "register_operand" "r"))]
+  "!(UINTVAL (operands[1]) == 0
+     || (UINTVAL (operands[2]) + UINTVAL (operands[1])
+	 > GET_MODE_BITSIZE (<MODE>mode)))"
+  "bfi\\t%<w>0, %<w>3, %2, %1"
   [(set_attr "v8type" "bfm")
    (set_attr "mode" "<MODE>")]
 )

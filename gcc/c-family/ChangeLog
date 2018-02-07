@@ -110,6 +110,11 @@
 
 	* c-ada-spec.c (print_ada_declaration): Prevent accessing null asm name
 
+2013-07-10  Jakub Jelinek  <jakub@redhat.com>
+
+	* c-ppoutput.c (scan_translation_unit): Call account_for_newlines
+	for all CPP_TOKEN_FLD_STR tokens, not just CPP_COMMENT.
+
 2013-05-31  Release Manager
 
 	* GCC 4.8.1 released.
@@ -118,6 +123,16 @@
 
 	PR c++/57274
 	* c-common.c (verify_tree): Don't recurse into SIZEOF_EXPR.
+
+2013-04-12  Jakub Jelinek  <jakub@redhat.com>
+
+	* c-format.c (gcc_diag_char_table, gcc_tdiag_char_table,
+	gcc_cdiag_char_table, gcc_cxxdiag_char_table): Add %r and %R format
+	specifiers.
+
+2013-05-07  Han Shen  <shenhan@google.com>
+
+	* c-cppbuiltin.c (c_cpp_builtins): Added "__SSP_STRONG__=3".
 
 2013-03-22  Release Manager
 

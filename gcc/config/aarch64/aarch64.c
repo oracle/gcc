@@ -985,14 +985,10 @@ aarch64_pass_by_reference (cumulative_args_t pcum ATTRIBUTE_UNUSED,
   size = (mode == BLKmode && type)
     ? int_size_in_bytes (type) : (int) GET_MODE_SIZE (mode);
 
-  if (type)
+  /* Aggregates are passed by reference based on their size.  */
+  if (type && AGGREGATE_TYPE_P (type))
     {
-      /* Arrays always passed by reference.  */
-      if (TREE_CODE (type) == ARRAY_TYPE)
-	return true;
-      /* Other aggregates based on their size.  */
-      if (AGGREGATE_TYPE_P (type))
-	size = int_size_in_bytes (type);
+      size = int_size_in_bytes (type);
     }
 
   /* Variable sized arguments are always returned by reference.  */
@@ -1813,7 +1809,7 @@ aarch64_save_or_restore_callee_save_registers (HOST_WIDE_INT offset,
    Establish the stack frame by decreasing the stack pointer with a
    properly calculated size and, if necessary, create a frame record
    filled with the values of LR and previous frame pointer.  The
-   current FP is also set up is it is in use.  */
+   current FP is also set up if it is in use.  */
 
 void
 aarch64_expand_prologue (void)
@@ -3650,13 +3646,6 @@ aarch64_print_operand_address (FILE *f, rtx x)
   output_addr_const (f, x);
 }
 
-void
-aarch64_function_profiler (FILE *f ATTRIBUTE_UNUSED,
-			   int labelno ATTRIBUTE_UNUSED)
-{
-  sorry ("function profiling");
-}
-
 bool
 aarch64_label_mentioned_p (rtx x)
 {
@@ -3922,7 +3911,7 @@ aarch64_initial_elimination_offset (unsigned from, unsigned to)
 	 return offset - crtl->outgoing_args_size;
 
        if (from == FRAME_POINTER_REGNUM)
-	 return cfun->machine->frame.saved_regs_size;
+	 return cfun->machine->frame.saved_regs_size + get_frame_size ();
      }
 
    if (to == STACK_POINTER_REGNUM)
@@ -3931,6 +3920,7 @@ aarch64_initial_elimination_offset (unsigned from, unsigned to)
          {
            HOST_WIDE_INT elim = crtl->outgoing_args_size
                               + cfun->machine->frame.saved_regs_size
+                              + get_frame_size ()
                               - cfun->machine->frame.fp_lr_offset;
            elim = AARCH64_ROUND_UP (elim, STACK_BOUNDARY / BITS_PER_UNIT);
            return elim;

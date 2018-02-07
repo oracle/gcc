@@ -1091,6 +1091,14 @@ msgstr "    eingefügt von %qs bei %s:%d:%d"
 msgid "    inlined from %qs at %s:%d"
 msgstr "    eingefügt von %qs bei %s:%d"
 
+#: langhooks.c:455 cp/error.c:2995
+msgid "    inlined from %qs at %r%s:%d:%d%R"
+msgstr "    eingefügt von %qs bei %r%s:%d:%d%R"
+
+#: langhooks.c:460 cp/error.c:3000
+msgid "    inlined from %qs at %r%s:%d%R"
+msgstr "    eingefügt von %qs bei %r%s:%d%R"
+
 #: langhooks.c:466 cp/error.c:3006
 #, c-format
 msgid "    inlined from %qs"
@@ -4033,6 +4041,22 @@ msgstr "%s:%d:%d:   in constexpr-Ersetzung von %qs"
 #, c-format
 msgid "%s:%d:   in constexpr expansion of %qs"
 msgstr "%s:%d:   in constexpr-Ersetzung von %qs"
+
+#: cp/error.c:3162
+msgid "%r%s:%d:%d:%R   [ skipping %d instantiation contexts, use -ftemplate-backtrace-limit=0 to disable ]\n"
+msgstr "%r%s:%d:%d:%R   [ %d Instanziierungskontexte werden übersprungen, -ftemplate-backtrace-limit=0 zum Deaktivieren verwenden ]\n"
+
+#: cp/error.c:3167
+msgid "%r%s:%d:%R   [ skipping %d instantiation contexts, use -ftemplate-backtrace-limit=0 to disable ]\n"
+msgstr "%r%s:%d:%R   [ %d Instanziierungskontexte werden übersprungen, -ftemplate-backtrace-limit=0 zum Deaktivieren verwenden ]\n"
+
+#: cp/error.c:3231
+msgid "%r%s:%d:%d:%R   in constexpr expansion of %qs"
+msgstr "%r%s:%d:%d:%R   in constexpr-Ersetzung von %qs"
+
+#: cp/error.c:3235
+msgid "%r%s:%d:%R   in constexpr expansion of %qs"
+msgstr "%r%s:%d:%R   in constexpr-Ersetzung von %qs"
 
 #: cp/pt.c:1751
 msgid "candidates are:"
@@ -17353,6 +17377,30 @@ msgstr "Typ ist veraltet (deklariert bei %s:%d): %s"
 #, gcc-internal-format, gfc-internal-format
 msgid "type is deprecated (declared at %s:%d)"
 msgstr "Typ ist veraltet (deklariert bei %s:%d)"
+
+#: tree.c:11557
+msgid "%qD is deprecated (declared at %r%s:%d%R): %s"
+msgstr "%qD ist veraltet (deklariert bei %r%s:%d%R): %s"
+
+#: tree.c:11561
+msgid "%qD is deprecated (declared at %r%s:%d%R)"
+msgstr "%qD ist veraltet (deklariert bei %r%s:%d%R)"
+
+#: tree.c:11586
+msgid "%qE is deprecated (declared at %r%s:%d%R): %s"
+msgstr "%qE ist veraltet (deklariert bei %r%s:%d%R): %s"
+
+#: tree.c:11590
+msgid "%qE is deprecated (declared at %r%s:%d%R)"
+msgstr "%qE ist veraltet (deklariert bei %r%s:%d%R)"
+
+#: tree.c:11597
+msgid "type is deprecated (declared at %r%s:%d%R): %s"
+msgstr "Typ ist veraltet (deklariert bei %r%s:%d%R): %s"
+
+#: tree.c:11601
+msgid "type is deprecated (declared at %r%s:%d%R)"
+msgstr "Typ ist veraltet (deklariert bei %r%s:%d%R)"
 
 #: tree.c:11610
 #, gcc-internal-format
