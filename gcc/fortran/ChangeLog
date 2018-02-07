@@ -1,3 +1,29 @@
+2018-02-04  Paul Thomas  <pault@gcc.gnu.org>
+
+	PR fortran/84115
+	* trans-decl.c (gfc_get_symbol_decl): Do not finish the decl of
+	'length' if the symbol charlen backend_decl is an indirect ref.
+
+2018-02-03  Paul Thomas  <pault@gcc.gnu.org>
+
+	PR fortran/84141
+	PR fortran/84155
+	* trans-array.c (gfc_array_init_size): Instead of gfc_get_dtype
+	use gfc_get_dtype_rank_type.
+
+2018-02-01  Janne Blomqvist  <jb@gcc.gnu.org>
+
+	PR 83975
+	PR 83344
+	* resolve.c (resolve_assoc_var): Generate an error if
+	target length unknown.
+
+2018-02-01  Janne Blomqvist  <jb@gcc.gnu.org>
+
+	PR fortran/83705
+	* simplify.c (gfc_simplify_repeat): Increase limit for deferring
+	to runtime, print a warning message.
+
 2018-01-31  Jakub Jelinek  <jakub@redhat.com>
 
 	PR fortran/84116

@@ -5610,7 +5610,7 @@ Function::build(Gogo* gogo, Named_object* named_function)
                   Expression::make_var_reference(parm_no, loc);
               parm_ref =
                   Expression::make_dereference(parm_ref,
-                                               Expression::NIL_CHECK_DEFAULT,
+                                               Expression::NIL_CHECK_NEEDED,
                                                loc);
 	      if ((*p)->var_value()->is_in_heap())
 		parm_ref = Expression::make_heap_expression(parm_ref, loc);
@@ -6199,9 +6199,15 @@ Bindings_snapshot::check_goto_defs(Location loc, const Block* block,
 	}
       go_assert(p != block->bindings()->end_definitions());
 
-      std::string n = (*p)->message_name();
-      go_error_at(loc, "goto jumps over declaration of %qs", n.c_str());
-      go_inform((*p)->location(), "%qs defined here", n.c_str());
+      for (; p != block->bindings()->end_definitions(); ++p)
+	{
+	  if ((*p)->is_variable())
+	    {
+	      std::string n = (*p)->message_name();
+	      go_error_at(loc, "goto jumps over declaration of %qs", n.c_str());
+	      go_inform((*p)->location(), "%qs defined here", n.c_str());
+	    }
+	}
     }
 }
 

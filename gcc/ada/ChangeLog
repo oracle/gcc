@@ -1,3 +1,8 @@
+2018-02-02  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* gcc-interface/decl.c (array_type_has_nonaliased_component): Return
+	false if the component type is a pointer.
+
 2010-06-30  Jakub Jelinek  <jakub@redhat.com>
 
 	* gnat-style.texi: Change dircategory to GNU Ada tools.
