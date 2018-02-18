@@ -3558,12 +3558,6 @@ extern void decl_shadowed_for_var_insert (tree, tree);
 #define ARGUMENT_PACK_SELECT_INDEX(NODE)				\
   (((struct tree_argument_pack_select *)ARGUMENT_PACK_SELECT_CHECK (NODE))->index)
   
-/* In an ARGUMENT_PACK_SELECT, the actual underlying argument that the
-   ARGUMENT_PACK_SELECT represents. */
-#define ARGUMENT_PACK_SELECT_ARG(NODE)					\
-  TREE_VEC_ELT (ARGUMENT_PACK_ARGS (ARGUMENT_PACK_SELECT_FROM_PACK (NODE)), \
-	        ARGUMENT_PACK_SELECT_INDEX (NODE))
-
 #define FOLD_EXPR_CHECK(NODE)						\
   TREE_CHECK4 (NODE, UNARY_LEFT_FOLD_EXPR, UNARY_RIGHT_FOLD_EXPR,	\
 	       BINARY_LEFT_FOLD_EXPR, BINARY_RIGHT_FOLD_EXPR)
@@ -6476,10 +6470,11 @@ extern tree make_auto				(void);
 extern tree make_decltype_auto			(void);
 extern tree make_template_placeholder		(tree);
 extern bool template_placeholder_p		(tree);
-extern tree do_auto_deduction                   (tree, tree, tree);
 extern tree do_auto_deduction                   (tree, tree, tree,
-                                                 tsubst_flags_t,
-                                                 auto_deduction_context,
+                                                 tsubst_flags_t
+						 = tf_warning_or_error,
+                                                 auto_deduction_context
+						 = adc_unspecified,
 						 tree = NULL_TREE,
 						 int = LOOKUP_NORMAL);
 extern tree type_uses_auto			(tree);

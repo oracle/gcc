@@ -512,8 +512,11 @@ resolve_formal_arglist (gfc_symbol *proc)
 	{
 	  if (sym->as != NULL)
 	    {
-	      gfc_error ("Argument %qs of statement function at %L must "
-			 "be scalar", sym->name, &sym->declared_at);
+	      /* F03:C1263 (R1238) The function-name and each dummy-arg-name
+		 shall be specified, explicitly or implicitly, to be scalar.  */
+	      gfc_error ("Argument '%s' of statement function '%s' at %L "
+			 "must be scalar", sym->name, proc->name,
+			 &proc->declared_at);
 	      continue;
 	    }
 
@@ -8632,7 +8635,20 @@ resolve_assoc_var (gfc_symbol* sym, bool resolve_target)
   if (sym->ts.type == BT_CHARACTER && !sym->attr.select_type_temporary)
     {
       if (!sym->ts.u.cl)
-	sym->ts.u.cl = target->ts.u.cl;
+	{
+	  if (target->expr_type != EXPR_CONSTANT
+	      && !target->ts.u.cl->length)
+	    {
+	      sym->ts.u.cl = gfc_get_charlen();
+	      sym->ts.deferred = 1;
+
+	      /* This is reset in trans-stmt.c after the assignment
+		 of the target expression to the associate name.  */
+	      sym->attr.allocatable = 1;
+	    }
+	  else
+	    sym->ts.u.cl = target->ts.u.cl;
+	}
 
       if (!sym->ts.u.cl->length && !sym->ts.deferred)
 	{
@@ -13703,8 +13719,8 @@ resolve_component (gfc_component *c, gfc_symbol *sym)
           return false;
         }
 
-      /* Check for C453.  */
-      if (me_arg->attr.dimension)
+      /* Check for F03:C453.  */
+      if (CLASS_DATA (me_arg)->attr.dimension)
         {
           gfc_error ("Argument %qs of %qs with PASS(%s) at %L "
                      "must be scalar", me_arg->name, c->name, me_arg->name,
@@ -13713,7 +13729,7 @@ resolve_component (gfc_component *c, gfc_symbol *sym)
           return false;
         }
 
-      if (me_arg->attr.pointer)
+      if (CLASS_DATA (me_arg)->attr.class_pointer)
         {
           gfc_error ("Argument %qs of %qs with PASS(%s) at %L "
                      "may not have the POINTER attribute", me_arg->name,
@@ -13722,7 +13738,7 @@ resolve_component (gfc_component *c, gfc_symbol *sym)
           return false;
         }
 
-      if (me_arg->attr.allocatable)
+      if (CLASS_DATA (me_arg)->attr.allocatable)
         {
           gfc_error ("Argument %qs of %qs with PASS(%s) at %L "
                      "may not be ALLOCATABLE", me_arg->name, c->name,

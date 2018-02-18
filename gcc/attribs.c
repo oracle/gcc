@@ -410,6 +410,22 @@ diag_attr_exclusions (tree last_decl, tree node, tree attrname,
 	  if (!lookup_attribute (excl->name, attrs[i]))
 	    continue;
 
+	  /* An exclusion may apply either to a function declaration,
+	     type declaration, or a field/variable declaration, or
+	     any subset of the three.  */
+	  if (TREE_CODE (node) == FUNCTION_DECL
+	      && !excl->function)
+	    continue;
+
+	  if (TREE_CODE (node) == TYPE_DECL
+	      && !excl->type)
+	    continue;
+
+	  if ((TREE_CODE (node) == FIELD_DECL
+	       || TREE_CODE (node) == VAR_DECL)
+	      && !excl->variable)
+	    continue;
+
 	  found = true;
 
 	  /* Print a note?  */
@@ -1127,19 +1143,29 @@ build_type_attribute_qual_variant (tree otype, tree attribute, int quals)
 	ttype = (lang_hooks.types.copy_lang_qualifiers
 		 (ttype, TYPE_MAIN_VARIANT (otype)));
 
-      ntype = build_distinct_type_copy (ttype);
+      tree dtype = ntype = build_distinct_type_copy (ttype);
 
       TYPE_ATTRIBUTES (ntype) = attribute;
 
       hashval_t hash = type_hash_canon_hash (ntype);
       ntype = type_hash_canon (hash, ntype);
 
-      /* If the target-dependent attributes make NTYPE different from
-	 its canonical type, we will need to use structural equality
-	 checks for this type.  */
-      if (TYPE_STRUCTURAL_EQUALITY_P (ttype)
-	  || !comp_type_attributes (ntype, ttype))
-	SET_TYPE_STRUCTURAL_EQUALITY (ntype);
+      if (ntype != dtype)
+	/* This variant was already in the hash table, don't mess with
+	   TYPE_CANONICAL.  */;
+      else if (TYPE_STRUCTURAL_EQUALITY_P (ttype)
+	       || !comp_type_attributes (ntype, ttype))
+	{
+	  /* If the target-dependent attributes make NTYPE different from
+	     its canonical type, we will need to use structural equality
+	     checks for this type.
+
+	     But make sure we don't get here for stripping attributes from a
+	     type; the no-attribute type might not need structural comparison,
+	     and it should have been in the hash table already.  */
+	  gcc_assert (attribute);
+	  SET_TYPE_STRUCTURAL_EQUALITY (ntype);
+	}
       else if (TYPE_CANONICAL (ntype) == ntype)
 	TYPE_CANONICAL (ntype) = TYPE_CANONICAL (ttype);
 
