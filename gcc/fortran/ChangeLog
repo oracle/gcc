@@ -1,3 +1,41 @@
+2018-02-20  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	PR fortran/48890
+	PR fortran/83823
+	* primary.c (gfc_convert_to_structure_constructor):
+	For a constant string constructor, make sure the length
+	is correct.
+
+2018-02-19  Paul Thomas  <pault@gcc.gnu.org>
+
+	PR fortran/83344
+	PR fortran/83975
+	* resolve.c (resolve_assoc_var): Rearrange the logic for the
+	determination of the character length of associate names. If
+	the associate name is missing a length expression or the length
+	expression is not a constant and the target is not a variable,
+	make the associate name allocatable and deferred length.
+	* trans-decl.c (gfc_get_symbol_decl): Null the character length
+	backend_decl for deferred length associate names that are not
+	variables. Set 'length' to gfc_index_zero_node for character
+	associate names, whose character length is a PARM_DECL.
+
+2018-02-19  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	PR fortran/35339
+	* frontend-passes.c (traverse_io_block): Remove workaround for
+	PR 80945.
+
+2018-02-19  Andre Vehreschild  <vehre@gcc.gnu.org>
+
+	* gfortran.texi: Document additional src/dst_type.  Fix some typos.
+	* trans-decl.c (gfc_build_builtin_function_decls): Declare the new
+	argument of _caf_*_by_ref () with * e { get, send, sendget }.
+	* trans-intrinsic.c (gfc_conv_intrinsic_caf_get): Add the type of the
+	data referenced when generating a call to caf_get_by_ref ().
+	(conv_caf_send): Same but for caf_send_by_ref () and
+	caf_sendget_by_ref ().
+
 2018-02-18  Jerry DeLisle  <jvdelisle@gcc.gnu.org>
 
 	PR fortran/84389

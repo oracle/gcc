@@ -1707,12 +1707,13 @@ gfc_get_symbol_decl (gfc_symbol * sym)
 	  && sym->assoc && sym->assoc->target
 	  && ((sym->assoc->target->expr_type == EXPR_VARIABLE
 	       && sym->assoc->target->symtree->n.sym->ts.type != BT_CHARACTER)
-	      || sym->assoc->target->expr_type == EXPR_FUNCTION))
+	      || sym->assoc->target->expr_type != EXPR_VARIABLE))
 	sym->ts.u.cl->backend_decl = NULL_TREE;
 
       if (sym->attr.associate_var
 	  && sym->ts.u.cl->backend_decl
-	  && VAR_P (sym->ts.u.cl->backend_decl))
+	  && (VAR_P (sym->ts.u.cl->backend_decl)
+	      || TREE_CODE (sym->ts.u.cl->backend_decl) == PARM_DECL))
 	length = gfc_index_zero_node;
       else
 	length = gfc_create_string_length (sym);
@@ -3662,24 +3663,25 @@ gfc_build_builtin_function_decls (void)
 	integer_type_node, boolean_type_node, integer_type_node);
 
       gfor_fndecl_caf_get_by_ref = gfc_build_library_function_decl_with_spec (
-	get_identifier (PREFIX("caf_get_by_ref")), ".RWRRRRRW", void_type_node,
-	9, pvoid_type_node, integer_type_node, pvoid_type_node, pvoid_type_node,
-	integer_type_node, integer_type_node, boolean_type_node,
-	boolean_type_node, pint_type);
+	get_identifier (PREFIX("caf_get_by_ref")), ".RWRRRRRWR", void_type_node,
+	10, pvoid_type_node, integer_type_node, pvoid_type_node,
+	pvoid_type_node, integer_type_node, integer_type_node,
+	boolean_type_node, boolean_type_node, pint_type, integer_type_node);
 
       gfor_fndecl_caf_send_by_ref = gfc_build_library_function_decl_with_spec (
-	get_identifier (PREFIX("caf_send_by_ref")), ".RRRRRRRW", void_type_node,
-	9, pvoid_type_node, integer_type_node, pvoid_type_node, pvoid_type_node,
-	integer_type_node, integer_type_node, boolean_type_node,
-	boolean_type_node, pint_type);
+	get_identifier (PREFIX("caf_send_by_ref")), ".RRRRRRRWR",
+	void_type_node,	10, pvoid_type_node, integer_type_node, pvoid_type_node,
+	pvoid_type_node, integer_type_node, integer_type_node,
+	boolean_type_node, boolean_type_node, pint_type, integer_type_node);
 
       gfor_fndecl_caf_sendget_by_ref
 	  = gfc_build_library_function_decl_with_spec (
-	    get_identifier (PREFIX("caf_sendget_by_ref")), ".RR.RRRRRWW",
-	    void_type_node, 11, pvoid_type_node, integer_type_node,
+	    get_identifier (PREFIX("caf_sendget_by_ref")), ".RR.RRRRRWWRR",
+	    void_type_node, 13, pvoid_type_node, integer_type_node,
 	    pvoid_type_node, pvoid_type_node, integer_type_node,
 	    pvoid_type_node, integer_type_node, integer_type_node,
-	    boolean_type_node, pint_type, pint_type);
+	    boolean_type_node, pint_type, pint_type, integer_type_node,
+	    integer_type_node);
 
       gfor_fndecl_caf_sync_all = gfc_build_library_function_decl_with_spec (
 	get_identifier (PREFIX("caf_sync_all")), ".WW", void_type_node,

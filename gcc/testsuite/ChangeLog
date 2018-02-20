@@ -1,3 +1,135 @@
+2018-02-20  Martin Sebor  <msebor@redhat.com>
+
+	PR middle-end/84095
+	* c-c++-common/Warray-bounds-3.c: Adjust text of expected warnings.
+	* c-c++-common/Wrestrict.c: Same.
+	* gcc.dg/Wrestrict-6.c: Same.
+	* gcc.dg/Warray-bounds-27.c: New test.
+	* gcc.dg/Wrestrict-8.c: New test.
+	* gcc.dg/Wrestrict-9.c: New test.
+	* gcc.dg/pr84095.c: New test.
+
+2018-02-20  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	* gfortran.dg/structure_constructor_14.f90: Adjust STOP number.
+
+2018-02-20  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	PR fortran/48890
+	PR fortran/83823
+	* gfortran.dg/structure_constructor_14.f90: New test.
+
+2018-02-20  Jeff Law  <law@redhat.com>
+
+        PR middle-end/82123
+        PR tree-optimization/81592
+        PR middle-end/79257
+	* gcc.dg/pr81592.c: New test.
+	* gcc.dg/pr82123.c: New test.
+	* gcc.dg/builtin-unreachable-6.c: Turn off VRP.
+
+2018-02-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/84488
+	* g++.dg/warn/Wunused-var-30.C: New test.
+
+2018-02-20  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	PR tree-optimization/84419
+	* gcc.dg/vect/pr84419.c: New test.
+
+2018-02-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/82004
+	* gfortran.dg/pr82004.f90: New test.
+
+2018-02-20  Siddhesh Poyarekar  <siddhesh@sourceware.org>
+
+	* g++.dg/warn/Wimplicit-fallthrough-3.C: New test case.
+
+2018-02-20  Martin Liska  <mliska@suse.cz>
+
+	PR c/84310
+	PR target/79747
+	* gcc.target/i386/pr84310.c: New test.
+	* gcc.target/i386/pr84310-2.c: Likewise.
+
+2018-02-20  Paolo Carlini  <paolo.carlini@oracle.com>
+
+	PR c++/84446
+	* g++.dg/cpp0x/lambda/lambda-ice27.C: New.
+
+2018-02-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/84445
+	* g++.dg/cpp1z/launder7.C: New test.
+
+	PR c++/84449
+	* g++.dg/cpp0x/constexpr-84449.C: New test.
+
+	PR c++/84455
+	* g++.dg/cpp0x/lambda/lambda-ice26.C: New test.
+
+2018-02-19  Paul Thomas  <pault@gcc.gnu.org>
+
+	PR fortran/83344
+	PR fortran/83975
+	* gfortran.dg/associate_22.f90: Enable commented out test.
+	* gfortran.dg/associate_36.f90: New test.
+
+2018-02-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/84146
+	* gcc.target/i386/pr84146.c: Add -fcompare-debug to dg-options.
+
+2017-02-19  Uros Bizjak  <ubizjak@gmail.com>
+
+	* gcc.target/i386/pr70023.c (dg-do): Compile only for target int128.
+	(dg-options): Use -mavx instead of -w.
+
+2018-02-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/84444
+	* g++.dg/cpp1z/launder8.C: New test.
+
+	PR c++/84448
+	* g++.dg/gomp/pr84448.C: New test.
+
+	PR c++/84430
+	* g++.dg/gomp/pr84430.C: New test.
+
+	PR tree-optimization/84452
+	* gcc.dg/pr84452.c: New test.
+
+	PR c++/79064
+	* g++.dg/template/overload15.C (f): Use 0u - 1ll instead of 0u - 1l.
+
+2018-02-19  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	PR fortran/35339
+	* gfortran.dg/implied_do_io_4.f90: New test.
+
+2018-02-19  Andre Vehreschild  <vehre@gcc.gnu.org>
+
+	* gfortran.dg/coarray_alloc_comp_6.f08: New test.
+	* gfortran.dg/coarray_alloc_comp_7.f08: New test.
+	* gfortran.dg/coarray_alloc_comp_8.f08: New test.
+
+2018-02-19  Carl Love  <cel@us.ibm.com>
+
+	* gcc.target/powerpc/fold-vec-neg-int.p7.c: Remove test file.
+
+2018-01-16  Sebastian Peryt  <sebastian.peryt@intel.com>
+
+	PR target/84460
+	* gcc.target/i386/pr57193.c: Add -mtune=generic.
+
+2018-02-19  Paolo Carlini  <paolo.carlini@oracle.com>
+
+	PR c++/84348
+	* g++.dg/cpp0x/auto50.C: New.
+	* g++.dg/parse/friend12.C: Adjust.
+
 2018-02-18  Jerry DeLisle  <jvdelisle@gcc.gnu.org>
 
 	PR libgfortran/84389

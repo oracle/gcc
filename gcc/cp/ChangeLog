@@ -1,3 +1,51 @@
+2018-02-20  Siddhesh Poyarekar  <siddhesh@sourceware.org>
+
+	* cp-objcp-common.c (cxx_block_may_fallthru): Add case for
+	IF_STMT.
+
+2018-02-20  Paolo Carlini  <paolo.carlini@oracle.com>
+
+	PR c++/84446
+	* parser.c (cp_parser_init_declarator): Don't call start_lambda_scope
+	on error_mark_node.
+
+2018-02-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/84445
+	* class.c (fixed_type_or_null) <case CALL_EXPR>: Only test
+	TREE_HAS_CONSTRUCTOR if instance is not an internal function call.
+
+	PR c++/84449
+	* tree.c (bot_manip): If build_cplus_new or break_out_target_exprs
+	returns error_mark_node, return it immediately.
+	(break_out_target_exprs): If cp_walk_tree with bot_manip returns
+	error_mark_node, return error_mark_node.
+
+	PR c++/84455
+	* pt.c (tsubst_lambda_expr): If not nested, increment temporarily
+	function_depth to avoid GC during finish_lambda_function.
+
+2018-02-19  Jason Merrill  <jason@redhat.com>
+
+	PR c++/84429 - ICE capturing VLA.
+	* lambda.c (build_capture_proxy): Handle reference refs.
+
+2018-02-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/84448
+	* parser.c (cp_parser_binary_expression): For no_toplevel_fold_p, if
+	either operand is error_mark_node, set current.lhs to that instead of
+	creating a binary op with error_mark_node operands.
+
+	PR c++/84430
+	* constexpr.c (potential_constant_expression_1): Handle OMP_SIMD.
+
+2018-02-19  Paolo Carlini  <paolo.carlini@oracle.com>
+
+	PR c++/84348
+	* decl.c (grokdeclarator): Early return error_mark_node upon
+	ill-formed friend declaration.
+
 2018-02-16  Marek Polacek  <polacek@redhat.com>
 	    Jakub Jelinek  <jakub@redhat.com>
 
