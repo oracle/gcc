@@ -1,3 +1,95 @@
+2018-02-22  Martin Liska  <mliska@suse.cz>
+
+	PR driver/83193
+	* config/i386/i386.c (ix86_option_override_internal):
+	Add "native" as a possible value for -march and -mtune.
+
+2018-02-22  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/84502
+	* stor-layout.c (finalize_type_size): Propagate TYPE_EMPTY_P flag
+	to all type variants.
+
+	PR tree-optimization/84503
+	* gimple-ssa-store-merging.c (merged_store_group::merge_into): Compute
+	width as info->bitpos + info->bitsize - start.
+	(merged_store_group::merge_overlapping): Simplify width computation.
+	(check_no_overlap): New function.
+	(imm_store_chain_info::try_coalesce_bswap): Compute expected
+	start + width and last_order of the group, fail if check_no_overlap
+	fails.
+	(imm_store_chain_info::coalesce_immediate_stores): Don't merge info
+	to group if check_no_overlap fails.
+
+2018-02-21  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	* config/rs6000/altivec.md: Delete contraint arguments to
+	define_expand, define_split, and define_peephole2, and in
+	define_insn_and_split if always unused.
+	* config/rs6000/darwin.md: Ditto.
+	* config/rs6000/dfp.md: Ditto.
+	* config/rs6000/rs6000.md: Ditto.
+	* config/rs6000/sync.md: Ditto.
+	* config/rs6000/vector.md: Ditto.
+	* config/rs6000/vsx.md: Ditto.
+
+2018-02-21  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	* config/rs6000/altivec.md: Write output control strings as braced
+	blocks instead of double-quoted strings.
+	* config/rs6000/darwin.md: Ditto.
+	* config/rs6000/rs6000.md: Ditto.
+	* config/rs6000/vector.md: Ditto.
+	* config/rs6000/vsx.md: Ditto.
+
+2018-02-21  Jason Merrill  <jason@redhat.com>
+
+	PR c++/84314 - ICE with templates and fastcall attribute.
+	* attribs.c (build_type_attribute_qual_variant): Remove assert.
+
+2018-02-21  Jan Hubicka  <hubicka@ucw.cz>
+
+	* ipa-cp.c (determine_versionability): Fix comment typos.
+
+2018-02-21  Jan Hubicka  <hubicka@ucw.cz>
+
+	PR c/84229
+	* ipa-cp.c (determine_versionability): Do not version functions caling
+	va_arg_pack.
+
+2018-02-21  Martin Liska  <mliska@suse.cz>
+
+	PR driver/83193
+	* config/aarch64/aarch64.c (aarch64_print_hint_for_core_or_arch):
+	Add "native" as a possible value.
+	* config/aarch64/aarch64.h (HAVE_LOCAL_CPU_DETECT):  Define
+	the macro when native cpu detection is available.
+
+2018-02-21  Martin Liska  <mliska@suse.cz>
+
+	PR driver/83193
+	* common/config/arm/arm-common.c (arm_print_hint_for_arch_option):
+	Add "native" as a possible value.
+	* config/arm/arm.h (HAVE_LOCAL_CPU_DETECT): Define the macro
+	when native cpu detection is available.
+
+2018-02-21  Jakub Jelinek  <jakub@redhat.com>
+	    Martin Sebor  <msebor@redhat.com>
+
+	PR tree-optimization/84478
+	* gimple-fold.h (get_range_strlen): Add a bool argument defaulted to
+	false.
+	* gimple-fold.c (get_range_strlen): Make minlen const and assume it
+	can't be NULL.  Change FUZZY from bool to int, for 1 add PHI/COND_EXPR
+	support which is conservatively correct, for 2 only stay conservative
+	for maxlen.  Formatting and comment capitalization fixes.  Add STRICT
+	argument to the 2 argument get_range_strlen, adjust 6 arg
+	get_range_strlen caller and clear minmaxlen[0] and [1] if it returned
+	false.
+	(get_maxval_strlen): Adjust 6 arg get_range_strlen caller.
+	(gimple_fold_builtin_strlen): Pass true as last argument to
+	get_range_strlen.
+
 2018-02-20  Martin Sebor  <msebor@redhat.com>
 
 	PR middle-end/84095
