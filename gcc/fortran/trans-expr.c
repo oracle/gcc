@@ -4349,6 +4349,8 @@ gfc_apply_interface_mapping_to_expr (gfc_interface_mapping * mapping,
 
       if (expr->value.function.esym == NULL
 	    && expr->value.function.isym != NULL
+	    && expr->value.function.actual
+	    && expr->value.function.actual->expr
 	    && expr->value.function.actual->expr->symtree
 	    && gfc_map_intrinsic_function (expr, mapping))
 	break;
@@ -6868,6 +6870,8 @@ gfc_conv_initializer (gfc_expr * expr, gfc_typespec * ts, tree type,
 
       /* The derived symbol has already been converted to a (void *).  Use
 	 its kind.  */
+      if (derived->ts.kind == 0)
+	derived->ts.kind = gfc_default_integer_kind;
       expr = gfc_get_int_expr (derived->ts.kind, NULL, 0);
       expr->ts.f90_type = derived->ts.f90_type;
 

@@ -1693,7 +1693,7 @@ force_paren_expr (tree expr)
   if (TREE_CODE (expr) == COMPONENT_REF
       || TREE_CODE (expr) == SCOPE_REF)
     REF_PARENTHESIZED_P (expr) = true;
-  else if (type_dependent_expression_p (expr))
+  else if (processing_template_decl)
     expr = build1 (PAREN_EXPR, TREE_TYPE (expr), expr);
   else if (VAR_P (expr) && DECL_HARD_REGISTER (expr))
     /* We can't bind a hard register variable to a reference.  */;
@@ -1724,9 +1724,10 @@ force_paren_expr (tree expr)
 tree
 maybe_undo_parenthesized_ref (tree t)
 {
-  if (cxx_dialect >= cxx14
-      && INDIRECT_REF_P (t)
-      && REF_PARENTHESIZED_P (t))
+  if (cxx_dialect < cxx14)
+    return t;
+
+  if (INDIRECT_REF_P (t) && REF_PARENTHESIZED_P (t))
     {
       t = TREE_OPERAND (t, 0);
       while (TREE_CODE (t) == NON_LVALUE_EXPR
@@ -1737,6 +1738,8 @@ maybe_undo_parenthesized_ref (tree t)
 		  || TREE_CODE (t) == STATIC_CAST_EXPR);
       t = TREE_OPERAND (t, 0);
     }
+  else if (TREE_CODE (t) == PAREN_EXPR)
+    t = TREE_OPERAND (t, 0);
 
   return t;
 }
@@ -2111,7 +2114,14 @@ finish_stmt_expr_expr (tree expr, tree stmt_expr)
     {
       tree type = TREE_TYPE (expr);
 
-      if (processing_template_decl)
+      if (type && type_unknown_p (type))
+	{
+	  error ("a statement expression is an insufficient context"
+		 " for overload resolution");
+	  TREE_TYPE (stmt_expr) = error_mark_node;
+	  return error_mark_node;
+	}
+      else if (processing_template_decl)
 	{
 	  expr = build_stmt (input_location, EXPR_STMT, expr);
 	  expr = add_stmt (expr);
@@ -3322,7 +3332,7 @@ process_outer_var_ref (tree decl, tsubst_flags_t complain, bool odr_use)
     {
       /* Check whether we've already built a proxy.  */
       tree var = decl;
-      while (is_capture_proxy_with_ref (var))
+      while (is_normal_capture_proxy (var))
 	var = DECL_CAPTURED_VARIABLE (var);
       tree d = retrieve_local_specialization (var);
 
@@ -8671,7 +8681,7 @@ finish_static_assert (tree condition, tree message, location_t location,
       else if (condition && condition != error_mark_node)
 	{
 	  error ("non-constant condition for static assertion");
-	  if (require_potential_rvalue_constant_expression (condition))
+	  if (require_rvalue_constant_expression (condition))
 	    cxx_constant_value (condition);
 	}
       input_location = saved_loc;

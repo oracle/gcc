@@ -609,10 +609,12 @@ gfc_finish_var_decl (tree decl, gfc_symbol * sym)
      function scope.  */
   if (current_function_decl != NULL_TREE)
     {
-      if (sym->ns->proc_name->backend_decl == current_function_decl
-	  || sym->result == sym)
+      if (sym->ns->proc_name
+	  && (sym->ns->proc_name->backend_decl == current_function_decl
+	      || sym->result == sym))
 	gfc_add_decl_to_function (decl);
-      else if (sym->ns->proc_name->attr.flavor == FL_LABEL)
+      else if (sym->ns->proc_name
+	       && sym->ns->proc_name->attr.flavor == FL_LABEL)
 	/* This is a BLOCK construct.  */
 	add_decl_as_local (decl);
       else
@@ -704,7 +706,8 @@ gfc_finish_var_decl (tree decl, gfc_symbol * sym)
     }
 
   /* Keep variables larger than max-stack-var-size off stack.  */
-  if (!sym->ns->proc_name->attr.recursive && !sym->attr.automatic
+  if (!(sym->ns->proc_name && sym->ns->proc_name->attr.recursive)
+      && !sym->attr.automatic
       && INTEGER_CST_P (DECL_SIZE_UNIT (decl))
       && !gfc_can_put_var_on_stack (DECL_SIZE_UNIT (decl))
 	 /* Put variable length auto array pointers always into stack.  */
@@ -3499,39 +3502,41 @@ gfc_build_intrinsic_function_decls (void)
 void
 gfc_build_builtin_function_decls (void)
 {
-  tree gfc_int4_type_node = gfc_get_int_type (4);
+  tree gfc_int8_type_node = gfc_get_int_type (8);
 
   gfor_fndecl_stop_numeric = gfc_build_library_function_decl (
 	get_identifier (PREFIX("stop_numeric")),
-	void_type_node, 1, integer_type_node);
+	void_type_node, 2, integer_type_node, boolean_type_node);
   /* STOP doesn't return.  */
   TREE_THIS_VOLATILE (gfor_fndecl_stop_numeric) = 1;
 
   gfor_fndecl_stop_string = gfc_build_library_function_decl_with_spec (
 	get_identifier (PREFIX("stop_string")), ".R.",
-	void_type_node, 2, pchar_type_node, size_type_node);
+	void_type_node, 3, pchar_type_node, size_type_node,
+	boolean_type_node);
   /* STOP doesn't return.  */
   TREE_THIS_VOLATILE (gfor_fndecl_stop_string) = 1;
 
   gfor_fndecl_error_stop_numeric = gfc_build_library_function_decl (
         get_identifier (PREFIX("error_stop_numeric")),
-        void_type_node, 1, integer_type_node);
+        void_type_node, 2, integer_type_node, boolean_type_node);
   /* ERROR STOP doesn't return.  */
   TREE_THIS_VOLATILE (gfor_fndecl_error_stop_numeric) = 1;
 
   gfor_fndecl_error_stop_string = gfc_build_library_function_decl_with_spec (
 	get_identifier (PREFIX("error_stop_string")), ".R.",
-	void_type_node, 2, pchar_type_node, size_type_node);
+	void_type_node, 3, pchar_type_node, size_type_node,
+	boolean_type_node);
   /* ERROR STOP doesn't return.  */
   TREE_THIS_VOLATILE (gfor_fndecl_error_stop_string) = 1;
 
   gfor_fndecl_pause_numeric = gfc_build_library_function_decl (
 	get_identifier (PREFIX("pause_numeric")),
-	void_type_node, 1, gfc_int4_type_node);
+	void_type_node, 1, gfc_int8_type_node);
 
   gfor_fndecl_pause_string = gfc_build_library_function_decl_with_spec (
 	get_identifier (PREFIX("pause_string")), ".R.",
-	void_type_node, 2, pchar_type_node, gfc_int4_type_node);
+	void_type_node, 2, pchar_type_node, size_type_node);
 
   gfor_fndecl_runtime_error = gfc_build_library_function_decl_with_spec (
 	get_identifier (PREFIX("runtime_error")), ".R",

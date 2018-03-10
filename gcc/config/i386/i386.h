@@ -105,6 +105,10 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 #define TARGET_LWP_P(x)	TARGET_ISA_LWP_P(x)
 #define TARGET_ABM	TARGET_ISA_ABM
 #define TARGET_ABM_P(x)	TARGET_ISA_ABM_P(x)
+#define TARGET_PCONFIG	TARGET_ISA_PCONFIG
+#define TARGET_PCONFIG_P(x)	TARGET_ISA_PCONFIG_P(x)
+#define TARGET_WBNOINVD	TARGET_ISA_WBNOINVD
+#define TARGET_WBNOINVD_P(x)	TARGET_ISA_WBNOINVD_P(x)
 #define TARGET_SGX	TARGET_ISA_SGX
 #define TARGET_SGX_P(x)	TARGET_ISA_SGX_P(x)
 #define TARGET_RDPID	TARGET_ISA_RDPID
@@ -2708,6 +2712,10 @@ extern void debug_dispatch_window (int);
 /* Use 256-bit AVX instructions in the auto-vectorizer.  */
 #define TARGET_PREFER_AVX256	(TARGET_PREFER_AVX128 \
 				 || prefer_vector_width_type == PVW_AVX256)
+
+#define TARGET_INDIRECT_BRANCH_REGISTER \
+  (ix86_indirect_branch_register \
+   || cfun->machine->indirect_branch_type != indirect_branch_keep)
 
 #define IX86_HLE_ACQUIRE (1 << 16)
 #define IX86_HLE_RELEASE (1 << 17)

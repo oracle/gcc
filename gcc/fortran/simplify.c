@@ -25,6 +25,7 @@ along with GCC; see the file COPYING3.  If not see
 #include "gfortran.h"
 #include "arith.h"
 #include "intrinsic.h"
+#include "match.h"
 #include "target-memory.h"
 #include "constructor.h"
 #include "version.h"	/* For version_string.  */
@@ -255,6 +256,31 @@ is_constant_array_expr (gfc_expr *e)
       return false;
 
   return true;
+}
+
+/* Test for a size zero array.  */
+bool
+gfc_is_size_zero_array (gfc_expr *array)
+{
+
+  if (array->rank == 0)
+    return false;
+
+  if (array->expr_type == EXPR_VARIABLE && array->rank > 0
+      && array->symtree->n.sym->attr.flavor == FL_PARAMETER
+      && array->shape != NULL)
+    {
+      for (int i = 0; i < array->rank; i++)
+	if (mpz_cmp_si (array->shape[i], 0) <= 0)
+	  return true;
+
+      return false;
+    }
+
+  if (array->expr_type == EXPR_ARRAY)
+    return array->value.constructor == NULL;
+
+  return false;
 }
 
 
@@ -950,6 +976,9 @@ gfc_simplify_aint (gfc_expr *e, gfc_expr *k)
 gfc_expr *
 gfc_simplify_all (gfc_expr *mask, gfc_expr *dim)
 {
+  if (gfc_is_size_zero_array (mask))
+    return gfc_get_logical_expr (mask->ts.kind, &mask->where, true);
+
   return simplify_transformation (mask, dim, NULL, true, gfc_and);
 }
 
@@ -1039,6 +1068,9 @@ gfc_simplify_and (gfc_expr *x, gfc_expr *y)
 gfc_expr *
 gfc_simplify_any (gfc_expr *mask, gfc_expr *dim)
 {
+  if (gfc_is_size_zero_array (mask))
+    return gfc_get_logical_expr (mask->ts.kind, &mask->where, false);
+
   return simplify_transformation (mask, dim, NULL, false, gfc_or);
 }
 
@@ -1934,6 +1966,13 @@ gfc_expr *
 gfc_simplify_count (gfc_expr *mask, gfc_expr *dim, gfc_expr *kind)
 {
   gfc_expr *result;
+
+  if (gfc_is_size_zero_array (mask))
+    {
+      int k;
+      k = kind ? mpz_get_si (kind->value.integer) : gfc_default_integer_kind;
+      return gfc_get_int_expr (k, NULL, 0);
+    }
 
   if (!is_constant_array_expr (mask)
       || !gfc_is_constant_expr (dim)
@@ -3226,6 +3265,9 @@ do_bit_and (gfc_expr *result, gfc_expr *e)
 gfc_expr *
 gfc_simplify_iall (gfc_expr *array, gfc_expr *dim, gfc_expr *mask)
 {
+  if (gfc_is_size_zero_array (array))
+    return gfc_get_int_expr (array->ts.kind, NULL, -1);
+
   return simplify_transformation (array, dim, mask, -1, do_bit_and);
 }
 
@@ -3245,6 +3287,9 @@ do_bit_ior (gfc_expr *result, gfc_expr *e)
 gfc_expr *
 gfc_simplify_iany (gfc_expr *array, gfc_expr *dim, gfc_expr *mask)
 {
+  if (gfc_is_size_zero_array (array))
+    return gfc_get_int_expr (array->ts.kind, NULL, 0);
+
   return simplify_transformation (array, dim, mask, 0, do_bit_ior);
 }
 
@@ -3685,6 +3730,9 @@ do_bit_xor (gfc_expr *result, gfc_expr *e)
 gfc_expr *
 gfc_simplify_iparity (gfc_expr *array, gfc_expr *dim, gfc_expr *mask)
 {
+  if (gfc_is_size_zero_array (array))
+    return gfc_get_int_expr (array->ts.kind, NULL, 0);
+
   return simplify_transformation (array, dim, mask, 0, do_bit_xor);
 }
 
@@ -4992,6 +5040,43 @@ gfc_min (gfc_expr *op1, gfc_expr *op2)
 gfc_expr *
 gfc_simplify_minval (gfc_expr *array, gfc_expr* dim, gfc_expr *mask)
 {
+  if (gfc_is_size_zero_array (array))
+    {
+      gfc_expr *result;
+      int i;
+
+      i = gfc_validate_kind (array->ts.type, array->ts.kind, false);
+      result = gfc_get_constant_expr (array->ts.type, array->ts.kind,
+				      &array->where);
+      switch (array->ts.type)
+	{
+	  case BT_INTEGER:
+	    mpz_set (result->value.integer, gfc_integer_kinds[i].huge);
+	    break;
+
+	  case BT_REAL:
+	    mpfr_set (result->value.real, gfc_real_kinds[i].huge, GFC_RND_MODE);
+	    break;
+
+	  case BT_CHARACTER:
+	    /* If ARRAY has size zero and type character, the result has the
+	       value of a string of characters of length LEN (ARRAY), with
+	       each character equal to CHAR(n - 1, KIND (ARRAY)), where n is
+	       the number of characters in the collating sequence for
+	       characters with the kind type parameter of ARRAY.  */
+	    gfc_error ("MINVAL(string) at %L is not implemented, yet!",
+			&array->where);
+	    gfc_free_expr (result);
+	    return &gfc_bad_expr;
+	    break;
+
+	  default:
+	    gcc_unreachable ();
+    	}
+
+      return result;
+    }
+
   return simplify_transformation (array, dim, mask, INT_MAX, gfc_min);
 }
 
@@ -5011,6 +5096,42 @@ gfc_max (gfc_expr *op1, gfc_expr *op2)
 gfc_expr *
 gfc_simplify_maxval (gfc_expr *array, gfc_expr* dim, gfc_expr *mask)
 {
+  if (gfc_is_size_zero_array (array))
+    {
+      gfc_expr *result;
+      int i;
+
+      i = gfc_validate_kind (array->ts.type, array->ts.kind, false);
+      result = gfc_get_constant_expr (array->ts.type, array->ts.kind,
+				      &array->where);
+      switch (array->ts.type)
+	{
+	  case BT_INTEGER:
+	    mpz_set (result->value.integer, gfc_integer_kinds[i].min_int);
+	    break;
+
+	  case BT_REAL:
+	    mpfr_set (result->value.real, gfc_real_kinds[i].huge, GFC_RND_MODE);
+	    mpfr_neg (result->value.real, result->value.real,  GFC_RND_MODE);
+	    break;
+
+	  case BT_CHARACTER:
+	    /* If ARRAY has size zero and type character, the result has the
+               value of a string of characters of length LEN (ARRAY), with
+               each character equal to CHAR (0, KIND (ARRAY)).  */
+	    gfc_error ("MAXVAL(string) at %L is not implemented, yet!",
+			&array->where);
+	    gfc_free_expr (result);
+	    return &gfc_bad_expr;
+	    break;
+
+	  default:
+	    gcc_unreachable ();
+    	}
+
+      return result;
+    }
+
   return simplify_transformation (array, dim, mask, INT_MIN, gfc_max);
 }
 
@@ -5657,6 +5778,14 @@ gfc_simplify_norm2 (gfc_expr *e, gfc_expr *dim)
 {
   gfc_expr *result;
 
+  if (gfc_is_size_zero_array (e))
+    {
+      gfc_expr *result;
+      result = gfc_get_constant_expr (e->ts.type, e->ts.kind, &e->where);
+      mpfr_set_ui (result->value.real, 0, GFC_RND_MODE);
+      return result;
+    }
+
   if (!is_constant_array_expr (e)
       || (dim != NULL && !gfc_is_constant_expr (dim)))
     return NULL;
@@ -5913,6 +6042,33 @@ gfc_simplify_precision (gfc_expr *e)
 gfc_expr *
 gfc_simplify_product (gfc_expr *array, gfc_expr *dim, gfc_expr *mask)
 {
+  if (gfc_is_size_zero_array (array))
+    {
+      gfc_expr *result;
+
+      result = gfc_get_constant_expr (array->ts.type, array->ts.kind,
+				      &array->where);
+      switch (array->ts.type)
+	{
+	  case BT_INTEGER:
+	    mpz_set_ui (result->value.integer, 1);
+	    break;
+
+	  case BT_REAL:
+	    mpfr_set_ui (result->value.real, 1, GFC_RND_MODE);
+	    break;
+
+	  case BT_COMPLEX:
+	    mpc_set_ui (result->value.complex, 1, GFC_MPC_RND_MODE);
+	    break;
+
+	  default:
+	    gcc_unreachable ();
+    	}
+
+      return result;
+    }
+
   return simplify_transformation (array, dim, mask, 1, gfc_multiply);
 }
 
@@ -7230,6 +7386,33 @@ gfc_simplify_sqrt (gfc_expr *e)
 gfc_expr *
 gfc_simplify_sum (gfc_expr *array, gfc_expr *dim, gfc_expr *mask)
 {
+  if (gfc_is_size_zero_array (array))
+    {
+      gfc_expr *result;
+
+      result = gfc_get_constant_expr (array->ts.type, array->ts.kind,
+				      &array->where);
+      switch (array->ts.type)
+	{
+	  case BT_INTEGER:
+	    mpz_set_ui (result->value.integer, 0);
+	    break;
+
+	  case BT_REAL:
+	    mpfr_set_ui (result->value.real, 0, GFC_RND_MODE);
+	    break;
+
+	  case BT_COMPLEX:
+	    mpc_set_ui (result->value.complex, 0, GFC_MPC_RND_MODE);
+	    break;
+
+	  default:
+	    gcc_unreachable ();
+    	}
+
+      return result;
+    }
+
   return simplify_transformation (array, dim, mask, 0, gfc_add);
 }
 
@@ -7370,10 +7553,12 @@ gfc_simplify_transfer (gfc_expr *source, gfc_expr *mold, gfc_expr *size)
   unsigned char *buffer;
   size_t result_length;
 
+  if (!gfc_is_constant_expr (source) || !gfc_is_constant_expr (size))
+    return NULL;
 
-  if (!gfc_is_constant_expr (source)
-	|| (gfc_init_expr_flag && !gfc_is_constant_expr (mold))
-	|| !gfc_is_constant_expr (size))
+  if (!gfc_resolve_expr (mold))
+    return NULL;
+  if (gfc_init_expr_flag && !gfc_is_constant_expr (mold))
     return NULL;
 
   if (!gfc_calculate_transfer_sizes (source, mold, size, &source_size,

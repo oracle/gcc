@@ -1355,6 +1355,26 @@ check_redeclaration_no_default_args (tree decl)
       }
 }
 
+/* Merge tree bits that correspond to attributes noreturn, nothrow,
+   const,  malloc, and pure from NEWDECL with those of OLDDECL.  */
+
+static void
+merge_attribute_bits (tree newdecl, tree olddecl)
+{
+  TREE_THIS_VOLATILE (newdecl) |= TREE_THIS_VOLATILE (olddecl);
+  TREE_THIS_VOLATILE (olddecl) |= TREE_THIS_VOLATILE (newdecl);
+  TREE_NOTHROW (newdecl) |= TREE_NOTHROW (olddecl);
+  TREE_NOTHROW (olddecl) |= TREE_NOTHROW (newdecl);
+  TREE_READONLY (newdecl) |= TREE_READONLY (olddecl);
+  TREE_READONLY (olddecl) |= TREE_READONLY (newdecl);
+  DECL_IS_MALLOC (newdecl) |= DECL_IS_MALLOC (olddecl);
+  DECL_IS_MALLOC (olddecl) |= DECL_IS_MALLOC (newdecl);
+  DECL_PURE_P (newdecl) |= DECL_PURE_P (olddecl);
+  DECL_PURE_P (olddecl) |= DECL_PURE_P (newdecl);
+  DECL_UNINLINABLE (newdecl) |= DECL_UNINLINABLE (olddecl);
+  DECL_UNINLINABLE (olddecl) |= DECL_UNINLINABLE (newdecl);
+}
+
 #define GNU_INLINE_P(fn) (DECL_DECLARED_INLINE_P (fn)			\
 			  && lookup_attribute ("gnu_inline",		\
 					       DECL_ATTRIBUTES (fn)))
@@ -1390,7 +1410,9 @@ duplicate_decls (tree newdecl, tree olddecl, bool newdecl_is_friend)
       || TREE_TYPE (olddecl) == error_mark_node)
     return error_mark_node;
 
-  if (UDLIT_OPER_P (DECL_NAME (newdecl))
+  if (DECL_NAME (newdecl)
+      && DECL_NAME (olddecl)
+      && UDLIT_OPER_P (DECL_NAME (newdecl))
       && UDLIT_OPER_P (DECL_NAME (olddecl)))
     {
       if (TREE_CODE (newdecl) == TEMPLATE_DECL
@@ -1405,9 +1427,18 @@ duplicate_decls (tree newdecl, tree olddecl, bool newdecl_is_friend)
 	       " literal operator template %qD", newdecl, olddecl);
     }
 
+  /* True to merge attributes between the declarations, false to
+     set OLDDECL's attributes to those of NEWDECL (for template
+     explicit specializations that specify their own attributes
+     independent of those specified for the primary template).  */
+  const bool merge_attr = (TREE_CODE (newdecl) != FUNCTION_DECL
+			   || !DECL_TEMPLATE_SPECIALIZATION (newdecl)
+			   || DECL_TEMPLATE_SPECIALIZATION (olddecl));
+
   if (DECL_P (olddecl)
       && TREE_CODE (newdecl) == FUNCTION_DECL
       && TREE_CODE (olddecl) == FUNCTION_DECL
+      && merge_attr
       && diagnose_mismatched_attributes (olddecl, newdecl))
     {
       if (DECL_INITIAL (olddecl))
@@ -1535,6 +1566,33 @@ next_arg:;
 		   || compparms (TYPE_ARG_TYPES (TREE_TYPE (newdecl)),
 				 TYPE_ARG_TYPES (TREE_TYPE (olddecl))))
 	    {
+	      /* Don't really override olddecl for __* prefixed builtins
+		 except for __[^b]*_chk, the compiler might be using those
+		 explicitly.  */
+	      if (DECL_BUILT_IN (olddecl))
+		{
+		  tree id = DECL_NAME (olddecl);
+		  const char *name = IDENTIFIER_POINTER (id);
+		  size_t len;
+
+		  if (name[0] == '_'
+		      && name[1] == '_'
+		      && (strncmp (name + 2, "builtin_",
+				   strlen ("builtin_")) == 0
+			  || (len = strlen (name)) <= strlen ("___chk")
+			  || memcmp (name + len - strlen ("_chk"),
+				     "_chk", strlen ("_chk") + 1) != 0))
+		    {
+		      if (permerror (DECL_SOURCE_LOCATION (newdecl),
+				     "new declaration %q#D ambiguates built-in"
+				     " declaration %q#D", newdecl, olddecl)
+			  && flag_permissive)
+			inform (DECL_SOURCE_LOCATION (newdecl),
+				"ignoring the %q#D declaration", newdecl);
+		      return olddecl;
+		    }
+		}
+
 	      /* A near match; override the builtin.  */
 
 	      if (TREE_PUBLIC (newdecl))
@@ -1969,10 +2027,13 @@ next_arg:;
       DECL_ORIGINAL_TYPE (newdecl) = DECL_ORIGINAL_TYPE (olddecl);
     }
 
-  /* Copy all the DECL_... slots specified in the new decl
-     except for any that we copy here from the old type.  */
-  DECL_ATTRIBUTES (newdecl)
-    = (*targetm.merge_decl_attributes) (olddecl, newdecl);
+  /* Copy all the DECL_... slots specified in the new decl except for
+     any that we copy here from the old type.  */
+  if (merge_attr)
+    DECL_ATTRIBUTES (newdecl)
+      = (*targetm.merge_decl_attributes) (olddecl, newdecl);
+  else
+    DECL_ATTRIBUTES (olddecl) = DECL_ATTRIBUTES (newdecl);
 
   if (DECL_DECLARES_FUNCTION_P (olddecl) && DECL_DECLARES_FUNCTION_P (newdecl))
     {
@@ -2036,6 +2097,8 @@ next_arg:;
 	      DECL_DISREGARD_INLINE_LIMITS (old_result)
 	        |= DECL_DISREGARD_INLINE_LIMITS (new_result);
 	      check_redeclaration_exception_specification (newdecl, olddecl);
+
+	      merge_attribute_bits (new_result, old_result);
 	    }
 	}
 
@@ -2099,9 +2162,10 @@ next_arg:;
 		  }
 	    }
 	}
-      else
-	/* Merge the data types specified in the two decls.  */
+      else if (merge_attr)
 	newtype = merge_types (TREE_TYPE (newdecl), TREE_TYPE (olddecl));
+      else
+	newtype = TREE_TYPE (newdecl);
 
       if (VAR_P (newdecl))
 	{
@@ -2165,14 +2229,6 @@ next_arg:;
 	  && !(processing_template_decl && uses_template_parms (newdecl)))
 	layout_decl (newdecl, 0);
 
-      /* Merge the type qualifiers.  */
-      if (TREE_READONLY (newdecl))
-	TREE_READONLY (olddecl) = 1;
-      if (TREE_THIS_VOLATILE (newdecl))
-	TREE_THIS_VOLATILE (olddecl) = 1;
-      if (TREE_NOTHROW (newdecl))
-	TREE_NOTHROW (olddecl) = 1;
-
       /* Merge deprecatedness.  */
       if (TREE_DEPRECATED (newdecl))
 	TREE_DEPRECATED (olddecl) = 1;
@@ -2189,6 +2245,15 @@ next_arg:;
 	      && !DECL_FUNCTION_SPECIFIC_OPTIMIZATION (newdecl))
 	    DECL_FUNCTION_SPECIFIC_OPTIMIZATION (newdecl)
 	      = DECL_FUNCTION_SPECIFIC_OPTIMIZATION (olddecl);
+	}
+      else
+	{
+	  /* Merge the const type qualifier.  */
+	  if (TREE_READONLY (newdecl))
+	    TREE_READONLY (olddecl) = 1;
+	  /* Merge the volatile type qualifier.  */
+	  if (TREE_THIS_VOLATILE (newdecl))
+	    TREE_THIS_VOLATILE (olddecl) = 1;
 	}
 
       /* Merge the initialization information.  */
@@ -2209,14 +2274,21 @@ next_arg:;
 	  DECL_NO_INSTRUMENT_FUNCTION_ENTRY_EXIT (newdecl)
 	    |= DECL_NO_INSTRUMENT_FUNCTION_ENTRY_EXIT (olddecl);
 	  DECL_NO_LIMIT_STACK (newdecl) |= DECL_NO_LIMIT_STACK (olddecl);
-	  TREE_THIS_VOLATILE (newdecl) |= TREE_THIS_VOLATILE (olddecl);
-	  TREE_NOTHROW (newdecl) |= TREE_NOTHROW (olddecl);
-	  DECL_IS_MALLOC (newdecl) |= DECL_IS_MALLOC (olddecl);
 	  DECL_IS_OPERATOR_NEW (newdecl) |= DECL_IS_OPERATOR_NEW (olddecl);
-	  DECL_PURE_P (newdecl) |= DECL_PURE_P (olddecl);
-	  TREE_READONLY (newdecl) |= TREE_READONLY (olddecl);
-	  DECL_LOOPING_CONST_OR_PURE_P (newdecl) 
+	  DECL_LOOPING_CONST_OR_PURE_P (newdecl)
 	    |= DECL_LOOPING_CONST_OR_PURE_P (olddecl);
+
+	  if (merge_attr)
+	    merge_attribute_bits (newdecl, olddecl);
+	  else
+	    {
+	      /* Merge the noreturn bit.  */
+	      TREE_THIS_VOLATILE (olddecl) = TREE_THIS_VOLATILE (newdecl);
+	      TREE_READONLY (olddecl) = TREE_READONLY (newdecl);
+	      TREE_NOTHROW (olddecl) = TREE_NOTHROW (newdecl);
+	      DECL_IS_MALLOC (olddecl) = DECL_IS_MALLOC (newdecl);
+	      DECL_PURE_P (olddecl) = DECL_PURE_P (newdecl);
+	    }
 	  /* Keep the old RTL.  */
 	  COPY_DECL_RTL (olddecl, newdecl);
 	}
@@ -2380,19 +2452,15 @@ next_arg:;
 
 	  /* [temp.expl.spec/14] We don't inline explicit specialization
 	     just because the primary template says so.  */
+	  gcc_assert (!merge_attr);
 
-	  /* But still keep DECL_DISREGARD_INLINE_LIMITS in sync with
-	     the always_inline attribute.  */
-	  if (DECL_DISREGARD_INLINE_LIMITS (olddecl)
-	      && !DECL_DISREGARD_INLINE_LIMITS (newdecl))
-	    {
-	      if (DECL_DECLARED_INLINE_P (newdecl))
-		DECL_DISREGARD_INLINE_LIMITS (newdecl) = true;
-	      else
-		DECL_ATTRIBUTES (newdecl)
-		  = remove_attribute ("always_inline",
-				      DECL_ATTRIBUTES (newdecl));
-	    }
+	  DECL_DECLARED_INLINE_P (olddecl)
+	    = DECL_DECLARED_INLINE_P (newdecl);
+
+	  DECL_DISREGARD_INLINE_LIMITS (olddecl)
+	    = DECL_DISREGARD_INLINE_LIMITS (newdecl);
+
+	  DECL_UNINLINABLE (olddecl) = DECL_UNINLINABLE (newdecl);
 	}
       else if (new_defines_function && DECL_INITIAL (olddecl))
 	{
@@ -2919,6 +2987,7 @@ redeclaration_error_message (tree newdecl, tree olddecl)
 	 specifier is declaration rather than definition (and
 	 deprecated).  */
       if (cxx_dialect >= cxx17
+	  && VAR_P (olddecl)
 	  && DECL_CLASS_SCOPE_P (olddecl)
 	  && DECL_DECLARED_CONSTEXPR_P (olddecl)
 	  && !DECL_INITIAL (newdecl))
@@ -5034,19 +5103,17 @@ start_decl (const cp_declarator *declarator,
 	  if (field == NULL_TREE
 	      || !(VAR_P (field) || variable_template_p (field)))
 	    error ("%q+#D is not a static data member of %q#T", decl, context);
+	  else if (variable_template_p (field)
+		   && (DECL_LANG_SPECIFIC (decl)
+		       && DECL_TEMPLATE_SPECIALIZATION (decl)))
+	    /* OK, specialization was already checked.  */;
 	  else if (variable_template_p (field) && !this_tmpl)
 	    {
-	      if (DECL_LANG_SPECIFIC (decl)
-		  && DECL_TEMPLATE_SPECIALIZATION (decl))
-		/* OK, specialization was already checked.  */;
-	      else
-		{
-		  error_at (DECL_SOURCE_LOCATION (decl),
-			    "non-member-template declaration of %qD", decl);
-		  inform (DECL_SOURCE_LOCATION (field), "does not match "
-			  "member template declaration here");
-		  return error_mark_node;
-		}
+	      error_at (DECL_SOURCE_LOCATION (decl),
+			"non-member-template declaration of %qD", decl);
+	      inform (DECL_SOURCE_LOCATION (field), "does not match "
+		      "member template declaration here");
+	      return error_mark_node;
 	    }
 	  else
 	    {
@@ -7492,10 +7559,7 @@ cp_finish_decomp (tree decl, tree first, unsigned int count)
 	    error_n (loc, count,
 		     "only %u name provided for structured binding",
 		     "only %u names provided for structured binding", count);
-	  /* Some languages have special plural rules even for large values,
-	     but it is periodic with period of 10, 100, 1000 etc.  */
-	  inform_n (loc, eltscnt > INT_MAX
-			 ? (eltscnt % 1000000) + 1000000 : eltscnt,
+	  inform_n (loc, eltscnt,
 		    "while %qT decomposes into %wu element",
 		    "while %qT decomposes into %wu elements",
 		    type, eltscnt);
@@ -8288,7 +8352,7 @@ cp_complete_array_type (tree *ptype, tree initial_value, bool do_default)
      bits.  See also complete_type which does the same thing for arrays
      of fixed size.  */
   type = *ptype;
-  if (TYPE_DOMAIN (type))
+  if (type != error_mark_node && TYPE_DOMAIN (type))
     {
       elt_type = TREE_TYPE (type);
       TYPE_NEEDS_CONSTRUCTING (type) = TYPE_NEEDS_CONSTRUCTING (elt_type);
@@ -8916,7 +8980,8 @@ grokfndecl (tree ctype,
 					template_count,
 					2 * funcdef_flag +
 					4 * (friendp != 0) +
-                                        8 * concept_p);
+	                                8 * concept_p,
+					*attrlist);
   if (decl == error_mark_node)
     return NULL_TREE;
 

@@ -578,7 +578,7 @@ gfc_trans_return (gfc_code * code)
 tree
 gfc_trans_pause (gfc_code * code)
 {
-  tree gfc_int4_type_node = gfc_get_int_type (4);
+  tree gfc_int8_type_node = gfc_get_int_type (8);
   gfc_se se;
   tree tmp;
 
@@ -589,7 +589,7 @@ gfc_trans_pause (gfc_code * code)
 
   if (code->expr1 == NULL)
     {
-      tmp = build_int_cst (gfc_int4_type_node, 0);
+      tmp = build_int_cst (size_type_node, 0);
       tmp = build_call_expr_loc (input_location,
 				 gfor_fndecl_pause_string, 2,
 				 build_int_cst (pchar_type_node, 0), tmp);
@@ -599,14 +599,15 @@ gfc_trans_pause (gfc_code * code)
       gfc_conv_expr (&se, code->expr1);
       tmp = build_call_expr_loc (input_location,
 				 gfor_fndecl_pause_numeric, 1,
-				 fold_convert (gfc_int4_type_node, se.expr));
+				 fold_convert (gfc_int8_type_node, se.expr));
     }
   else
     {
       gfc_conv_expr_reference (&se, code->expr1);
       tmp = build_call_expr_loc (input_location,
 			     gfor_fndecl_pause_string, 2,
-			     se.expr, se.string_length);
+				 se.expr, fold_convert (size_type_node,
+							se.string_length));
     }
 
   gfc_add_expr_to_block (&se.pre, tmp);
@@ -641,7 +642,8 @@ gfc_trans_stop (gfc_code *code, bool error_stop)
 				 : (flag_coarray == GFC_FCOARRAY_LIB
 				    ? gfor_fndecl_caf_stop_str
 				    : gfor_fndecl_stop_string),
-				 2, build_int_cst (pchar_type_node, 0), tmp);
+				 3, build_int_cst (pchar_type_node, 0), tmp,
+				 boolean_false_node);
     }
   else if (code->expr1->ts.type == BT_INTEGER)
     {
@@ -653,8 +655,9 @@ gfc_trans_stop (gfc_code *code, bool error_stop)
 				    : gfor_fndecl_error_stop_numeric)
 				 : (flag_coarray == GFC_FCOARRAY_LIB
 				    ? gfor_fndecl_caf_stop_numeric
-				    : gfor_fndecl_stop_numeric), 1,
-				 fold_convert (integer_type_node, se.expr));
+				    : gfor_fndecl_stop_numeric), 2,
+				 fold_convert (integer_type_node, se.expr),
+				 boolean_false_node);
     }
   else
     {
@@ -667,8 +670,9 @@ gfc_trans_stop (gfc_code *code, bool error_stop)
 				 : (flag_coarray == GFC_FCOARRAY_LIB
 				    ? gfor_fndecl_caf_stop_str
 				    : gfor_fndecl_stop_string),
-				 2, se.expr, fold_convert (size_type_node,
-							   se.string_length));
+				 3, se.expr, fold_convert (size_type_node,
+							   se.string_length),
+				 boolean_false_node);
     }
 
   gfc_add_expr_to_block (&se.pre, tmp);
@@ -1903,7 +1907,8 @@ trans_associate_var (gfc_symbol *sym, gfc_wrapped_block *block)
 
       attr = gfc_expr_attr (e);
       if (sym->ts.type == BT_CHARACTER && e->ts.type == BT_CHARACTER
-	  && (attr.allocatable || attr.pointer || attr.dummy))
+	  && (attr.allocatable || attr.pointer || attr.dummy)
+	  && POINTER_TYPE_P (TREE_TYPE (se.expr)))
 	{
 	  /* These are pointer types already.  */
 	  tmp = fold_convert (TREE_TYPE (sym->backend_decl), se.expr);

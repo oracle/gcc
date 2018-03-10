@@ -194,6 +194,21 @@ lvalue_kind (const_tree ref)
       break;
 
     case COND_EXPR:
+      if (processing_template_decl)
+	{
+	  /* Within templates, a REFERENCE_TYPE will indicate whether
+	     the COND_EXPR result is an ordinary lvalue or rvalueref.
+	     Since REFERENCE_TYPEs are handled above, if we reach this
+	     point, we know we got a plain rvalue.  Unless we have a
+	     type-dependent expr, that is, but we shouldn't be testing
+	     lvalueness if we can't even tell the types yet!  */
+	  gcc_assert (!type_dependent_expression_p (CONST_CAST_TREE (ref)));
+	  if (CLASS_TYPE_P (TREE_TYPE (ref))
+	      || TREE_CODE (TREE_TYPE (ref)) == ARRAY_TYPE)
+	    return clk_class;
+	  else
+	    return clk_none;
+	}
       op1_lvalue_kind = lvalue_kind (TREE_OPERAND (ref, 1)
 				    ? TREE_OPERAND (ref, 1)
 				    : TREE_OPERAND (ref, 0));
@@ -239,6 +254,7 @@ lvalue_kind (const_tree ref)
       return lvalue_kind (BASELINK_FUNCTIONS (CONST_CAST_TREE (ref)));
 
     case NON_DEPENDENT_EXPR:
+    case PAREN_EXPR:
       return lvalue_kind (TREE_OPERAND (ref, 0));
 
     case VIEW_CONVERT_EXPR:
@@ -1042,6 +1058,8 @@ bool
 array_of_runtime_bound_p (tree t)
 {
   if (!t || TREE_CODE (t) != ARRAY_TYPE)
+    return false;
+  if (variably_modified_type_p (TREE_TYPE (t), NULL_TREE))
     return false;
   tree dom = TYPE_DOMAIN (t);
   if (!dom)
@@ -3091,7 +3109,7 @@ replace_placeholders_r (tree* t, int* walk_subtrees, void* data_)
   replace_placeholders_t *d = static_cast<replace_placeholders_t*>(data_);
   tree obj = d->obj;
 
-  if (TREE_CONSTANT (*t))
+  if (TYPE_P (*t) || TREE_CONSTANT (*t))
     {
       *walk_subtrees = false;
       return NULL_TREE;

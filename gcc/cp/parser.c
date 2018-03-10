@@ -2393,6 +2393,8 @@ static tree cp_parser_std_attribute_spec
   (cp_parser *);
 static tree cp_parser_std_attribute_spec_seq
   (cp_parser *);
+static size_t cp_parser_skip_attributes_opt
+  (cp_parser *, size_t);
 static bool cp_parser_extension_opt
   (cp_parser *, int *);
 static void cp_parser_label_declaration
@@ -4961,7 +4963,9 @@ cp_parser_fold_expression (cp_parser *parser, tree expr1)
   else if (is_binary_op (TREE_CODE (expr1)))
     error_at (location_of (expr1),
 	      "binary expression in operand of fold-expression");
-  else if (TREE_CODE (expr1) == COND_EXPR)
+  else if (TREE_CODE (expr1) == COND_EXPR
+	   || (REFERENCE_REF_P (expr1)
+	       && TREE_CODE (TREE_OPERAND (expr1, 0)) == COND_EXPR))
     error_at (location_of (expr1),
 	      "conditional expression in operand of fold-expression");
 
@@ -10375,15 +10379,15 @@ cp_parser_lambda_introducer (cp_parser* parser, tree lambda_expr)
 	      unqualified_name_lookup_error (capture_id);
 	      continue;
 	    }
-	  else if (DECL_P (capture_init_expr)
-		   && (!VAR_P (capture_init_expr)
-		       && TREE_CODE (capture_init_expr) != PARM_DECL))
+	  else if (!VAR_P (capture_init_expr)
+		   && TREE_CODE (capture_init_expr) != PARM_DECL)
 	    {
 	      error_at (capture_token->location,
-			"capture of non-variable %qD ",
+			"capture of non-variable %qE ",
 			capture_init_expr);
-	      inform (DECL_SOURCE_LOCATION (capture_init_expr),
-		      "%q#D declared here", capture_init_expr);
+	      if (DECL_P (capture_init_expr))
+		inform (DECL_SOURCE_LOCATION (capture_init_expr),
+			"%q#D declared here", capture_init_expr);
 	      continue;
 	    }
 	  if (VAR_P (capture_init_expr)
@@ -10440,6 +10444,12 @@ cp_parser_lambda_introducer (cp_parser* parser, tree lambda_expr)
 		   capture_init_expr,
 		   /*by_reference_p=*/capture_kind == BY_REFERENCE,
 		   explicit_init_p);
+
+      /* If there is any qualification still in effect, clear it
+	 now; we will be starting fresh with the next capture.  */
+      parser->scope = NULL_TREE;
+      parser->qualifying_scope = NULL_TREE;
+      parser->object_scope = NULL_TREE;
     }
 
   cp_parser_require (parser, CPP_CLOSE_SQUARE, RT_CLOSE_SQUARE);
@@ -10698,6 +10708,9 @@ static void
 add_debug_begin_stmt (location_t loc)
 {
   if (!MAY_HAVE_DEBUG_MARKER_STMTS)
+    return;
+  if (DECL_DECLARED_CONCEPT_P (current_function_decl))
+    /* A concept is never expanded normally.  */
     return;
 
   tree stmt = build0 (DEBUG_BEGIN_STMT, void_type_node);
@@ -13972,6 +13985,10 @@ cp_parser_decltype_expr (cp_parser *parser,
 	expr = cp_parser_lookup_name_simple (parser, expr,
 					     id_expr_start_token->location);
 
+      if (expr && TREE_CODE (expr) == TEMPLATE_DECL)
+	/* A template without args is not a complete id-expression.  */
+	expr = error_mark_node;
+
       if (expr
           && expr != error_mark_node
           && TREE_CODE (expr) != TYPE_DECL
@@ -14036,6 +14053,9 @@ cp_parser_decltype_expr (cp_parser *parser,
       /* Abort our attempt to parse an id-expression or member access
          expression.  */
       cp_parser_abort_tentative_parse (parser);
+
+      /* Commit to the tentative_firewall so we get syntax errors.  */
+      cp_parser_commit_to_tentative_parse (parser);
 
       /* Parse a full expression.  */
       expr = cp_parser_expression (parser, /*pidk=*/NULL, /*cast_p=*/false,
@@ -21925,7 +21945,7 @@ cp_parser_braced_list (cp_parser* parser, bool* non_constant_p)
 
   /* Consume the `{' token.  */
   matching_braces braces;
-  braces.consume_open (parser);
+  braces.require_open (parser);
   /* Create a CONSTRUCTOR to represent the braced-initializer.  */
   initializer = make_node (CONSTRUCTOR);
   /* If it's not a `}', then there is a non-trivial initializer.  */
@@ -22648,6 +22668,16 @@ cp_parser_class_specifier_1 (cp_parser* parser)
       unsigned ix;
       cp_default_arg_entry *e;
       tree save_ccp, save_ccr;
+
+      if (any_erroneous_template_args_p (type))
+	{
+	  /* Skip default arguments, NSDMIs, etc, in order to improve
+	     error recovery (c++/71169, c++/71832).  */
+	  vec_safe_truncate (unparsed_funs_with_default_args, 0);
+	  vec_safe_truncate (unparsed_nsdmis, 0);
+	  vec_safe_truncate (unparsed_classes, 0);
+	  vec_safe_truncate (unparsed_funs_with_definitions, 0);
+	}
 
       /* In a first pass, parse default arguments to the functions.
 	 Then, in a second pass, parse the bodies of the functions.
@@ -23619,7 +23649,6 @@ cp_parser_member_declaration (cp_parser* parser)
 	  tree attributes = NULL_TREE;
 	  tree first_attribute;
 	  tree initializer;
-	  bool is_bitfld = false;
 	  bool named_bitfld = false;
 
 	  /* Peek at the next token.  */
@@ -23627,26 +23656,22 @@ cp_parser_member_declaration (cp_parser* parser)
 
 	  /* The following code wants to know early if it is a bit-field
 	     or some other declaration.  Attributes can appear before
-	     the `:' token, but are hopefully rare enough that the
-	     simplicity of the tentative lookup pays off.  */
+	     the `:' token.  Skip over them without consuming any tokens
+	     to peek if they are followed by `:'.  */
 	  if (cp_next_tokens_can_be_attribute_p (parser)
 	      || (token->type == CPP_NAME
 		  && cp_nth_tokens_can_be_attribute_p (parser, 2)
 		  && (named_bitfld = true)))
 	    {
-	      cp_parser_parse_tentatively (parser);
-	      if (named_bitfld)
-		cp_lexer_consume_token (parser->lexer);
-	      cp_parser_attributes_opt (parser);
-	      token = cp_lexer_peek_token (parser->lexer);
-	      is_bitfld = cp_lexer_next_token_is (parser->lexer, CPP_COLON);
-	      cp_parser_abort_tentative_parse (parser);
+	      size_t n
+		= cp_parser_skip_attributes_opt (parser, 1 + named_bitfld);
+	      token = cp_lexer_peek_nth_token (parser->lexer, n);
 	    }
 
 	  /* Check for a bitfield declaration.  */
-	  if (is_bitfld
-	      || token->type == CPP_COLON
+	  if (token->type == CPP_COLON
 	      || (token->type == CPP_NAME
+		  && token == cp_lexer_peek_token (parser->lexer)
 		  && cp_lexer_nth_token_is (parser->lexer, 2, CPP_COLON)
 		  && (named_bitfld = true)))
 	    {
@@ -24910,7 +24935,7 @@ static tree
 cp_parser_attributes_opt (cp_parser *parser)
 {
   if (cp_next_tokens_can_be_gnu_attribute_p (parser))
-      return cp_parser_gnu_attributes_opt (parser);
+    return cp_parser_gnu_attributes_opt (parser);
   return cp_parser_std_attribute_spec_seq (parser);
 }
 
@@ -25451,6 +25476,115 @@ cp_parser_std_attribute_spec_seq (cp_parser *parser)
     }
 
   return attr_specs;
+}
+
+/* Skip a balanced-token starting at Nth token (with 1 as the next token),
+   return index of the first token after balanced-token, or N on failure.  */
+
+static size_t
+cp_parser_skip_balanced_tokens (cp_parser *parser, size_t n)
+{
+  size_t orig_n = n;
+  int nparens = 0, nbraces = 0, nsquares = 0;
+  do
+    switch (cp_lexer_peek_nth_token (parser->lexer, n++)->type)
+      {
+      case CPP_EOF:
+      case CPP_PRAGMA_EOL:
+	/* Ran out of tokens.  */
+	return orig_n;
+      case CPP_OPEN_PAREN:
+	++nparens;
+	break;
+      case CPP_OPEN_BRACE:
+	++nbraces;
+	break;
+      case CPP_OPEN_SQUARE:
+	++nsquares;
+	break;
+      case CPP_CLOSE_PAREN:
+	--nparens;
+	break;
+      case CPP_CLOSE_BRACE:
+	--nbraces;
+	break;
+      case CPP_CLOSE_SQUARE:
+	--nsquares;
+	break;
+      default:
+	break;
+      }
+  while (nparens || nbraces || nsquares);
+  return n;
+}
+
+/* Skip GNU attribute tokens starting at Nth token (with 1 as the next token),
+   return index of the first token after the GNU attribute tokens, or N on
+   failure.  */
+
+static size_t
+cp_parser_skip_gnu_attributes_opt (cp_parser *parser, size_t n)
+{
+  while (true)
+    {
+      if (!cp_lexer_nth_token_is_keyword (parser->lexer, n, RID_ATTRIBUTE)
+	  || !cp_lexer_nth_token_is (parser->lexer, n + 1, CPP_OPEN_PAREN)
+	  || !cp_lexer_nth_token_is (parser->lexer, n + 2, CPP_OPEN_PAREN))
+	break;
+
+      size_t n2 = cp_parser_skip_balanced_tokens (parser, n + 2);
+      if (n2 == n + 2)
+	break;
+      if (!cp_lexer_nth_token_is (parser->lexer, n2, CPP_CLOSE_PAREN))
+	break;
+      n = n2 + 1;
+    }
+  return n;
+}
+
+/* Skip standard C++11 attribute tokens starting at Nth token (with 1 as the
+   next token), return index of the first token after the standard C++11
+   attribute tokens, or N on failure.  */
+
+static size_t
+cp_parser_skip_std_attribute_spec_seq (cp_parser *parser, size_t n)
+{
+  while (true)
+    {
+      if (cp_lexer_nth_token_is (parser->lexer, n, CPP_OPEN_SQUARE)
+	  && cp_lexer_nth_token_is (parser->lexer, n + 1, CPP_OPEN_SQUARE))
+	{
+	  size_t n2 = cp_parser_skip_balanced_tokens (parser, n + 1);
+	  if (n2 == n + 1)
+	    break;
+	  if (!cp_lexer_nth_token_is (parser->lexer, n2, CPP_CLOSE_SQUARE))
+	    break;
+	  n = n2 + 1;
+	}
+      else if (cp_lexer_nth_token_is_keyword (parser->lexer, n, RID_ALIGNAS)
+	       && cp_lexer_nth_token_is (parser->lexer, n + 1, CPP_OPEN_PAREN))
+	{
+	  size_t n2 = cp_parser_skip_balanced_tokens (parser, n + 1);
+	  if (n2 == n + 1)
+	    break;
+	  n = n2;
+	}
+      else
+	break;
+    }
+  return n;
+}
+
+/* Skip standard C++11 or GNU attribute tokens starting at Nth token (with 1
+   as the next token), return index of the first token after the attribute
+   tokens, or N on failure.  */
+
+static size_t
+cp_parser_skip_attributes_opt (cp_parser *parser, size_t n)
+{
+  if (cp_nth_tokens_can_be_gnu_attribute_p (parser, n))
+    return cp_parser_skip_gnu_attributes_opt (parser, n);
+  return cp_parser_skip_std_attribute_spec_seq (parser, n);
 }
 
 /* Parse an optional `__extension__' keyword.  Returns TRUE if it is
@@ -31339,7 +31473,10 @@ cp_parser_omp_var_list_no_open (cp_parser *parser, enum omp_clause_code kind,
 	  if (name == error_mark_node)
 	    goto skip_comma;
 
-	  decl = cp_parser_lookup_name_simple (parser, name, token->location);
+	  if (identifier_p (name))
+	    decl = cp_parser_lookup_name_simple (parser, name, token->location);
+	  else
+	    decl = name;
 	  if (decl == error_mark_node)
 	    cp_parser_name_lookup_error (parser, name, decl, NLE_NULL,
 					 token->location);
@@ -37843,7 +37980,9 @@ cp_parser_oacc_routine (cp_parser *parser, cp_token *pragma_tok,
 					   /*template_p=*/NULL,
 					   /*declarator_p=*/false,
 					   /*optional_p=*/false);
-      tree decl = cp_parser_lookup_name_simple (parser, name, name_loc);
+      tree decl = (identifier_p (name)
+		   ? cp_parser_lookup_name_simple (parser, name, name_loc)
+		   : name);
       if (name != error_mark_node && decl == error_mark_node)
 	cp_parser_name_lookup_error (parser, name, decl, NLE_NULL, name_loc);
 

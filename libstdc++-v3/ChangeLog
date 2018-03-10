@@ -1,3 +1,67 @@
+2018-03-09  François Dumont  <fdumont@gcc.gnu.org>
+
+	* python/libstdcxx/v6/printers.py (build_libstdcxx_dictionary):
+	Fix std::_Fwd_list_iterator and std::_Fwd_list_const_iterator printers
+	registration.
+
+2018-03-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/84769
+	* include/std/variant (get<_Tp, _Types...>, get_if<_Tp, _Types...>):
+	Qualify calls to get<_Np, Types...> and get_if<_Np, _Types...>.
+
+	src/filesystem/ops.cc (create_dir): Pass error_code to is_directory.
+	src/filesystem/std-ops.cc (create_dir): Likewise.
+
+2018-03-08  François Dumont  <fdumont@gcc.gnu.org>
+
+	* python/libstdcxx/v6/printers.py (NodeIteratorPrinter): New.
+	(StdListIteratorPrinter): Inherit from latter.
+	(StdFwdListIteratorPrinter): New, inherit from latter.
+	(StdDebugIteratorPrinter.to_string): Use non-debug iterator printer
+	when iterator has no associated container.
+	(build_libstdcxx_dictionary): Add __gnu_cxx::_Fwd_list_iterator and
+	__gnu_cxx::_Fwd_list_const_iterator printers. Remove __norm namespace
+	registrations.
+	* testsuite/libstdc++-prettyprinters/debug.cc: Adapt.
+	* testsuite/libstdc++-prettyprinters/debug_cxx11.cc: Adapt.
+
+2018-03-06  Ville Voutilainen  <ville.voutilainen@gmail.com>
+
+	PR libstdc++/84601
+	* include/std/optional (_Optional_payload): Split into multiple
+	specializations that can handle different cases of trivial or
+	non-trivial assignment operators.
+	* testsuite/20_util/optional/84601.cc: New.
+	* testsuite/20_util/optional/cons/value_neg.cc: Adjust.
+
+2018-03-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/84671
+	* include/bits/parse_numbers.h (_Number_help): Add partial
+	specialization to handle digit separators. Adjust partial
+	specialization for recursion temrination to require _Pow == 1ULL.
+	* testsuite/20_util/duration/literals/84671.cc: New
+
+2018-02-27  Ville Voutilainen  <ville.voutilainen@gmail.com>
+
+	Implement the missing bits of LWG 2769
+	* include/std/any (any_cast(const any&)): Add static_assert.
+	(any_cast(any&)): Likewise.
+	(any_cast(any&&)): Likewise, and remove the handling
+	for copyable-but-not-movable type.
+	* testsuite/20_util/any/misc/any_cast.cc: Adjust.
+	* testsuite/20_util/any/misc/any_cast_neg.cc: Likewise, and
+	add new tests.
+
+2018-02-23  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/84532
+	* include/std/thread (thread::__make_invoker): Construct tuple
+	directly instead of using make_tuple.
+	* testsuite/30_threads/async/84532.cc: New.
+	* testsuite/30_threads/thread/84532.cc: New.
+
 2018-02-20  François Dumont  <fdumont@gcc.gnu.org>
 
 	* include/ext/aligned_buffer.h [_GLIBCXX_INLINE_VERSION]

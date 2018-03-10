@@ -1146,17 +1146,9 @@ static tree
 member_vec_linear_search (vec<tree, va_gc> *member_vec, tree name)
 {
   for (int ix = member_vec->length (); ix--;)
-    /* We can get a NULL binding during insertion of a new method
-       name, because the identifier_binding machinery performs a
-       lookup.  If we find such a NULL slot, that's the thing we were
-       looking for, so we might as well bail out immediately.  */
     if (tree binding = (*member_vec)[ix])
-      {
-	if (OVL_NAME (binding) == name)
-	  return binding;
-      }
-    else
-      break;
+      if (OVL_NAME (binding) == name)
+	return binding;
 
   return NULL_TREE;
 }
@@ -1170,11 +1162,10 @@ fields_linear_search (tree klass, tree name, bool want_type)
     {
       tree decl = fields;
 
-      if (!want_type
-	  && TREE_CODE (decl) == FIELD_DECL
+      if (TREE_CODE (decl) == FIELD_DECL
 	  && ANON_AGGR_TYPE_P (TREE_TYPE (decl)))
 	{
-	  if (tree temp = search_anon_aggr (TREE_TYPE (decl), name))
+	  if (tree temp = search_anon_aggr (TREE_TYPE (decl), name, want_type))
 	    return temp;
 	}
 
@@ -1199,26 +1190,17 @@ fields_linear_search (tree klass, tree name, bool want_type)
   return NULL_TREE;
 }
 
-/* Look for NAME field inside of anonymous aggregate ANON.  */
+/* Look for NAME member inside of anonymous aggregate ANON.  Although
+   such things should only contain FIELD_DECLs, we check that too
+   late, and would give very confusing errors if we weren't
+   permissive here.  */
 
 tree
-search_anon_aggr (tree anon, tree name)
+search_anon_aggr (tree anon, tree name, bool want_type)
 {
   gcc_assert (COMPLETE_TYPE_P (anon));
-  tree ret;
-	  
-  if (vec<tree, va_gc> *member_vec = CLASSTYPE_MEMBER_VEC (anon))
-    ret = member_vec_linear_search (member_vec, name);
-  else
-    ret = fields_linear_search (anon, name, false);
-
-  if (ret)
-    {
-      /* Anon members can only contain fields.  */
-      gcc_assert (!STAT_HACK_P (ret) && !DECL_DECLARES_TYPE_P (ret));
-      return ret;
-    }
-  return NULL_TREE;
+  tree ret = get_class_binding_direct (anon, name, want_type);
+  return ret;
 }
 
 /* Look for NAME as an immediate member of KLASS (including
@@ -1334,15 +1316,15 @@ get_class_binding (tree klass, tree name, int type_or_fns)
 }
 
 /* Find the slot containing overloads called 'NAME'.  If there is no
-   such slot, create an empty one.  KLASS might be complete at this
-   point, in which case we need to preserve ordering.  Deals with
-   conv_op marker handling.  */
+   such slot and the class is complete, create an empty one, at the
+   correct point in the sorted member vector.  Otherwise return NULL.
+   Deals with conv_op marker handling.  */
 
 tree *
-get_member_slot (tree klass, tree name)
+find_member_slot (tree klass, tree name)
 {
   bool complete_p = COMPLETE_TYPE_P (klass);
-  
+
   vec<tree, va_gc> *member_vec = CLASSTYPE_MEMBER_VEC (klass);
   if (!member_vec)
     {
@@ -1389,24 +1371,34 @@ get_member_slot (tree klass, tree name)
 	break;
     }
 
-  /* No slot found.  Create one at IX.  We know in this case that our
-     caller will succeed in adding the function.  */
+  /* No slot found, add one if the class is complete.  */
   if (complete_p)
     {
-      /* Do exact allocation when complete, as we don't expect to add
-	 many.  */
+      /* Do exact allocation, as we don't expect to add many.  */
+      gcc_assert (name != conv_op_identifier);
       vec_safe_reserve_exact (member_vec, 1);
+      CLASSTYPE_MEMBER_VEC (klass) = member_vec;
       member_vec->quick_insert (ix, NULL_TREE);
+      return &(*member_vec)[ix];
     }
-  else
-    {
-      gcc_checking_assert (ix == length);
-      vec_safe_push (member_vec, NULL_TREE);
-    }
+
+  return NULL;
+}
+
+/* KLASS is an incomplete class to which we're adding a method NAME.
+   Add a slot and deal with conv_op marker handling.  */
+
+tree *
+add_member_slot (tree klass, tree name)
+{
+  gcc_assert (!COMPLETE_TYPE_P (klass));
+
+  vec<tree, va_gc> *member_vec = CLASSTYPE_MEMBER_VEC (klass);
+  vec_safe_push (member_vec, NULL_TREE);
   CLASSTYPE_MEMBER_VEC (klass) = member_vec;
 
-  tree *slot = &(*member_vec)[ix];
-  if (name == conv_op_identifier)
+  tree *slot = &member_vec->last ();
+  if (IDENTIFIER_CONV_OP_P (name))
     {
       /* Install the marker prefix.  */
       *slot = ovl_make (conv_op_marker, NULL_TREE);
@@ -1599,68 +1591,58 @@ member_vec_dedup (vec<tree, va_gc> *member_vec)
   if (!len)
     return;
 
-  tree current = (*member_vec)[0], name = OVL_NAME (current);
-  tree next = NULL_TREE, next_name = NULL_TREE;
-  for (unsigned jx, ix = 0; ix < len;
-       ix = jx, current = next, name = next_name)
+  tree name = OVL_NAME ((*member_vec)[0]);
+  for (unsigned jx, ix = 0; ix < len; ix = jx)
     {
+      tree current = NULL_TREE;
       tree to_type = NULL_TREE;
       tree to_using = NULL_TREE;
       tree marker = NULL_TREE;
-      if (IDENTIFIER_CONV_OP_P (name))
-	{
-	  marker = current;
-	  current = OVL_CHAIN (current);
-	  name = DECL_NAME (OVL_FUNCTION (marker));
-	  gcc_checking_assert (name == conv_op_identifier);
-	}
 
-      if (TREE_CODE (current) == USING_DECL)
+      for (jx = ix; jx < len; jx++)
 	{
-	  current = strip_using_decl (current);
-	  if (is_overloaded_fn (current))
-	    current = NULL_TREE;
-	  else if (TREE_CODE (current) == USING_DECL)
+	  tree next = (*member_vec)[jx];
+	  if (jx != ix)
 	    {
-	      to_using = current;
-	      current = NULL_TREE;
+	      tree next_name = OVL_NAME (next);
+	      if (next_name != name)
+		{
+		  name = next_name;
+		  break;
+		}
 	    }
-	}
 
-      if (current && DECL_DECLARES_TYPE_P (current))
-	{
-	  to_type = current;
-	  current = NULL_TREE;
-	}
-
-      for (jx = ix + 1; jx < len; jx++)
-	{
-	  next = (*member_vec)[jx];
-	  next_name = OVL_NAME (next);
-	  if (next_name != name)
-	    break;
-
-	  if (marker)
+	  if (IDENTIFIER_CONV_OP_P (name))
 	    {
-	      gcc_checking_assert (OVL_FUNCTION (marker)
-				   == OVL_FUNCTION (next));
+	      marker = next;
 	      next = OVL_CHAIN (next);
 	    }
 
 	  if (TREE_CODE (next) == USING_DECL)
 	    {
+	      if (IDENTIFIER_CTOR_P (name))
+		/* Dependent inherited ctor. */
+		continue;
+
 	      next = strip_using_decl (next);
-	      if (is_overloaded_fn (next))
-		next = NULL_TREE;
-	      else if (TREE_CODE (next) == USING_DECL)
+	      if (TREE_CODE (next) == USING_DECL)
 		{
 		  to_using = next;
-		  next = NULL_TREE;
+		  continue;
 		}
+
+	      if (is_overloaded_fn (next))
+		continue;
 	    }
 
-	  if (next && DECL_DECLARES_TYPE_P (next))
-	    to_type = next;
+	  if (DECL_DECLARES_TYPE_P (next))
+	    {
+	      to_type = next;
+	      continue;
+	    }
+
+	  if (!current)
+	    current = next;
 	}
 
       if (to_using)
@@ -1679,13 +1661,15 @@ member_vec_dedup (vec<tree, va_gc> *member_vec)
 	    current = stat_hack (current, to_type);
 	}
 
-      gcc_assert (current);
-      if (marker)
+      if (current)
 	{
-	  OVL_CHAIN (marker) = current;
-	  current = marker;
+	  if (marker)
+	    {
+	      OVL_CHAIN (marker) = current;
+	      current = marker;
+	    }
+	  (*member_vec)[store++] = current;
 	}
-      (*member_vec)[store++] = current;
     }
 
   while (store++ < len)
@@ -3981,9 +3965,7 @@ static tree
 do_pushdecl_with_scope (tree x, cp_binding_level *level, bool is_friend)
 {
   cp_binding_level *b;
-  tree function_decl = current_function_decl;
 
-  current_function_decl = NULL_TREE;
   if (level->kind == sk_class)
     {
       b = class_binding_level;
@@ -3993,12 +3975,15 @@ do_pushdecl_with_scope (tree x, cp_binding_level *level, bool is_friend)
     }
   else
     {
+      tree function_decl = current_function_decl;
+      if (level->kind == sk_namespace)
+	current_function_decl = NULL_TREE;
       b = current_binding_level;
       current_binding_level = level;
       x = pushdecl (x, is_friend);
       current_binding_level = b;
+      current_function_decl = function_decl;
     }
-  current_function_decl = function_decl;
   return x;
 }
 
@@ -5541,6 +5526,10 @@ bool
 suggest_alternative_in_explicit_scope (location_t location, tree name,
 				       tree scope)
 {
+  /* Something went very wrong; don't suggest anything.  */
+  if (name == error_mark_node)
+    return false;
+
   /* Resolve any namespace aliases.  */
   scope = ORIGINAL_NAMESPACE (scope);
 

@@ -958,7 +958,7 @@ lra_set_insn_recog_data (rtx_insn *insn)
   data = XNEW (struct lra_insn_recog_data);
   lra_insn_recog_data[uid] = data;
   data->insn = insn;
-  data->used_insn_alternative = -1;
+  data->used_insn_alternative = LRA_UNKNOWN_ALT;
   data->icode = icode;
   data->regs = NULL;
   if (DEBUG_INSN_P (insn))
@@ -1039,7 +1039,8 @@ lra_set_insn_recog_data (rtx_insn *insn)
 	{
 	  operand_alternative *op_alt = XCNEWVEC (operand_alternative,
 						  nalt * nop);
-	  preprocess_constraints (nop, nalt, constraints, op_alt);
+	  preprocess_constraints (nop, nalt, constraints, op_alt,
+				  data->operand_loc);
 	  setup_operand_alternative (data, op_alt);
 	}
     }
@@ -1207,7 +1208,7 @@ lra_update_insn_recog_data (rtx_insn *insn)
       return data;
     }
   insn_static_data = data->insn_static_data;
-  data->used_insn_alternative = -1;
+  data->used_insn_alternative = LRA_UNKNOWN_ALT;
   if (DEBUG_INSN_P (insn))
     return data;
   if (data->icode < 0)
@@ -1289,6 +1290,8 @@ static int reg_info_size;
 /* Common info about each register.  */
 struct lra_reg *lra_reg_info;
 
+HARD_REG_SET hard_regs_spilled_into;
+
 /* Last register value.	 */
 static int last_reg_value;
 
@@ -1338,6 +1341,7 @@ init_reg_info (void)
   for (i = 0; i < reg_info_size; i++)
     initialize_lra_reg_info_element (i);
   copy_vec.truncate (0);
+  CLEAR_HARD_REG_SET (hard_regs_spilled_into);
 }
 
 

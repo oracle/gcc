@@ -822,7 +822,7 @@ store_init_value (tree decl, tree init, vec<tree, va_gc>** cleanups, int flags)
   if (decl_maybe_constant_var_p (decl) || TREE_STATIC (decl))
     {
       bool const_init;
-      value = instantiate_non_dependent_expr (value);
+      value = fold_non_dependent_expr (value);
       if (DECL_DECLARED_CONSTEXPR_P (decl)
 	  || (DECL_IN_AGGR_P (decl) && !DECL_VAR_DECLARED_INLINE_P (decl)))
 	{
@@ -830,9 +830,10 @@ store_init_value (tree decl, tree init, vec<tree, va_gc>** cleanups, int flags)
 	  if (!require_constant_expression (value))
 	    value = error_mark_node;
 	  else
-	    value = cxx_constant_value (value, decl);
+	    value = cxx_constant_init (value, decl);
 	}
-      value = maybe_constant_init (value, decl);
+      else
+	value = maybe_constant_init (value, decl);
       if (TREE_CODE (value) == CONSTRUCTOR && cp_has_mutable_p (type))
 	/* Poison this CONSTRUCTOR so it can't be copied to another
 	   constexpr variable.  */

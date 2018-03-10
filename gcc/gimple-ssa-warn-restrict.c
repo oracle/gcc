@@ -396,6 +396,9 @@ builtin_memref::set_base_and_offset (tree expr)
   if (TREE_CODE (expr) == ADDR_EXPR)
     expr = TREE_OPERAND (expr, 0);
 
+  /* Stash the reference for offset validation.  */
+  ref = expr;
+
   poly_int64 bitsize, bitpos;
   tree var_off;
   machine_mode mode;
@@ -409,36 +412,39 @@ builtin_memref::set_base_and_offset (tree expr)
   base = get_inner_reference (expr, &bitsize, &bitpos, &var_off,
 			      &mode, &sign, &reverse, &vol);
 
+  /* get_inner_reference is not expected to return null.  */
+  gcc_assert (base != NULL);
+
   poly_int64 bytepos = exact_div (bitpos, BITS_PER_UNIT);
 
-  HOST_WIDE_INT const_off;
-  if (!base || !bytepos.is_constant (&const_off))
+  /* Convert the poly_int64 offset to to offset_int.  The offset
+     should be constant but be prepared for it not to be just in
+     case.  */
+  offset_int cstoff;
+  if (bytepos.is_constant (&cstoff))
     {
-      base = get_base_address (TREE_OPERAND (expr, 0));
-      return;
-    }
+      offrange[0] += cstoff;
+      offrange[1] += cstoff;
 
-  offrange[0] += const_off;
-  offrange[1] += const_off;
+      /* Besides the reference saved above, also stash the offset
+	 for validation.  */
+      if (TREE_CODE (expr) == COMPONENT_REF)
+	refoff = cstoff;
+    }
+  else
+    offrange[1] += maxobjsize;
 
   if (var_off)
     {
       if (TREE_CODE (var_off) == INTEGER_CST)
 	{
-	  offset_int cstoff = wi::to_offset (var_off);
+	  cstoff = wi::to_offset (var_off);
 	  offrange[0] += cstoff;
 	  offrange[1] += cstoff;
 	}
       else
 	offrange[1] += maxobjsize;
     }
-
-  /* Stash the reference for offset validation.  */
-  ref = expr;
-
-  /* Also stash the constant offset for offset validation.  */
-  if (TREE_CODE (expr) == COMPONENT_REF)
-    refoff = const_off;
 
   if (TREE_CODE (base) == MEM_REF)
     {
@@ -918,12 +924,20 @@ builtin_access::generic_overlap ()
   if (!overlap_certain)
     {
       if (!dstref->strbounded_p && !depends_p)
+	/* Memcpy only considers certain overlap.  */
 	return false;
 
       /* There's no way to distinguish an access to the same member
 	 of a structure from one to two distinct members of the same
 	 structure.  Give up to avoid excessive false positives.  */
-      tree basetype = TREE_TYPE (TREE_TYPE (dstref->base));
+      tree basetype = TREE_TYPE (dstref->base);
+
+      if (POINTER_TYPE_P (basetype))
+	basetype = TREE_TYPE (basetype);
+      else
+	while (TREE_CODE (basetype) == ARRAY_TYPE)
+	  basetype = TREE_TYPE (basetype);
+
       if (RECORD_OR_UNION_TYPE_P (basetype))
 	return false;
     }
@@ -1399,42 +1413,38 @@ maybe_diag_overlap (location_t loc, gcall *call, builtin_access &acs)
 			call, func, sizrange[0],
 			offstr[0], offstr[1], ovlsiz[0], offstr[2]);
 	  else if (ovlsiz[1] >= 0 && ovlsiz[1] < maxobjsize.to_shwi ())
-	    warning_at (loc, OPT_Wrestrict,
-			sizrange[0] == 1
-			? G_("%G%qD accessing %wu byte at offsets %s "
-			     "and %s overlaps between %wu and %wu bytes "
-			     "at offset %s")
-			: G_("%G%qD accessing %wu bytes at offsets %s "
-			     "and %s overlaps between %wu and %wu bytes "
-			     "at offset %s"),
-			call, func, sizrange[0],
-			offstr[0], offstr[1], ovlsiz[0], ovlsiz[1],
-			offstr[2]);
+	    warning_n (loc, OPT_Wrestrict, sizrange[0],
+		       "%G%qD accessing %wu byte at offsets %s "
+		       "and %s overlaps between %wu and %wu bytes "
+		       "at offset %s",
+		       "%G%qD accessing %wu bytes at offsets %s "
+		       "and %s overlaps between %wu and %wu bytes "
+		       "at offset %s",
+		       call, func, sizrange[0], offstr[0], offstr[1],
+		       ovlsiz[0], ovlsiz[1], offstr[2]);
 	  else
-	    warning_at (loc, OPT_Wrestrict,
-			sizrange[0] == 1
-			? G_("%G%qD accessing %wu byte at offsets %s and "
-			     "%s overlaps %wu or more bytes at offset %s")
-			: G_("%G%qD accessing %wu bytes at offsets %s and "
-			     "%s overlaps %wu or more bytes at offset %s"),
-			call, func, sizrange[0],
-			offstr[0], offstr[1], ovlsiz[0], offstr[2]);
+	    warning_n (loc, OPT_Wrestrict, sizrange[0],
+		       "%G%qD accessing %wu byte at offsets %s and "
+		       "%s overlaps %wu or more bytes at offset %s",
+		       "%G%qD accessing %wu bytes at offsets %s and "
+		       "%s overlaps %wu or more bytes at offset %s",
+		       call, func, sizrange[0],
+		       offstr[0], offstr[1], ovlsiz[0], offstr[2]);
 	  return true;
 	}
 
       if (sizrange[1] >= 0 && sizrange[1] < maxobjsize.to_shwi ())
 	{
 	  if (ovlsiz[0] == ovlsiz[1])
-	    warning_at (loc, OPT_Wrestrict,
-			ovlsiz[0] == 1
-			? G_("%G%qD accessing between %wu and %wu bytes "
-			     "at offsets %s and %s overlaps %wu byte at "
-			     "offset %s")
-			: G_("%G%qD accessing between %wu and %wu bytes "
-			     "at offsets %s and %s overlaps %wu bytes "
-			     "at offset %s"),
-			call, func, sizrange[0], sizrange[1],
-			offstr[0], offstr[1], ovlsiz[0], offstr[2]);
+	    warning_n (loc, OPT_Wrestrict, ovlsiz[0],
+		       "%G%qD accessing between %wu and %wu bytes "
+		       "at offsets %s and %s overlaps %wu byte at "
+		       "offset %s",
+		       "%G%qD accessing between %wu and %wu bytes "
+		       "at offsets %s and %s overlaps %wu bytes "
+		       "at offset %s",
+		       call, func, sizrange[0], sizrange[1],
+		       offstr[0], offstr[1], ovlsiz[0], offstr[2]);
 	  else if (ovlsiz[1] >= 0 && ovlsiz[1] < maxobjsize.to_shwi ())
 	    warning_at (loc, OPT_Wrestrict,
 			"%G%qD accessing between %wu and %wu bytes at "
@@ -1457,14 +1467,13 @@ maybe_diag_overlap (location_t loc, gcall *call, builtin_access &acs)
 	ovlsiz[1] = maxobjsize.to_shwi ();
 
       if (ovlsiz[0] == ovlsiz[1])
-	warning_at (loc, OPT_Wrestrict,
-		    ovlsiz[0] == 1
-		    ? G_("%G%qD accessing %wu or more bytes at offsets "
-			 "%s and %s overlaps %wu byte at offset %s")
-		    :  G_("%G%qD accessing %wu or more bytes at offsets "
-			  "%s and %s overlaps %wu bytes at offset %s"),
-		    call, func, sizrange[0], offstr[0], offstr[1],
-		    ovlsiz[0], offstr[2]);
+	warning_n (loc, OPT_Wrestrict, ovlsiz[0],
+		   "%G%qD accessing %wu or more bytes at offsets "
+		   "%s and %s overlaps %wu byte at offset %s",
+		   "%G%qD accessing %wu or more bytes at offsets "
+		   "%s and %s overlaps %wu bytes at offset %s",
+		   call, func, sizrange[0], offstr[0], offstr[1],
+		   ovlsiz[0], offstr[2]);
       else if (ovlsiz[1] >= 0 && ovlsiz[1] < maxobjsize.to_shwi ())
 	warning_at (loc, OPT_Wrestrict,
 		    "%G%qD accessing %wu or more bytes at offsets %s "
@@ -1501,77 +1510,70 @@ maybe_diag_overlap (location_t loc, gcall *call, builtin_access &acs)
       if (ovlsiz[1] == 1)
 	{
 	  if (open_range)
-	    warning_at (loc, OPT_Wrestrict,
-			sizrange[1] == 1
-			? G_("%G%qD accessing %wu byte may overlap "
-			     "%wu byte")
-			: G_("%G%qD accessing %wu bytes may overlap "
-			     "%wu byte"),
-			call, func, sizrange[1], ovlsiz[1]);
+	    warning_n (loc, OPT_Wrestrict, sizrange[1],
+		       "%G%qD accessing %wu byte may overlap "
+		       "%wu byte",
+		       "%G%qD accessing %wu bytes may overlap "
+		       "%wu byte",
+		       call, func, sizrange[1], ovlsiz[1]);
 	  else
-	    warning_at (loc, OPT_Wrestrict,
-			sizrange[1] == 1
-			? G_("%G%qD accessing %wu byte at offsets %s "
-			     "and %s may overlap %wu byte at offset %s")
-			: G_("%G%qD accessing %wu bytes at offsets %s "
-			     "and %s may overlap %wu byte at offset %s"),
-			call, func, sizrange[1], offstr[0], offstr[1],
-			ovlsiz[1], offstr[2]);
+	    warning_n (loc, OPT_Wrestrict, sizrange[1],
+		       "%G%qD accessing %wu byte at offsets %s "
+		       "and %s may overlap %wu byte at offset %s",
+		       "%G%qD accessing %wu bytes at offsets %s "
+		       "and %s may overlap %wu byte at offset %s",
+		       call, func, sizrange[1], offstr[0], offstr[1],
+		       ovlsiz[1], offstr[2]);
 	  return true;
 	}
 
       if (open_range)
-	warning_at (loc, OPT_Wrestrict,
-		    sizrange[1] == 1
-		    ? G_("%G%qD accessing %wu byte may overlap "
-			 "up to %wu bytes")
-		    : G_("%G%qD accessing %wu bytes may overlap "
-			 "up to %wu bytes"),
-		    call, func, sizrange[1], ovlsiz[1]);
+	warning_n (loc, OPT_Wrestrict, sizrange[1],
+		   "%G%qD accessing %wu byte may overlap "
+		   "up to %wu bytes",
+		   "%G%qD accessing %wu bytes may overlap "
+		   "up to %wu bytes",
+		   call, func, sizrange[1], ovlsiz[1]);
       else
-	warning_at (loc, OPT_Wrestrict,
-		    sizrange[1] == 1
-		    ? G_("%G%qD accessing %wu byte at offsets %s and "
-			 "%s may overlap up to %wu bytes at offset %s")
-		    : G_("%G%qD accessing %wu bytes at offsets %s and "
-			 "%s may overlap up to %wu bytes at offset %s"),
-		    call, func, sizrange[1], offstr[0], offstr[1],
-		    ovlsiz[1], offstr[2]);
+	warning_n (loc, OPT_Wrestrict, sizrange[1],
+		   "%G%qD accessing %wu byte at offsets %s and "
+		   "%s may overlap up to %wu bytes at offset %s",
+		   "%G%qD accessing %wu bytes at offsets %s and "
+		   "%s may overlap up to %wu bytes at offset %s",
+		   call, func, sizrange[1], offstr[0], offstr[1],
+		   ovlsiz[1], offstr[2]);
       return true;
     }
 
   if (sizrange[1] >= 0 && sizrange[1] < maxobjsize.to_shwi ())
     {
       if (open_range)
-	warning_at (loc, OPT_Wrestrict,
-		    ovlsiz[1] == 1
-		    ? G_("%G%qD accessing between %wu and %wu bytes "
-			 "may overlap %wu byte")
-		    : G_("%G%qD accessing between %wu and %wu bytes "
-			 "may overlap up to %wu bytes"),
-		    call, func, sizrange[0], sizrange[1], ovlsiz[1]);
+	warning_n (loc, OPT_Wrestrict, ovlsiz[1],
+		   "%G%qD accessing between %wu and %wu bytes "
+		   "may overlap %wu byte",
+		   "%G%qD accessing between %wu and %wu bytes "
+		   "may overlap up to %wu bytes",
+		   call, func, sizrange[0], sizrange[1], ovlsiz[1]);
       else
-	warning_at (loc, OPT_Wrestrict,
-		    ovlsiz[1] == 1
-		    ? G_("%G%qD accessing between %wu and %wu bytes "
-			 "at offsets %s and %s may overlap %wu byte "
-			 "at offset %s")
-		    : G_("%G%qD accessing between %wu and %wu bytes "
-			 "at offsets %s and %s may overlap up to %wu "
-			 "bytes at offset %s"),
-		    call, func, sizrange[0], sizrange[1],
-		    offstr[0], offstr[1], ovlsiz[1], offstr[2]);
+	warning_n (loc, OPT_Wrestrict, ovlsiz[1],
+		   "%G%qD accessing between %wu and %wu bytes "
+		   "at offsets %s and %s may overlap %wu byte "
+		   "at offset %s",
+		   "%G%qD accessing between %wu and %wu bytes "
+		   "at offsets %s and %s may overlap up to %wu "
+		   "bytes at offset %s",
+		   call, func, sizrange[0], sizrange[1],
+		   offstr[0], offstr[1], ovlsiz[1], offstr[2]);
       return true;
     }
 
-  warning_at (loc, OPT_Wrestrict,
-	      ovlsiz[1] == 1
-	      ? G_("%G%qD accessing %wu or more bytes at offsets %s "
-		   "and %s may overlap %wu byte at offset %s")
-	      : G_("%G%qD accessing %wu or more bytes at offsets %s "
-		   "and %s may overlap up to %wu bytes at offset %s"),
-	      call, func, sizrange[0], offstr[0], offstr[1],
-	      ovlsiz[1], offstr[2]);
+  warning_n (loc, OPT_Wrestrict, ovlsiz[1],
+	     "%G%qD accessing %wu or more bytes at offsets %s "
+	     "and %s may overlap %wu byte at offset %s",
+	     "%G%qD accessing %wu or more bytes at offsets %s "
+	     "and %s may overlap up to %wu bytes at offset %s",
+	     call, func, sizrange[0], offstr[0], offstr[1],
+	     ovlsiz[1], offstr[2]);
 
   return true;
 }
