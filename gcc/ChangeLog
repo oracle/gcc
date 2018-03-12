@@ -1,3 +1,113 @@
+2018-03-12  Renlin Li  <renlin.li@arm.com>
+
+	* config/aarch64/aarch64.md (movhf_aarch64): Fix mode argument to
+	aarch64_output_scalar_simd_mov_immediate.
+
+2018-03-12  Martin Sebor  <msebor@redhat.com>
+
+	PR tree-optimization/83456
+	* gimple-fold.c (gimple_fold_builtin_memory_op): Avoid warning
+	for perfectly overlapping calls to memcpy.
+	(gimple_fold_builtin_memory_chk): Same.
+	(gimple_fold_builtin_strcpy): Handle no-warning.
+	(gimple_fold_builtin_stxcpy_chk): Same.
+	* tree-ssa-strlen.c (maybe_diag_stxncpy_trunc): Handle no-warning.
+
+2018-03-12  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	* config/rs6000/rs6000.c (abi_v4_pass_in_fpr): Add bool "named"
+	parameter.  Use it for SFmode.
+	(rs6000_function_arg_advance_1): Adjust.
+	(rs6000_function_arg): Adjust.
+	(rs6000_gimplify_va_arg): Pass false for that new parameter.
+
+2018-03-12  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	PR rtl-optimization/84169
+	PR rtl-optimization/84780
+	* combine.c (can_combine_p): Check for a 2-insn combination whether
+	the destination register is used between the two insns, too.
+
+2018-03-12  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/84803
+	* tree-if-conv.c (ifcvt_memrefs_wont_trap): Don't do anything
+	for refs DR analysis didn't process.
+
+2018-03-12  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/84777
+	* tree-ssa-loop-ch.c (should_duplicate_loop_header_p): For
+	force-vectorize loops ignore whether we are optimizing for size.
+
+2018-03-12  Chung-Ju Wu  <jasonwucj@gmail.com>
+
+	* config/nds32/nds32.c (nds32_md_asm_adjust): New function.
+	(TARGET_MD_ASM_ADJUST): Define.
+
+2018-03-12  Monk Chiang  <sh.chiang04@gmail.com>
+	    Kito Cheng  <kito.cheng@gmail.com>
+	    Chung-Ju Wu  <jasonwucj@gmail.com>
+
+	* config/nds32/nds32.c (nds32_compute_stack_frame,
+	nds32_emit_stack_push_multiple, nds32_emit_stack_pop_multiple,
+	nds32_emit_stack_v3push, nds32_emit_stack_v3pop,
+	nds32_emit_adjust_frame, nds32_expand_prologue, nds32_expand_epilogue,
+	nds32_expand_prologue_v3push, nds32_expand_epilogue_v3pop): Refine.
+	* config/nds32/nds32.h (NDS32_FIRST_CALLEE_SAVE_GPR_REGNUM,
+	NDS32_LAST_CALLEE_SAVE_GPR_REGNUM, NDS32_V3PUSH_AVAILABLE_P): New.
+	* config/nds32/nds32.md (prologue, epilogue): Use macro
+	NDS32_V3PUSH_AVAILABLE_P to do checking.
+
+2018-03-11  Jakub Jelinek  <jakub@redhat.com>
+
+	PR debug/58150
+	* dwarf2out.c (gen_enumeration_type_die): Don't guard adding
+	DW_AT_declaration for ENUM_IS_OPAQUE on -gdwarf-4 or -gno-strict-dwarf,
+	but on TYPE_SIZE.  Don't do anything for ENUM_IS_OPAQUE if not creating
+	a new die.  Don't set TREE_ASM_WRITTEN if ENUM_IS_OPAQUE.  Guard
+	addition of most attributes on !orig_type_die or the attribute not
+	being present already.  Assert TYPE_VALUES is NULL for ENUM_IS_OPAQUE.
+
+2018-03-11  Kito Cheng  <kito.cheng@gmail.com>
+	    Chung-Ju Wu  <jasonwucj@gmail.com>
+
+	* config/nds32/nds32.c (nds32_cpu_cpp_builtins): Modify to define
+	__NDS32_VH__ macro.
+	* config/nds32/nds32.opt (mvh): New option.
+
+2018-03-11  Kito Cheng  <kito.cheng@gmail.com>
+	    Chung-Ju Wu  <jasonwucj@gmail.com>
+
+	* config/nds32/nds32-protos.h (nds32_cpu_cpp_builtins): Declare
+	function.
+	* config/nds32/nds32.c (nds32_cpu_cpp_builtins): New function.
+	* config/nds32/nds32.h (TARGET_CPU_CPP_BUILTINS): Modify its
+	definition.
+
+2018-03-11  Kito Cheng  <kito.cheng@gmail.com>
+	    Chung-Ju Wu  <jasonwucj@gmail.com>
+
+	* config/nds32/nds32-memory-manipulation.c (nds32_expand_strlen): New
+	function.
+	* config/nds32/nds32-multiple.md (strlensi): New pattern.
+	* config/nds32/nds32-protos.h (nds32_expand_strlen): Declare function.
+
+2018-03-11  Monk Chiang  <sh.chiang04@gmail.com>
+	    Kito Cheng  <kito.cheng@gmail.com>
+	    Chung-Ju Wu  <jasonwucj@gmail.com>
+
+	* config/nds32/constants.md (unspec_element): Add UNSPEC_FFB,
+	UNSPEC_FFMISM and UNSPEC_FLMISM.
+	* config/nds32/nds32-intrinsic.c (bdesc_2arg): Add builtin description
+	for ffb, ffmism and flmism.
+	* config/nds32/nds32-intrinsic.md (unspec_ffb): Define new pattern.
+	(unspec_ffmism): Ditto.
+	(unspec_flmism): Ditto.
+	(nds32_expand_builtin_impl): Check if string extension is available.
+	* config/nds32/nds32.h (nds32_builtins): Add NDS32_BUILTIN_FFB,
+	NDS32_BUILTIN_FFMISM and NDS32_BUILTIN_FLMISM.
+
 2018-03-10  Vladimir Makarov  <vmakarov@redhat.com>
 
 	Reverting patch:

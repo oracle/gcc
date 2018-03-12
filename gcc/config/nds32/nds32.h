@@ -130,6 +130,10 @@ enum nds32_16bit_address_type
 /* Define the last integer register number.  */
 #define NDS32_LAST_GPR_REGNUM 31
 
+#define NDS32_FIRST_CALLEE_SAVE_GPR_REGNUM 6
+#define NDS32_LAST_CALLEE_SAVE_GPR_REGNUM \
+  (TARGET_REDUCED_REGS ? 10 : 14)
+
 /* Define double word alignment bits.  */
 #define NDS32_DOUBLE_WORD_ALIGNMENT 64
 
@@ -195,6 +199,19 @@ enum nds32_16bit_address_type
    it is required to be saved.  */
 #define NDS32_REQUIRED_CALLEE_SAVED_P(regno)                  \
   ((!call_used_regs[regno]) && (df_regs_ever_live_p (regno)))
+
+/* This macro is to check if the push25/pop25 are available to be used
+   for code generation.  Because pop25 also performs return behavior,
+   the instructions may not be available for some cases.
+   If we want to use push25/pop25, all the following conditions must
+   be satisfied:
+     1. TARGET_V3PUSH is set.
+     2. Current function is not an ISR function.
+     3. Current function is not a variadic function.*/
+#define NDS32_V3PUSH_AVAILABLE_P  \
+  (TARGET_V3PUSH \
+   && !nds32_isr_function_p (current_function_decl) \
+   && (cfun->machine->va_args_size == 0))
 
 /* ------------------------------------------------------------------------ */
 
@@ -346,6 +363,9 @@ enum nds32_builtins
   NDS32_BUILTIN_MTUSR,
   NDS32_BUILTIN_SETGIE_EN,
   NDS32_BUILTIN_SETGIE_DIS,
+  NDS32_BUILTIN_FFB,
+  NDS32_BUILTIN_FFMISM,
+  NDS32_BUILTIN_FLMISM,
   NDS32_BUILTIN_UALOAD_HW,
   NDS32_BUILTIN_UALOAD_W,
   NDS32_BUILTIN_UALOAD_DW,
@@ -437,38 +457,8 @@ enum nds32_builtins
 
 /* Run-time Target Specification.  */
 
-#define TARGET_CPU_CPP_BUILTINS()                     \
-  do                                                  \
-    {                                                 \
-      builtin_define ("__nds32__");                   \
-                                                      \
-      if (TARGET_ISA_V2)                              \
-        builtin_define ("__NDS32_ISA_V2__");          \
-      if (TARGET_ISA_V3)                              \
-        builtin_define ("__NDS32_ISA_V3__");          \
-      if (TARGET_ISA_V3M)                             \
-        builtin_define ("__NDS32_ISA_V3M__");         \
-                                                      \
-      if (TARGET_BIG_ENDIAN)                          \
-        builtin_define ("__big_endian__");            \
-      if (TARGET_REDUCED_REGS)                        \
-        builtin_define ("__NDS32_REDUCED_REGS__");    \
-      if (TARGET_CMOV)                                \
-        builtin_define ("__NDS32_CMOV__");            \
-      if (TARGET_EXT_PERF)                            \
-        builtin_define ("__NDS32_EXT_PERF__");        \
-      if (TARGET_EXT_PERF2)                           \
-        builtin_define ("__NDS32_EXT_PERF2__");       \
-      if (TARGET_EXT_STRING)                          \
-        builtin_define ("__NDS32_EXT_STRING__");      \
-      if (TARGET_16_BIT)                              \
-        builtin_define ("__NDS32_16_BIT__");          \
-      if (TARGET_GP_DIRECT)                           \
-        builtin_define ("__NDS32_GP_DIRECT__");       \
-                                                      \
-      builtin_assert ("cpu=nds32");                   \
-      builtin_assert ("machine=nds32");               \
-    } while (0)
+#define TARGET_CPU_CPP_BUILTINS() \
+  nds32_cpu_cpp_builtins (pfile)
 
 
 /* Defining Data Structures for Per-function Information.  */

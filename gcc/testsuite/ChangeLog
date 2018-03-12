@@ -1,3 +1,55 @@
+2018-03-12  Renlin Li  <renlin.li@arm.com>
+
+	* gcc.target/aarch64/movi_hf.c: New.
+	* gcc.target/aarch64/f16_mov_immediate_1.c: Update.
+	* gcc.target/aarch64/f16_mov_immediate_2.c: Update.
+
+2018-03-12  Martin Sebor  <msebor@redhat.com>
+
+	PR tree-optimization/83456
+	* c-c++-common/Wrestrict-2.c: Remove test cases.
+	* c-c++-common/Wrestrict.c: Same.
+	* gcc.dg/Wrestrict-12.c: New test.
+	* gcc.dg/Wrestrict-14.c: New test.
+
+2018-03-12  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* g++.dg/pr84821.C: New test.
+
+2018-03-12  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* gcc.dg/pr84799.c: New test.
+
+2018-03-12  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/84803
+	* gcc.dg/torture/pr84803.c: New testcase.
+
+2018-03-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/84813
+	* g++.dg/debug/pr84813.C: New test.
+
+2018-03-11  Paul Thomas  <pault@gcc.gnu.org>
+
+	PR fortran/84546
+	* gfortran.dg/unlimited_polymorphic_29.f90: New test.
+
+2018-03-11  Steven G. Kargl  <kargl@gcc.gnu.org>
+
+	PR fortran/83939
+	* gfortran.dg/pr83939.f90
+
+2018-03-11  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	PR fortran/66128
+	* gfortran.dg/zero_sized_9.f90: New test.
+
+2018-03-11  Jakub Jelinek  <jakub@redhat.com>
+
+	PR debug/58150
+	* g++.dg/debug/dwarf2/enum2.C: New test.
+
 2018-03-10  Steven G. Kargl  <kargl@gcc.gnu.org>
 
 	PR fortran/84734

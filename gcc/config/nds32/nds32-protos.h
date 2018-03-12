@@ -70,6 +70,7 @@ extern rtx nds32_expand_load_multiple (int, int, rtx, rtx, bool, rtx *);
 extern rtx nds32_expand_store_multiple (int, int, rtx, rtx, bool, rtx *);
 extern bool nds32_expand_movmemsi (rtx, rtx, rtx, rtx);
 extern bool nds32_expand_setmem (rtx, rtx, rtx, rtx, rtx, rtx);
+extern bool nds32_expand_strlen (rtx, rtx, rtx, rtx);
 
 /* Auxiliary functions for expand unalign load instruction.  */
 
@@ -154,5 +155,8 @@ extern bool nds32_isr_function_p (tree);
 
 extern bool nds32_rtx_costs_impl (rtx, machine_mode, int, int, int *, bool);
 extern int nds32_address_cost_impl (rtx, machine_mode, addr_space_t, bool);
+
+/* Auxiliary functions for pre-define marco.  */
+extern void nds32_cpu_cpp_builtins(struct cpp_reader *);
 
 /* ------------------------------------------------------------------------ */
