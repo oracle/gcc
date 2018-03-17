@@ -1,3 +1,30 @@
+2018-03-16  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c/84909
+	* c-warn.c (conversion_warning): Replace "to to" with "to" in
+	diagnostics.
+
+	PR c/84910
+	* c-warn.c (diagnose_mismatched_attributes): Remove trailing space from
+	diagnostics.
+
+2018-03-16  Richard Biener  <rguenther@suse.de>
+
+	PR c/84873
+	* c-gimplify.c (c_gimplify_expr): Revert previous change.  Instead
+	unshare the possibly folded expression.
+
+2018-03-15  Richard Biener  <rguenther@suse.de>
+
+	PR c/84873
+	* c-gimplify.c (c_gimplify_expr): Do not fold expressions.
+
+2018-03-13  Martin Sebor  <msebor@redhat.com>
+
+	PR tree-optimization/84725
+	* c-attribs.c (handle_nonstring_attribute): Allow attribute nonstring
+	with all three narrow character types, including their qualified forms.
+
 2018-03-12  Martin Sebor  <msebor@redhat.com>
 
 	PR tree-optimization/83456

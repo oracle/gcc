@@ -3823,7 +3823,7 @@ cp_parser_make_indirect_declarator (enum tree_code code, tree class_type,
 				    cp_declarator *target,
 				    tree attributes)
 {
-  if (code == ERROR_MARK)
+  if (code == ERROR_MARK || target == cp_error_declarator)
     return cp_error_declarator;
 
   if (code == INDIRECT_REF)
@@ -10383,7 +10383,7 @@ cp_parser_lambda_introducer (cp_parser* parser, tree lambda_expr)
 		   && TREE_CODE (capture_init_expr) != PARM_DECL)
 	    {
 	      error_at (capture_token->location,
-			"capture of non-variable %qE ",
+			"capture of non-variable %qE",
 			capture_init_expr);
 	      if (DECL_P (capture_init_expr))
 		inform (DECL_SOURCE_LOCATION (capture_init_expr),
@@ -17049,9 +17049,9 @@ cp_parser_simple_type_specifier (cp_parser* parser,
 		     "only available with "
 		     "-std=c++14 or -std=gnu++14");
 	  else if (!flag_concepts)
-	    pedwarn (token->location, OPT_Wpedantic,
-		     "ISO C++ forbids use of %<auto%> in parameter "
-		     "declaration");
+	    pedwarn (token->location, 0,
+		     "use of %<auto%> in parameter declaration "
+		     "only available with -fconcepts");
 	}
       else
 	type = make_auto ();
@@ -21198,7 +21198,10 @@ cp_parser_parameter_declaration_clause (cp_parser* parser)
 
   if (!processing_specialization
       && !processing_template_parmlist
-      && !processing_explicit_instantiation)
+      && !processing_explicit_instantiation
+      /* default_arg_ok_p tracks whether this is a parameter-clause for an
+         actual function or a random abstract declarator.  */
+      && parser->default_arg_ok_p)
     if (!current_function_decl
 	|| (current_class_type && LAMBDA_TYPE_P (current_class_type)))
       parser->auto_is_implicit_function_template_parm_p = true;

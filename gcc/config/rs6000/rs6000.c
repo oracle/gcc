@@ -10004,7 +10004,7 @@ rs6000_reassociation_width (unsigned int opc ATTRIBUTE_UNUSED,
       if (VECTOR_MODE_P (mode))
 	return 4;
       if (INTEGRAL_MODE_P (mode)) 
-	return opc == MULT_EXPR ? 4 : 6;
+	return 1;
       if (FLOAT_MODE_P (mode))
 	return 4;
       break;
@@ -11453,9 +11453,9 @@ abi_v4_pass_in_fpr (machine_mode mode, bool named)
 {
   if (!TARGET_HARD_FLOAT)
     return false;
-  if (mode == DFmode)
+  if (TARGET_DOUBLE_FLOAT && mode == DFmode)
     return true;
-  if (mode == SFmode && named)
+  if (TARGET_SINGLE_FLOAT && mode == SFmode && named)
     return true;
   /* ABI_V4 passes complex IBM long double in 8 gprs.
      Stupid, but we can't change the ABI now.  */
@@ -16264,11 +16264,11 @@ rs6000_gimple_fold_builtin (gimple_stmt_iterator *gsi)
     /* Even element flavors of vec_mul (signed). */
     case ALTIVEC_BUILTIN_VMULESB:
     case ALTIVEC_BUILTIN_VMULESH:
-    case ALTIVEC_BUILTIN_VMULESW:
+    case P8V_BUILTIN_VMULESW:
     /* Even element flavors of vec_mul (unsigned).  */
     case ALTIVEC_BUILTIN_VMULEUB:
     case ALTIVEC_BUILTIN_VMULEUH:
-    case ALTIVEC_BUILTIN_VMULEUW:
+    case P8V_BUILTIN_VMULEUW:
       arg0 = gimple_call_arg (stmt, 0);
       arg1 = gimple_call_arg (stmt, 1);
       lhs = gimple_call_lhs (stmt);
@@ -16279,11 +16279,11 @@ rs6000_gimple_fold_builtin (gimple_stmt_iterator *gsi)
     /* Odd element flavors of vec_mul (signed).  */
     case ALTIVEC_BUILTIN_VMULOSB:
     case ALTIVEC_BUILTIN_VMULOSH:
-    case ALTIVEC_BUILTIN_VMULOSW:
+    case P8V_BUILTIN_VMULOSW:
     /* Odd element flavors of vec_mul (unsigned). */
     case ALTIVEC_BUILTIN_VMULOUB:
     case ALTIVEC_BUILTIN_VMULOUH:
-    case ALTIVEC_BUILTIN_VMULOUW:
+    case P8V_BUILTIN_VMULOUW:
       arg0 = gimple_call_arg (stmt, 0);
       arg1 = gimple_call_arg (stmt, 1);
       lhs = gimple_call_lhs (stmt);
@@ -18155,10 +18155,10 @@ builtin_function_type (machine_mode mode_ret, machine_mode mode_arg0,
     /* unsigned 2 argument functions.  */
     case ALTIVEC_BUILTIN_VMULEUB:
     case ALTIVEC_BUILTIN_VMULEUH:
-    case ALTIVEC_BUILTIN_VMULEUW:
+    case P8V_BUILTIN_VMULEUW:
     case ALTIVEC_BUILTIN_VMULOUB:
     case ALTIVEC_BUILTIN_VMULOUH:
-    case ALTIVEC_BUILTIN_VMULOUW:
+    case P8V_BUILTIN_VMULOUW:
     case CRYPTO_BUILTIN_VCIPHER:
     case CRYPTO_BUILTIN_VCIPHERLAST:
     case CRYPTO_BUILTIN_VNCIPHER:

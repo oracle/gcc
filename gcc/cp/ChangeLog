@@ -1,3 +1,144 @@
+2018-03-16  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c/84910
+	* parser.c (cp_parser_lambda_introducer): Remove trailing space from
+	diagnostics.
+	* method.c (synthesize_method): Likewise.
+	* pt.c (convert_nontype_argument): Likewise.
+
+2018-03-16  Jason Merrill  <jason@redhat.com>
+
+	PR c++/84720 - ICE with rvalue ref non-type argument.
+	* pt.c (invalid_nontype_parm_type_p): Prohibit rvalue reference.
+	(convert_nontype_argument): Revert earlier change.
+
+	PR c++/80227 - SFINAE and negative array size.
+	* decl.c (compute_array_index_type): Use
+	build_converted_constant_expr and valid_constant_size_p.
+
+	PR c++/84906 - silent wrong code with ambiguous conversion.
+	* call.c (build_user_type_conversion_1): Set need_temporary_p on
+	ambiguous conversion.
+	(convert_like_real): Check it.
+
+	PR c++/83937 - wrong C++17 handling of init-list ctor argument.
+	* call.c (build_special_member_call): Don't convert an init-list
+	argument directly to the class type.
+
+2018-03-16  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/79937
+	PR c++/82410
+	* cp-tree.h (CONSTRUCTOR_PLACEHOLDER_BOUNDARY): Define.
+	(find_placeholder): Declare.
+	* tree.c (struct replace_placeholders_t): Add exp member.
+	(replace_placeholders_r): Don't walk into ctors with
+	CONSTRUCTOR_PLACEHOLDER_BOUNDARY flag set, unless they are equal to
+	d->exp.  Replace PLACEHOLDER_EXPR with unshare_expr (x) rather than x.
+	(replace_placeholders): Initialize data.exp.
+	(find_placeholders_r, find_placeholders): New functions.
+	* typeck2.c (process_init_constructor_record,
+	process_init_constructor_union): Set CONSTRUCTOR_PLACEHOLDER_BOUNDARY
+	if adding NSDMI on which find_placeholder returns true.
+	* call.c (build_over_call): Don't call replace_placeholders here.
+	* cp-gimplify.c (cp_genericize_r): Set TARGET_EXPR_NO_ELIDE on
+	TARGET_EXPRs with CONSTRUCTOR_PLACEHOLDER_BOUNDARY set on
+	TARGET_EXPR_INITIAL.
+	(cp_fold): Copy over CONSTRUCTOR_PLACEHOLDER_BOUNDARY bit to new
+	ctor.
+
+2018-03-16  Jason Merrill  <jason@redhat.com>
+
+	PR c++/83911 - ICE with multiversioned constructor.
+	* cp-gimplify.c (cp_genericize_r): Replace versioned function with
+	dispatchere here.
+	* call.c (build_over_call): Not here.
+
+2018-03-16  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/84874
+	* decl.c (reshape_init_class): Don't assert d->cur->index == field
+	if d->cur->index is a FIELD_DECL, instead set field to d->cur->index.
+
+2018-03-15  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/84222
+	* cp-tree.h (cp_warn_deprecated_use): Declare.
+	* tree.c (cp_warn_deprecated_use): New function.
+	* typeck2.c (build_functional_cast): Use it.
+	* decl.c (grokparms): Likewise.
+	(grokdeclarator): Likewise.  Temporarily push nested class scope
+	around grokparms call for out of class member definitions.
+
+2018-03-14  Jason Merrill  <jason@redhat.com>
+
+	PR c++/84820 - no error for invalid qualified-id.
+	* parser.c (cp_parser_make_indirect_declarator): Don't wrap
+	cp_error_declarator.
+
+	PR c++/84801 - ICE with unexpanded pack in lambda.
+	* pt.c (check_for_bare_parameter_packs): Don't return early for a
+	lambda in non-template context.
+
+	PR c++/81236 - auto variable and auto function
+	* pt.c (tsubst_baselink): Update the type of the BASELINK after
+	mark_used.
+
+2018-03-14  Jason Merrill  <jason@redhat.com>
+
+	PR c++/83916 - ICE with template template parameters.
+	* pt.c (convert_template_argument): Don't substitute into type of
+	non-type parameter if we don't have enough arg levels.
+	(unify): Likewise.
+
+2018-03-14  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/84596
+	* semantics.c (finish_static_assert): Check
+	instantiation_dependent_expression_p instead of
+	{type,value}_dependent_expression_p.
+
+2018-03-13  Paolo Carlini  <paolo.carlini@oracle.com>
+	    Jason Merrill  <jason@redhat.com>
+
+	PR c++/82336 - link error with list-init default argument.
+	* decl.c (check_default_argument): Unshare an initializer list.
+
+2018-03-13  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/84843
+	* decl.c (duplicate_decls): For redefinition of built-in, use error
+	and return error_mark_node.  For redeclaration, return error_mark_node
+	rather than olddecl if !flag_permissive.
+
+2018-03-13  Jason Merrill  <jason@redhat.com>
+
+	PR c++/82565 - ICE with concepts and generic lambda.
+	* pt.c (instantiate_decl): Clear fn_context for lambdas.
+
+2018-03-13  Jason Merrill  <jason@redhat.com>
+
+	PR c++/84720 - ICE with rvalue ref non-type argument.
+	* pt.c (convert_nontype_argument): Handle rvalue references.
+
+	PR c++/84839 - ICE with decltype of parameter pack.
+	* pt.c (tsubst_pack_expansion): Set cp_unevaluated_operand while
+	instantiating dummy parms.
+
+	* parser.c (cp_parser_simple_type_specifier): Pedwarn about auto
+	parameter even without -Wpedantic.
+
+	PR c++/84798 - ICE with auto in abstract function declarator.
+	* parser.c (cp_parser_parameter_declaration_clause): Check
+	parser->default_arg_ok_p.
+
+2018-03-13  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/84808
+	* constexpr.c (find_array_ctor_elt): Don't use elt reference after
+	first potential CONSTRUCTOR_ELTS reallocation.  Convert dindex to
+	sizetype.  Formatting fixes.
+
 2018-03-12  Jason Merrill  <jason@redhat.com>
 
 	PR c++/84355 - ICE with deduction for member class template.

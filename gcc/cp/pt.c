@@ -4043,7 +4043,8 @@ check_for_bare_parameter_packs (tree t)
     return false;
 
   /* A lambda might use a parameter pack from the containing context.  */
-  if (current_class_type && LAMBDA_TYPE_P (current_class_type))
+  if (current_class_type && LAMBDA_TYPE_P (current_class_type)
+      && CLASSTYPE_TEMPLATE_INFO (current_class_type))
     return false;
 
   if (TREE_CODE (t) == TYPE_DECL)
@@ -6752,7 +6753,7 @@ convert_nontype_argument (tree type, tree expr, tsubst_flags_t complain)
 	      else
 		expr = cxx_constant_value (expr);
 	      if (errorcount > errs || warningcount + werrorcount > warns)
-		inform (loc, "in template argument for type %qT ", type);
+		inform (loc, "in template argument for type %qT", type);
 	      if (expr == error_mark_node)
 		return NULL_TREE;
 	      /* else cxx_constant_value complained but gave us
@@ -7967,7 +7968,11 @@ convert_template_argument (tree parm,
     {
       tree t = TREE_TYPE (parm);
 
-      if (tree a = type_uses_auto (t))
+      if (TEMPLATE_PARM_LEVEL (get_template_parm_index (parm))
+	  > TMPL_ARGS_DEPTH (args))
+	/* We don't have enough levels of args to do any substitution.  This
+	   can happen in the context of -fnew-ttp-matching.  */;
+      else if (tree a = type_uses_auto (t))
 	{
 	  t = do_auto_deduction (t, arg, a, complain, adc_unify, args);
 	  if (t == error_mark_node)
@@ -11717,7 +11722,9 @@ tsubst_pack_expansion (tree t, tree args, tsubst_flags_t complain,
 	    {
 	      /* This parameter pack was used in an unevaluated context.  Just
 		 make a dummy decl, since it's only used for its type.  */
+	      ++cp_unevaluated_operand;
 	      arg_pack = tsubst_decl (parm_pack, args, complain);
+	      --cp_unevaluated_operand;
 	      if (arg_pack && DECL_PACK_P (arg_pack))
 		/* Partial instantiation of the parm_pack, we can't build
 		   up an argument pack yet.  */
@@ -14687,9 +14694,16 @@ tsubst_baselink (tree baselink, tree object_type,
   /* If lookup found a single function, mark it as used at this point.
      (If lookup found multiple functions the one selected later by
      overload resolution will be marked as used at that point.)  */
-  if (!template_id_p && !really_overloaded_fn (fns)
-      && !mark_used (OVL_FIRST (fns), complain) && !(complain & tf_error))
-    return error_mark_node;
+  if (!template_id_p && !really_overloaded_fn (fns))
+    {
+      tree fn = OVL_FIRST (fns);
+      bool ok = mark_used (fn, complain);
+      if (!ok && !(complain & tf_error))
+	return error_mark_node;
+      if (ok && BASELINK_P (baselink))
+	/* We might have instantiated an auto function.  */
+	TREE_TYPE (baselink) = TREE_TYPE (fn);
+    }
 
   if (BASELINK_P (baselink))
     {
@@ -21215,14 +21229,22 @@ unify (tree tparms, tree targs, tree parm, tree arg, int strict,
 	 template-parameter exactly, except that a template-argument
 	 deduced from an array bound may be of any integral type.
 	 The non-type parameter might use already deduced type parameters.  */
-      ++processing_template_decl;
-      tparm = tsubst (TREE_TYPE (parm), targs, 0, NULL_TREE);
-      --processing_template_decl;
-      if (tree a = type_uses_auto (tparm))
+      tparm = TREE_TYPE (parm);
+      if (TEMPLATE_PARM_LEVEL (parm) > TMPL_ARGS_DEPTH (targs))
+	/* We don't have enough levels of args to do any substitution.  This
+	   can happen in the context of -fnew-ttp-matching.  */;
+      else
 	{
-	  tparm = do_auto_deduction (tparm, arg, a, complain, adc_unify);
-	  if (tparm == error_mark_node)
-	    return 1;
+	  ++processing_template_decl;
+	  tparm = tsubst (tparm, targs, tf_none, NULL_TREE);
+	  --processing_template_decl;
+
+	  if (tree a = type_uses_auto (tparm))
+	    {
+	      tparm = do_auto_deduction (tparm, arg, a, complain, adc_unify);
+	      if (tparm == error_mark_node)
+		return 1;
+	    }
 	}
 
       if (!TREE_TYPE (arg))
@@ -23451,6 +23473,9 @@ instantiate_decl (tree d, bool defer_ok, bool expl_inst_class_mem_p)
   bool push_to_top, nested;
   tree fn_context;
   fn_context = decl_function_context (d);
+  if (LAMBDA_FUNCTION_P (d))
+    /* tsubst_lambda_expr resolved any references to enclosing functions.  */
+    fn_context = NULL_TREE;
   nested = current_function_decl != NULL_TREE;
   push_to_top = !(nested && fn_context == current_function_decl);
 
@@ -23960,7 +23985,10 @@ invalid_nontype_parm_type_p (tree type, tsubst_flags_t complain)
 {
   if (INTEGRAL_OR_ENUMERATION_TYPE_P (type))
     return false;
-  else if (POINTER_TYPE_P (type))
+  else if (TYPE_PTR_P (type))
+    return false;
+  else if (TREE_CODE (type) == REFERENCE_TYPE
+	   && !TYPE_REF_IS_RVALUE (type))
     return false;
   else if (TYPE_PTRMEM_P (type))
     return false;

@@ -93,7 +93,8 @@ struct conversion {
   BOOL_BITFIELD bad_p : 1;
   /* If KIND is ck_ref_bind ck_base_conv, true to indicate that a
      temporary should be created to hold the result of the
-     conversion.  */
+     conversion.  If KIND is ck_ambig, true if the context is
+     copy-initialization.  */
   BOOL_BITFIELD need_temporary_p : 1;
   /* If KIND is ck_ptr or ck_pmem, true to indicate that a conversion
      from a pointer-to-derived to pointer-to-base is being performed.  */
@@ -3943,6 +3944,8 @@ build_user_type_conversion_1 (tree totype, tree expr, int flags,
       cand->second_conv->user_conv_p = true;
       if (!any_strictly_viable (candidates))
 	cand->second_conv->bad_p = true;
+      if (flags & LOOKUP_ONLYCONVERTING)
+	cand->second_conv->need_temporary_p = true;
       /* If there are viable candidates, don't set ICS_BAD_FLAG; an
 	 ambiguous conversion is no worse than another user-defined
 	 conversion.  */
@@ -6834,8 +6837,10 @@ convert_like_real (conversion *convs, tree expr, tree fn, int argnum,
       if (complain & tf_error)
 	{
 	  /* Call build_user_type_conversion again for the error.  */
-	  build_user_type_conversion (totype, convs->u.expr, LOOKUP_IMPLICIT,
-				      complain);
+	  int flags = (convs->need_temporary_p
+		       ? LOOKUP_IMPLICIT : LOOKUP_NORMAL);
+	  build_user_type_conversion (totype, convs->u.expr, flags, complain);
+	  gcc_assert (seen_error ());
 	  if (fn)
 	    inform (DECL_SOURCE_LOCATION (fn),
 		    "  initializing argument %P of %qD", argnum, fn);
@@ -8164,8 +8169,6 @@ build_over_call (struct z_candidate *cand, int flags, tsubst_flags_t complain)
 	{
 	  arg = cp_build_fold_indirect_ref (arg);
 	  val = build2 (MODIFY_EXPR, TREE_TYPE (to), to, arg);
-	  /* Handle NSDMI that refer to the object being initialized.  */
-	  replace_placeholders (arg, to);
 	}
       else
 	{
@@ -8202,23 +8205,6 @@ build_over_call (struct z_candidate *cand, int flags, tsubst_flags_t complain)
 	  else
 	    return cp_build_fold_indirect_ref (argarray[0]);
 	}
-    }
-
-  /* For calls to a multi-versioned function, overload resolution
-     returns the function with the highest target priority, that is,
-     the version that will checked for dispatching first.  If this
-     version is inlinable, a direct call to this version can be made
-     otherwise the call should go through the dispatcher.  */
-
-  if (DECL_FUNCTION_VERSIONED (fn)
-      && (current_function_decl == NULL
-	  || !targetm.target_option.can_inline_p (current_function_decl, fn)))
-    {
-      fn = get_function_version_dispatcher (fn);
-      if (fn == NULL)
-	return NULL;
-      if (!already_used)
-	mark_versions_used (fn);
     }
 
   if (!already_used
@@ -8846,7 +8832,12 @@ build_special_member_call (tree instance, tree name, vec<tree, va_gc> **args,
 	/* If we're using this to initialize a non-temporary object, don't
 	   require the destructor to be accessible.  */
 	sub_complain |= tf_no_cleanup;
-      if (!reference_related_p (class_type, TREE_TYPE (arg)))
+      if (BRACE_ENCLOSED_INITIALIZER_P (arg)
+	  && !CONSTRUCTOR_IS_DIRECT_INIT (arg))
+	/* An init-list arg needs to convert to the parm type (83937), so fall
+	   through to normal processing.  */
+	arg = error_mark_node;
+      else if (!reference_related_p (class_type, TREE_TYPE (arg)))
 	arg = perform_implicit_conversion_flags (class_type, arg,
 						 sub_complain,
 						 flags);

@@ -1,3 +1,411 @@
+2018-03-17  Chung-Ju Wu  <jasonwucj@gmail.com>
+	    Kito Cheng  <kito.cheng@gmail.com>
+
+	* config/nds32/nds32-protos.h (nds32_adjust_reg_alloc_order): Declare.
+	* config/nds32/nds32.c (nds32_reg_alloc_order_for_speed): New array.
+	(nds32_adjust_reg_alloc_order): New function.
+	* config/nds32/nds32.h (ADJUST_REG_ALLOC_ORDER): Define.
+
+2018-03-17  Kito Cheng  <kito.cheng@gmail.com>
+
+	* config/nds32/nds32.c (nds32_asm_output_mi_thunk,
+	nds32_print_operand, nds32_print_operand_address): Use
+	HOST_WIDE_INT_PRINT_DEC instead.
+
+2018-03-17  Chung-Ju Wu  <jasonwucj@gmail.com>
+
+	* config/nds32/nds32.c (nds32_register_priority): Modify cost.
+
+2018-03-17  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/84902
+	* config/i386/i386.c (initial_ix86_tune_features,
+	initial_ix86_arch_features): Use unsigned HOST_WIDE_INT rather than
+	unsigned long long.
+	(set_ix86_tune_features): Change ix86_tune_mask from unsigned int
+	to unsigned HOST_WIDE_INT, initialize to HOST_WIDE_INT_1U << ix86_tune
+	rather than 1u << ix86_tune.  Formatting fix.
+	(ix86_option_override_internal): Change ix86_arch_mask from
+	unsigned int to unsigned HOST_WIDE_INT, initialize to
+	HOST_WIDE_INT_1U << ix86_arch rather than 1u << ix86_arch.
+	(ix86_function_specific_restore): Likewise.
+
+2018-03-16  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/84899
+	* postreload.c (reload_combine_recognize_pattern): Perform
+	INTVAL addition in unsigned HOST_WIDE_INT type to avoid UB and
+	truncate_int_for_mode the result for the destination's mode.
+
+	PR c/84909
+	* hsa-gen.c (mem_type_for_type): Fix comment typo.
+	* tree-vect-loop-manip.c (vect_create_cond_for_niters_checks):
+	Likewise.
+	* gimple-ssa-warn-restrict.c (builtin_memref::set_base_and_offset):
+	Likewise.
+
+2018-03-16  Vladimir Makarov  <vmakarov@redhat.com>
+
+	PR target/84876
+	* lra-assigns.c (lra_split_hard_reg_for): Don't use
+	regno_allocno_class_array and sorted_pseudos.
+	* lra-constraints.c (spill_hard_reg_in_range): Ignore hard regs in
+	insns where regno is used.
+
+2018-03-16  Martin Liska  <mliska@suse.cz>
+
+	PR ipa/84833
+	* multiple_target.c (create_dispatcher_calls): Redirect
+	reference in the symbol table.
+
+2018-03-16  Martin Liska  <mliska@suse.cz>
+
+	PR ipa/84722
+	* multiple_target.c (create_dispatcher_calls): Redirect also
+	an alias.
+
+2018-03-16  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/79937
+	PR c++/82410
+	* tree.h (TARGET_EXPR_NO_ELIDE): Define.
+	* gimplify.c (gimplify_modify_expr_rhs): Don't elide TARGET_EXPRs with
+	TARGET_EXPR_NO_ELIDE flag set unless *expr_p is INIT_EXPR.
+
+2018-03-16  Julia Koval  <julia.koval@intel.com>
+
+	* doc/invoke.texi (Skylake Server): Add CLWB.
+	Cannonlake): Remove CLWB.
+
+2018-03-16  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/84841
+	* tree-ssa-reassoc.c (INTEGER_CONST_TYPE): Change to 1 << 4 from
+	1 << 3.
+	(FLOAT_ONE_CONST_TYPE): Define.
+	(constant_type): Return FLOAT_ONE_CONST_TYPE for -1.0 and 1.0.
+	(sort_by_operand_rank): Put entries with higher constant_type last
+	rather than first to match comments.
+
+2018-03-15  Sandra Loosemore  <sandra@codesourcery.com>
+
+	* config/nios2/nios2.md (movsi_internal): Fix thinko in 
+	split predicate.
+
+2018-03-15  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/79085
+	* calls.c (expand_call): For TREE_ADDRESSABLE rettype ignore alignment
+	check and use address of target always.
+
+2018-03-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	PR target/84574
+	* config/i386/i386.c (indirect_thunk_needed): Update comments.
+	(indirect_thunk_bnd_needed): Likewise.
+	(indirect_thunks_used): Likewise.
+	(indirect_thunks_bnd_used): Likewise.
+	(indirect_return_needed): New.
+	(indirect_return_bnd_needed): Likewise.
+	(output_indirect_thunk_function): Add a bool argument for
+	function return.
+	(output_indirect_thunk_function): Don't generate alias for
+	function return thunk.
+	(ix86_code_end): Call output_indirect_thunk_function to generate
+	function return thunks.
+	(ix86_output_function_return): Set indirect_return_bnd_needed
+	and indirect_return_needed instead of indirect_thunk_bnd_needed
+	and indirect_thunk_needed.
+
+2018-03-15  Olga Makhotina  <olga.makhotina@intel.com>
+
+	* config/i386/sgxintrin.h (_enclv_u32): New intrinsic.
+	(__enclv_bc, __enclv_cd, __enclv_generic): New definitions.
+	(ERDINFO, ETRACKC, ELDBC, ELDUC): New leaves.
+
+2018-03-15  David Malcolm  <dmalcolm@redhat.com>
+	    Paul Hua <paul.hua.gm@gmail.com>
+
+	PR c/84852
+	* gcc.dg/fixits-pr84852-1.c: Fix filename in dg-regexp.
+
+2018-03-15  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	* config/rs6000/rs6000.c (abi_v4_pass_in_fpr): Add back the
+	TARGET_DOUBLE_FLOAT and TARGET_SINGLE_FLOAT conditions on the DFmode
+	resp. SFmode cases.
+
+2018-03-15  Tamar Christina  <tamar.christina@arm.com>
+
+	PR target/84711
+	* config/arm/arm.c (arm_can_change_mode_class): Use GET_MODE_UNIT_SIZE
+	instead of GET_MODE_SIZE when comparing Units.
+
+2018-03-15  Vladimir Mezentsev  <vladimir.mezentsev@oracle.com>
+
+	PR target/68256
+	* varasm.c (hash_section): Return an unchangeble hash value
+	* config/aarch64/aarch64.c (aarch64_use_blocks_for_constant_p):
+	Return !aarch64_can_use_per_function_literal_pools_p ().
+
+2018-03-15  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/84860
+	* optabs.c (emit_conditional_move): Pass address of cmode's copy
+	rather than address of cmode as last argument to prepare_cmp_insn.
+
+2018-03-15  Julia Koval  <julia.koval@intel.com>
+
+	* config/i386/i386.c (F_AVX512VBMI2, F_GFNI, F_VPCLMULQDQ,
+	F_AVX512VNNI, F_AVX512BITALG): New.
+
+2018-03-14  John David Anglin  <danglin@gcc.gnu.org>
+
+	PR target/83451
+	* config/pa/pa.c (pa_emit_move_sequence):  Always emit secondary reload
+	insn for floating-point loads and stores.
+
+2018-03-14  Carl Love  <cel@us.ibm.com>
+
+	* config/rs6000/rs6000-c.c: Add macro definitions for
+	ALTIVEC_BUILTIN_VEC_PERMXOR.
+	* config/rs6000/rs6000.h: Add #define for vec_permxor builtin.
+	* config/rs6000/rs6000-builtin.def: Add macro expansions for VPERMXOR.
+	* config/rs6000/altivec.md (altivec_vpermxor): New define expand.
+	* config/rs6000/rs6000-p8swap.c (rtx_is_swappable_p): Add case
+	UNSPEC_VPERMXOR.
+	* config/doc/extend.texi: Add prototypes for vec_permxor.
+
+2018-03-14  David Malcolm  <dmalcolm@redhat.com>
+
+	PR c/84852
+	* diagnostic-show-locus.c (class layout_point): Convert m_line
+	from int to linenum_type.
+	(line_span::comparator): Use linenum "compare" function when
+	comparing line numbers.
+	(test_line_span): New function.
+	(layout_range::contains_point): Convert param "row" from int to
+	linenum_type.
+	(layout_range::intersects_line_p): Likewise.
+	(layout::will_show_line_p): Likewise.
+	(layout::print_source_line): Likewise.
+	(layout::should_print_annotation_line_p): Likewise.
+	(layout::print_annotation_line): Likewise.
+	(layout::print_leading_fixits): Likewise.
+	(layout::annotation_line_showed_range_p): Likewise.
+	(struct line_corrections): Likewise for field m_row.
+	(line_corrections::line_corrections): Likewise for param "row".
+	(layout::print_trailing_fixits): Likewise.
+	(layout::get_state_at_point): Likewise.
+	(layout::get_x_bound_for_row): Likewise.
+	(layout::print_line): Likewise.
+	(diagnostic_show_locus): Likewise for locals "last_line" and
+	"row".
+	(selftest::diagnostic_show_locus_c_tests): Call test_line_span.
+	* input.c (selftest::test_linenum_comparisons): New function.
+	(selftest::input_c_tests): Call it.
+	* selftest.c (selftest::test_assertions): Test ASSERT_GT,
+	ASSERT_GT_AT, ASSERT_LT, and ASSERT_LT_AT.
+	* selftest.h (ASSERT_GT): New macro.
+	(ASSERT_GT_AT): New macro.
+	(ASSERT_LT): New macro.
+	(ASSERT_LT_AT): New macro.
+
+2018-03-14  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	PR rtl-optimization/84780
+	* combine.c (distribute_links): Don't make a link based on pc_rtx.
+
+2018-03-14  Martin Liska  <mliska@suse.cz>
+
+	* tree.c (record_node_allocation_statistics): Use
+	get_stats_node_kind.
+	(get_stats_node_kind): New function extracted from
+	record_node_allocation_statistics.
+	(free_node): Use get_stats_node_kind.
+
+2018-03-14  Richard Biener  <rguenther@suse.de>
+
+	* tree-ssa-pre.c (compute_antic_aux): Remove code that asserts
+	that the value-set of ANTIC_IN doesn't grow.
+
+	Revert
+	* tree-ssa-pre.c (struct bb_bitmap_sets): Add visited_with_visited_succs
+	member.
+	(BB_VISITED_WITH_VISITED_SUCCS): New define.
+	(compute_antic): Initialize BB_VISITED_WITH_VISITED_SUCCS.
+
+2018-03-14  Julia Koval  <julia.koval@intel.com>
+
+	* config.gcc (icelake-client, icelake-server): New.
+	(icelake): Remove.
+	* config/i386/i386.c (initial_ix86_tune_features): Extend to 64 bit.
+	(initial_ix86_arch_features): Ditto.
+	(PTA_SKYLAKE): Add SGX.
+	(PTA_ICELAKE): Remove.
+	(PTA_ICELAKE_CLIENT): New.
+	(PTA_ICELAKE_SERVER): New.
+	(ix86_option_override_internal): Split up icelake on icelake client and
+	icelake server.
+	(get_builtin_code_for_version): Ditto.
+	(fold_builtin_cpu): Ditto.
+	* config/i386/driver-i386.c (config/i386/driver-i386.c): Ditto.
+	* config/i386/i386-c.c (ix86_target_macros_internal): Ditto
+	* config/i386/i386.h (processor_type): Ditto.
+	* doc/invoke.texi: Ditto.
+
+2018-03-14  Jakub Jelinek  <jakub@redhat.com>
+
+	PR sanitizer/83392
+	* sanopt.c (maybe_optimize_ubsan_ptr_ifn): Handle also
+	INTEGER_CST offset, add it together with bitpos / 8 and
+	sign extend based on POINTER_SIZE.
+
+	PR target/84844
+	Revert
+	2017-04-20  Uros Bizjak  <ubizjak@gmail.com>
+
+	PR target/78090
+	* config/i386/constraints.md (Yc): New register constraint.
+	* config/i386/i386.md (*float<SWI48:mode><MODEF:mode>2_mixed):
+	Use Yc constraint for alternative 2 of operand 0.  Remove
+	preferred_for_speed attribute.
+
+2018-03-14  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/84830
+	* tree-ssa-pre.c (compute_antic_aux): Intersect the new ANTIC_IN
+	with the old one to avoid oscillations.
+
+2018-03-13  Vladimir Makarov  <vmakarov@redhat.com>
+
+	PR target/83712
+	* lra-assigns.c (find_all_spills_for): Ignore uninteresting
+	pseudos.
+	(assign_by_spills): Return a flag of reload assignment failure.
+	Do not process the reload assignment failures.  Do not spill other
+	reload pseudos if they has the same reg class.  Update n if
+	necessary.
+	(lra_assign): Add a return arg.  Set up from the result of
+	assign_by_spills call.
+	(find_reload_regno_insns, lra_split_hard_reg_for): New functions.
+	* lra-constraints.c (split_reg): Add a new arg.  Use it instead of
+	usage_insns if it is not NULL.
+	(spill_hard_reg_in_range): New function.
+	(split_if_necessary, inherit_in_ebb): Pass a new arg to split_reg.
+	* lra-int.h (spill_hard_reg_in_range, lra_split_hard_reg_for): New
+	function prototypes.
+	(lra_assign): Change prototype.
+	* lra.c (lra): Add code to deal with fails by splitting hard reg
+	live ranges.
+
+2018-03-01  Palmer Dabbelt  <palmer@sifive.com>
+
+	* config/riscv/riscv.opt (mrelax): New option.
+	* config/riscv/riscv.c (riscv_file_start): Emit ".option
+	"norelax" when riscv_mrelax is disabled.
+	* doc/invoke.texi (RISC-V): Document "-mrelax" and "-mno-relax".
+
+2018-03-13  Aaron Sawdey  <acsawdey@linux.vnet.ibm.com>
+
+	PR target/84743
+	* config/rs6000/rs6000.c (rs6000_reassociation_width): Disable parallel
+	reassociation for int modes.
+
+2018-03-13  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	* tree-vect-loop-manip.c (vect_maybe_permute_loop_masks):
+	Reverse the choice between VEC_UNPACK_LO_EXPR and VEC_UNPACK_HI_EXPR
+	for big-endian.
+	* config/aarch64/iterators.md (hi_lanes_optab): New int attribute.
+	* config/aarch64/aarch64-sve.md
+	(*aarch64_sve_<perm_insn><perm_hilo><mode>): Rename to...
+	(aarch64_sve_<perm_insn><perm_hilo><mode>): ...this.
+	(*extend<mode><Vwide>2): Rename to...
+	(aarch64_sve_extend<mode><Vwide>2): ...this.
+	(vec_unpack<su>_<perm_hilo>_<mode>): Turn into a define_expand,
+	renaming the old pattern to...
+	(aarch64_sve_punpk<perm_hilo>_<mode>): ...this.  Only define
+	unsigned packs.
+	(vec_unpack<su>_<perm_hilo>_<SVE_BHSI:mode>): Turn into a
+	define_expand, renaming the old pattern to...
+	(aarch64_sve_<su>unpk<perm_hilo>_<SVE_BHSI:mode>): ...this.
+	(*vec_unpacku_<perm_hilo>_<mode>_no_convert): Delete.
+	(vec_unpacks_<perm_hilo>_<mode>): Take BYTES_BIG_ENDIAN into
+	account when deciding which SVE instruction the optab should use.
+	(vec_unpack<su_optab>_float_<perm_hilo>_vnx4si): Likewise.
+
+2018-03-13  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	* config/aarch64/aarch64.md (V4_REGNUM, V8_REGNUM, V12_REGNUM)
+	(V20_REGNUM, V24_REGNUM, V28_REGNUM, P1_REGNUM, P2_REGNUM, P3_REGNUM)
+	(P4_REGNUM, P5_REGNUM, P6_REGNUM, P8_REGNUM, P9_REGNUM, P10_REGNUM)
+	(P11_REGNUM, P12_REGNUM, P13_REGNUM, P14_REGNUM): New define_constants.
+	(tlsdesc_small_<mode>): Turn a define_expand and use
+	tlsdesc_small_sve_<mode> for SVE.  Rename original define_insn to...
+	(tlsdesc_small_advsimd_<mode>): ...this.
+	(tlsdesc_small_sve_<mode>): New pattern.
+
+2018-03-13  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	* config/aarch64/iterators.md (UNSPEC_SMUL_HIGHPART)
+	(UNSPEC_UMUL_HIGHPART): New constants.
+	(MUL_HIGHPART): New int iteraor.
+	(su): Handle UNSPEC_SMUL_HIGHPART and UNSPEC_UMUL_HIGHPART.
+	* config/aarch64/aarch64-sve.md (<su>mul<mode>3_highpart): New
+	define_expand.
+	(*<su>mul<mode>3_highpart): New define_insn.
+
+2018-03-13  Eric Botcazou  <ebotcazou@adacore.com>
+
+	PR lto/84805
+	* ipa-devirt.c (odr_subtypes_equivalent_p): Do not get the ODR type of
+	incomplete types.
+
+2018-03-13  Martin Liska  <mliska@suse.cz>
+
+	PR ipa/84658.
+	* (sem_item_optimizer::sem_item_optimizer): Initialize new
+	vector.
+	(sem_item_optimizer::~sem_item_optimizer): Release it.
+	(sem_item_optimizer::merge_classes): Register variable aliases.
+	(sem_item_optimizer::fixup_pt_set): New function.
+	(sem_item_optimizer::fixup_points_to_sets): Likewise.
+	* ipa-icf.h: Declare new variables and functions.
+
+2018-03-13  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/84834
+	* match.pd ((A & C) != 0 ? D : 0): Use INTEGER_CST@2 instead of
+	integer_pow2p@2 and test integer_pow2p in condition.
+	(A < 0 ? C : 0): Similarly for @1.
+
+	PR middle-end/84831
+	* stmt.c (parse_output_constraint): If the CONSTRAINT_LEN (*p, p)
+	characters starting at p contain '\0' character, don't look beyond
+	that.
+
+	PR target/84827
+	* config/i386/i386.md (round<mode>2): For 387 fancy math, disable
+	pattern if -ftrapping-math -fno-fp-int-builtin-inexact.
+
+	PR target/84828
+	* reg-stack.c (change_stack): Change update_end var from int to
+	rtx_insn *, if non-NULL don't update just BB_END (current_block), but
+	also call set_block_for_insn on the newly added insns and rescan.
+
+	PR target/84786
+	* config/i386/sse.md (sse2_loadhpd): Use Yv constraint rather than v
+	on the last operand.
+
+	PR c++/84704
+	* tree.c (stabilize_reference_1): Return save_expr (e) for
+	STATEMENT_LIST even if it doesn't have side-effects.
+
+2018-03-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/invoke.texi (-mclflushopt): Fix spelling of option.
+
 2018-03-12  Renlin Li  <renlin.li@arm.com>
 
 	* config/aarch64/aarch64.md (movhf_aarch64): Fix mode argument to

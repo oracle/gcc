@@ -1583,13 +1583,20 @@ next_arg:;
 			  || memcmp (name + len - strlen ("_chk"),
 				     "_chk", strlen ("_chk") + 1) != 0))
 		    {
+		      if (DECL_INITIAL (newdecl))
+			{
+			  error_at (DECL_SOURCE_LOCATION (newdecl),
+				    "definition of %q#D ambiguates built-in "
+				    "declaration %q#D", newdecl, olddecl);
+			  return error_mark_node;
+			}
 		      if (permerror (DECL_SOURCE_LOCATION (newdecl),
 				     "new declaration %q#D ambiguates built-in"
 				     " declaration %q#D", newdecl, olddecl)
 			  && flag_permissive)
 			inform (DECL_SOURCE_LOCATION (newdecl),
 				"ignoring the %q#D declaration", newdecl);
-		      return olddecl;
+		      return flag_permissive ? olddecl : error_mark_node;
 		    }
 		}
 
@@ -5878,8 +5885,17 @@ reshape_init_class (tree type, reshape_iter *d, bool first_initializer_p,
 	    return error_mark_node;
 
 	  if (TREE_CODE (d->cur->index) == FIELD_DECL)
-	    /* We already reshaped this.  */
-	    gcc_assert (d->cur->index == field);
+	    {
+	      /* We already reshaped this.  */
+	      if (field != d->cur->index)
+		{
+		  tree id = DECL_NAME (d->cur->index);
+		  gcc_assert (id);
+		  gcc_checking_assert (d->cur->index
+				       == get_class_binding (type, id, false));
+		  field = d->cur->index;
+		}
+	    }
 	  else if (TREE_CODE (d->cur->index) == IDENTIFIER_NODE)
 	    field = get_class_binding (type, d->cur->index, false);
 	  else
@@ -9498,8 +9514,6 @@ compute_array_index_type (tree name, tree size, tsubst_flags_t complain)
 
   if (!type_dependent_expression_p (size))
     {
-      tree type = TREE_TYPE (size);
-
       size = mark_rvalue_use (size);
 
       if (cxx_dialect < cxx11 && TREE_CODE (size) == NOP_EXPR
@@ -9509,29 +9523,8 @@ compute_array_index_type (tree name, tree size, tsubst_flags_t complain)
       else
 	{
 	  size = instantiate_non_dependent_expr_sfinae (size, complain);
-
-	  if (CLASS_TYPE_P (type)
-	      && CLASSTYPE_LITERAL_P (type))
-	    {
-	      size = build_expr_type_conversion (WANT_INT, size, true);
-	      if (!size)
-		{
-		  if (!(complain & tf_error))
-		    return error_mark_node;
-		  if (name)
-		    error ("size of array %qD has non-integral type %qT",
-			   name, type);
-		  else
-		    error ("size of array has non-integral type %qT", type);
-		  size = integer_one_node;
-		}
-	      if (size == error_mark_node)
-		return error_mark_node;
-	      type = TREE_TYPE (size);
-	    }
-
-	  if (INTEGRAL_OR_UNSCOPED_ENUMERATION_TYPE_P (type))
-	    size = maybe_constant_value (size);
+	  size = build_converted_constant_expr (size_type_node, size, complain);
+	  size = maybe_constant_value (size);
 
 	  if (!TREE_CONSTANT (size))
 	    size = osize;
@@ -9541,6 +9534,7 @@ compute_array_index_type (tree name, tree size, tsubst_flags_t complain)
 	return error_mark_node;
 
       /* The array bound must be an integer type.  */
+      tree type = TREE_TYPE (size);
       if (!INTEGRAL_OR_UNSCOPED_ENUMERATION_TYPE_P (type))
 	{
 	  if (!(complain & tf_error))
@@ -9550,7 +9544,6 @@ compute_array_index_type (tree name, tree size, tsubst_flags_t complain)
 	  else
 	    error ("size of array has non-integral type %qT", type);
 	  size = integer_one_node;
-	  type = TREE_TYPE (size);
 	}
     }
 
@@ -9588,15 +9581,12 @@ compute_array_index_type (tree name, tree size, tsubst_flags_t complain)
   /* Normally, the array-bound will be a constant.  */
   if (TREE_CODE (size) == INTEGER_CST)
     {
-      /* Check to see if the array bound overflowed.  Make that an
-	 error, no matter how generous we're being.  */
-      constant_expression_error (size);
-
       /* An array must have a positive number of elements.  */
-      if (tree_int_cst_lt (size, integer_zero_node))
+      if (!valid_constant_size_p (size))
 	{
 	  if (!(complain & tf_error))
 	    return error_mark_node;
+
 	  if (name)
 	    error ("size of array %qD is negative", name);
 	  else
@@ -10441,7 +10431,7 @@ grokdeclarator (const cp_declarator *declarator,
      suppress reports of deprecated items.  */
   if (type && TREE_DEPRECATED (type)
       && deprecated_state != DEPRECATED_SUPPRESS)
-    warn_deprecated_use (type, NULL_TREE);
+    cp_warn_deprecated_use (type);
   if (type && TREE_CODE (type) == TYPE_DECL)
     {
       typedef_decl = type;
@@ -10449,7 +10439,7 @@ grokdeclarator (const cp_declarator *declarator,
       if (TREE_DEPRECATED (type)
 	  && DECL_ARTIFICIAL (typedef_decl)
 	  && deprecated_state != DEPRECATED_SUPPRESS)
-	warn_deprecated_use (type, NULL_TREE);
+	cp_warn_deprecated_use (type);
     }
   /* No type at all: default to `int', and set DEFAULTED_INT
      because it was not a user-defined typedef.  */
@@ -11264,8 +11254,18 @@ grokdeclarator (const cp_declarator *declarator,
 		  explicitp = 2;
 	      }
 
-	    arg_types = grokparms (declarator->u.function.parameters,
-				   &parms);
+	    tree pushed_scope = NULL_TREE;
+	    if (funcdecl_p
+		&& decl_context != FIELD
+		&& inner_declarator->u.id.qualifying_scope
+		&& CLASS_TYPE_P (inner_declarator->u.id.qualifying_scope))
+	      pushed_scope
+		= push_scope (inner_declarator->u.id.qualifying_scope);
+
+	    arg_types = grokparms (declarator->u.function.parameters, &parms);
+
+	    if (pushed_scope)
+	      pop_scope (pushed_scope);
 
 	    if (inner_declarator
 		&& inner_declarator->kind == cdk_id
@@ -12661,7 +12661,9 @@ check_default_argument (tree decl, tree arg, tsubst_flags_t complain)
      A default argument expression is implicitly converted to the
      parameter type.  */
   ++cp_unevaluated_operand;
-  perform_implicit_conversion_flags (decl_type, arg, complain,
+  /* Avoid digest_init clobbering the initializer.  */
+  tree carg = BRACE_ENCLOSED_INITIALIZER_P (arg) ? unshare_expr (arg): arg;
+  perform_implicit_conversion_flags (decl_type, carg, complain,
 				     LOOKUP_IMPLICIT);
   --cp_unevaluated_operand;
 
@@ -12790,7 +12792,7 @@ grokparms (tree parmlist, tree *parms)
 	    {
 	      tree deptype = type_is_deprecated (type);
 	      if (deptype)
-		warn_deprecated_use (deptype, NULL_TREE);
+		cp_warn_deprecated_use (deptype);
 	    }
 
 	  /* Top-level qualifiers on the parameters are

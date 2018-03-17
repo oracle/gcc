@@ -1042,7 +1042,8 @@ See RS/6000 and PowerPC Options.
 -msave-restore  -mno-save-restore @gol
 -mstrict-align -mno-strict-align @gol
 -mcmodel=medlow -mcmodel=medany @gol
--mexplicit-relocs  -mno-explicit-relocs @gol}
+-mexplicit-relocs  -mno-explicit-relocs @gol
+-mrelax -mno-relax @gol}
 
 @emph{RL78 Options}
 @gccoptlist{-msim  -mmul=none  -mmul=g13  -mmul=g14  -mallregs @gol
@@ -23102,6 +23103,12 @@ Use or do not use assembler relocation operators when dealing with symbolic
 addresses.  The alternative is to use assembler macros instead, which may
 limit optimization.
 
+@item -mrelax
+@itemx -mno-relax
+Take advantage of linker relaxations to reduce the number of instructions
+required to materialize symbol addresses. The default is to take advantage of
+linker relaxations.
+
 @end table
 
 @node RL78 Options
@@ -26543,22 +26550,31 @@ AVX5124VNNIW, AVX5124FMAPS and AVX512VPOPCNTDQ instruction set support.
 Intel Skylake Server CPU with 64-bit extensions, MOVBE, MMX, SSE, SSE2, SSE3,
 SSSE3, SSE4.1, SSE4.2, POPCNT, PKU, AVX, AVX2, AES, PCLMUL, FSGSBASE, RDRND, FMA,
 BMI, BMI2, F16C, RDSEED, ADCX, PREFETCHW, CLFLUSHOPT, XSAVEC, XSAVES, AVX512F,
-AVX512VL, AVX512BW, AVX512DQ and AVX512CD instruction set support.
+CLWB, AVX512VL, AVX512BW, AVX512DQ and AVX512CD instruction set support.
 
 @item cannonlake
 Intel Cannonlake Server CPU with 64-bit extensions, MOVBE, MMX, SSE, SSE2,
 SSE3, SSSE3, SSE4.1, SSE4.2, POPCNT, PKU, AVX, AVX2, AES, PCLMUL, FSGSBASE,
 RDRND, FMA, BMI, BMI2, F16C, RDSEED, ADCX, PREFETCHW, CLFLUSHOPT, XSAVEC,
 XSAVES, AVX512F, AVX512VL, AVX512BW, AVX512DQ, AVX512CD, AVX512VBMI,
-AVX512IFMA, SHA, CLWB and UMIP instruction set support.
+AVX512IFMA, SHA and UMIP instruction set support.
 
-@item Icelake
-Intel Icelake Server CPU with 64-bit extensions, MOVBE, MMX, SSE, SSE2,
+@item icelake-client
+Intel Icelake Client CPU with 64-bit extensions, MOVBE, MMX, SSE, SSE2,
 SSE3, SSSE3, SSE4.1, SSE4.2, POPCNT, PKU, AVX, AVX2, AES, PCLMUL, FSGSBASE,
 RDRND, FMA, BMI, BMI2, F16C, RDSEED, ADCX, PREFETCHW, CLFLUSHOPT, XSAVEC,
 XSAVES, AVX512F, AVX512VL, AVX512BW, AVX512DQ, AVX512CD, AVX512VBMI,
 AVX512IFMA, SHA, CLWB, UMIP, RDPID, GFNI, AVX512VBMI2, AVX512VPOPCNTDQ,
 AVX512BITALG, AVX512VNNI, VPCLMULQDQ, VAES instruction set support.
+
+@item icelake-server
+Intel Icelake Server CPU with 64-bit extensions, MOVBE, MMX, SSE, SSE2,
+SSE3, SSSE3, SSE4.1, SSE4.2, POPCNT, PKU, AVX, AVX2, AES, PCLMUL, FSGSBASE,
+RDRND, FMA, BMI, BMI2, F16C, RDSEED, ADCX, PREFETCHW, CLFLUSHOPT, XSAVEC,
+XSAVES, AVX512F, AVX512VL, AVX512BW, AVX512DQ, AVX512CD, AVX512VBMI,
+AVX512IFMA, SHA, CLWB, UMIP, RDPID, GFNI, AVX512VBMI2, AVX512VPOPCNTDQ,
+AVX512BITALG, AVX512VNNI, VPCLMULQDQ, VAES, PCONFIG and WBNOINVD instruction
+set support.
 
 @item k6
 AMD K6 CPU with MMX instruction set support.
@@ -27166,8 +27182,8 @@ preferred alignment to @option{-mpreferred-stack-boundary=2}.
 @itemx -mpclmul
 @opindex mpclmul
 @need 200
-@itemx -mclfushopt
-@opindex mclfushopt
+@itemx -mclflushopt
+@opindex mclflushopt
 @need 200
 @itemx -mfsgsbase
 @opindex mfsgsbase

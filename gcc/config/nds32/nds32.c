@@ -82,6 +82,18 @@ static const char * const nds32_intrinsic_register_names[] =
   "$PSW", "$IPSW", "$ITYPE", "$IPC"
 };
 
+
+/* Defining register allocation order for performance.
+   We want to allocate callee-saved registers after others.
+   It may be used by nds32_adjust_reg_alloc_order().  */
+static const int nds32_reg_alloc_order_for_speed[] =
+{
+   0,   1,   2,   3,   4,   5,  16,  17,
+  18,  19,  20,  21,  22,  23,  24,  25,
+  26,  27,   6,   7,   8,   9,  10,  11,
+  12,  13,  14,  15
+};
+
 /* Defining target-specific uses of __attribute__.  */
 static const struct attribute_spec nds32_attribute_table[] =
 {
@@ -1234,9 +1246,24 @@ static int
 nds32_register_priority (int hard_regno)
 {
   /* Encourage to use r0-r7 for LRA when optimize for size.  */
-  if (optimize_size && hard_regno < 8)
-    return 4;
-  return 3;
+  if (optimize_size)
+    {
+      if (hard_regno < 8)
+	return 4;
+      else if (hard_regno < 16)
+	return 3;
+      else if (hard_regno < 28)
+	return 2;
+      else
+	return 1;
+    }
+  else
+    {
+      if (hard_regno > 27)
+	return 1;
+      else
+	return 4;
+    }
 }
 
 
@@ -1674,18 +1701,22 @@ nds32_asm_output_mi_thunk (FILE *file, tree thunk ATTRIBUTE_UNUSED,
     {
       if (satisfies_constraint_Is15 (GEN_INT (delta)))
 	{
-	  fprintf (file, "\taddi\t$r%d, $r%d, %ld\n",
+	  fprintf (file, "\taddi\t$r%d, $r%d, " HOST_WIDE_INT_PRINT_DEC "\n",
 		   this_regno, this_regno, delta);
 	}
       else if (satisfies_constraint_Is20 (GEN_INT (delta)))
 	{
-	  fprintf (file, "\tmovi\t$ta, %ld\n", delta);
+	  fprintf (file, "\tmovi\t$ta, " HOST_WIDE_INT_PRINT_DEC "\n", delta);
 	  fprintf (file, "\tadd\t$r%d, $r%d, $ta\n", this_regno, this_regno);
 	}
       else
 	{
-	  fprintf (file, "\tsethi\t$ta, hi20(%ld)\n", delta);
-	  fprintf (file, "\tori\t$ta, $ta, lo12(%ld)\n", delta);
+	  fprintf (file,
+		   "\tsethi\t$ta, hi20(" HOST_WIDE_INT_PRINT_DEC ")\n",
+		   delta);
+	  fprintf (file,
+		   "\tori\t$ta, $ta, lo12(" HOST_WIDE_INT_PRINT_DEC ")\n",
+		   delta);
 	  fprintf (file, "\tadd\t$r%d, $r%d, $ta\n", this_regno, this_regno);
 	}
     }
@@ -2303,7 +2334,7 @@ nds32_print_operand (FILE *stream, rtx x, int code)
 	{
 	  /* If user gives integer value directly (0~1023),
 	     we just print out the value.  */
-	  fprintf (stream, "%d", op_value);
+	  fprintf (stream, HOST_WIDE_INT_PRINT_DEC, op_value);
 	}
       else if (op_value < 0
 	       || op_value >= ((int) ARRAY_SIZE (nds32_intrinsic_register_names)
@@ -2414,8 +2445,8 @@ nds32_print_operand_address (FILE *stream, machine_mode /*mode*/, rtx x)
       if (REG_P (op0) && CONST_INT_P (op1))
 	{
 	  /* [Ra + imm] */
-	  fprintf (stream, "[%s + (%d)]",
-			   reg_names[REGNO (op0)], (int)INTVAL (op1));
+	  fprintf (stream, "[%s + (" HOST_WIDE_INT_PRINT_DEC ")]",
+			   reg_names[REGNO (op0)], INTVAL (op1));
 	}
       else if (REG_P (op0) && REG_P (op1))
 	{
@@ -2486,8 +2517,8 @@ nds32_print_operand_address (FILE *stream, machine_mode /*mode*/, rtx x)
       else if (REG_P (op0) && CONST_INT_P (op1))
 	{
 	  /* [Ra], imm */
-	  fprintf (stream, "[%s], %d",
-			   reg_names[REGNO (op0)], (int)INTVAL (op1));
+	  fprintf (stream, "[%s], " HOST_WIDE_INT_PRINT_DEC,
+			   reg_names[REGNO (op0)], INTVAL (op1));
 	}
       else
 	{
@@ -2850,6 +2881,25 @@ nds32_init_expanders (void)
 
 
 /* Register Usage.  */
+
+/* -- Order of Allocation of Registers.  */
+
+void
+nds32_adjust_reg_alloc_order (void)
+{
+  const int nds32_reg_alloc_order[] = REG_ALLOC_ORDER;
+
+  /* Copy the default register allocation order, which is designed
+     to optimize for code size.  */
+  memcpy(reg_alloc_order, nds32_reg_alloc_order, sizeof (reg_alloc_order));
+
+  /* Adjust few register allocation order when optimizing for speed.  */
+  if (!optimize_size)
+    {
+      memcpy (reg_alloc_order, nds32_reg_alloc_order_for_speed,
+	      sizeof (nds32_reg_alloc_order_for_speed));
+    }
+}
 
 /* -- How Values Fit in Registers.  */
 
