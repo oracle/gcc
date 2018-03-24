@@ -4677,6 +4677,7 @@ tree
 build_template_decl (tree decl, tree parms, bool member_template_p)
 {
   tree tmpl = build_lang_decl (TEMPLATE_DECL, DECL_NAME (decl), NULL_TREE);
+  SET_DECL_LANGUAGE (tmpl, DECL_LANGUAGE (decl));
   DECL_TEMPLATE_PARMS (tmpl) = parms;
   DECL_CONTEXT (tmpl) = DECL_CONTEXT (decl);
   DECL_SOURCE_LOCATION (tmpl) = DECL_SOURCE_LOCATION (decl);
@@ -8234,6 +8235,11 @@ coerce_template_parms (tree parms,
   int variadic_args_p = 0;
   int post_variadic_parms = 0;
 
+  /* Adjustment to nparms for fixed parameter packs.  */
+  int fixed_pack_adjust = 0;
+  int fixed_packs = 0;
+  int missing = 0;
+
   /* Likewise for parameters with default arguments.  */
   int default_p = 0;
 
@@ -8278,6 +8284,7 @@ coerce_template_parms (tree parms,
 	      || (TREE_VEC_ELT (parms, nargs) != error_mark_node
                   && !TREE_PURPOSE (TREE_VEC_ELT (parms, nargs))))))
     {
+    bad_nargs:
       if (complain & tf_error)
 	{
           if (variadic_p || default_p)
@@ -8389,11 +8396,17 @@ coerce_template_parms (tree parms,
 	      lost++;
 	      /* We are done with all of the arguments.  */
 	      arg_idx = nargs;
+	      break;
 	    }
 	  else
 	    {
 	      pack_adjust = TREE_VEC_LENGTH (ARGUMENT_PACK_ARGS (arg)) - 1;
 	      arg_idx += pack_adjust;
+	      if (fixed_parameter_pack_p (TREE_VALUE (parm)))
+		{
+		  ++fixed_packs;
+		  fixed_pack_adjust += pack_adjust;
+		}
 	    }
           
           continue;
@@ -8451,12 +8464,18 @@ coerce_template_parms (tree parms,
 	    error ("template argument %d is invalid", arg_idx + 1);
 	}
       else if (!arg)
-        /* This only occurs if there was an error in the template
-           parameter list itself (which we would already have
-           reported) that we are trying to recover from, e.g., a class
-           template with a parameter list such as
-           template<typename..., typename>.  */
-	++lost;
+	{
+	  /* This can occur if there was an error in the template
+	     parameter list itself (which we would already have
+	     reported) that we are trying to recover from, e.g., a class
+	     template with a parameter list such as
+	     template<typename..., typename> (cpp0x/variadic150.C).  */
+	  ++lost;
+
+	  /* This can also happen with a fixed parameter pack (71834).  */
+	  if (arg_idx >= nargs)
+	    ++missing;
+	}
       else
 	arg = convert_template_argument (TREE_VALUE (parm),
 					 arg, new_args, complain, 
@@ -8469,20 +8488,20 @@ coerce_template_parms (tree parms,
   cp_unevaluated_operand = saved_unevaluated_operand;
   c_inhibit_evaluation_warnings = saved_inhibit_evaluation_warnings;
 
-  if (variadic_p && arg_idx < nargs)
+  if (missing || arg_idx < nargs - variadic_args_p)
     {
-      if (complain & tf_error)
-	{
-	  error ("wrong number of template arguments "
-		 "(%d, should be %d)", nargs, arg_idx);
-	  if (in_decl)
-	    error ("provided for %q+D", in_decl);
-	}
-      return error_mark_node;
+      /* If we had fixed parameter packs, we didn't know how many arguments we
+	 actually needed earlier; now we do.  */
+      nparms += fixed_pack_adjust;
+      variadic_p -= fixed_packs;
+      goto bad_nargs;
     }
 
   if (lost)
-    return error_mark_node;
+    {
+      gcc_assert (!(complain & tf_error) || seen_error ());
+      return error_mark_node;
+    }
 
   if (CHECKING_P && !NON_DEFAULT_TEMPLATE_ARGS_COUNT (new_inner_args))
     SET_NON_DEFAULT_TEMPLATE_ARGS_COUNT (new_inner_args,
@@ -12898,7 +12917,7 @@ enclosing_instantiation_of (tree otctx)
       for (; flambda_count < lambda_count && fn && LAMBDA_FUNCTION_P (fn);
 	   fn = decl_function_context (fn))
 	++flambda_count;
-      if (DECL_TEMPLATE_INFO (fn)
+      if ((fn && DECL_TEMPLATE_INFO (fn))
 	  ? most_general_template (fn) != most_general_template (tctx)
 	  : fn != tctx)
 	continue;
@@ -17495,8 +17514,7 @@ tsubst_copy_and_build (tree t,
 				complain|decltype_flag));
 
     case FIX_TRUNC_EXPR:
-      RETURN (cp_build_unary_op (FIX_TRUNC_EXPR, RECUR (TREE_OPERAND (t, 0)),
-				 false, complain));
+      gcc_unreachable ();    
 
     case ADDR_EXPR:
       op1 = TREE_OPERAND (t, 0);
@@ -19977,41 +19995,49 @@ type_unification_real (tree tparms,
 	  if (targ || tparm == error_mark_node)
 	    continue;
 	  tree parm = TREE_VALUE (tparm);
-
-	  tsubst_flags_t fcomplain = complain;
-	  if (saw_undeduced == 1)
-	    {
-	      /* When saw_undeduced == 1, substitution into parm and arg might
-		 fail or not replace all template parameters, and that's
-		 fine.  */
-	      fcomplain = tf_none;
-	      if (TREE_CODE (parm) == PARM_DECL
-		  && uses_template_parms (TREE_TYPE (parm)))
-		continue;
-	    }
-
 	  tree arg = TREE_PURPOSE (tparm);
 	  reopen_deferring_access_checks (*checks);
 	  location_t save_loc = input_location;
 	  if (DECL_P (parm))
 	    input_location = DECL_SOURCE_LOCATION (parm);
-
 	  if (saw_undeduced == 1)
 	    ++processing_template_decl;
-	  arg = tsubst_template_arg (arg, full_targs, fcomplain, NULL_TREE);
+
+	  if (saw_undeduced == 1
+	      && TREE_CODE (parm) == PARM_DECL
+	      && uses_template_parms (TREE_TYPE (parm)))
+	    {
+	      /* The type of this non-type parameter depends on undeduced
+		 parameters.  Don't try to use its default argument yet,
+		 but do check whether the arguments we already have cause
+		 substitution failure, so that that happens before we try
+		 later default arguments (78489).  */
+	      tree type = tsubst (TREE_TYPE (parm), full_targs, complain,
+				  NULL_TREE);
+	      if (type == error_mark_node)
+		arg = error_mark_node;
+	      else
+		arg = NULL_TREE;
+	    }
+	  else
+	    {
+	      arg = tsubst_template_arg (arg, full_targs, complain, NULL_TREE);
+
+	      if (!uses_template_parms (arg))
+		arg = convert_template_argument (parm, arg, full_targs,
+						 complain, i, NULL_TREE);
+	      else if (saw_undeduced == 1)
+		arg = NULL_TREE;
+	      else
+		arg = error_mark_node;
+	    }
+
 	  if (saw_undeduced == 1)
 	    --processing_template_decl;
-
-	  if (arg != error_mark_node && !uses_template_parms (arg))
-	    arg = convert_template_argument (parm, arg, full_targs, complain,
-					     i, NULL_TREE);
-	  else if (saw_undeduced == 1)
-	    arg = NULL_TREE;
-	  else
-	    arg = error_mark_node;
 	  input_location = save_loc;
 	  *checks = get_deferred_access_checks ();
 	  pop_deferring_access_checks ();
+
 	  if (arg == error_mark_node)
 	    return 1;
 	  else if (arg)
@@ -25230,6 +25256,9 @@ resolve_typename_type (tree type, bool only_current_p)
   gcc_assert (TREE_CODE (type) == TYPENAME_TYPE);
 
   scope = TYPE_CONTEXT (type);
+  /* We shouldn't have built a TYPENAME_TYPE with a non-dependent scope.  */
+  gcc_checking_assert (uses_template_parms (scope));
+
   /* Usually the non-qualified identifier of a TYPENAME_TYPE is
      TYPE_IDENTIFIER (type). But when 'type' is a typedef variant of
      a TYPENAME_TYPE node, then TYPE_NAME (type) is set to the TYPE_DECL representing
@@ -25266,8 +25295,6 @@ resolve_typename_type (tree type, bool only_current_p)
     /* scope is either the template itself or a compatible instantiation
        like X<T>, so look up the name in the original template.  */
     scope = CLASSTYPE_PRIMARY_TEMPLATE_TYPE (scope);
-  /* We shouldn't have built a TYPENAME_TYPE with a non-dependent scope.  */
-  gcc_checking_assert (uses_template_parms (scope));
   /* If scope has no fields, it can't be a current instantiation.  Check this
      before currently_open_class to avoid infinite recursion (71515).  */
   if (!TYPE_FIELDS (scope))
@@ -25762,8 +25789,21 @@ rewrite_template_parm (tree olddecl, unsigned index, unsigned level,
 	  = TEMPLATE_TYPE_PARM_FOR_CLASS (oldtype);
     }
   else
-    newtype = tsubst (TREE_TYPE (olddecl), tsubst_args,
-		      complain, NULL_TREE);
+    {
+      newtype = TREE_TYPE (olddecl);
+      if (type_uses_auto (newtype))
+	{
+	  // Substitute once to fix references to other template parameters.
+	  newtype = tsubst (newtype, tsubst_args,
+			    complain|tf_partial, NULL_TREE);
+	  // Now substitute again to reduce the level of the auto.
+	  newtype = tsubst (newtype, current_template_args (),
+			    complain, NULL_TREE);
+	}
+      else
+	newtype = tsubst (newtype, tsubst_args,
+			  complain, NULL_TREE);
+    }
 
   tree newdecl
     = build_decl (DECL_SOURCE_LOCATION (olddecl), TREE_CODE (olddecl),

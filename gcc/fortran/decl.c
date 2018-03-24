@@ -1172,14 +1172,12 @@ get_proc_name (const char *name, gfc_symbol **result, bool module_fcn_entry)
   if (sym->attr.proc == PROC_ST_FUNCTION)
     return rc;
 
-  if (sym->attr.module_procedure
-      && sym->attr.if_source == IFSRC_IFBODY)
+  if (sym->attr.module_procedure && sym->attr.if_source == IFSRC_IFBODY)
     {
       /* Create a partially populated interface symbol to carry the
 	 characteristics of the procedure and the result.  */
       sym->tlink = gfc_new_symbol (name, sym->ns);
-      gfc_add_type (sym->tlink, &(sym->ts),
-		    &gfc_current_locus);
+      gfc_add_type (sym->tlink, &(sym->ts), &gfc_current_locus);
       gfc_copy_attr (&sym->tlink->attr, &sym->attr, NULL);
       if (sym->attr.dimension)
 	sym->tlink->as = gfc_copy_array_spec (sym->as);
@@ -1219,6 +1217,12 @@ get_proc_name (const char *name, gfc_symbol **result, bool module_fcn_entry)
 	gfc_error_now ("Procedure %qs at %C is already defined at %L",
 		       name, &sym->declared_at);
 
+      if (sym->attr.external && sym->attr.procedure
+	  && gfc_current_state () == COMP_CONTAINS)
+	gfc_error_now ("Contained procedure %qs at %C clashes with "
+			"procedure defined at %L",
+		       name, &sym->declared_at);
+
       /* Trap a procedure with a name the same as interface in the
 	 encompassing scope.  */
       if (sym->attr.generic != 0
@@ -1238,9 +1242,29 @@ get_proc_name (const char *name, gfc_symbol **result, bool module_fcn_entry)
 	  && sym->attr.access == 0
 	  && !module_fcn_entry)
 	gfc_error_now ("Procedure %qs at %C has an explicit interface "
-		       "and must not have attributes declared at %L",
-		       name, &sym->declared_at);
+		       "from a previous declaration",  name);
     }
+
+  /* C1246 (R1225) MODULE shall appear only in the function-stmt or
+     subroutine-stmt of a module subprogram or of a nonabstract interface
+     body that is declared in the scoping unit of a module or submodule.  */
+  if (sym->attr.external
+      && (sym->attr.subroutine || sym->attr.function)
+      && sym->attr.if_source == IFSRC_IFBODY
+      && !current_attr.module_procedure
+      && sym->attr.proc == PROC_MODULE
+      && gfc_state_stack->state == COMP_CONTAINS)
+    gfc_error_now ("Procedure %qs defined in interface body at %L "
+		   "clashes with internal procedure defined at %C",
+		    name, &sym->declared_at);
+
+  if (sym && !sym->gfc_new
+      && sym->attr.flavor != FL_UNKNOWN
+      && sym->attr.referenced == 0 && sym->attr.subroutine == 1
+      && gfc_state_stack->state == COMP_CONTAINS
+      && gfc_state_stack->previous->state == COMP_SUBROUTINE)
+    gfc_error_now ("Procedure %qs at %C is already defined at %L",
+		    name, &sym->declared_at);
 
   if (gfc_current_ns->parent == NULL || *result == NULL)
     return rc;
@@ -1263,10 +1287,10 @@ get_proc_name (const char *name, gfc_symbol **result, bool module_fcn_entry)
   /* See if the procedure should be a module procedure.  */
 
   if (((sym->ns->proc_name != NULL
-		&& sym->ns->proc_name->attr.flavor == FL_MODULE
-		&& sym->attr.proc != PROC_MODULE)
-	    || (module_fcn_entry && sym->attr.proc != PROC_MODULE))
-	&& !gfc_add_procedure (&sym->attr, PROC_MODULE, sym->name, NULL))
+	&& sym->ns->proc_name->attr.flavor == FL_MODULE
+	&& sym->attr.proc != PROC_MODULE)
+       || (module_fcn_entry && sym->attr.proc != PROC_MODULE))
+      && !gfc_add_procedure (&sym->attr, PROC_MODULE, sym->name, NULL))
     rc = 2;
 
   return rc;

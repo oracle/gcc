@@ -27,7 +27,7 @@ int a[8];
 void
 test01()
 {
-  auto p = a + 8;
+  int* p = a + 8;
   std::greater<int*> gt;
 
   std::stringstream ss;
@@ -44,7 +44,7 @@ test01()
   ss.str("");
   ss.clear();
   sum = 0;
-  auto p2 = a + 8;
+  int* p2 = a + 8;
   std::greater<> gt2;
   ss << gt2(p2, b) << ' ' << gt2(b, p2) << ' ' << (!gt2(p2, b) && !gt2(b, p2));
   while (ss >> n)
@@ -59,7 +59,7 @@ test01()
 void
 test02()
 {
-  auto p = a + 8;
+  int* p = a + 8;
   std::less<int*> lt;
 
   std::stringstream ss;
@@ -76,7 +76,7 @@ test02()
   ss.str("");
   ss.clear();
   sum = 0;
-  auto p2 = a + 8;
+  int* p2 = a + 8;
   std::less<> lt2;
   ss << lt2(p2, b) << ' ' << lt2(b, p2) << ' ' << (!lt2(p2, b) && !lt2(b, p2));
   while (ss >> n)
@@ -91,7 +91,7 @@ test02()
 void
 test03()
 {
-  auto p = a + 8;
+  int* p = a + 8;
   std::greater_equal<int*> ge;
 
   std::stringstream ss;
@@ -109,7 +109,7 @@ test03()
   ss.str("");
   ss.clear();
   sum = 0;
-  auto p2 = a + 8;
+  int* p2 = a + 8;
   std::greater_equal<> ge2;
   ss << !ge2(p2, b) << ' ' << !ge2(b, p2) << ' ' << (ge2(p2, b) && ge2(b, p2));
   while (ss >> n)
@@ -125,7 +125,7 @@ test03()
 void
 test04()
 {
-  auto p = a + 8;
+  int* p = a + 8;
   std::less_equal<int*> le;
 
   std::stringstream ss;
@@ -143,7 +143,7 @@ test04()
   ss.str("");
   ss.clear();
   sum = 0;
-  auto p2 = a + 8;
+  int* p2 = a + 8;
   std::less_equal<> le2;
   ss << !le2(p2, b) << ' ' << !le2(b, p2) << ' ' << (le2(p2, b) && le2(b, p2));
   while (ss >> n)
@@ -167,14 +167,14 @@ void
 test05()
 {
   std::less<const X*> lt;
-  auto p = y + 4;
+  X* p = y + 4;
   std::stringstream ss;
   ss << lt(x, p) << ' ' << lt(p, x) << ' ' << (!lt(p, x) && !lt(x, p));
   int sum = 0;
   int n = 0;
   while (ss >> n)
     sum += n;
-  assert( sum == 1 );
+  VERIFY( sum == 1 );
 
 #if __cplusplus >= 201402L
   static_assert( lt(y, y+1), "constexpr less<const X*>" );
@@ -183,7 +183,7 @@ test05()
   ss.str("");
   ss.clear();
   sum = 0;
-  auto p2 = y + 4;
+  X* p2 = y + 4;
   std::less<> lt2;
   ss << lt2(x, p2) << ' ' << lt2(p2, x) << ' ' << (!lt2(x, p2) && !lt2(p2, x));
   while (ss >> n)
@@ -195,6 +195,39 @@ test05()
 #endif
 }
 
+struct Overloaded {
+  bool operator>(int) { return true; }
+  bool operator<(int) { return false; }
+  bool operator>=(int) { return true; }
+  bool operator<=(int) { return false; }
+};
+bool operator>(Overloaded, Overloaded) { return false; }
+bool operator<(Overloaded, Overloaded) { return false; }
+bool operator>=(Overloaded, Overloaded) { return true; }
+bool operator<=(Overloaded, Overloaded) { return true; }
+
+void
+test06()
+{
+#if __cplusplus >= 201402L
+  std::greater<void> gt;
+  std::less<void> lt;
+  std::greater_equal<void> ge;
+  std::less_equal<void> le;
+
+  Overloaded o;
+  VERIFY( !gt(o, o) );
+  VERIFY( !lt(o, o) );
+  VERIFY( ge(o, o) );
+  VERIFY( le(o, o) );
+
+  VERIFY( gt(o, 1) );
+  VERIFY( !lt(o, 1) );
+  VERIFY( ge(o, 1) );
+  VERIFY( !le(o, 1) );
+#endif
+}
+
 int
 main()
 {
@@ -203,4 +236,5 @@ main()
   test03();
   test04();
   test05();
+  test06();
 }

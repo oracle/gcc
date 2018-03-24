@@ -1,3 +1,370 @@
+2018-03-23  Jakub Jelinek  <jakub@redhat.com>
+
+	PR inline-asm/85022
+	* emit-rtl.c (init_emit_regs): Indicate that VOIDmode MEMs don't have
+	known size by default.
+
+2018-03-23  Vladimir Makarov  <vmakarov@redhat.com>
+
+	PR inline-asm/85030
+	* lra-constraints.c (process_alt_operands): Don't match BLKmode
+	and non BLKmode operands.
+
+2018-03-23  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	PR target/85026
+	* config/arm/arm.md (unaligned_loadhis): Remove first alternative.
+	Clean up attributes.
+
+2018-03-23  Richard Biener  <rguenther@suse.de>
+
+	PR debug/85020
+	* dwarf2out.c (rtl_for_decl_location): Do not generate RTL early when
+	we are going to emit early debug for LTO.
+
+2018-03-23  Jakub Jelinek  <jakub@redhat.com>
+
+	PR inline-asm/85034
+	* function.c (match_asm_constraints_1): Don't optimize if input
+	doesn't satisfy general_operand predicate for output's mode.
+
+	PR inline-asm/85022
+	* alias.c (write_dependence_p): Don't require for x_canonicalized
+	non-VOIDmode if x has VOIDmode.
+
+	PR sanitizer/85029
+	* sanopt.c (maybe_optimize_ubsan_ptr_ifn): If DECL_REGISTER (base),
+	just don't try to optimize it rather than assert it never happens.
+
+2018-03-22  Kelvin Nilsen  <kelvin@gcc.gnu.org>
+
+	* config/rs6000/rs6000-builtin.def: Remove various BU_ALTIVEC_X
+	macro expansions for definition of ST_INTERNAL_<mode> and
+	LD_INTERNAL_<mode> builtins.
+	* config/rs6000/rs6000-protos.h (rs6000_address_for_altivec):
+	Remove prototype.
+	* config/rs6000/rs6000.c (altivec_expand_ld_builtin): Delete this
+	function.
+	(altivec_expand_st_builtin): Likewise.
+	(altivec_expand_builtin): Remove calls to deleted functions.
+	(rs6000_address_for_altivec): Delete this function.
+	* config/rs6000/vector.md: Remove expands for
+	vector_altivec_load_<mode> and vector_altivec_store_<mode>.
+
+2018-03-22  Sudakshina Das  <sudi.das@arm.com>
+
+	PR target/84826
+	* config/arm/arm.h (machine_function): Add static_chain_stack_bytes.
+	* config/arm/arm.c (arm_compute_static_chain_stack_bytes): Avoid
+	re-computing once computed.
+	(arm_expand_prologue): Compute machine->static_chain_stack_bytes.
+	(arm_init_machine_status): Initialize
+	machine->static_chain_stack_bytes.
+
+2018-03-22  Kelvin Nilsen  <kelvin@gcc.gnu.org>
+
+	PR target/84760
+	* doc/extend.texi: Add four new prototypes for vec_ld.
+	* config/rs6000/rs6000-builtin.def (LVX_V1TI): Reorder symbol
+	definitions for more logical presentation.
+	* config/rs6000/rs6000-c.c: (altivec_overloaded_builtins): Add
+	entries for V1TI variants of __builtin_altivec_ld builtin.
+	* config/rs6000/rs6000.c: (altivec_expand_lv_builtin): Add test and
+	handling of V1TI variant of LVX icode pattern.
+	(altivec_expand_builtin): Add case for ALTIVEC_BUILTIN_LVX_V1TI.
+	(rs6000_gimple_fold_builtin): Likewise.
+	(altivec_init_builtins): Add code to define
+	__builtin_altivec_lvx_v1ti function.
+
+2018-03-22  Jakub Jelinek  <jakub@redhat.com>
+
+	PR inline-asm/84941
+	* function.c (match_asm_constraints_1): Don't do the optimization
+	if input isn't a REG, SUBREG, MEM or constant.
+
+2018-03-22  Tom de Vries  <tom@codesourcery.com>
+
+	PR tree-optimization/84956
+	* tree-ssa-tail-merge.c (find_clusters_1): Skip bbs with
+	bb_has_abnormal_pred.
+
+2018-03-22  Jakub Jelinek  <jakub@redhat.com>
+
+	PR sanitizer/85018
+	* dwarf2asm.c (dw2_output_indirect_constant_1): Set
+	DECL_INITIAL (decl) to decl at the end.
+	* varasm.c (use_blocks_for_decl_p): Revert the 2018-03-20 change,
+	adjust the comment.
+
+2018-03-21  Joseph Myers  <joseph@codesourcery.com>
+
+	* doc/extend.texi (__builtin_tgmath): Document when complex
+	integer types are treated as _Complex _Float64.
+
+2018-03-21  Tom de Vries  <tom@codesourcery.com>
+
+	* doc/extend.texi (__builtin_extend_pointer): Remove pasto.
+
+2018-03-21  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/84960
+	* tree-cfg.c (remove_bb): Don't move forced labels into bb->prev_bb
+	if it is ENTRY block, move them into single succ of ENTRY in that case.
+
+2018-03-21  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	PR tree-optimization/84811
+	* poly-int.h (poly_span_traits): Remove the T3 parameter and
+	promote HOST_WIDE_INT T2 - T1 results to unsigned HOST_WIDE_INT.
+	(maybe_in_range_p, known_in_range_p, ranges_known_overlap_p):
+	(known_subrange_p): Update accordingly.  Cast each value involved
+	in the size comparison, rather than casting the result of the
+	subtraction.
+
+2018-03-21  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/84982
+	* gimple-ssa-store-merging.c (invert_op): Handle boolean inversion
+	by flipping the least significant bit rather than all bits from
+	bitpos to bitpos + bitsize - 1.
+
+2018-03-21  Nathan Sidwell  <nathan@acm.org>
+
+	* doc/extend.texi (Deprecated Features): Remove mention of
+	long-deleted deprecations.
+
+2018-03-21  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
+
+	PR jit/84288
+	* configure.ac (gcc_cv_ld_soname) <*-*-solaris2*>: Set.
+	* configure: Regenerate.
+
+2018-03-21  Tom de Vries  <tom@codesourcery.com>
+
+	PR tree-optimization/83126
+	* tree-parloops.c (num_phis): New function.
+	(gen_parallel_loop): Detect and handle canonicalize_loop_ivs failure.
+
+2018-03-21  Nathan Sidwell  <nathan@acm.org>
+
+	* doc/extend.texi (Deprecated Features): Update deprecated flags,
+	mention anon-struct/union members and trailing attributes.
+
+2018-03-21  Bin Cheng  <bin.cheng@arm.com>
+
+	PR tree-optimization/84969
+	* tree-loop-distribution.c (fuse_memset_builtins): Don't reorder
+	builtin memset partitions if they set different rhs values.
+
+2018-03-21  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/84989
+	* simplify-rtx.c (simplify_unary_operation_1): Don't try to simplify
+	VEC_DUPLICATE with scalar result mode.
+
+2018-03-21  Martin Liska  <mliska@suse.cz>
+
+	PR ipa/84963
+	* ipa-icf.c (sem_item_optimizer::fixup_points_to_sets): Remove
+	not intended return statement.
+
+2018-03-21  Martin Liska  <mliska@suse.cz>
+
+	PR target/84988
+	* tree-chkp.c (CHKP_ARRAY_MAX_CHECK_STEPS): Define a new macro.
+	(chkp_find_bound_slots_1): Limit number of iterations.
+
+2018-03-20  David H. Gutteridge  <dhgutteridge@sympatico.ca>
+
+	PR target/84838
+	* Minor grammar fixes for x86 options.
+
+2018-03-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR debug/84875
+	* dce.c (delete_unmarked_insns): Don't remove frame related noop moves
+	holding REG_CFA_RESTORE notes, instead turn them into a USE.
+
+2018-03-20  Peter Bergner  <bergner@vnet.ibm.com>
+
+	PR target/83789
+	* config/rs6000/altivec.md (altivec_lvx_<mode>_2op): Delete define_insn.
+	(altivec_lvx_<mode>_1op): Likewise.
+	(altivec_stvx_<mode>_2op): Likewise.
+	(altivec_stvx_<mode>_1op): Likewise.
+	(altivec_lvx_<VM2:mode>): New define_expand.
+	(altivec_stvx_<VM2:mode>): Likewise.
+	(altivec_lvx_<VM2:mode>_2op_<P:mptrsize>): New define_insn.
+	(altivec_lvx_<VM2:mode>_1op_<P:mptrsize>): Likewise.
+	(altivec_stvx_<VM2:mode>_2op_<P:mptrsize>): Likewise.
+	(altivec_stvx_<VM2:mode>_1op_<P:mptrsize>): Likewise.
+	* config/rs6000/rs6000-p8swap.c (rs6000_gen_stvx): Use new expanders.
+	(rs6000_gen_lvx): Likewise.
+	* config/rs6000/rs6000.c (altivec_expand_lv_builtin): Likewise.
+	(altivec_expand_stv_builtin): Likewise.
+	(altivec_expand_builtin): Likewise.
+	* config/rs6000/vector.md: Likewise.
+
+2018-03-20  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	PR target/82518
+	* config/arm/arm.c (arm_array_mode_supported_p): Return false for
+	BYTES_BIG_ENDIAN.
+
+2018-03-20  Richard Biener  <rguenther@suse.de>
+
+	PR target/84986
+	* config/i386/i386.c (ix86_add_stmt_cost): Only cost
+	sign-conversions as zero, fall back to standard scalar_stmt
+	cost for the rest.
+
+2018-03-20  Martin Liska  <mliska@suse.cz>
+
+	PR ipa/84825
+	* predict.c (rebuild_frequencies): Handle case when we have
+	PROFILE_ABSENT, but flag_guess_branch_prob is false.
+
+2018-03-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/84990
+	* dwarf2asm.c (dw2_output_indirect_constant_1): Temporarily turn off
+	flag_section_anchors.
+	* varasm.c (use_blocks_for_decl_p): Remove hack for
+	dw2_force_const_mem.
+
+	PR target/84845
+	* config/aarch64/aarch64.md (*aarch64_reg_<mode>3_neg_mask2): Rename
+	to ...
+	(*aarch64_<optab>_reg_<mode>3_neg_mask2): ... this.  If pseudos can't
+	be created, use lowpart_subreg of operands[0] rather than operands[0]
+	itself.
+	(*aarch64_reg_<mode>3_minus_mask): Rename to ...
+	(*aarch64_ashl_reg_<mode>3_minus_mask): ... this.
+	(*aarch64_<optab>_reg_di3_mask2): Use const_int_operand predicate
+	and n constraint instead of aarch64_shift_imm_di and Usd.
+	(*aarch64_reg_<optab>_minus<mode>3): Rename to ...
+	(*aarch64_<optab>_reg_minus<mode>3): ... this.
+
+2018-03-20  Sudakshina Das  <sudi.das@arm.com>
+
+	PR target/82989
+	* config/arm/neon.md (ashldi3_neon): Update ?s for constraints
+	to favor GPR over NEON registers.
+	(<shift>di3_neon): Likewise.
+
+2018-03-20  Tom de Vries  <tom@codesourcery.com>
+
+	PR target/84952
+	* config/nvptx/nvptx.c (nvptx_single): Don't neuter bar.sync.
+	(nvptx_process_pars): Emit bar.sync asap and alap.
+
+2018-03-20  Tom de Vries  <tom@codesourcery.com>
+
+	PR target/84954
+	* config/nvptx/nvptx.c (prevent_branch_around_nothing): Also update
+	seen_label if seen_label is already set.
+
+2018-03-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/84945
+	* config/i386/i386.c (fold_builtin_cpu): For features above 31
+	use __cpu_features2 variable instead of __cpu_model.__cpu_features[0].
+	Use 1U instead of 1.  Formatting fixes.
+
+	PR c/84953
+	* builtins.c (fold_builtin_strpbrk): For strpbrk(x, "") use type
+	instead of TREE_TYPE (s1) for the return value.
+
+2018-03-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/84946
+	* gimple-ssa-store-merging.c (mem_valid_for_store_merging): Compute
+	bitsize + bitsize in poly_uint64 rather than poly_int64.
+
+	PR sanitizer/78651
+	* dwarf2asm.c: Include fold-const.c.
+	(dw2_output_indirect_constant_1): Set DECL_INITIAL (decl) to ADDR_EXPR
+	of decl rather than decl itself.
+
+	PR rtl-optimization/84643
+	* memmodel.h (enum memmodel): Add MEMMODEL_MAX enumerator.
+
+2018-03-19  Maxim Ostapenko  <m.ostapenko@samsung.com>
+
+	PR sanitizer/78651
+	* dwarf2asm.c (dw2_output_indirect_constant_1): Disable ASan before
+	calling assemble_variable.
+
+2018-03-19  Sudakshina Das  <sudi.das@arm.com>
+
+	PR target/81647
+	* config/aarch64/aarch64-simd.md (vec_cmp<mode><v_int_equiv>): Modify
+	instructions for UNLT, UNLE, UNGT, UNGE, UNEQ, UNORDERED and ORDERED.
+
+2018-03-19  Jim Wilson  <jimw@sifive.com>
+
+	PR bootstrap/84856
+	* config/riscv/riscv.c (riscv_function_arg_boundary): Use
+	PREFERRED_STACK_BOUNDARY instead of STACK_BOUNDARY.
+	(riscv_first_stack_step): Likewise.
+	(riscv_option_override): Use STACK_BOUNDARY instead of
+	MIN_STACK_BOUNDARY.
+	* config/riscv/riscv.h (STACK_BOUNDARY): Renamed from
+	MIN_STACK_BOUNDARY.
+	(BIGGEST_ALIGNMENT): Set to 128.
+	(PREFERRED_STACK_BOUNDARY): Renamed from STACK_BOUNDARY.
+	(RISCV_STACK_ALIGN): Use PREFERRED_STACK_BOUNDARY instead of
+	STACK_BOUNDARY.
+
+2018-03-19  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/84933
+	* tree-vrp.c (set_and_canonicalize_value_range): Treat out-of-bound
+	values as -INF/INF when canonicalizing an ANTI_RANGE to a RANGE.
+
+2018-03-19  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/84859
+	* tree-ssa-phiopt.c (single_trailing_store_in_bb): New function.
+	(cond_if_else_store_replacement): Perform sinking operation on
+	single-store BBs regardless of MAX_STORES_TO_SINK setting.
+	Generalize what a BB with a single eligible store is.
+
+2018-03-19  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/84929
+	* tree-data-ref.c (analyze_siv_subscript_cst_affine): Guard
+	chrec_is_positive against non-chrec arg.
+
+2018-03-19  Tamar Christina  <tamar.christina@arm.com>
+
+	PR target/84711
+	* config/arm/arm.c (arm_can_change_mode_class): revert r258554.
+
+2018-03-18  Martin Liska  <mliska@suse.cz>
+
+	PR rtl-optimization/84635
+	* regrename.c (build_def_use): Use matches_mode only when
+	matches >= 0.
+
+2018-03-18  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	PR tree-optimization/84913
+	* tree-vect-loop.c (vectorizable_reduction): Don't try to
+	vectorize chains of COND_EXPRs.
+
+2018-03-18  Chung-Ju Wu  <jasonwucj@gmail.com>
+
+	* config/nds32/nds32.h (MAX_REGS_PER_ADDRESS): Fix the value.
+
+2018-03-18  Chung-Ju Wu  <jasonwucj@gmail.com>
+
+	* config/nds32/nds32.h (LOGICAL_OP_NON_SHORT_CIRCUIT): Define.
+
+2018-03-18  Chung-Ju Wu  <jasonwucj@gmail.com>
+
+	* config/nds32/nds32.h (CLZ_DEFINED_VALUE_AT_ZERO): Define.
+
 2018-03-17  Chung-Ju Wu  <jasonwucj@gmail.com>
 	    Kito Cheng  <kito.cheng@gmail.com>
 
@@ -9087,6 +9454,4 @@
 
 Copyright (C) 2018 Free Software Foundation, Inc.
 
-Copying and distribution of this file, with or without modification,
-are permitted in any medium without royalty provided the copyright
-notice and this notice are preserved.
+Copying and distribu

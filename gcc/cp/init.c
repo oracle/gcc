@@ -3370,11 +3370,8 @@ build_new_1 (vec<tree, va_gc> **placement, tree type, tree nelts,
 	  else if (*init)
             {
               if (complain & tf_error)
-                permerror (input_location,
-			   "parenthesized initializer in array new");
-              else
-                return error_mark_node;
-	      vecinit = build_tree_list_vec (*init);
+                error ("parenthesized initializer in array new");
+	      return error_mark_node;
             }
 	  init_expr
 	    = build_vec_init (data_addr,
@@ -4384,12 +4381,17 @@ build_vec_init (tree base, tree maxindex, tree init,
       else if (TREE_CODE (type) == ARRAY_TYPE)
 	{
 	  if (init && !BRACE_ENCLOSED_INITIALIZER_P (init))
-	    sorry
-	      ("cannot initialize multi-dimensional array with initializer");
-	  elt_init = build_vec_init (build1 (INDIRECT_REF, type, base),
-				     0, init,
-				     explicit_value_init_p,
-				     0, complain);
+	    {
+	      if ((complain & tf_error))
+		error_at (loc, "array must be initialized "
+			  "with a brace-enclosed initializer");
+	      elt_init = error_mark_node;
+	    }
+	  else
+	    elt_init = build_vec_init (build1 (INDIRECT_REF, type, base),
+				       0, init,
+				       explicit_value_init_p,
+				       0, complain);
 	}
       else if (explicit_value_init_p)
 	{
@@ -4449,7 +4451,7 @@ build_vec_init (tree base, tree maxindex, tree init,
 	}
 
       current_stmt_tree ()->stmts_are_full_exprs_p = 1;
-      if (elt_init)
+      if (elt_init && !errors)
 	finish_expr_stmt (elt_init);
       current_stmt_tree ()->stmts_are_full_exprs_p = 0;
 

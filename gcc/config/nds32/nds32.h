@@ -851,7 +851,7 @@ enum reg_class
 
 #define CONSTANT_ADDRESS_P(x) (CONSTANT_P (x) && GET_CODE (x) != CONST_DOUBLE)
 
-#define MAX_REGS_PER_ADDRESS 2
+#define MAX_REGS_PER_ADDRESS 3
 
 
 /* Anchored Addresses.  */
@@ -866,6 +866,10 @@ enum reg_class
    A value of 1 is the default;
    other values are interpreted relative to that.  */
 #define BRANCH_COST(speed_p, predictable_p) ((speed_p) ? 2 : 0)
+
+/* Override BRANCH_COST heuristic which empirically produces worse
+   performance for removing short circuiting from the logical ops.  */
+#define LOGICAL_OP_NON_SHORT_CIRCUIT 0
 
 #define SLOW_BYTE_ACCESS 1
 
@@ -1065,6 +1069,11 @@ enum reg_class
    an integral mode and stored by a store-flag instruction ('cstoremode4')
    when the condition is true.  */
 #define STORE_FLAG_VALUE 1
+
+/* A C expression that indicates whether the architecture defines a value for
+   clz or ctz with a zero operand.  In nds32 clz for 0 result 32 is defined
+   in ISA spec */
+#define CLZ_DEFINED_VALUE_AT_ZERO(MODE, VALUE)  ((VALUE) = 32, 1)
 
 /* An alias for the machine mode for pointers.  */
 #define Pmode SImode

@@ -1,3 +1,221 @@
+2018-03-23  Jason Merrill  <jason@redhat.com>
+
+	PR c++/78489 - wrong SFINAE behavior.
+
+	PR c++/84489
+	* pt.c (type_unification_real): Don't defer substitution failure.
+
+2018-03-23  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/85015
+	* decl.c (compute_array_index_type): Set osize to mark_rvalue_use
+	result.
+
+	PR c++/84942
+	* pt.c (tsubst_copy_and_build) <case FIX_TRUNC_EXPR>: Replace
+	cp_build_unary_op call with gcc_unreachable ().
+
+2018-03-23  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/85045
+	* cxx-pretty-print.c (cxx_pretty_printer::multiplicative_expression):
+	Handle EXACT_DIV_EXPR and RDIV_EXPR.  Tweak condition.
+	(cxx_pretty_printer::expression): Handle EXACT_DIV_EXPR and RDIV_EXPR.
+
+2018-03-23  Ville Voutilainen  <ville.voutilainen@gmail.com>
+
+	Implement P0962
+	* parser.c (cp_parser_perform_range_for_lookup): Change
+	the condition for deciding whether to use members.
+
+2018-03-23  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/85033
+	* semantics.c (finish_offsetof): Don't allow CONST_DECLs.
+
+2018-03-23  Alexandre Oliva <aoliva@redhat.com>
+
+	PR c++/71251
+	* parser.c (cp_parser_alias_declaration): Call
+	parser_check_template_parameters.
+
+	PR c++/84789
+	* pt.c (resolve_typename_type): Drop assert that stopped
+	simplification to template-independent types.  Add assert to
+	verify the initial scope is template dependent.
+	* parser.c (cp_parser_parse_and_diagnose_invalid_type_name):
+	Reparse the id expression as a type-name, not a declarator.
+
+	PR c++/84729
+	* init.c (build_vec_init): Error at parenthesized array init.
+
+	PR c++/84610
+	PR c++/84642
+	PR c++/84942
+	* cp-tree.h (temp_override): New template class, generalizing
+	a cleanup that was only used...
+	* parser.c (cp_parser_parameter_declaration_clause):
+	... here for auto_is_implicit_function_template_parm_p.
+	(cp_parser_gnu_attributes_opt): Use it here as well.
+	(cp_parser_std_attribute): Likewise.
+
+2018-03-22  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/84854
+	* semantics.c (finish_if_stmt_cond): Check if the type of the condition
+	is boolean.
+
+2018-03-21  Jason Merrill  <jason@redhat.com>
+
+	PR c++/81311 - wrong C++17 overload resolution.
+	* call.c (build_user_type_conversion_1): Remove C++17 code.
+	(conv_binds_ref_to_prvalue): New.
+	(build_over_call): Handle C++17 copy elision.
+	(build_special_member_call): Only do C++17 copy elision here if the
+	argument is already the right type.
+
+2018-03-21  Alexandre Oliva <aoliva@redhat.com>
+
+	PR c++/71965
+	* init.c (build_vec_init): Silence error, former sorry,
+	without tf_error.
+
+	PR c++/84610
+	PR c++/84642
+	* parser.c (abort_fully_implicit_template_p): New.
+	(cp_parser_skip_to_end_of_statement): Use it.
+	(cp_parser_skip_to_end_of_block_or_statement): Likewise.
+	(finish_fully_implicit_template_p): Clear
+	implicit_template_parms and implicit_template_scope.
+
+2018-03-21  Paolo Carlini  <paolo.carlini@oracle.com>
+
+	PR c++/84972
+	* decl.c (maybe_deduce_size_from_array_init): Set TREE_TYPE to
+	error_mark_node when check_array_designated_initializer fails.
+
+2018-03-21  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/84961
+	* cp-tree.h (genericize_compound_lvalue): Declare.
+	* typeck.c (genericize_compound_lvalue): New function.
+	(unary_complex_lvalue, cp_build_modify_expr): Use it.
+	* semantics.c (finish_asm_stmt): Replace MODIFY_EXPR, PREINCREMENT_EXPR
+	and PREDECREMENT_EXPR in output and "m" constrained input operands with
+	COMPOUND_EXPR.  Call cxx_mark_addressable on the rightmost
+	COMPOUND_EXPR operand.
+
+2018-03-21  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/85008
+	* tree.c (decl_linkage): Use DECL_CLONED_FUNCTION_P.
+	* decl2.c (vague_linkage_p): Likewise.
+
+2018-03-21  David Malcolm  <dmalcolm@redhat.com>
+
+	PR c++/84994
+	* constexpr.c (constexpr_fn_retval): Make non-"static".
+	* cp-tree.h (constexpr_fn_retval): New decl.
+	* search.c (direct_accessor_p): Update leading comment.
+	(reference_accessor_p): Likewise.
+	(field_accessor_p): Replace check that function body is a
+	RETURN_EXPR with a call to constexpr_fn_retval.  Fix
+	indentation of "field_type" decl.
+
+2018-03-21  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/84804
+	* name-lookup.c (do_pushtag): Permit lambdas to be pushed into
+	complete classes.
+
+2018-03-21  Martin Sebor  <msebor@redhat.com>
+
+	PR c++/84850
+	* call.c (first_non_public_field): New template and function.
+	(first_non_trivial_field): New function.
+	(maybe_warn_class_memaccess): Call them.
+
+2018-03-21  David Malcolm  <dmalcolm@redhat.com>
+
+	PR c++/84892
+	* search.c (field_accessor_p): Use class_of_this_parm rather than
+	type_of_this_parm, to check that "this" is a "const T *", rather
+	than a "T *const".
+
+2018-03-21  Nathan Sidwell  <nathan@acm.org>
+
+	* class.c (finish_struct_anon_r): Refactor, deprecate anything
+	other than public non-static data members.
+	* parser.c (cp_parser_init_declarator): Deprecate attributes after
+	parenthesized initializer.
+
+	PR c++/84836
+	* name-lookup.c (update_binding): Correct logic for local binding
+	update.
+
+2018-03-21  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/71638, ICE with NSDMI and reference.
+	* constexpr.c (cxx_eval_bare_aggregate): Update constructor's flags
+	even when we replace an element.
+
+2018-03-20  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/84978, ICE with NRVO.
+	* constexpr.c (cxx_eval_constant_expression): Handle the case when
+	a RESULT_DECL isn't in the hash map.
+
+2018-03-20  Jason Merrill  <jason@redhat.com>
+
+	PR c++/84978, ICE with NRVO.
+	* cvt.c (cp_get_fndecl_from_callee): Add fold parameter.
+	(cp_get_callee_fndecl_nofold): New.
+	* cp-gimplify.c (cp_genericize_r): Use it instead.
+	* call.c (check_self_delegation): Likewise.
+
+2018-03-20  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/84962
+	* name-lookup.c (pushdecl_class_level): Push anon-struct's
+	member_vec, if there is one.
+
+	PR c++/84970
+	* cp-tree.h (lookup_list_keep): Declare.
+	* tree.c (lookup_list_keep): New, broken out of ...
+	(build_min): ... here.  Call it.
+	* decl.c (cp_finish_decl): Call lookup_list_keep.
+
+2018-03-19  Jason Merrill  <jason@redhat.com>
+
+	PR c++/84937 - ICE with class deduction and auto.
+	* pt.c (rewrite_template_parm): Fix auto handling.
+
+2018-03-19  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/84925
+	* pt.c (enclosing_instantiation_of): Check if fn is null.
+
+	PR c++/84927
+	* constexpr.c (cxx_eval_bare_aggregate): Update constructor's flags
+	as we evaluate the elements.
+	(cxx_eval_constant_expression): Verify constructor's flags
+	unconditionally.
+
+2018-03-19  Jason Merrill  <jason@redhat.com>
+
+	PR c++/71834 - template-id with too few arguments.
+	* pt.c (coerce_template_parms): Check fixed_parameter_pack_p.
+
+2018-03-19  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/84835
+	* lambda.c (maybe_add_lambda_conv_op): Force C++ linkage.
+	* pt.c (build_template_decl): Propagate language linkage.
+
+	PR c++/84812
+	* name-lookup.c (set_local_extern_decl_linkage): Defend against
+	ambiguous lookups.
+
 2018-03-16  Jakub Jelinek  <jakub@redhat.com>
 
 	PR c/84910

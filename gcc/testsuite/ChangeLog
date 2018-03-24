@@ -1,3 +1,435 @@
+2018-03-23  Peter Bergner  <bergner@vnet.ibm.com>
+
+	* gcc.target/powerpc/builtins-1-le.c <vclzb>: Rename duplicate test
+	from this to...
+	<vclzd>: ...this.
+
+2018-03-23  Peter Bergner  <bergner@vnet.ibm.com>
+
+	* gcc.target/powerpc/builtins-1-le.c: Filter out gimple folding disabled
+	message.  Fix scan-assembler patterns.
+
+2018-03-23  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/85015
+	* g++.dg/cpp0x/pr85015.C: New test.
+
+	PR c++/84942
+	* g++.dg/cpp1y/pr84942.C: New test.
+
+2018-03-23  Vladimir Makarov  <vmakarov@redhat.com>
+
+	PR inline-asm/85030
+	* testsuite/gcc.target/i386/pr85030.c: New.
+
+2018-03-23  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	PR target/85026
+	* g++.dg/pr85026.C: New test.
+
+2018-03-23  David Edelsohn  <dje.gcc@gmail.com>
+
+	* g++.dg/debug/pr84704.C: XFAIL AIX.
+
+2018-03-23  Sudakshina Das  <sudi.das@arm.com>
+
+	PR target/84826
+	* gcc.target/arm/pr84826.c: Add dg directive.
+
+2018-03-23  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/85033
+	* g++.dg/ext/builtin-offsetof2.C: New test.
+
+	PR c++/85045
+	* g++.dg/cpp0x/Wnarrowing5.C: New test.
+	* gcc.dg/pr85045.c: New test.
+
+2018-03-23  Eric Botcazou  <ebotcazou@adacore.com>
+
+	PR debug/85020
+	* gnat.dg/lto22.adb: New test.
+	* gnat.dg/lto22_pkg1.ad[sb]: New helper.
+	* gnat.dg/lto22_pkg2.ads: Likewise.
+
+2018-03-23  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c/80778
+	* gcc.dg/lto/pr80778_0.c: New test.
+
+	PR inline-asm/85034
+	* gcc.target/i386/pr85034.c: New test.
+
+	PR inline-asm/85022
+	* c-c++-common/torture/pr85022.c: New test.
+
+	PR sanitizer/85029
+	* g++.dg/ubsan/pr85029.C: New test.
+
+2018-03-23  Alexandre Oliva <aoliva@redhat.com>
+
+	PR c++/71251
+	* g++.dg/cpp0x/pr71251.C: New.
+
+	PR c++/84789
+	* g++.dg/template/pr84789.C: New.
+	* g++.dg/template/pr84789-2.C: New.
+	* g++.dg/template/pr84789-3.C: New.
+	* g++.dg/parse/dtor11.C: Accept alternate error message.
+
+	PR c++/84729
+	* g++.dg/pr84729.C: New.
+	* g++.old-deja/g++.ext/arrnew2.C: Require error.
+	* g++.old-deja/g++.robertl/eb58.C: Likewise.
+	* g++.old-deja/g++.robertl/eb63.C: Likewise.
+
+2018-03-22  Steven G. Kargl  <kargl@gcc.gnu.org>
+
+	PR fortran/84922
+	* gfortran.dg/interface_42.f90: New test.
+	* gfortran.dg/interface_43.f90: New test.
+
+2018-03-22  Sudakshina Das  <sudi.das@arm.com>
+
+	PR target/84826
+	* gcc.target/arm/pr84826.c: New test.
+
+2018-03-22  Christophe Lyon  <christophe.lyon@linaro.org>
+
+	* gcc.target/arm/addr-modes-float.c: Move dg-do before
+	dg-require-effective-target.
+	* gcc.target/arm/addr-modes-int.c: Likewise.
+	* gcc.target/nios2/lo-addr-tls.c: Likewise.
+
+2018-03-22  Kelvin Nilsen  <kelvin@gcc.gnu.org>
+
+	PR target/84760
+	* gcc.target/powerpc/altivec-ld-1.c: New test.
+
+2018-03-22  Bin Cheng  <bin.cheng@arm.com>
+
+	* gcc.dg/graphite/pr83126.c: Require pthread for the test.
+
+2018-03-22  Jakub Jelinek  <jakub@redhat.com>
+
+	PR inline-asm/84941
+	* gcc.dg/pr84941.c: New test.
+
+2018-03-22  Tom de Vries  <tom@codesourcery.com>
+
+	PR tree-optimization/84956
+	* gcc.dg/pr84956.c: New test.
+
+2018-03-22  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/84854
+	* g++.dg/cpp1z/constexpr-if15.C: New test.
+	* g++.dg/cpp1z/constexpr-if16.C: New test.
+
+2018-03-21  Joseph Myers  <joseph@codesourcery.com>
+
+	* gcc.dg/builtin-tgmath-3.c: New test.
+
+2018-03-21  Alexandre Oliva <aoliva@redhat.com>
+
+	PR c++/71965
+	* g++.dg/concepts/pr71965.C: New.
+
+	PR c++/84610
+	PR c++/84642
+	* g++.dg/cpp0x/pr84610.C: New.
+	* g++.dg/cpp0x/pr84642.C: New.
+
+2018-03-21  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c/84999
+	* c-c++-common/pr84999.c: New test.
+
+2018-03-21  Paolo Carlini  <paolo.carlini@oracle.com>
+
+	PR c++/84972
+	* g++.dg/ext/desig10.C: New.
+
+2018-03-21  Thomas Koenig  <tkoenig@gcc.gnu.org>
+	    Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/84957
+	* gfortran.dg/pr84957.f90: New test.
+
+2018-03-21  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/84960
+	* gcc.c-torture/compile/pr84960.c: New test.
+
+2018-03-21  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	PR tree-optimization/84811
+	* gcc.dg/torture/pr84811.c: New test.
+
+2018-03-21  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/84982
+	* c-c++-common/pr84982.c: New test.
+
+	PR c++/84961
+	* c-c++-common/pr43690.c: Don't expect errors on "m" (--x) and
+	"m" (++x) in C++.
+	* g++.dg/torture/pr84961-1.C: New test.
+	* g++.dg/torture/pr84961-2.C: New test.
+
+2018-03-21  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/85008
+	* g++.dg/pr85008.C: New.
+
+2018-03-21  Janne Blomqvist  <jb@gcc.gnu.org>
+
+	PR fortran/84615
+	* gfortran.dg/char_result_17.f90: New test.
+
+2018-03-21  David Malcolm  <dmalcolm@redhat.com>
+
+	PR c++/84994
+	* g++.dg/other/accessor-fixits-1.C: Move to...
+	* g++.dg/torture/accessor-fixits-1.C: ...here.
+	* g++.dg/other/accessor-fixits-2.C: Move to...
+	* g++.dg/torture/accessor-fixits-2.C: ...here.
+	* g++.dg/other/accessor-fixits-3.C: Move to...
+	* g++.dg/torture/accessor-fixits-3.C: ...here.
+	* g++.dg/other/accessor-fixits-4.C: Move to...
+	* g++.dg/torture/accessor-fixits-4.C: ...here.
+	* g++.dg/other/accessor-fixits-5.C: Move to...
+	* g++.dg/torture/accessor-fixits-5.C: ...here.
+	* g++.dg/torture/accessor-fixits-6.C: New testcase.
+	* g++.dg/torture/accessor-fixits-7.C: New testcase.
+	* g++.dg/torture/accessor-fixits-8.C: New testcase.
+
+2018-03-21  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
+
+	* gcc.dg/tree-ssa/pr84512.c: xfail on 64-bit SPARC.
+
+2018-03-21  Sudakshina Das  <sudi.das@arm.com>
+
+	PR target/82989
+	* gcc.target/arm/pr82989.c: Change dg scan-assembly directives.
+
+2018-03-21  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/84804
+	* g++.dg/lookup/pr84804.C: New.
+
+2018-03-21  Martin Sebor  <msebor@redhat.com>
+
+	PR c++/84850
+	* g++.dg/Wclass-memaccess-3.C: New test.
+	* g++.dg/Wclass-memaccess-4.C: New test.
+
+2018-03-21  David Malcolm  <dmalcolm@redhat.com>
+
+	PR c++/84892
+	* g++.dg/other/accessor-fixits-1.C
+	(test_access_const_t1_color): New.
+	(test_deref_const_t1_color): New.
+	* g++.dg/other/accessor-fixits-5.C: New testcase.
+
+2018-03-21  Tom de Vries  <tom@codesourcery.com>
+
+	PR tree-optimization/83126
+	* gcc.dg/graphite/pr83126.c: New test.
+
+2018-03-21  Nathan Sidwell  <nathan@acm.org>
+
+	* g++.dg/ext/anon-struct6.C: Adjust.
+	* g++.dg/ext/deprecate-1.C: New.
+	* g++.dg/ext/deprecate-2.C: New.
+	* g++.dg/lookup/pr84602.C: Adjust.
+	* g++.dg/lookup/pr84962.C: Adjust.
+	* g++.old-deja/g++.other/anon4.C
+
+	PR c++/84836
+	* g++.dg/lookup/pr84836.C: New.
+
+2018-03-21  Bin Cheng  <bin.cheng@arm.com>
+
+	PR tree-optimization/84969
+	* gcc.dg/tree-ssa/pr84969.c: New test.
+
+2018-03-21  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/84989
+	* gcc.target/i386/pr84989.c: New test.
+
+2018-03-21  Christophe Lyon  <christophe.lyon@linaro.org>
+
+	* gcc.target/arm/pr82518.c: Require arm_neon_hw.
+
+2018-03-21  Martin Liska  <mliska@suse.cz>
+
+	PR ipa/84963
+	* gfortran.dg/goacc/pr84963.f90: New test.
+
+2018-03-21  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/71638, ICE with NSDMI and reference.
+	* g++.dg/cpp0x/nsdmi14.C: New test.
+	* g++.dg/cpp1y/nsdmi-aggr10.C: New test.
+
+2018-03-21  Chenghua Xu  <paul.hua.gm@gmail.com>
+
+	* gcc.dg/vect/vect-strided-shift-1.c: Add dg-skip-if for
+	MIPS with -mpaired-single directives.
+
+2018-03-20  Steven G. Kargl  <kargl@gcc.gnu.org>
+
+	PR fortran/85001
+	* gfortran.dg/interface_41.f90: New test.
+
+2018-03-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR debug/84875
+	* gcc.dg/pr84875.c: New test.
+
+2018-03-20  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/84978, ICE with NRVO.
+	* g++.dg/opt/nrv19.C: New test.
+
+2018-03-20  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	PR target/82518
+	* lib/target-supports.exp (check_effective_target_vect_load_lanes):
+	Disable for armeb targets.
+	* gcc.target/arm/pr82518.c: New test.
+
+2018-03-20  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/84962
+	* g++.dg/lookup/pr84962.C: New.
+
+	PR c++/84970
+	* g++.dg/lookup/pr84970.C: New.
+
+2018-03-20  Richard Biener  <rguenther@suse.de>
+
+	PR target/84986
+	* gcc.dg/vect/costmodel/x86_64/costmodel-pr84986.c: New testcase.
+
+2018-03-20  Martin Liska  <mliska@suse.cz>
+
+	PR ipa/84825
+	* g++.dg/ipa/pr84825.C: New test.
+
+2018-03-20  Martin Liska  <mliska@suse.cz>
+
+	* gcc.dg/lto/chkp-ctor-merge_0.c: Remove.
+
+2018-03-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/84845
+	* gcc.c-torture/compile/pr84845.c: New test.
+
+2018-03-20  Sudakshina Das  <sudi.das@arm.com>
+
+	PR target/82989
+	* gcc.target/arm/pr82989.c: New test.
+
+2018-03-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/84945
+	* gcc.target/i386/pr84945.c: New test.
+
+2018-03-20  Christophe Lyon  <christophe.lyon@linaro.org>
+
+	PR target/81647
+	* gcc.target/aarch64/pr81647.c: Require fenv_exceptions.
+
+2018-03-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c/84953
+	* gcc.dg/pr84953.c: New test.
+
+2018-03-19  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/84925
+	* g++.dg/cpp1z/lambda-__func__.C: New test.
+
+	PR c++/84927
+	* g++.dg/cpp1y/nsdmi-aggr9.C: New test.
+
+2018-03-19  Maxim Ostapenko  <m.ostapenko@samsung.com>
+
+	PR sanitizer/78651
+	* g++.dg/asan/pr78651.C: New test.
+
+2018-03-19  Tom de Vries  <tom@codesourcery.com>
+
+	* gcc.dg/tree-ssa/pr84512.c: Don't require effective target
+	vect_int_mult.  Add nvptx xfail for PR84958.
+
+2018-03-19  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/84835
+	* g++.dg/cpp1y/pr84835.C: New.
+
+2018-03-19  Sudakshina Das  <sudi.das@arm.com>
+
+	PR target/81647
+	* gcc.target/aarch64/pr81647.c: New.
+
+2018-03-19  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/84933
+	* g++.dg/pr84933.C: New testcase.
+
+2018-03-19  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/84859
+	* gcc.dg/tree-ssa/pr84859.c: New testcase.
+	* gcc.dg/tree-ssa/pr35286.c: Disable cselim.
+	* gcc.dg/tree-ssa/split-path-6.c: Likewise.
+	* gcc.dg/tree-ssa/split-path-7.c: Likewise.
+
+2018-03-19  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/84812
+	* g++.dg/lookup/pr84812.C: New.
+
+2018-03-19  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/84929
+	* gcc.dg/torture/pr84929.c: New testcase.
+
+2018-03-19  Tamar Christina  <tamar.christina@arm.com>
+
+	PR target/84711
+	* gcc.target/arm/big-endian-subreg.c: Delete.
+
+2018-03-19  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	PR fortran/84931
+	* gfortran.dg/array_constructor_52.f90: New test.
+
+2018-03-17  Steven G. Kargl  <kargl@gcc.gnu.org>
+
+	PR fortran/77414
+	* gfortran.dg/pr77414.f90: New test.
+	* gfortran.dg/internal_references_1.f90: Adjust error message.
+
+2018-03-18  Steven G. Kargl  <kargl@gcc.gnu.org>
+
+	PR fortran/65453
+	* gfortran.dg/pr65453.f90: New test.
+
+2018-03-18  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	PR tree-optimization/84913
+	* gfortran.dg/vect/pr84913.f90: New test.
+
+2018-03-18  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	PR fortran/79929
+	* gfortran.dg/warn_concat.f90: New test.
+
 2018-03-16  Jakub Jelinek  <jakub@redhat.com>
 
 	PR target/84899

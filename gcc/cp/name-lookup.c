@@ -2481,21 +2481,12 @@ update_binding (cp_binding_level *level, cxx_binding *binding, tree *slot,
  done:
   if (to_val)
     {
-      if (level->kind != sk_namespace
-	  && !to_type && binding->value && OVL_P (to_val))
-	update_local_overload (binding, to_val);
+      if (level->kind == sk_namespace || to_type == decl || to_val == decl)
+	add_decl_to_level (level, decl);
       else
 	{
-	  tree to_add = to_val;
-      
-	  if (level->kind == sk_namespace)
-	    to_add = decl;
-	  else if (to_type == decl)
-	    to_add = decl;
-	  else if (TREE_CODE (to_add) == OVERLOAD)
-	    to_add = build_tree_list (NULL_TREE, to_add);
-
-	  add_decl_to_level (level, to_add);
+	  gcc_checking_assert (binding->value && OVL_P (binding->value));
+	  update_local_overload (binding, to_val);
 	}
 
       if (slot)
@@ -2878,7 +2869,9 @@ set_local_extern_decl_linkage (tree decl, bool shadowed)
 	    = find_namespace_value (current_namespace, DECL_NAME (decl));
 	  loc_value = ns_value;
 	}
-      if (loc_value == error_mark_node)
+      if (loc_value == error_mark_node
+	  /* An ambiguous lookup.  */
+	  || (loc_value && TREE_CODE (loc_value) == TREE_LIST))
 	loc_value = NULL_TREE;
 
       for (ovl_iterator iter (loc_value); iter; ++iter)
@@ -2926,7 +2919,8 @@ set_local_extern_decl_linkage (tree decl, bool shadowed)
       if (ns_value == decl)
 	ns_value = find_namespace_value (current_namespace, DECL_NAME (decl));
 
-      if (ns_value == error_mark_node)
+      if (ns_value == error_mark_node
+	  || (ns_value && TREE_CODE (ns_value) == TREE_LIST))
 	ns_value = NULL_TREE;
 
       for (ovl_iterator iter (ns_value); iter; ++iter)
@@ -4487,16 +4481,30 @@ pushdecl_class_level (tree x)
       /* If X is an anonymous aggregate, all of its members are
 	 treated as if they were members of the class containing the
 	 aggregate, for naming purposes.  */
-      tree f;
-
-      for (f = TYPE_FIELDS (TREE_TYPE (x)); f; f = DECL_CHAIN (f))
-	{
-	  location_t save_location = input_location;
-	  input_location = DECL_SOURCE_LOCATION (f);
-	  if (!pushdecl_class_level (f))
-	    is_valid = false;
-	  input_location = save_location;
+      location_t save_location = input_location;
+      tree anon = TREE_TYPE (x);
+      if (vec<tree, va_gc> *member_vec = CLASSTYPE_MEMBER_VEC (anon))
+	for (unsigned ix = member_vec->length (); ix--;)
+	  {
+	    tree binding = (*member_vec)[ix];
+	    if (STAT_HACK_P (binding))
+	      {
+		if (!pushdecl_class_level (STAT_TYPE (binding)))
+		  is_valid = false;
+		binding = STAT_DECL (binding);
+	      }
+	    if (!pushdecl_class_level (binding))
+	      is_valid = false;
 	}
+      else
+	for (tree f = TYPE_FIELDS (anon); f; f = DECL_CHAIN (f))
+	  if (TREE_CODE (f) == FIELD_DECL)
+	    {
+	      input_location = DECL_SOURCE_LOCATION (f);
+	      if (!pushdecl_class_level (f))
+		is_valid = false;
+	    }
+      input_location = save_location;
     }
   timevar_cond_stop (TV_NAME_LOOKUP, subtime);
   return is_valid;
@@ -6428,7 +6436,8 @@ do_pushtag (tree name, tree type, tag_scope scope)
 
       if (b->kind == sk_class)
 	{
-	  if (!TYPE_BEING_DEFINED (current_class_type))
+	  if (!TYPE_BEING_DEFINED (current_class_type)
+	      && !LAMBDA_TYPE_P (type))
 	    return error_mark_node;
 
 	  if (!PROCESSING_REAL_TEMPLATE_DECL_P ())

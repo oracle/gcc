@@ -1657,6 +1657,25 @@ struct warning_sentinel
   ~warning_sentinel() { flag = val; }
 };
 
+/* RAII sentinel that saves the value of a variable, optionally
+   overrides it right away, and restores its value when the sentinel
+   id destructed.  */
+
+template <typename T>
+class temp_override
+{
+  T& overridden_variable;
+  T saved_value;
+public:
+  temp_override(T& var) : overridden_variable (var), saved_value (var) {}
+  temp_override(T& var, T overrider)
+    : overridden_variable (var), saved_value (var)
+  {
+    overridden_variable = overrider;
+  }
+  ~temp_override() { overridden_variable = saved_value; }
+};
+
 /* The cached class binding level, from the most recently exited
    class, or NULL if none.  */
 
@@ -6110,7 +6129,8 @@ extern tree cp_convert_and_check                (tree, tree, tsubst_flags_t);
 extern tree cp_fold_convert			(tree, tree);
 extern tree cp_get_callee			(tree);
 extern tree cp_get_callee_fndecl		(tree);
-extern tree cp_get_fndecl_from_callee		(tree);
+extern tree cp_get_callee_fndecl_nofold		(tree);
+extern tree cp_get_fndecl_from_callee		(tree, bool fold = true);
 extern tree convert_to_void			(tree, impl_conv_void,
                                  		 tsubst_flags_t);
 extern tree convert_force			(tree, tree, int,
@@ -7012,6 +7032,7 @@ extern tree lookup_add				(tree fns, tree lookup);
 extern tree lookup_maybe_add			(tree fns, tree lookup,
 						 bool deduping);
 extern void lookup_keep				(tree lookup, bool keep);
+extern void lookup_list_keep			(tree list, bool keep);
 extern int is_overloaded_fn			(tree) ATTRIBUTE_PURE;
 extern bool really_overloaded_fn		(tree) ATTRIBUTE_PURE;
 extern tree dependent_name			(tree);
@@ -7143,6 +7164,7 @@ extern tree cp_build_addressof			(location_t, tree,
 extern tree cp_build_addr_expr			(tree, tsubst_flags_t);
 extern tree cp_build_unary_op                   (enum tree_code, tree, bool,
                                                  tsubst_flags_t);
+extern tree genericize_compound_lvalue		(tree);
 extern tree unary_complex_lvalue		(enum tree_code, tree);
 extern tree build_x_conditional_expr		(location_t, tree, tree, tree, 
                                                  tsubst_flags_t);
@@ -7422,6 +7444,7 @@ extern bool literal_type_p                      (tree);
 extern tree register_constexpr_fundef           (tree, tree);
 extern bool is_valid_constexpr_fn		(tree, bool);
 extern bool check_constexpr_ctor_body           (tree, tree, bool);
+extern tree constexpr_fn_retval		(tree);
 extern tree ensure_literal_type_for_constexpr_object (tree);
 extern bool potential_constant_expression       (tree);
 extern bool is_constant_expression (tree);
