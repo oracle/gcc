@@ -1,3 +1,54 @@
+2018-04-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/85222
+	* src/c++11/Makefile.am [ENABLE_DUAL_ABI]: Add special rules for
+	cxx11-ios_failure.cc to rewrite type info for __ios_failure.
+	* src/c++11/Makefile.in: Regenerate.
+	* src/c++11/cxx11-ios_failure.cc (__ios_failure, __iosfail_type_info):
+	New types.
+	[_GLIBCXX_USE_DUAL_ABI] (__throw_ios_failure): Define here.
+	* src/c++11/ios.cc (__throw_ios_failure): Remove definition.
+	* src/c++98/ios_failure.cc (__construct_ios_failure)
+	(__destroy_ios_failure, is_ios_failure_handler): New functions.
+	[!_GLIBCXX_USE_DUAL_ABI] (__throw_ios_failure): Define here.
+	* testsuite/27_io/ios_base/failure/dual_abi.cc: New.
+	* testsuite/27_io/basic_ios/copyfmt/char/1.cc: Revert changes to
+	handler types, to always catch std::ios_base::failure.
+	* testsuite/27_io/basic_ios/exceptions/char/1.cc: Likewise.
+	* testsuite/27_io/basic_istream/extractors_arithmetic/char/
+	exceptions_failbit.cc: Likewise.
+	* testsuite/27_io/basic_istream/extractors_arithmetic/wchar_t/
+	exceptions_failbit.cc: Likewise.
+	* testsuite/27_io/basic_istream/extractors_other/char/
+	exceptions_null.cc: Likewise.
+	* testsuite/27_io/basic_istream/extractors_other/wchar_t/
+	exceptions_null.cc: Likewise.
+	* testsuite/27_io/basic_istream/sentry/char/12297.cc: Likewise.
+	* testsuite/27_io/basic_istream/sentry/wchar_t/12297.cc: Likewise.
+	* testsuite/27_io/basic_ostream/inserters_other/char/
+	exceptions_null.cc: Likewise.
+	* testsuite/27_io/basic_ostream/inserters_other/wchar_t/
+	exceptions_null.cc: Likewise.
+	* testsuite/27_io/ios_base/storage/2.cc: Likewise.
+
+2018-04-05  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/variant (_VARIANT_RELATION_FUNCTION_TEMPLATE): Qualify
+	__get calls to avoid ADL and avoid ambiguity due to Clang bug.
+
+2018-04-03  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/85183
+	* include/std/variant (_Move_assign_base::operator=): Fix incorrect
+	value categories.
+	* testsuite/20_util/variant/85183.cc: New.
+
+2018-03-26  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/variant (__get): Qualify calls to avoid ADL.
+	(__select_index): Adjust whitespace.
+	(variant): Add using-declaration to workaround Clang bug.
+
 2018-03-22  Jonathan Wakely  <jwakely@redhat.com>
 
 	PR libstdc++/85040
@@ -5,7 +56,7 @@
 	(less::__not_overloaded, greater_equal::__not_overloaded)
 	(less_equal::__not_overloaded): Fix ambiguous specializations.
 	* testsuite/20_util/function_objects/comparisons_pointer.cc: Add
-	tests for type with overlaoded operators.
+	tests for type with overloaded operators.
 
 2018-03-22  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
 

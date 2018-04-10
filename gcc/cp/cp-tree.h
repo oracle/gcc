@@ -4554,6 +4554,12 @@ more_aggr_init_expr_args_p (const aggr_init_expr_arg_iterator *iter)
        || TREE_CODE (NODE) == TYPE_DECL		\
        || TREE_CODE (NODE) == TEMPLATE_DECL))
 
+/* Nonzero for a raw template parameter node.  */
+#define TEMPLATE_PARM_P(NODE)					\
+  (TREE_CODE (NODE) == TEMPLATE_TYPE_PARM			\
+   || TREE_CODE (NODE) == TEMPLATE_TEMPLATE_PARM		\
+   || TREE_CODE (NODE) == TEMPLATE_PARM_INDEX)
+
 /* Mark NODE as a template parameter.  */
 #define SET_DECL_TEMPLATE_PARM_P(NODE) \
   (DECL_LANG_FLAG_0 (NODE) = 1)
@@ -4713,7 +4719,8 @@ more_aggr_init_expr_args_p (const aggr_init_expr_arg_iterator *iter)
    entity with its own template parameter list, and which is not a
    full specialization.  */
 #define PROCESSING_REAL_TEMPLATE_DECL_P() \
-  (processing_template_decl > template_class_depth (current_scope ()))
+  (!processing_template_parmlist \
+   && processing_template_decl > template_class_depth (current_scope ()))
 
 /* Nonzero if this VAR_DECL or FUNCTION_DECL has already been
    instantiated, i.e. its definition has been generated from the
@@ -4859,6 +4866,10 @@ more_aggr_init_expr_args_p (const aggr_init_expr_arg_iterator *iter)
 #define ELSE_CLAUSE(NODE)	TREE_OPERAND (IF_STMT_CHECK (NODE), 2)
 #define IF_SCOPE(NODE)		TREE_OPERAND (IF_STMT_CHECK (NODE), 3)
 #define IF_STMT_CONSTEXPR_P(NODE) TREE_LANG_FLAG_0 (IF_STMT_CHECK (NODE))
+
+/* Like PACK_EXPANSION_EXTRA_ARGS, for constexpr if.  IF_SCOPE is used while
+   building an IF_STMT; IF_STMT_EXTRA_ARGS is used after it is complete.  */
+#define IF_STMT_EXTRA_ARGS(NODE) IF_SCOPE (NODE)
 
 /* WHILE_STMT accessors. These give access to the condition of the
    while statement and the body of the while statement, respectively.  */
@@ -5984,6 +5995,8 @@ extern bool can_convert_arg			(tree, tree, tree, int,
 						 tsubst_flags_t);
 extern bool can_convert_arg_bad			(tree, tree, tree, int,
 						 tsubst_flags_t);
+extern location_t get_fndecl_argument_location  (tree, int);
+
 
 /* A class for recording information about access failures (e.g. private
    fields), so that we can potentially supply a fix-it hint about
@@ -6490,6 +6503,7 @@ extern void maybe_show_extern_c_location (void);
 
 /* in pt.c */
 extern bool check_template_shadow		(tree);
+extern bool check_auto_in_tmpl_args             (tree, tree);
 extern tree get_innermost_template_args		(tree, int);
 extern void maybe_begin_member_template_processing (tree);
 extern void maybe_end_member_template_processing (void);
@@ -6860,9 +6874,9 @@ extern cp_expr finish_id_expression		(tree, tree, tree,
                                                  location_t);
 extern tree finish_typeof			(tree);
 extern tree finish_underlying_type	        (tree);
-extern tree calculate_bases                     (tree);
+extern tree calculate_bases                     (tree, tsubst_flags_t);
 extern tree finish_bases                        (tree, bool);
-extern tree calculate_direct_bases              (tree);
+extern tree calculate_direct_bases              (tree, tsubst_flags_t);
 extern tree finish_offsetof			(tree, tree, location_t);
 extern void finish_decl_cleanup			(tree, tree);
 extern void finish_eh_cleanup			(tree);
