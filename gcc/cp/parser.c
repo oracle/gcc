@@ -7993,19 +7993,22 @@ cp_parser_unary_expression (cp_parser *parser, cp_id_kind * pidk,
 	    location_t start_loc = token->location;
 
 	    op = keyword == RID_ALIGNOF ? ALIGNOF_EXPR : SIZEOF_EXPR;
+	    bool std_alignof = id_equal (token->u.value, "alignof");
+
 	    /* Consume the token.  */
 	    cp_lexer_consume_token (parser->lexer);
 	    /* Parse the operand.  */
 	    operand = cp_parser_sizeof_operand (parser, keyword);
 
 	    if (TYPE_P (operand))
-	      ret = cxx_sizeof_or_alignof_type (operand, op, true);
+	      ret = cxx_sizeof_or_alignof_type (operand, op, std_alignof,
+						true);
 	    else
 	      {
 		/* ISO C++ defines alignof only with types, not with
 		   expressions. So pedwarn if alignof is used with a non-
 		   type expression. However, __alignof__ is ok.  */
-		if (id_equal (token->u.value, "alignof"))
+		if (std_alignof)
 		  pedwarn (token->location, OPT_Wpedantic,
 			   "ISO C++ does not allow %<alignof%> "
 			   "with a non-type");
@@ -9823,7 +9826,13 @@ cp_parser_builtin_offsetof (cp_parser *parser)
   parens.require_open (parser);
   /* Parse the type-id.  */
   location_t loc = cp_lexer_peek_token (parser->lexer)->location;
-  type = cp_parser_type_id (parser);
+  {
+    const char *saved_message = parser->type_definition_forbidden_message;
+    parser->type_definition_forbidden_message
+      = G_("types may not be defined within __builtin_offsetof");
+    type = cp_parser_type_id (parser);
+    parser->type_definition_forbidden_message = saved_message;
+  }
   /* Look for the `,'.  */
   cp_parser_require (parser, CPP_COMMA, RT_COMMA);
   token = cp_lexer_peek_token (parser->lexer);

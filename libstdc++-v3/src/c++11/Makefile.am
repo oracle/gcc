@@ -127,11 +127,8 @@ hashtable_c++0x.o: hashtable_c++0x.cc
 	$(CXXCOMPILE) -fimplicit-templates -c $<
 
 if ENABLE_DUAL_ABI
-# Rewrite the type info for __dual_abi_ios_failure.
-rewrite_ios_failure_typeinfo = sed -e '/^_ZTISt13__ios_failure:$$/{' \
-	-e 'n' \
-	-e 's/_ZTVN10__cxxabiv120__si_class_type_infoE/_ZTVSt19__iosfail_type_info/' \
-	-e '}'
+# Rewrite the type info for __ios_failure.
+rewrite_ios_failure_typeinfo = sed -e '/^_*_ZTISt13__ios_failure:/,/_ZTVN10__cxxabiv120__si_class_type_infoE/s/_ZTVN10__cxxabiv120__si_class_type_infoE/_ZTVSt19__iosfail_type_info/'
 
 cxx11-ios_failure-lt.s: cxx11-ios_failure.cc
 	$(LTCXXCOMPILE) -S $< -o tmp-cxx11-ios_failure-lt.s
@@ -144,9 +141,9 @@ cxx11-ios_failure.s: cxx11-ios_failure.cc
 	-rm -f tmp-$@
 
 cxx11-ios_failure.lo: cxx11-ios_failure-lt.s
-	$(LTCXXCOMPILE) -c $< -o $@
+	$(LTCXXCOMPILE) -g0 -c $< -o $@
 cxx11-ios_failure.o: cxx11-ios_failure.s
-	$(CXXCOMPILE) -c $<
+	$(CXXCOMPILE) -g0 -c $<
 endif
 
 # AM_CXXFLAGS needs to be in each subdirectory so that it can be
