@@ -1,3 +1,33 @@
+2018-05-02  Release Manager
+
+	* GCC 8.1.0 released.
+
+2018-05-02  Jason Merrill  <jason@redhat.com>
+
+	PR c++/85587 - error with scoped enum in template.
+	* semantics.c (finish_qualified_id_expr): Don't return an
+	unqualified IDENTIFIER_NODE.
+
+2018-04-30  Jason Merrill  <jason@redhat.com>
+
+	PR c++/85580 - extern "C" and local variables
+	* name-lookup.c (check_extern_c_conflict): Ignore local decls.
+
+2018-04-27  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/85553
+	* init.c (build_zero_init_1): For zero initialization of
+	NULLPTR_TYPE_P type use build_int_cst directly.
+
+2018-04-27  Jason Merrill  <jason@redhat.com>
+
+	PR c++/85545 - ICE with noexcept PMF conversion.
+	* cvt.c (cp_fold_convert): Pass PMF CONSTRUCTORs to
+	build_ptrmemfunc.
+	* typeck.c (build_ptrmemfunc): Don't build a NOP_EXPR for zero
+	adjustment.
+	(build_ptrmemfunc_access_expr): Special-case CONSTRUCTORs.
+
 2018-04-25  Nathan Sidwell  <nathan@acm.org>
 
 	PR c++/85437
