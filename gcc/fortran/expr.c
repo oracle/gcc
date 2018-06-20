@@ -2422,7 +2422,7 @@ check_inquiry (gfc_expr *e, int not_restricted)
 
 	/* Assumed character length will not reduce to a constant expression
 	   with LEN, as required by the standard.  */
-	if (i == 5 && not_restricted
+	if (i == 5 && not_restricted && ap->expr->symtree
 	    && ap->expr->symtree->n.sym->ts.type == BT_CHARACTER
 	    && (ap->expr->symtree->n.sym->ts.u.cl->length == NULL
 		|| ap->expr->symtree->n.sym->ts.deferred))
@@ -3414,6 +3414,8 @@ gfc_check_assign (gfc_expr *lvalue, gfc_expr *rvalue, int conform,
   /* Only DATA Statements come here.  */
   if (!conform)
     {
+      locus *where;
+
       /* Numeric can be converted to any other numeric. And Hollerith can be
 	 converted to any other type.  */
       if ((gfc_numeric_ts (&lvalue->ts) && gfc_numeric_ts (&rvalue->ts))
@@ -3423,8 +3425,9 @@ gfc_check_assign (gfc_expr *lvalue, gfc_expr *rvalue, int conform,
       if (lvalue->ts.type == BT_LOGICAL && rvalue->ts.type == BT_LOGICAL)
 	return true;
 
+      where = lvalue->where.lb ? &lvalue->where : &rvalue->where;
       gfc_error ("Incompatible types in DATA statement at %L; attempted "
-		 "conversion of %s to %s", &lvalue->where,
+		 "conversion of %s to %s", where,
 		 gfc_typename (&rvalue->ts), gfc_typename (&lvalue->ts));
 
       return false;

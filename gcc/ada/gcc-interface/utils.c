@@ -3312,8 +3312,11 @@ finish_subprog_decl (tree decl, tree asm_name, tree type)
   DECL_BY_REFERENCE (result_decl) = TREE_ADDRESSABLE (type);
   DECL_RESULT (decl) = result_decl;
 
+  /* Propagate the "const" property.  */
   TREE_READONLY (decl) = TYPE_READONLY (type);
-  TREE_SIDE_EFFECTS (decl) = TREE_THIS_VOLATILE (decl) = TYPE_VOLATILE (type);
+
+  /* Propagate the "noreturn" property.  */
+  TREE_THIS_VOLATILE (decl) = TYPE_VOLATILE (type);
 
   if (asm_name)
     {
@@ -4621,9 +4624,12 @@ convert (tree type, tree expr)
 					   etype)))
     return build1 (VIEW_CONVERT_EXPR, type, expr);
 
-  /* If we are converting between tagged types, try to upcast properly.  */
+  /* If we are converting between tagged types, try to upcast properly.
+     But don't do it if we are just annotating types since tagged types
+     aren't fully laid out in this mode.  */
   else if (ecode == RECORD_TYPE && code == RECORD_TYPE
-	   && TYPE_ALIGN_OK (etype) && TYPE_ALIGN_OK (type))
+	   && TYPE_ALIGN_OK (etype) && TYPE_ALIGN_OK (type)
+	   && !type_annotate_only)
     {
       tree child_etype = etype;
       do {
@@ -6208,8 +6214,7 @@ handle_noreturn_attribute (tree *node, tree name, tree ARG_UNUSED (args),
 	   && TREE_CODE (TREE_TYPE (type)) == FUNCTION_TYPE)
     TREE_TYPE (*node)
       = build_pointer_type
-	(build_type_variant (TREE_TYPE (type),
-			     TYPE_READONLY (TREE_TYPE (type)), 1));
+	(change_qualified_type (TREE_TYPE (type), TYPE_QUAL_VOLATILE));
   else
     {
       warning (OPT_Wattributes, "%qs attribute ignored",

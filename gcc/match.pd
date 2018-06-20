@@ -1450,14 +1450,15 @@ DEFINE_INT_AND_FLOAT_ROUND_FN (RINT)
    (op @1 { build_zero_cst (TREE_TYPE (@1)); }))))
 
 /* Transform:
- * (X / Y) == 0 -> X < Y if X, Y are unsigned.
- * (X / Y) != 0 -> X >= Y, if X, Y are unsigned.
- */
+   (X / Y) == 0 -> X < Y if X, Y are unsigned.
+   (X / Y) != 0 -> X >= Y, if X, Y are unsigned.  */
 (for cmp (eq ne)
      ocmp (lt ge)
  (simplify
   (cmp (trunc_div @0 @1) integer_zerop)
   (if (TYPE_UNSIGNED (TREE_TYPE (@0))
+       /* Complex ==/!= is allowed, but not </>=.  */
+       && TREE_CODE (TREE_TYPE (@0)) != COMPLEX_TYPE
        && (VECTOR_TYPE_P (type) || !VECTOR_TYPE_P (TREE_TYPE (@0))))
    (ocmp @0 @1))))
 
@@ -1759,10 +1760,11 @@ DEFINE_INT_AND_FLOAT_ROUND_FN (RINT)
 	   (neg_inner_op @0 { wide_int_to_tree (type, wi::to_wide (cst)); })
 	   /* Last resort, use some unsigned type.  */
 	   (with { tree utype = unsigned_type_for (type); }
-	    (view_convert (inner_op
-			   (view_convert:utype @0)
-			   (view_convert:utype
-			    { drop_tree_overflow (cst); })))))))))))))
+	    (if (utype)
+	     (view_convert (inner_op
+			    (view_convert:utype @0)
+			    (view_convert:utype
+			     { drop_tree_overflow (cst); }))))))))))))))
 
   /* (CST1 - A) +- CST2 -> CST3 - A  */
   (for outer_op (plus minus)

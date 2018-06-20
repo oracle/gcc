@@ -1897,7 +1897,8 @@ warn_for_memset (location_t loc, tree arg0, tree arg2,
 	{
 	  tree elt_type = TREE_TYPE (type);
 	  tree domain = TYPE_DOMAIN (type);
-	  if (!integer_onep (TYPE_SIZE_UNIT (elt_type))
+	  if (COMPLETE_TYPE_P (elt_type)
+	      && !integer_onep (TYPE_SIZE_UNIT (elt_type))
 	      && domain != NULL_TREE
 	      && TYPE_MAX_VALUE (domain)
 	      && TYPE_MIN_VALUE (domain)
@@ -2246,18 +2247,16 @@ diagnose_mismatched_attributes (tree olddecl, tree newdecl)
 		       newdecl);
 
   /* Diagnose inline __attribute__ ((noinline)) which is silly.  */
-  const char *noinline = "noinline";
-
   if (DECL_DECLARED_INLINE_P (newdecl)
       && DECL_UNINLINABLE (olddecl)
-      && lookup_attribute (noinline, DECL_ATTRIBUTES (olddecl)))
+      && lookup_attribute ("noinline", DECL_ATTRIBUTES (olddecl)))
     warned |= warning (OPT_Wattributes, "inline declaration of %qD follows "
-		       "declaration with attribute %qs", newdecl, noinline);
+		       "declaration with attribute %qs", newdecl, "noinline");
   else if (DECL_DECLARED_INLINE_P (olddecl)
 	   && DECL_UNINLINABLE (newdecl)
 	   && lookup_attribute ("noinline", DECL_ATTRIBUTES (newdecl)))
     warned |= warning (OPT_Wattributes, "declaration of %q+D with attribute "
-		       "%qs follows inline declaration", newdecl, noinline);
+		       "%qs follows inline declaration", newdecl, "noinline");
 
   return warned;
 }

@@ -795,9 +795,9 @@ get_stridx_plus_constant (strinfo *basesi, unsigned HOST_WIDE_INT off,
   si = new_strinfo (ptr, idx, build_int_cst (size_type_node, nonzero_chars),
 		    basesi->full_string_p);
   set_strinfo (idx, si);
-  if (chainsi->next)
+  if (strinfo *nextsi = get_strinfo (chainsi->next))
     {
-      strinfo *nextsi = unshare_strinfo (get_strinfo (chainsi->next));
+      nextsi = unshare_strinfo (nextsi);
       si->next = nextsi->idx;
       nextsi->prev = idx;
     }
@@ -1156,14 +1156,15 @@ adjust_last_stmt (strinfo *si, gimple *stmt, bool is_strcat)
   update_stmt (last.stmt);
 }
 
-/* For an LHS that is an SSA_NAME and for strlen() argument SRC, set
-   LHS range info to [0, N] if SRC refers to a character array A[N]
-   with unknown length bounded by N.  */
+/* For an LHS that is an SSA_NAME with integer type and for strlen()
+   argument SRC, set LHS range info to [0, N] if SRC refers to
+   a character array A[N] with unknown length bounded by N.  */
 
 static void
 maybe_set_strlen_range (tree lhs, tree src)
 {
-  if (TREE_CODE (lhs) != SSA_NAME)
+  if (TREE_CODE (lhs) != SSA_NAME
+      || !INTEGRAL_TYPE_P (TREE_TYPE (lhs)))
     return;
 
   if (TREE_CODE (src) == SSA_NAME)

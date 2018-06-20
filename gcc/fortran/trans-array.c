@@ -817,8 +817,8 @@ is_pointer_array (tree expr)
 
 /* Return the span of an array.  */
 
-static tree
-get_array_span (tree desc, gfc_expr *expr)
+tree
+gfc_get_array_span (tree desc, gfc_expr *expr)
 {
   tree tmp;
 
@@ -4304,7 +4304,7 @@ done:
 	}
     }
 
-  /* The rest is just runtime bound checking.  */
+  /* The rest is just runtime bounds checking.  */
   if (gfc_option.rtcheck & GFC_RTCHECK_BOUNDS)
     {
       stmtblock_t block;
@@ -4334,7 +4334,7 @@ done:
 	    continue;
 
 	  /* Catch allocatable lhs in f2003.  */
-	  if (flag_realloc_lhs && ss->is_alloc_lhs)
+	  if (flag_realloc_lhs && ss->no_bounds_check)
 	    continue;
 
 	  expr = ss_info->expr;
@@ -7061,7 +7061,7 @@ gfc_conv_expr_descriptor (gfc_se *se, gfc_expr *expr)
 				      subref_array_target, expr);
 
 	      /* ....and set the span field.  */
-	      tmp = get_array_span (desc, expr);
+	      tmp = gfc_get_array_span (desc, expr);
 	      gfc_conv_descriptor_span_set (&se->pre, se->expr, tmp);
 	    }
 	  else if (se->want_pointer)
@@ -7334,7 +7334,7 @@ gfc_conv_expr_descriptor (gfc_se *se, gfc_expr *expr)
 	  parmtype = TREE_TYPE (parm);
 
 	  /* ....and set the span field.  */
-	  tmp = get_array_span (desc, expr);
+	  tmp = gfc_get_array_span (desc, expr);
 	  gfc_conv_descriptor_span_set (&loop.pre, parm, tmp);
 	}
       else
@@ -9697,6 +9697,12 @@ gfc_alloc_allocatable_for_assignment (gfc_loopinfo *loop,
 
   if (expr2 && rss == gfc_ss_terminator)
     return NULL_TREE;
+
+  /* Ensure that the string length from the current scope is used.  */
+  if (expr2->ts.type == BT_CHARACTER
+      && expr2->expr_type == EXPR_FUNCTION
+      && !expr2->value.function.isym)
+    expr2->ts.u.cl->backend_decl = rss->info->string_length;
 
   gfc_start_block (&fblock);
 

@@ -1,3 +1,583 @@
+2018-06-20  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from mainline
+	2018-06-16  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/86108
+	* bb-reorder.c (create_forwarder_block): Renamed to ...
+	(create_eh_forwarder_block): ... this.  Split OLD_BB after labels and
+	jump from new landing pad to the second part.
+	(sjlj_fix_up_crossing_landing_pad, dw2_fix_up_crossing_landing_pad):
+	Adjust callers.
+
+2018-06-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR debug/86194
+	* var-tracking.c (use_narrower_mode_test): Check if shift amount can
+	be narrowed.
+
+	PR tree-optimization/86231
+	* tree-vrp.c (union_ranges): For (  [  )  ] or (   )[   ] range and
+	anti-range don't overwrite *vr0min before using it to compute *vr0max.
+
+2018-06-19  Max Filippov  <jcmvbkbc@gmail.com>
+
+	Backport from mainline
+	2018-06-19  Max Filippov  <jcmvbkbc@gmail.com>
+
+	* config/xtensa/xtensa.md (UNSPEC_FRAME_BLOCKAGE): New unspec
+	constant.
+	(allocate_stack, frame_blockage, *frame_blockage): New patterns.
+
+2018-06-19  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* gimplify.c (gimplify_init_constructor): Really never clear for an
+	incomplete constructor if CONSTRUCTOR_NO_CLEARING is set.
+
+2018-06-18  Martin Sebor  <msebor@redhat.com>
+
+	PR c/82063
+	* calls.c (alloc_max_size): Correct a logic error/typo.
+	Treat excessive arguments as infinite.  Warn for invalid arguments.
+	* doc/invoke.texi (-Walloc-size-larger-than): Update.
+
+2018-06-16  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/86095
+	* common.opt (Wunsafe-loop-optimizations): Add Ignore, remove Var,
+	documented as preserved for backward compatibility only.
+	* doc/invoke.texi: Remove -Wunsafe-loop-optimizations documentation.
+
+2018-06-15  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/85878
+	* expr.c (expand_assignment): Remove now redundant COMPLEX_MODE_P
+	check from first store_expr, use to_mode instead of GET_MODE (to_rtx).
+	Only call store_expr for halves if the mode is the same.
+
+	PR middle-end/86123
+	* match.pd ((X / Y) == 0 -> X < Y): Don't transform complex divisions.
+	Fix up comment formatting.
+
+2018-06-14  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/86122
+	* match.pd ((A +- CST1) +- CST2): Punt if last resort
+	unsigned_type_for returns NULL.
+
+	PR target/85945
+	* lower-subreg.c (find_decomposable_subregs): Don't decompose float
+	subregs of multi-word pseudos unless the float mode has word size.
+
+2018-06-14  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/86139
+	* tree-vect-generic.c (build_word_mode_vector_type): Remove
+	duplicate and harmful type_hash_canon.
+	* tree.c (type_hash_canon): Assert we didn't find ourselves.
+
+2018-06-14  Sebastian Huber  <sebastian.huber@embedded-brains.de>
+
+	Backport from mainline
+	2018-06-14  Sebastian Huber  <sebastian.huber@embedded-brains.de>
+
+	* config/rtems.h (STDINT_LONG32): Define.
+
+2018-05-05  Roland McGrath  <mcgrathr@google.com>
+
+	PR other/77609
+	* varasm.c (default_section_type_flags): Set SECTION_NOTYPE for
+	any section for which we don't know a specific type it should have,
+	regardless of name.  Previously this was done only for the exact
+	names ".init_array", ".fini_array", and ".preinit_array".
+	(default_elf_asm_named_section): Add comment about
+	relationship with default_section_type_flags and SECTION_NOTYPE.
+	(get_section): Don't consider it a type conflict if one side has
+	SECTION_NOTYPE and the other doesn't, as long as neither has the
+	SECTION_BSS et al used in the default_section_type_flags logic.
+
+2018-06-13  Martin Sebor  <msebor@redhat.com>
+
+	PR tree-optimization/86114
+	* gimple-fold.c (gimple_fold_builtin_strlen): Only handle LHS
+	of integer types.
+	* tree-ssa-strlen.c (maybe_set_strlen_range): Same.
+
+2018-06-13  Eric Botcazou  <ebotcazou@adacore.com>
+
+	PR target/86048
+	* config/i386/winnt.c (i386_pe_seh_cold_init): Do not emit negative
+	offsets for register save directives.  Emit a second batch of save
+	directives, if need be, when the function accesses prior frames.
+
+2018-06-11  Jason Merrill  <jason@redhat.com>
+
+        PR c++/80485 - inline function non-zero address.
+        * symtab.c (nonzero_address): Check DECL_COMDAT.
+
+2018-06-11  Peter Bergner  <bergner@vnet.ibm.com>
+
+	Backport from mainline
+	2018-06-08  Peter Bergner  <bergner@vnet.ibm.com>
+
+	PR target/85755
+	* config/rs6000/rs6000.c (mem_operand_gpr): Enable PRE_INC and PRE_DEC
+	addresses.
+
+2018-06-11  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	Backport from trunk
+	2018-06-11  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	PR target/85755
+	* config/rs6000/rs6000.md (*movdi_internal32): Put constraint modifiers
+	on the correct operand.
+	(*movdi_internal64): Ditto.
+
+2018-06-08  Carl Love  <cel@us.ibm.com>
+
+	Backport from mainline
+	* gcc/config/rs6000/vsx.md (vextract_fp_from_shorth,
+	vextract_fp_from_shortl): Add BE support.
+
+2018-06-08  Carl Love  <cel@us.ibm.com>
+
+	Backport from mainline
+	* gcc/config/rs6000/vsx.md (first_match_index_<mode>):
+	Calculate index using natureal element order.
+	(first_match_or_eos_index_<mode>):
+	Calculate index using natural element order.
+	(first_match_index_<mode>):
+	Calculate index using natural element order.
+	(first_match_or_eos_index_<mode>):
+	Calculate index using natural order.
+	(define_insn vclzlsbb): Change to define_insn vclzlsbb_<mode>.
+	for BE and LE modes.
+	* gcc/config/rs6000/rs6000-c.c: Rename P9V_BUILTIN_VCLZLSBB,
+	P9V_BUILTIN_VCLZLSBB_V16QI.
+	* gcc/config/rs6000/rs6000-builtin.def: Make VCLZLSBB mode
+	specific.
+
+2018-06-08  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	Backport from mainline
+	2018-06-05  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	PR target/81497
+	* config/arm/arm-builtins.c (arm_type_qualifiers): Add
+	qualifier_void_pointer and qualifier_const_void_pointer.
+	(arm_ldc_qualifiers, arm_stc_qualifiers): Use the above.
+	(arm_init_builtins): Handle the above.
+	* config/arm/arm_acle.h (__arm_cdp, __arm_ldc, __arm_ldcl, __arm_stc,
+	__arm_stcl, __arm_mcr, __arm_cdp2, __arm_ldc2, __arm_ldcl2, __arm_stc2,
+	__arm_stcl2,__arm_mcr2, __arm_mcrr, __arm_mcrr2): Remove return for
+	void intrinsics.
+
+2018-06-07  Uros Bizjak  <ubizjak@gmail.com>
+
+	PR target/85684
+	* config/i386/i386.c (ix86_expand_builtin) <case IX86_BUILTIN_RDPID>:
+	Generate SImode target register for null target.
+	<case IX86_BUILTIN_XGETBV>: Ditto.
+	<case IX86_BUILTIN_XSETBV>: Optimize LSHIFTRT generation.
+	* config/i386/xsaveintrin.h (_xgetbv): Add missing return.
+
+2018-06-07  Peter Bergner  <bergner@vnet.ibm.com>
+
+	Backport from mainline
+	2018-06-06  Peter Bergner  <bergner@vnet.ibm.com>
+
+	PR target/63177
+	* /config/rs6000/rs6000.h (ASM_CPU_SPEC): Add support for -mpower9.
+	Don't handle -mcpu=power8 if -mpower9-vector is also used.
+
+2018-06-06  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2018-06-04  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/86038
+	* tracer.c (find_best_successor): Check probability for
+	being initialized, bail out if not.
+
+	2018-05-30  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/85964
+	* tracer.c (better_p): Drop initialized count check, we only
+	call the function with initialized counts now.
+	(find_best_successor): Do find a best edge if one
+	has uninitialized count.
+	(find_best_predecessor): Likewise.  Do BB frequency check only
+	if count is initialized.
+
+	2018-05-28  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/85934
+	* tree-vect-generic.c (expand_vector_operations_1): Hoist
+	vector boolean check before scalar optimization.
+
+	2018-05-22  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/85863
+	* tree-vect-stmts.c (vect_is_simple_cond): Only widen invariant
+	comparisons when vectype is specified.
+	(vectorizable_condition): Do not specify vectype for
+	vect_is_simple_cond when SLP vectorizing.
+
+2018-06-05  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	Backport from mainline
+	2018-06-05  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	* config/s390/s390-builtin-types.def: Add void function type.
+	* config/s390/s390-builtins.def: Use the function type for the
+	tbeginc builtin.
+
+2018-06-04  Martin Sebor  <msebor@redhat.com>
+
+	PR c/85623
+	* calls.c (maybe_warn_nonstring_arg): Use string length to set
+	or ajust the presumed bound on an operation to avoid unnecessary
+	warnings.
+
+2018-06-04  Richard Earnshaw  <rearnsha@arm.com>
+
+	PR target/86003
+	* config/arm/arm-cpus.in (ALL_QUIRKS): Add xscale feature to the list
+	of bits to ignore when comparing architectures.
+
+2018-06-04  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/86025
+	* tree.c (inchash::add_expr): Handle IDENTIFIER_NODE.
+
+2018-06-01  Bill Schmidt  <wschmidt@linux.ibm.com>
+
+	PR tree-optimization/85712
+	Backport from mainline:
+	2018-05-23  Bill Schmidt  <wschmidt@linux.ibm.com>
+
+	PR tree-optimization/85712
+	* gimple-ssa-strength-reduction.c (struct slsr_cand_d): Add
+	first_interp field.
+	(alloc_cand_and_find_basis): Initialize first_interp field.
+	(slsr_process_mul): Modify first_interp field.
+	(slsr_process_add): Likewise.
+	(slsr_process_cast): Modify first_interp field for each new
+	interpretation.
+	(slsr_process_copy): Likewise.
+	(dump_candidate): Dump first_interp field.
+	(replace_mult_candidate): Process all interpretations, not just
+	subsequent ones.
+	(replace_rhs_if_not_dup): Likewise.
+	(replace_one_candidate): Likewise.
+
+	Backport from mainline:
+	2018-05-25  Bill Schmidt  <wschmidt@linux.ibm.com>
+
+	PR tree-optimization/85712
+	* gimple-ssa-strength-reduction.c (replace_one_candidate): Skip if
+	this candidate has already been replaced in-situ by a copy.
+
+2018-05-31  Uros Bizjak  <ubizjak@gmail.com>
+
+	PR target/85950
+	* config/i386/i386.md (l<rounding_insn><MODEF:mode><SWI48:mode>2):
+	Enable for TARGET_SSE4_1 and generate rounds{s,d} and cvtts{s,d}2si{,q}
+	sequence.
+	(sse4_1_round<mode>2): Use nonimmediate_operand
+	for operand 1 predicate.
+
+2018-05-31  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/85984
+	* bb-reorder.c (pass_partition_blocks::gate): Return false for
+	functions with naked attribute.
+
+2018-05-31  H.J. Lu  <hongjiu.lu@intel.com>
+
+	PR target/85829
+	* config/i386/x86-tune.def: Re-enable partial_reg_dependency
+	and movx for Haswell.
+
+2018-05-30  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from mainline
+	2018-05-14  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/85756
+	* config/i386/i386.md: Disallow non-commutative arithmetics in
+	last twpeephole for mem {+,-,&,|,^}= x; mem != 0 after cmpelim
+	optimization.  Use COMMUTATIVE_ARITH_P test rather than != MINUS
+	in the peephole2 before it.
+
+	2018-05-08  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/85683
+	* config/i386/i386.md: Add peepholes for mem {+,-,&,|,^}= x; mem != 0
+	after cmpelim optimization.
+
+2018-05-28  H.J. Lu  <hongjiu.lu@intel.com>
+
+	Backport from mainline
+	2018-05-26  H.J. Lu  <hongjiu.lu@intel.com>
+
+	PR target/85900
+	PR target/85345
+	* varasm.c (assemble_alias): Lookup ifunc attribute on error.
+
+	2018-05-24  H.J. Lu  <hongjiu.lu@intel.com>
+
+	PR target/85900
+	PR target/85345
+	* varasm.c (assemble_alias): Check ifunc_resolver only on
+	FUNCTION_DECL.
+
+	2018-05-22  H.J. Lu  <hongjiu.lu@intel.com>
+
+	PR target/85345
+	* cgraph.h (cgraph_node::create): Set ifunc_resolver for ifunc
+	attribute.
+	(cgraph_node::create_alias): Likewise.
+	(cgraph_node::get_availability): Check ifunc_resolver instead
+	of looking up ifunc attribute.
+	* cgraphunit.c (maybe_diag_incompatible_alias): Likewise.
+	* varasm.c (do_assemble_alias): Likewise.
+	(assemble_alias): Likewise.
+	(default_binds_local_p_3): Likewise.
+	* cgraph.h (cgraph_node): Add ifunc_resolver.
+	(cgraph_node::only_called_directly_or_aliased_p): Return false
+	for IFUNC resolver.
+	* lto-cgraph.c (input_node): Set ifunc_resolver for ifunc
+	attribute.
+	* symtab.c (symtab_node::verify_base): Verify that ifunc_resolver
+	is equivalent to lookup_attribute ("ifunc", DECL_ATTRIBUTES (decl)).
+	(symtab_node::binds_to_current_def_p): Check ifunc_resolver
+	instead of looking up ifunc attribute.
+
+2018-05-27  John David Anglin  <danglin@gcc.gnu.org>
+
+	* config/pa/pa-linux.h (NEED_INDICATE_EXEC_STACK): Define to 0.
+
+2018-05-25  Richard Biener  <rguenther@suse.de>
+
+	PR c++/85912
+	* tree-dump.c (dequeue_and_dump): Remove access to removed
+	operand 2 of a SWITCH_EXPR.
+
+2018-05-24  Uros Bizjak  <ubizjak@gmail.com>
+
+	* config/i386/sse.md (cvtusi2<ssescalarmodesuffix>64<round_name>):
+	Add {q} suffix to insn mnemonic.
+
+2018-05-24  Uros Bizjak  <ubizjak@gmail.com>
+
+	PR target/85903
+	* config/i386/sse.md (movdi_to_sse): Do not generate pseudo
+	when memory input operand is handled.
+
+2018-05-23  Bin Cheng  <bin.cheng@arm.com>
+
+	Backport from mainline
+	2018-05-17  Bin Cheng  <bin.cheng@arm.com>
+	    Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/85793
+	* tree-vect-stmts.c (vectorizable_load): Handle 1 element-wise load
+	for VMAT_ELEMENTWISE.
+
+2018-05-23  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/85874
+	* tree-data-ref.c (create_runtime_alias_checks): Defer
+	and ignore overflow warnings.
+
+2018-05-23  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2018-05-23  Yury Gribov  <tetra2005@gmail.com>
+
+	PR tree-optimization/85822
+	* tree-vrp.c (is_masked_range_test): Fix handling of negative
+	constants.
+
+2018-05-23  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2018-05-11  Martin Liska  <mliska@suse.cz>
+
+        PR sanitizer/85556
+	* doc/extend.texi: Document LLVM style format for no_sanitize
+	attribute.
+
+2018-05-22  Martin Sebor  <msebor@redhat.com>
+
+	PR middle-end/85643
+	* calls.c (get_attr_nonstring_decl): Handle MEM_REF.
+
+2018-05-22  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	PR tree-optimization/85814
+	* tree-ssa-strlen.c (get_stridx_plus_constant): Cope with
+	a null return from get_strinfo when unsharing the next
+	strinfo in the chain.
+
+2018-05-21  Pat Haugen  <pthaugen@us.ibm.com>
+
+	Backport from mainline
+	2018-05-17  Pat Haugen  <pthaugen@us.ibm.com>
+		    Segher Boessenkool  <segher@kernel.crashing.org>
+
+	PR target/85698
+	* config/rs6000/rs6000.c (rs6000_output_move_128bit): Check dest operand.
+
+2018-05-18  Toon Moene  <toon@moene.org>
+
+	* doc/invoke.texi: Move -floop-unroll-and-jam documentation
+	directly after that of -floop-interchange. Indicate that both
+	options are enabled by default when specifying -O3. 
+
+2018-05-11  Martin Jambor  <mjambor@suse.cz>
+
+	PR ipa/85655
+	* ipa-cp.c (intersect_with_plats): Check that the lattice contains
+	single const.
+
+2018-05-11  Richard Earnshaw  <rearnsha@arm.com>
+
+	PR target/85733
+	* config/arm/arm-cpus.in (fgroup ARMv6m): Add be8 feature.
+
+2018-05-11  Richard Earnshaw  <rearnsha@arm.com>
+
+	PR target/85606
+	* config/arm/arm-cpus.in: Add comment that ARMv6-m and ARMv6S-m are now
+	equivalent.
+	(cortex-m0): Use armv6s-m isa.
+	(cortex-m0plus): Likewise.
+	(cortex-m1): Likewise.
+	(cortex-m0.small-multiply): Likewise.
+	(cortex-m0plus.small-multiply): Likewise.
+	(cortex-m1.small-multiply): Likewise.
+
+2018-05-09  Eric Botcazou  <ebotcazou@adacore.com>
+
+	PR rtl-optimization/85638
+	* bb-reorder.c: Include common/common-target.h.
+	(create_forwarder_block): New function extracted from...
+	(fix_up_crossing_landing_pad): ...here.  Rename into...
+	(dw2_fix_up_crossing_landing_pad): ...this.
+	(sjlj_fix_up_crossing_landing_pad): New function.
+	(find_rarely_executed_basic_blocks_and_crossing_edges): In SJLJ mode,
+	call sjlj_fix_up_crossing_landing_pad if there are incoming EH edges
+	from both partitions and exit the loop after one iteration.
+
+2018-05-08  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2018-05-04  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/85588
+	* fold-const.c (negate_expr_p): Restrict negation of operand
+	zero of a division to when we know that can happen without
+	overflow.
+	(fold_negate_expr_1): Likewise.
+
+	2018-05-03  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/85615
+	* tree-ssa-threadupdate.c (thread_block_1): Only allow exits
+	to loops not nested in BBs loop father to avoid creating multi-entry
+	loops.
+
+	2018-05-02  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/85567
+	* gimplify.c (gimplify_save_expr): When in SSA form allow
+	SAVE_EXPRs to compute to SSA vars.
+
+	2018-05-02  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/85597
+	* tree-vect-stmts.c (vectorizable_operation): For ternary SLP
+	do not use split vect_get_vec_defs call but call vect_get_slp_defs
+	directly.
+
+2018-05-08  Richard Earnshaw  <rearnsha@arm.com>
+
+	PR target/85658
+	* config/arm/parsecpu.awk (check_cpu): Fix operator precedence.
+	(check_arch): Likewise.
+	(check_fpu): Return the result rather than printing it.
+	(end arch): Fix operator precedence.
+	(end cpu): Likewise.
+	(END): Print the result from check_fpu.
+
+2018-05-08  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2018-05-04  Richard Biener  <rguenther@suse.de>
+
+	* bb-reorder.c (sanitize_hot_paths): Release hot_bbs_to_check.
+	* gimple-ssa-store-merging.c
+	(imm_store_chain_info::output_merged_store): Remove redundant create,
+	release split_store vector contents on failure.
+	* tree-vect-slp.c (vect_schedule_slp_instance): Avoid leaking
+	scalar stmt vector on cache hit.
+
+	2018-05-04  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/85627
+	* tree-complex.c (tree_lower_complex): Handle removed blocks.
+
+2018-05-07  Chung-Ju Wu  <jasonwucj@gmail.com>
+
+	Backport from mainline.
+	2018-04-25  Chung-Ju Wu  <jasonwucj@gmail.com>
+
+	* config/nds32/nds32-predicates.c (nds32_can_use_bclr_p): Mask with
+	GET_MODE_MASK before any checking.
+	(nds32_can_use_bset_p): Likewise.
+	(nds32_can_use_btgl_p): Likewise.
+
+2018-05-07  Chung-Ju Wu  <jasonwucj@gmail.com>
+
+	Backport from mainline.
+	2018-04-25  Chung-Ju Wu  <jasonwucj@gmail.com>
+
+	* config/nds32/nds32-doubleword.md: New define_split pattern for
+	illegal register number.
+
+2018-05-07  Chung-Ju Wu  <jasonwucj@gmail.com>
+
+	Backport from mainline.
+	2018-04-25  Chung-Ju Wu  <jasonwucj@gmail.com>
+
+	* config/nds32/nds32.c (nds32_print_operand): Set op_value ealier.
+
+2018-05-07  Chung-Ju Wu  <jasonwucj@gmail.com>
+
+	Backport from mainline.
+	2018-04-25  Chung-Ju Wu  <jasonwucj@gmail.com>
+
+	* config/nds32/nds32.h (ASM_APP_ON): Add missing newline character.
+
+2018-05-06  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/85659
+	* cfgexpand.c (expand_asm_stmt): Don't create a temporary if
+	the type is addressable.  Don't force op into register if it has
+	BLKmode.
+
+2018-05-04  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	Backport from trunk.
+	2018-04-27  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	PR target/85512
+	* config/aarch64/constraints.md (Usg): Limit to 31.
+	(Usj): Limit to 63.
+
 2018-05-02  Jakub Jelinek  <jakub@redhat.com>
 
 	* BASE-VER: Set to 8.1.1.
