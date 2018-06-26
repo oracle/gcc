@@ -1,3 +1,261 @@
+2018-06-26  Aaron Sawdey  <acsawdey@linux.ibm.com>
+
+	Backport from trunk
+	2018-06-26  Aaron Sawdey  <acsawdey@linux.ibm.com>
+
+	* config/rs6000/rs6000-string.c (expand_block_clear): Don't use
+	unaligned vsx for 16B memset.
+
+2018-06-26  Aaron Sawdey  <acsawdey@linux.ibm.com>
+
+	Backport from trunk
+	2018-06-22  Aaron Sawdey  <acsawdey@linux.ibm.com>
+
+	PR target/86222
+	* config/rs6000/rs6000-string.c (expand_strn_compare): Handle -m32
+	correctly.
+
+2018-06-26  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	Backport from trunk
+	2018-05-08  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	PR rtl-optimization/85645
+	* regrename.c (build_def_use): Also kill the chains that include the
+	destination of a REG_CFA_REGISTER note.
+
+2018-06-26  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	Backport from trunk
+	2018-05-08  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	PR rtl-optimization/85645
+	*  regcprop.c (copyprop_hardreg_forward_1): Don't propagate into an
+	insn that has a REG_CFA_REGISTER note.
+
+2018-06-26  Robin Dapp  <rdapp@linux.ibm.com>
+
+	* config/s390/s390.h (enum processor_flags): Do not use
+	default tune parameter when -march was specified.
+
+2018-06-26  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/86314
+	* config/i386/i386.md (setcc + movzbl to xor + setcc peephole2s):
+	Check reg_overlap_mentioned_p in addition to reg_set_p with the same
+	operands.
+
+2018-06-25  Michael Meissner  <meissner@linux.ibm.com>
+
+	Back port from trunk
+	2018-06-25  Michael Meissner  <meissner@linux.ibm.com>
+
+	* config.gcc (powerpc64le*): Revert January 16th, 2018 patch that
+	added IEEE/IBM long double multilib support on PowerPC little
+	endian Linux systems.
+	* config/rs6000/linux64.h (MULTILIB_DEFAULTS_IEEE): Likewise.
+	(MULTILIB_DEFAULTS): Likewise.
+	* config/rs6000/rs6000.c (rs6000_option_override_internal):
+	Likewise.
+	* config/rs6000/rs6000.h (TARGET_IEEEQUAD_MULTILIB): Likewise.
+	* config/rs6000/t-ldouble-linux64le-ibm: Delete, no longer used.
+	* config/rs6000/t-ldouble-linux64le-ieee: Delete, no longer used.
+
+2018-06-25  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	Backport from trunk
+	2018-06-04  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	* config/rs6000/rs6000.md (abs<mode>2): Handle IFmode.
+
+2018-05-02  Jan Hubicka  <jh@suse.cz>
+
+	Backport from mainline
+	2018-04-30  Jan Hubicka  <jh@suse.cz>
+
+	* lto-wrapper.c (ltrans_priorities): New static var.
+	(cmp_priority): New.
+	(run_gcc): Read priorities and if doing parallel build order
+	the Makefile by them.
+
+2018-06-25  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	Backport from trunk
+	2018-06-19  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	PR target/86197
+	* config/rs6000/rs6000.md (rs6000_discover_homogeneous_aggregate): An
+	ieee128 argument takes up only one (vector) register, not two (floating
+	point) registers.
+
+2018-06-23  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	PR tree-optimization/85989
+	* gimple-ssa-backprop.c (backprop::m_visited_phis): New member
+	variable.
+	(backprop::intersect_uses): Check it when deciding whether this
+	is a backedge reference.
+	(backprop::process_block): Add each phi to m_visited_phis
+	after visiting it, then clear it at the end.
+
+2018-06-22  David Edelsohn  <dje.gcc@gmail.com>
+
+	Backport from mainline
+
+	2018-06-19  Tony Reix  <tony.reix@atos.com>
+	    Damien Bergamini  <damien.bergamini@atos.com>
+	    David Edelsohn  <dje.gcc@gmail.com>
+
+	* collect2.c (static_obj): New variable.
+	(static_libs): New variable.
+	(is_in_list): Uncomment declaration.
+	(main): Track AIX libraries linked statically.
+	(is_in_list): Uncomment definition.
+	(scan_prog_file): Don't add AIX shared libraries initializer
+	to constructor list if linking statically.
+
+2018-06-22  Michael Meissner  <meissner@linux.ibm.com>
+
+	Back port from trunk
+	2018-06-21  Michael Meissner  <meissner@linux.ibm.com>
+
+	* config/rs6000/rs6000.md (extendtfif2): Add missing 128-bit
+	conversion insn that shows up when pr85657-3.c is compiled using
+	IEEE 128-bit long double.
+
+	Back port from trunk
+	2018-06-21  Michael Meissner  <meissner@linux.ibm.com>
+
+	* config/rs6000/rs6000.c (init_float128_ieee): Prevent complex
+	multiply and divide external functions from being created more
+	than once.
+
+	Back port from trunk
+	2018-06-21  Michael Meissner  <meissner@linux.ibm.com>
+
+	* config/rs6000/rs6000.md (neg<mode>2_internal): Use the correct
+	mode to check whether the mode is IBM extended.
+
+	2018-06-18  Michael Meissner  <meissner@linux.ibm.com>
+
+	PR target/85358
+	* config/rs6000/rs6000-modes.def (toplevel): Rework the 128-bit
+	floating point modes, so that IFmode is numerically greater than
+	TFmode, which is greater than KFmode using FRACTIONAL_FLOAT_MODE
+	to declare the ordering.  This prevents IFmode from being
+	converted to TFmode when long double is IEEE 128-bit on an ISA 3.0
+	machine.  Include rs6000-modes.h to share the fractional values
+	between genmodes* and the rest of the compiler.
+	(IFmode): Likewise.
+	(KFmode): Likewise.
+	(TFmode): Likewise.
+	* config/rs6000/rs6000-modes.h: New file.
+	* config/rs6000/rs6000.c (rs6000_debug_reg_global): Change the
+	meaning of rs6000_long_double_size so that 126..128 selects an
+	appropriate 128-bit floating point type.
+	(rs6000_option_override_internal): Likewise.
+	* config/rs6000/rs6000.h (toplevel): Include rs6000-modes.h.
+	(TARGET_LONG_DOUBLE_128): Change the meaning of
+	rs6000_long_double_size so that 126..128 selects an appropriate
+	128-bit floating point type.
+	(LONG_DOUBLE_TYPE_SIZE): Update comment.
+	* config/rs6000/rs6000.md (trunciftf2): Correct the modes of the
+	source and destination to match the standard usage.
+	(truncifkf2): Likewise.
+	(copysign<mode>3, IEEE iterator): Rework copysign of float128 on
+	ISA 2.07 to use an explicit clobber, instead of passing in a
+	temporary.
+	(copysign<mode>3_soft): Likewise.
+
+	Back port from trunk
+	2018-06-08  David Edelsohn  <dje.gcc@gmail.com>
+
+	* config/rs6000/rs6000.c (rs6000_passes_ieee128): Protect with #if
+	TARGET_ELF.
+
+	Back port from trunk
+	2018-06-04  Michael Meissner  <meissner@linux.ibm.com>
+
+	* config/rs6000/rs6000.c (rs6000_passes_ieee128): New boolean to
+	track if we pass or return IEEE 128-bit floating point.
+	(ieee128_mangling_gcc_8_1): New boolean to say whether to generate
+	C++ mangling that is compatible with GCC 8.1.
+	(TARGET_ASM_GLOBALIZE_DECL_NAME): Override target hook.
+	(init_cumulative_args): Note if we pass or return IEEE 128-bit
+	floating point types.
+	(rs6000_function_arg_advance_1): Likewise.
+	(rs6000_mangle_type): Optionally generate mangled names that match
+	what GCC 8.1 generated for IEEE 128-bit floating point types.
+	(rs6000_globalize_decl_name): If we have an external function that
+	passes or returns IEEE 128-bit types, generate a weak reference
+	from the mangled name used in GCC 8.1 to the current mangled
+	name.
+	(rs6000_init_builtins): Make __ibm128 use the long double type if
+	long double is IBM extended double.  Make __float128 use the long
+	double type if long double is IEEE 128-bit.
+
+	PR target/85657
+	* config/rs6000/rs6000-builtin.def (BU_IBM128_2): New helper
+	macro for __ibm128 built-in functions.
+	(PACK_IF): Add __ibm128 pack/unpack functions.
+	(UNPACK_IF): Likewise.
+	* config/rs6000/rs6000.c (rs6000_builtin_mask_calculate): Do not
+	enable long double built-in functions if long double is IEEE
+	128-bit floating point.
+	(rs6000_invalid_builtin): Update long double built-in function
+	error message.
+	(rs6000_expand_builtin): For PACK_IF and UNPACK_IF built-in
+	functions, adjust the built-in function to use the long double
+	built-in function if __ibm128 and long double are the same type.
+	* doc/extend.texi (PowerPC builtins): Update documention for
+	__builtin_{,un}pack_longdouble.  Add documentation for
+	__builtin_{,un}pack_ibm128.
+
+	Back port from trunk
+	2018-06-01  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	* config/rs6000/rs6000.c (rs6000_mangle_type): Change the mangling of
+	the 128-bit floating point types.  Fix function comment.
+
+2018-06-22  Michael Meissner  <meissner@linux.ibm.com>
+
+	Back port from trunk
+	2018-05-21  Michael Meissner  <meissner@linux.ibm.com>
+
+	PR target/85657
+	* config/rs6000/rs6000-c.c (rs6000_cpu_cpp_builtins): Do not
+	define __ibm128 as long double.
+	* config/rs6000/rs6000.c (rs6000_init_builtins): Create __ibm128
+	as a distinct type with IEEE 128-bit floating point is supported.
+	(init_float128_ieee): Fix up conversions between IFmode and IEEE
+	128-bit types to use the correct functions.
+	(rs6000_expand_float128_convert): Use explicit FLOAT_EXTEND to
+	convert between 128-bit floating point types that have different
+	modes but the same representation, instead of using gen_lowpart to
+	makean alias.
+	* config/rs6000/rs6000.md (IFKF): New iterator for IFmode and
+	KFmode.
+	(IFKF_reg): New attributes to give the register constraints for
+	IFmode and KFmode.
+	(extend<mode>tf2_internal): New insns to mark an explicit
+	conversion between 128-bit floating point types that have a
+	different mode but share the same representation.
+
+2018-06-22  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
+
+	PR target/85994
+	* config/i386/sol2.h (CPP_SPEC): Don't pass -P for
+	-x assembler-with-cpp.
+
+2018-06-21  Sebastian Huber  <sebastian.huber@embedded-brains.de>
+
+	Backported from mainline
+	2018-06-15  Sebastian Huber  <sebastian.huber@embedded-brains.de>
+
+	* config.gcc (riscv*-*-elf* | riscv*-*-rtems*): Use custom
+	multilibs for *-*-rtems*.
+	* config/riscv/t-rtems: New file.
+
 2018-06-20  Jakub Jelinek  <jakub@redhat.com>
 
 	Backported from mainline

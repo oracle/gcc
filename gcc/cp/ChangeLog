@@ -1,3 +1,21 @@
+2018-06-26  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/86291
+	* parser.c (cp_parser_omp_for_loop_init): Change for_block argument
+	type from vec<tree, va_gc> * to vec<tree, va_gc> *&.
+
+2018-06-22  Jason Merrill  <jason@redhat.com>
+
+	PR c++/86219 - ICE with erroneous initializer in template.
+	* constexpr.c (fold_non_dependent_expr): Add complain parm.
+	* typeck2.c (store_init_value): Pass tf_warning_or_error.
+
+2018-06-21  Jason Merrill  <jason@redhat.com>
+
+	PR c++/86182 - ICE with anonymous union passed to template.
+	* pt.c (tsubst_expr) [DECL_EXPR]: Handle an anonymous union type
+	used to declare a named variable.
+
 2018-06-20  Nathan Sidwell  <nathan@acm.org>
 
 	PR c++/85634 - tsubst ICE on unmarked lookup

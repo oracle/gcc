@@ -1,3 +1,82 @@
+2018-06-26  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/86314
+	* gcc.dg/pr86314.c: New test.
+
+2018-06-25  Fritz Reese  <fritzoreese@gmail.com>
+
+	PR fortran/82972
+	PR fortran/83088
+	PR fortran/85851
+	Backport from trunk.
+	* gfortran.dg/init_flag_17.f90: New testcase.
+
+2018-06-25  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/84786
+	* gcc.target/i386/avx512f-pr84786-3.c: New test.
+
+2018-06-25  Paul Thomas  <pault@gcc.gnu.org>
+
+	PR fortran/83118
+	Back port from trunk
+	* gfortran.dg/unlimited_polymorphic_30.f03: New test.
+
+2018-06-23  Richard Sandiford  <richard.sandiford@linaro.org>
+
+	PR tree-optimization/85989
+	* gcc.dg/torture/pr85989.c: New test.
+
+2018-06-22  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/85662
+	* g++.dg/ext/offsetof3.C: New test.
+
+2018-06-22  Michael Meissner  <meissner@linux.ibm.com>
+
+	Back port from trunk
+	2018-06-21  Michael Meissner  <meissner@linux.ibm.com>
+
+	* gcc.target/powerpc/pack02.c: Use __ibm128 instead of long double
+	if the long double format is IEEE 128-bit for tests that are
+	explicitly testing IBM extended double support.  Use the
+	appropriate pack and unpack built-in functions.  Change calls from
+	__builtin_isinfl to __builtin_isinf since the later supports all
+	floating point types.
+	* gcc.target/powerpc/pr57150.c: Likewise.
+	* gcc.target/powerpc/pr60203.c: Likewise.
+	* gcc.target/powerpc/pr67808.c: Likewise.
+	* gcc.target/powerpc/pr70117.c: Likewise.
+	* gcc.target/powerpc/tfmode_off.c: Likewise.
+
+2018-06-18  Michael Meissner  <meissner@linux.ibm.com>
+
+	Back port from trunk
+	2018-06-06  Michael Meissner  <meissner@linux.ibm.com>
+
+	PR target/85657
+	* g++.dg/pr85657.C: Only test whether __ibm128 and long double can
+	be used in templates.  Don't check for them in overloaded functions.
+
+2018-06-22  Michael Meissner  <meissner@linux.ibm.com>
+
+	Back port from trunk
+	2018-05-21  Michael Meissner  <meissner@linux.ibm.com>
+
+	PR target/85657
+	* gcc.target/powerpc/pr85657-1.c: New test for converting between
+	__float128, __ibm128, and long double.
+	* gcc.target/powerpc/pr85657-2.c: Likewise.
+	* gcc.target/powerpc/pr85657-3.c: Likewise.
+	* g++.dg/pr85667.C: New test to make sure __ibm128 is
+	implementated as a separate type internally, and is not just an
+	alias for long double.
+
+2018-06-20  Than McIntosh  <thanm@google.com>
+
+	PR libgcc/86213
+	* gcc.dg/split-8.c: New.
+
 2018-06-20  Jakub Jelinek  <jakub@redhat.com>
 
 	Backported from mainline
@@ -327,9 +406,7 @@
 	2018-05-10  Jakub Jelinek  <jakub@redhat.com>
 
 	PR c++/85662
-	* cp-gimplify.c (cp_fold): Use fold_offsetof rather than
-	fold_offsetof_1, pass TREE_TYPE (x) as TYPE to it and drop the
-	fold_convert.
+	* g++.dg/ext/offsetof2.C: New test.
 
 	2018-05-08  Jakub Jelinek  <jakub@redhat.com>
 
