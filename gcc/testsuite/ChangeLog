@@ -1,3 +1,114 @@
+2018-07-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/86492
+	* gcc.c-torture/execute/pr86492.c: New test.
+
+2018-07-11  Jakub Jelinek  <jakub@redhat.com>
+
+	* gcc.target/i386/avx512bw-vpcmpb-2.c (CMP): Use SIZE macro instead
+	of hardcoding size.  Cast (rel) to MASK_TYPE.
+	* gcc.target/i386/avx512bw-vpcmpub-2.c (CMP): Likewise.
+	* gcc.target/i386/avx512f-vinserti32x4-3.c: New test.
+	* gcc.target/i386/avx512f-vinsertf32x4-3.c: New test.
+	* gcc.target/i386/avx512vl-vpcmpnequb-2.c: New test.
+	* gcc.target/i386/avx512vl-vpcmpgeub-2.c: New test.
+	* gcc.target/i386/avx512vl-vpcmpleb-2.c: New test.
+	* gcc.target/i386/avx512vl-vpcmpgeb-2.c: New test.
+	* gcc.target/i386/avx512vl-vpcmpltb-2.c: New test.
+	* gcc.target/i386/avx512vl-vpcmpltub-2.c: New test.
+	* gcc.target/i386/avx512vl-vpcmpleub-2.c: New test.
+	* gcc.target/i386/avx512vl-vpcmpneqb-2.c: New test.
+	* gcc.target/i386/avx512vl-vpcmpnequw-2.c: New test.
+	* gcc.target/i386/avx512vl-vpcmpgeuw-2.c: New test.
+	* gcc.target/i386/avx512vl-vpcmplew-2.c: New test.
+	* gcc.target/i386/avx512vl-vpcmpgew-2.c: New test.
+	* gcc.target/i386/avx512vl-vpcmpltw-2.c: New test.
+	* gcc.target/i386/avx512vl-vpcmpltuw-2.c: New test.
+	* gcc.target/i386/avx512vl-vpcmpleuw-2.c: New test.
+	* gcc.target/i386/avx512vl-vpcmpneqw-2.c: New test.
+
+2018-07-11  Grazvydas Ignotas  <notasas@gmail.com>
+
+	* gcc.target/i386/avx512bw-vpcmpb-2.c (SIZE): Define to
+	(AVX512F_LEN / 8) instead of (AVX512F_LEN / 16).
+	* gcc.target/i386/avx512bw-vpcmpub-2.c (SIZE): Likewise.
+
+2018-07-10  Jakub Jelinek  <jakub@redhat.com>
+
+	PR sanitizer/86406
+	* g++.dg/ubsan/pr86406.C: New test.
+
+2018-07-05  Martin Sebor  <msebor@redhat.com>
+
+	PR c++/86400
+	* gcc.dg/strlenopt-47.c: New test.
+	* gcc.dg/strlenopt-48.c: New test.
+
+2018-07-03  Carl Love  <cel@us.ibm.com>
+
+	Backport from trunk
+	2018-07-03  Carl Love  <cel@us.ibm.com>
+
+	* gcc.target/altivec-1-runnable.c: New test file.
+	* gcc.target/altivec-2-runnable.c: New test file.
+	* gcc.target/vsx-7.c (main2):  Test file changes not backported from
+	mainline since test file does not exist in GCC 8.
+
+2018-07-02  Paul Thomas  <pault@gcc.gnu.org>
+
+	PR fortran/82969
+	PR fortran/86242
+	* gfortran.dg/proc_ptr_50.f90: New test.
+
+2018-06-30  Alexandre Oliva <aoliva@redhat.com>
+
+	PR debug/86064
+	* gcc.dg/pr86064.c: New.
+
+2018-06-29  Kelvin Nilsen  <kelvin@gcc.gnu.org>
+
+	Backport from mainline
+	2018-06-22  Kelvin Nilsen  <kelvin@gcc.gnu.org>
+
+	* gcc.target/powerpc/builtins-3-p8.c (test_pack_float): Remove
+	this test.
+	* gcc.target/powerpc/builtins-9.c: New test.
+	* gcc.target/powerpc/fold-vec-pack-double.c: Modify dg directives
+	to expect different code generation on big-endian vs.
+	little-endian targets.
+
+2018-06-28  Kelvin Nilsen  <kelvin@gcc.gnu.org>
+
+	Backport from mainline
+	2017-05-23  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	* lib/target-supports.exp (check_effective_target_be): New.
+	(check_effective_target_le): New.
+
+2018-06-28  Fritz Reese  <fritzoreese@gmail.com>
+
+	PR fortran/82865
+	Backport from trunk.
+	* gfortran.dg/dec_type_print_2.f03: New testcase.
+
+2018-06-27  Carl Love  <cel@us.ibm.com>
+
+Add test case that was supposed to be added in commit 255556 on 2017-12-11.
+
+	* gcc.target/vsx-vector-abss.c: New file to test vec_abss.
+
+2018-06-27  Kelvin Nilsen  <kelvin@gcc.gnu.org>
+
+	* gcc.target/powerpc/builtins-1-be.c: Adjust dg directives to scan
+	for vpkudus in place of vpksdus.
+	* gcc.target/powerpc/builtins-1-le.c: Likewise.
+
+	Backport from mainline
+	2018-06-20  Kelvin Nilsen  <kelvin@gcc.gnu.org>
+
+	* gcc.target/powerpc/builtins-3-p8.c: Adjust dg directives to scan
+	for vpkudus in place of vpksdus.
+
 2018-06-26  Jakub Jelinek  <jakub@redhat.com>
 
 	PR target/86314

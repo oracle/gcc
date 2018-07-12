@@ -1,6 +1,4 @@
-// { dg-do compile { target c++14 } }
-
-// Copyright (C) 2014-2018 Free Software Foundation, Inc.
+// Copyright (C) 2018 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -17,15 +15,31 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
-#include <chrono>
+// { dg-options "-O0" }
+// { dg-do link { target c++11 } }
+
+#include <regex>
+
+void f(const std::regex_constants::syntax_option_type&) { }
 
 void
 test01()
 {
-  using namespace std::literals::chrono_literals;
-
-  // std::numeric_limits<int64_t>::max() == 9223372036854775807;
-  auto h = 9223372036854775808h;
-  // { dg-error "cannot be represented" "" { target *-*-* } 894 }
+  f(std::regex::icase);
+  f(std::regex::nosubs);
+  f(std::regex::optimize);
+  f(std::regex::collate);
+  f(std::regex::ECMAScript);
+  f(std::regex::basic);
+  f(std::regex::extended);
+  f(std::regex::awk);
+  f(std::regex::grep);
+  f(std::regex::egrep);
+  // f(std::regex::multiline);
 }
-// { dg-prune-output "in constexpr expansion" } // needed for -O0
+
+int
+main()
+{
+  test01();
+}

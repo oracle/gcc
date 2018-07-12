@@ -1,3 +1,148 @@
+2018-07-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/86492
+	* gimple-ssa-store-merging.c
+	(imm_store_chain_info::coalesce_immediate_stores): Call
+	check_no_overlap even for the merge_overlapping case.
+
+2018-07-11  Jakub Jelinek  <jakub@redhat.com>
+
+	* config/i386/avx512bitalgintrin.h (_mm512_mask_bitshuffle_epi64_mask):
+	Use __mmask64 type instead of __mmask8 for __M argument.
+	* config/i386/avx512fintrin.h (_mm512_mask_xor_epi64,
+	_mm512_maskz_xor_epi64): Use __mmask8 type instead of __mmask16 for
+	__U argument.
+	(_mm512_mask_cmpneq_epi64_mask): Use __mmask8 type instead of
+	__mmask16 for __M argument.
+	(_mm512_maskz_insertf32x4, _mm512_maskz_inserti32x4,
+	_mm512_mask_insertf32x4, _mm512_mask_inserti32x4): Cast last argument
+	to __mmask16 instead of __mmask8.
+	* config/i386/avx512vlintrin.h (_mm_mask_add_ps, _mm_maskz_add_ps,
+	_mm256_mask_add_ps, _mm256_maskz_add_ps, _mm_mask_sub_ps,
+	_mm_maskz_sub_ps, _mm256_mask_sub_ps, _mm256_maskz_sub_ps,
+	_mm256_maskz_cvtepi32_ps, _mm_maskz_cvtepi32_ps): Use __mmask8 type
+	instead of __mmask16 for __U argument.
+	* config/i386/avx512vlbwintrin.h (_mm_mask_cmp_epi8_mask): Use
+	__mmask16 instead of __mmask8 for __U argument.
+	(_mm256_mask_cmp_epi8_mask): Use __mmask32 instead of __mmask16 for
+	__U argument.
+	(_mm256_cmp_epi8_mask): Use __mmask32 return type instead of
+	__mmask16.
+	(_mm_mask_cmp_epu8_mask): Use __mmask16 instead of __mmask8 for __U
+	argument.
+	(_mm256_mask_cmp_epu8_mask): Use __mmask32 instead of __mmask16 for
+	__U argument.
+	(_mm256_cmp_epu8_mask): Use __mmask32 return type instead of
+	__mmask16.
+	(_mm_mask_cmp_epi16_mask): Cast last argument to __mmask8 instead
+	of __mmask16.
+	(_mm256_mask_cvtepi8_epi16): Use __mmask16 instead of __mmask32 for
+	__U argument.
+	(_mm_mask_cvtepi8_epi16): Use __mmask8 instead of __mmask32 for
+	__U argument.
+	(_mm256_mask_cvtepu8_epi16): Use __mmask16 instead of __mmask32 for
+	__U argument.
+	(_mm_mask_cvtepu8_epi16): Use __mmask8 instead of __mmask32 for
+	__U argument.
+	(_mm256_mask_cmpneq_epu8_mask, _mm256_mask_cmplt_epu8_mask,
+	_mm256_mask_cmpge_epu8_mask, _mm256_mask_cmple_epu8_mask): Change
+	return type as well as __M argument type and all casts from __mmask8
+	to __mmask32.
+	(_mm256_mask_cmpneq_epu16_mask, _mm256_mask_cmplt_epu16_mask,
+	_mm256_mask_cmpge_epu16_mask, _mm256_mask_cmple_epu16_mask): Change
+	return type as well as __M argument type and all casts from __mmask8
+	to __mmask16.
+	(_mm256_mask_cmpneq_epi8_mask, _mm256_mask_cmplt_epi8_mask,
+	_mm256_mask_cmpge_epi8_mask, _mm256_mask_cmple_epi8_mask): Change
+	return type as well as __M argument type and all casts from __mmask8
+	to __mmask32.
+	(_mm256_mask_cmpneq_epi16_mask, _mm256_mask_cmplt_epi16_mask,
+	_mm256_mask_cmpge_epi16_mask, _mm256_mask_cmple_epi16_mask): Change
+	return type as well as __M argument type and all casts from __mmask8
+	to __mmask16.
+	* config/i386/avx512vbmi2vlintrin.h (_mm_mask_shrdi_epi32,
+	_mm_mask_shldi_epi32): Cast last argument to __mmask8 instead of
+	__mmask16.
+
+2018-07-11  Grazvydas Ignotas  <notasas@gmail.com>
+
+	* config/i386/avx512bwintrin.h: (_mm512_mask_cmp_epi8_mask,
+	_mm512_mask_cmp_epu8_mask): Use __mmask64 type instead of __mmask32
+	for __U argument.
+
+2018-07-05  Martin Sebor  <msebor@redhat.com>
+
+	PR c++/86400
+	* tree-ssa-strlen.c (maybe_set_strlen_range): Use type size rather
+	than its domain to compute its the upper bound of a char array.
+
+2018-07-03  Carl Love  <cel@us.ibm.com>
+
+	Backport from trunk
+	2018-07-03  Carl Love  <cel@us.ibm.com>
+
+	* config/rs6000/rs6000-c.c: Map ALTIVEC_BUILTIN_VEC_UNPACKH for
+	float argument to VSX_BUILTIN_DOUBLEH_V4SF.
+	Map ALTIVEC_BUILTIN_VEC_UNPACKL for float argument to
+	VSX_BUILTIN_DOUBLEL_V4SF.
+
+2018-07-04  Luis Machado  <luis.machado@linaro.org>
+
+	* config/aarch64/aarch64.c (qdf24xx_addrcost_table): New static
+	global.
+	(qdf24xx_tunings) <addr_costs>: Set to qdf24xx_addrcost_table.
+
+2018-07-02  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	Backport from trunk
+	2018-06-26  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	PR target/86285
+	* config/rs6000/rs6000.c (rs6000_init_builtins): Do not set
+	ieee128_float_type_node to long_double_type_node unless
+	TARGET_LONG_DOUBLE_128 is set.
+
+2018-07-02  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* config/i386/i386.c (ix86_finalize_stack_frame_flags): Do not overrule
+	-fno-omit-frame-pointer when not optimizing.
+
+2018-06-30  Alexandre Oliva  <aoliva@redhat.com>
+
+	PR debug/86064
+	* dwarf2out.c (loc_list_has_views): Adjust comments.
+	(dw_loc_list): Split single cross-partition range with
+	nonzero locview.
+
+2018-06-29  Kelvin Nilsen  <kelvin@gcc.gnu.org>
+
+	Backport from mainline
+	2018-06-22  Kelvin Nilsen  <kelvin@gcc.gnu.org>
+
+	* config/rs6000/rs6000-c.c (altivec_overloaded_builtins): Change
+	behavior of vec_pack (vector double, vector double) to match
+	behavior of vec_float2 (vector double, vector double).
+
+2018-06-29  Jakub Jelinek  <jakub@redhat.com>
+
+	* config/rs6000/t-rs6000: Append rs6000-modes.h to TM_H.
+
+2018-06-28  Kelvin Nilsen  <kelvin@gcc.gnu.org>
+
+	Backport from mainline
+	2017-05-23  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	* doc/sourcebuild.texi (Endianness): New subsubsection.
+
+2018-06-27  Kelvin Nilsen  <kelvin@gcc.gnu.org>
+
+	Backport from mainline
+	2018-06-20  Kelvin Nilsen  <kelvin@gcc.gnu.org>
+
+	* config/rs6000/rs6000-c.c (altivec_overloaded_builtins): Change
+	behavior of vec_packsu (vector unsigned long long, vector unsigned
+	long long) to match behavior of vec_packs with same signature.
+
 2018-06-26  Aaron Sawdey  <acsawdey@linux.ibm.com>
 
 	Backport from trunk
