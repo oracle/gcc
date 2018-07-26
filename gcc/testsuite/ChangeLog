@@ -1,3 +1,158 @@
+2018-07-26  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from mainline
+	2018-07-24  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/86627
+	* gcc.target/i386/pr86627.c: New test.
+
+	2018-07-10  Jakub Jelinek  <jakub@redhat.com>
+
+	PR fortran/86421
+	* gfortran.dg/vect/pr86421.f90: New test.
+
+2018-07-26  Release Manager
+
+	* GCC 8.2.0 released.
+
+2018-07-18  Carl Love  <cel@us.ibm.com>
+
+	Backport from mainline
+	2018-07-16  Carl Love  <cel@us.ibm.com>
+
+	PR target/86414
+ 	* gcc.target/powerpc/divkc3-2.c: Add dg-require-effective-target
+	longdouble128.
+	* gcc.target/powerpc/divkc3-3.c: Ditto.
+ 	* gcc.target/powerpc/mulkc3-2.c: Ditto.
+	* gcc.target/powerpc/mulkc3-3.c: Ditto.
+	* gcc.target/powerpc/fold-vec-mergehl-double.c: Update counts.
+	* gcc.target/powerpc/pr85456.c: Make check Linux and AIX specific.
+
+2018-07-18  Martin Sebor  <msebor@redhat.com>
+
+	PR middle-end/85602
+	* gcc.dg/attr-nonstring-2.c: Adjust text of expected warning.
+	* c-c++-common/attr-nonstring-8.c: New test.
+
+2018-07-17  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* gnat.dg/discr55.adb: New test.
+
+2018-07-16  Fritz Reese  <fritzoreese@gmail.com>
+
+	PR fortran/83184
+	* gfortran.dg/dec_structure_23.f90: Oops, "un-fix" error messages.
+
+2018-07-16  Fritz Reese  <fritzoreese@gmail.com>
+
+	PR fortran/83184
+	Backport from trunk.
+	* gfortran.dg/assumed_rank_14.f90: New testcase.
+	* gfortran.dg/assumed_rank_15.f90: New testcase.
+	* gfortran.dg/dec_structure_8.f90: Update error messages.
+	* gfortran.dg/dec_structure_23.f90: Update error messages.
+
+2018-07-16  Fritz Reese  <fritzoreese@gmail.com>
+
+	Backport from trunk:
+
+	PR fortran/83183
+	PR fortran/86325
+	* gfortran.dg/init_flag_18.f90: New testcase.
+	* gfortran.dg/init_flag_19.f03: New testcase.
+
+2018-06-12  Claudiu Zissulescu  <claziss@synopsys.com>
+
+	Backport from mainline
+	x2018-06-12  Claudiu Zissulescu  <claziss@synopsys.com>
+
+	* gcc.target/arc/pr9001107555.c: New file.
+
+2018-07-19  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2018-07-12  Richard Biener  <rguenther@suse.de>
+
+	PR c/86453
+	* g++.dg/warn/pr86453.C: New testcase.
+
+2018-07-16  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2018-07-13  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/85974
+	* gcc.c-torture/compile/930326-1.c: Adjust to cover widening.
+
+	2018-06-15  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/86076
+	* gcc.dg/pr86076.c: New testcase.
+
+	2018-06-06  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/85935
+	* gcc.dg/graphite/pr85935.c: New testcase.
+
+2018-07-16  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* gnat.dg/opt73.adb: New test.
+
+2018-07-16  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/3698
+	PR c++/86208
+	* g++.dg/opt/pr3698.C: New test.
+
+2018-07-15  Bill Schmidt  <wschmidt@linux.ibm.com>
+
+	Backport from mainline
+	2018-07-13  Bill Schmidt  <wschmidt@linux.ibm.com>
+		    Steve Munroe  <munroesj52@gmail.com>
+
+	* gcc.target/powerpc/sse2-pand-1.c: New file.
+	* gcc.target/powerpc/sse2-pandn-1.c: Likewise.
+	* gcc.target/powerpc/sse2-por-1.c: Likewise.
+	* gcc.target/powerpc/sse2-pxor-1.c: Likewise.
+
+2018-07-14  Martin Sebor  <msebor@redhat.com>
+
+	PR tree-optimization/86274
+	* gcc.dg/tree-ssa/builtin-sprintf-9.c: New test.
+	* gcc.dg/tree-ssa/builtin-sprintf-warn-1.c: Adjust.
+	* gcc.dg/tree-ssa/builtin-sprintf-warn-10.c: Same.
+	* gcc.dg/tree-ssa/builtin-sprintf-warn-15.c: Same.
+	* gcc.dg/tree-ssa/builtin-sprintf-warn-7.c: Same.
+	* gcc.dg/tree-ssa/builtin-sprintf.c: Same.
+	* gcc.dg/tree-ssa/pr83198.c: Same.
+
+2018-07-13  H.J. Lu  <hongjiu.lu@intel.com>
+
+	Backport from mainline
+	2018-07-13  H.J. Lu  <hongjiu.lu@intel.com>
+		    Sunil K Pandey  <sunil.k.pandey@intel.com>
+
+	PR target/84413
+	* gcc.target/i386/pr84413-1.c: New test.
+	* gcc.target/i386/pr84413-2.c: Likewise.
+	* gcc.target/i386/pr84413-3.c: Likewise.
+
+2018-07-13  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/86374
+	* g++.dg/pr86374.C: New.
+
+2018-07-12  Jakub Jelinek  <jakub@redhat.com>
+
+	* c-c++-common/gomp/declare-target-3.c: New test.
+	* g++.dg/gomp/declare-target-2.C: New test.
+
+2018-07-12  Richard Biener  <rguenther@suse.de>
+
+	PR target/84829
+	* gcc.target/i386/pr84829.c: New testcase.
+
 2018-07-12  Jakub Jelinek  <jakub@redhat.com>
 
 	PR tree-optimization/86492
