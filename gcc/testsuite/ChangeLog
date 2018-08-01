@@ -1,3 +1,24 @@
+2018-08-01  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c/85704
+	* gcc.c-torture/compile/pr85704.c: New test.
+
+2018-07-29  Bernd Edlinger  <bernd.edlinger@hotmail.de>
+
+	Backport from mainline
+	2018-07-23  Bernd Edlinger  <bernd.edlinger@hotmail.de>
+
+	PR c/86617
+	* gcc.dg/pr86617.c: New test.
+
+2018-07-26  Pat Haugen  <pthaugen@us.ibm.com>
+
+	Backport from mainline
+	2018-07-26  Pat Haugen  <pthaugen@us.ibm.com>
+
+	PR target/86612
+	* gcc.target/powerpc/pr58673-2.c: Call strdup.
+
 2018-07-26  Jakub Jelinek  <jakub@redhat.com>
 
 	Backported from mainline

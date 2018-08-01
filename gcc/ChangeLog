@@ -1,3 +1,45 @@
+2018-08-01  Richard Biener  <rguenther@suse.de>
+
+	PR bootstrap/86724
+	* graphite.h: Include isl/id.h and isl/space.h to allow build
+	with ISL 0.20.
+
+2018-08-01 Jan Willem Jagersma  <jwjagersma@gmail.com>
+
+	PR target/86651
+	* dwarf2out.c (dwarf2out_early_finish): Do not generate assembly in LTO
+	mode for COFF targets.
+	* defaults.h (TARGET_COFF): Define.
+	* config/i386/djgpp.h (TARGET_ASM_LTO_START, TARGET_ASM_LTO_END,
+	TARGET_COFF): Define.
+	(i386_djgpp_asm_lto_start, i386_djgpp_asm_lto_end): Declare.
+	* config/i386/djgpp.c (saved_debug_info_level): New static variable.
+	(i386_djgpp_asm_lto_start, i386_djgpp_asm_lto_end): New functions.
+
+2018-07-29  Bernd Edlinger  <bernd.edlinger@hotmail.de>
+
+	Backport from mainline
+	2018-07-23  Bernd Edlinger  <bernd.edlinger@hotmail.de>
+
+	PR c/86617
+	* genmatch.c (dt_operand::gen_match_op): Avoid folding volatile values.
+
+2018-07-29  John David Anglin  <danglin@gcc.gnu.org>
+
+	* config/pa/pa.c (pa_output_addr_vec): Align address table.
+	* config/pa/pa.h (JUMP_TABLES_IN_TEXT_SECTION): Revise comment.
+	* config/pa/pa32-linux.h (JUMP_TABLES_IN_TEXT_SECTION): Define.
+
+2018-07-26  Uros Bizjak  <ubizjak@gmail.com>
+
+	Backport from mainline
+	2018-07-16  Uros Bizjak  <ubizjak@gmail.com>
+
+	PR target/86511
+	* expmed.c (emit_store_flag): Do not emit setcc followed by a
+	conditional move when trapping comparison was split to a
+	non-trapping one (and vice versa).
+
 2018-07-26  Jakub Jelinek  <jakub@redhat.com>
 
 	Backported from mainline
