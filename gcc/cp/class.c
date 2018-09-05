@@ -278,6 +278,9 @@ build_base_path (enum tree_code code,
   probe = TYPE_MAIN_VARIANT (TREE_TYPE (expr));
   if (want_pointer)
     probe = TYPE_MAIN_VARIANT (TREE_TYPE (probe));
+  if (dependent_type_p (probe))
+    if (tree open = currently_open_class (probe))
+      probe = open;
 
   if (code == PLUS_EXPR
       && !SAME_BINFO_TYPE_P (BINFO_TYPE (d_binfo), probe))
@@ -6243,6 +6246,7 @@ layout_class_type (tree t, tree *virtuals_p)
 				  bitsize_int (BITS_PER_UNIT)));
       SET_TYPE_ALIGN (base_t, rli->record_align);
       TYPE_USER_ALIGN (base_t) = TYPE_USER_ALIGN (t);
+      TYPE_TYPELESS_STORAGE (base_t) = TYPE_TYPELESS_STORAGE (t);
 
       /* Copy the non-static data members of T. This will include its
 	 direct non-virtual bases & vtable.  */

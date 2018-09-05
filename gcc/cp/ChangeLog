@@ -1,3 +1,73 @@
+2018-09-05  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from mainline
+	2018-08-29  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/87095
+	* decl.c (begin_destructor_body): If current_class_type has
+	virtual bases and the primary base is nearly empty virtual base,
+	voidify clearing of vptr and make it conditional on in-charge
+	argument.
+
+	2018-08-08  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/86836
+	* pt.c (tsubst_expr): For structured bindings, call tsubst_decomp_names
+	before tsubst_init, not after it.
+
+	PR c++/86738
+	* constexpr.c (cxx_eval_binary_expression): For arithmetics involving
+	NULL pointer set *non_constant_p to true.
+	(cxx_eval_component_reference): For dereferencing of a NULL pointer,
+	set *non_constant_p to true and return t.
+
+	2018-08-03  Jason Merrill  <jason@redhat.com>
+
+	PR c++/86706
+	* class.c (build_base_path): Use currently_open_class.
+
+2018-08-31  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/87155
+	PR c++/84707
+	* name-lookup.c (name_lookup::search_namespace): Don't look at
+	inlines when searching for NULL names.
+
+2018-08-29  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/87122
+	* pt.c (tsubst_expr) <case RANGE_FOR_STMT>: If
+	processing_template_decl and decl is structured binding decl, call
+	cp_finish_decomp.
+
+2018-08-17  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2018-08-02  Richard Biener  <rguenther@suse.de>
+
+	PR c++/86763
+	* class.c (layout_class_type): Copy TYPE_TYPELESS_STORAGE
+	to the CLASSTYPE_AS_BASE.
+
+2018-08-10  Jason Merrill  <jason@redhat.com>
+
+	PR c++/86728 - C variadic generic lambda.
+	* parser.c (cp_parser_parameter_declaration): Don't turn 'auto' into
+	a pack if it's followed by a declarator-id.
+
+2018-08-08  Marek Polacek  <polacek@redhat.com>
+
+	Backport from mainline
+	2018-08-06  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/86767
+	* constexpr.c (cxx_eval_statement_list): Handle continue.
+
+2018-08-01  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/86190 - bogus -Wsign-conversion warning
+	* typeck.c (cp_build_binary_op): Add a warning sentinel.
+
 2018-07-26  Release Manager
 
 	* GCC 8.2.0 released.

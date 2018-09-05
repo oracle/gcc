@@ -2066,6 +2066,7 @@ cxx_eval_binary_expression (const constexpr_ctx *ctx, tree t,
     {
       if (!ctx->quiet)
 	error ("arithmetic involving a null pointer in %qE", lhs);
+      *non_constant_p = true;
       return t;
     }
   else if (code == POINTER_PLUS_EXPR)
@@ -2506,9 +2507,13 @@ cxx_eval_component_reference (const constexpr_ctx *ctx, tree t,
 					     lval,
 					     non_constant_p, overflow_p);
   if (INDIRECT_REF_P (whole)
-      && integer_zerop (TREE_OPERAND (whole, 0))
-      && !ctx->quiet)
-    error ("dereferencing a null pointer in %qE", orig_whole);
+      && integer_zerop (TREE_OPERAND (whole, 0)))
+    {
+      if (!ctx->quiet)
+	error ("dereferencing a null pointer in %qE", orig_whole);
+      *non_constant_p = true;
+      return t;
+    }
 
   if (TREE_CODE (whole) == PTRMEM_CST)
     whole = cplus_expand_constant (whole);
@@ -3926,6 +3931,16 @@ cxx_eval_statement_list (const constexpr_ctx *ctx, tree t,
   for (i = tsi_start (t); !tsi_end_p (i); tsi_next (&i))
     {
       tree stmt = tsi_stmt (i);
+      /* We've found a continue, so skip everything until we reach
+	 the label its jumping to.  */
+      if (continues (jump_target))
+	{
+	  if (label_matches (ctx, jump_target, stmt))
+	    /* Found it.  */
+	    *jump_target = NULL_TREE;
+	  else
+	    continue;
+	}
       if (TREE_CODE (stmt) == DEBUG_BEGIN_STMT)
 	continue;
       r = cxx_eval_constant_expression (ctx, stmt, false,

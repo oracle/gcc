@@ -1,3 +1,210 @@
+2018-09-05  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from mainline
+	2018-09-04  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/87198
+	* gcc.target/i386/pr87198.c: New test.
+
+	2018-08-31  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/87138
+	* gcc.target/i386/avx512bw-pr87138.c: New test.
+
+	2018-08-29  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/87095
+	* g++.dg/ubsan/vptr-13.C: New test.
+
+	2018-08-11  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/86835
+	* gcc.dg/pr86835.c: New test.
+
+	2018-08-08  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/86836
+	* g++.dg/cpp1z/decomp46.C: New test.
+
+	PR c++/86738
+	* g++.dg/opt/pr86738.C: New test.
+
+	2018-08-03  Jason Merrill  <jason@redhat.com>
+
+	PR c++/86706
+	* g++.dg/template/pr86706.C: New test.
+
+2018-09-04  Jerry DeLisle  <jvdelisle@gcc.gnu.org>
+
+	Backport from mainline
+	* gfortran.dg/modulo_check: New test.
+
+2018-09-03  Tom de Vries  <tdevries@suse.de>
+
+	backport from trunk:
+	2018-06-21  Tom de Vries  <tdevries@suse.de>
+
+	PR tree-optimization/85859
+	* gcc.dg/pr85859.c: New test.
+
+2018-09-01  Michael Matz  <matz@suse.de>
+
+	Backport from mainline
+	PR tree-optimization/87074
+	* gcc.dg/pr87074.c: New test.
+
+2018-09-01  Paul Thomas  <pault@gcc.gnu.org>
+
+	PR fortran/86328
+	PR fortran/86760
+	* gfortran.dg/pr86328.f90 : New test.
+	* gfortran.dg/pr86760.f90 : New test.
+
+2018-08-31  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/87155
+	PR c++/84707
+	* g++.dg/cpp0x/pr87155.C: New.
+	* g++.dg/cpp0x/inline-ns10.C: Adjust.
+
+2018-08-31  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2018-08-27  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/86927
+	* gcc.dg/vect/pr86927.c: New testcase.
+
+	2018-08-23  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/87024
+	* gcc.dg/pr87024.c: New testcase.
+
+	2018-08-22  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/86945
+	* gcc.dg/torture/pr86945.c: New testcase.
+
+	2018-08-17  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/86505
+	* gcc.dg/torture/pr86505.c: New testcase.
+
+	2018-08-02  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/86816
+	* g++.dg/torture/pr86816.C: New testcase.
+
+	2018-07-17  Richard Biener  <rguenther@suse.de>
+
+	PR lto/86456
+	* g++.dg/debug/dwarf2/pr86456.C: New testcase.
+
+2018-08-29  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/87122
+	* g++.dg/cpp1z/decomp47.C: New test.
+
+2018-08-27  Martin Sebor  <msebor@redhat.com>
+
+	PR tree-optimization/86914
+	* gcc.dg/strlenopt-57.c: New test.
+
+2018-08-28  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/87099
+	* gcc.dg/pr87099.c: New test.
+
+2018-08-27  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/87065
+	* gcc.target/i386/pr87065.c: New test.
+
+2018-08-26  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	Backport from trunk
+	PR libfortran/86704
+	* gfortran.dg/matmul_19.f90: New test.
+
+2018-08-24  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/86837
+	* gfortran.dg/implied_do_io_6.f90: New test.
+
+2018-08-21  H.J. Lu  <hongjiu.lu@intel.com>
+
+	Backport from mainline
+	2018-08-20  H.J. Lu  <hongjiu.lu@intel.com>
+
+	PR target/87014
+	* g++.dg/torture/pr87014.C: New file.
+
+2018-08-21  Szabolcs Nagy  <szabolcs.nagy@arm.com>
+
+	Backport from mainline
+	2018-08-21  Szabolcs Nagy  <szabolcs.nagy@arm.com>
+
+	* g++.dg/torture/pr86763.C: Restrict to *-*-linux*.
+
+2018-08-17  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2018-08-02  Richard Biener  <rguenther@suse.de>
+
+	PR c++/86763
+	* g++.dg/torture/pr86763.C: New testcase.
+
+2018-08-16  Tamar Christina  <tamar.christina@arm.com>
+
+	Backport from mainline
+	2018-07-31  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	PR target/86640
+	* gcc.target/arm/pr86640.c: New testcase.
+
+2018-08-14  Richard Sandiford  <richard.sandiford@arm.com>
+
+	Backport from mainline
+	2018-08-09  Richard Sandiford  <richard.sandiford@arm.com>
+
+	PR tree-optimization/86871
+	* gcc.dg/vect/pr86871.c: New test.
+
+2018-08-12  Paul Thomas  <pault@gcc.gnu.org>
+
+	Backported from trunk
+	PR fortran/86906
+	* gfortran.dg/use_rename_9.f90: New test.
+
+2018-08-07  H.J. Lu  <hongjiu.lu@intel.com>
+
+	Backport from mainline
+	2018-08-05  H.J. Lu  <hongjiu.lu@intel.com>
+
+	PR target/86386
+	* gcc.target/i386/pr86386.c: New file.
+
+2018-08-07  Steve Ellcey  <sellcey@cavium.com>
+	    Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
+
+	PR tree-optimization/80925
+	* gcc.dg/vect/no-section-anchors-vect-69.c: Expect 3 loops
+	vectorized on !vect_hw_misalign targets.
+
+2018-08-04  Uros Bizjak  <ubizjak@gmail.com>
+
+	PR testsuite/86153
+	* g++.dg/pr83239.C (dg-options): Add -finline-limit=500.
+
+2018-08-02  Andreas Schwab  <schwab@linux-m68k.org>
+
+	Backport from mainline
+	2018-07-17  Andreas Schwab  <schwab@linux-m68k.org>
+
+	PR target/86820
+	* gcc.target/m68k/mulsi_highpart.c: New test.
+
 2018-08-01  Jakub Jelinek  <jakub@redhat.com>
 
 	PR c/85704
@@ -42,10 +249,10 @@
 	2018-07-16  Carl Love  <cel@us.ibm.com>
 
 	PR target/86414
- 	* gcc.target/powerpc/divkc3-2.c: Add dg-require-effective-target
+	* gcc.target/powerpc/divkc3-2.c: Add dg-require-effective-target
 	longdouble128.
 	* gcc.target/powerpc/divkc3-3.c: Ditto.
- 	* gcc.target/powerpc/mulkc3-2.c: Ditto.
+	* gcc.target/powerpc/mulkc3-2.c: Ditto.
 	* gcc.target/powerpc/mulkc3-3.c: Ditto.
 	* gcc.target/powerpc/fold-vec-mergehl-double.c: Update counts.
 	* gcc.target/powerpc/pr85456.c: Make check Linux and AIX specific.
@@ -777,7 +984,7 @@ Add test case that was supposed to be added in commit 255556 on 2017-12-11.
 	Backport from mainline
 	2018-05-11  Martin Liska  <mliska@suse.cz>
 
-        PR sanitizer/85556
+	PR sanitizer/85556
 	* c-c++-common/ubsan/attrib-6.c: New test.
 
 2018-05-22  Martin Sebor  <msebor@redhat.com>
@@ -1477,11 +1684,11 @@ Add test case that was supposed to be added in commit 255556 on 2017-12-11.
 
 2018-04-13  Andreas Krebbel  <krebbel@linux.ibm.com>
 
-        PR testsuite/85326
-        * gcc.target/s390/pr77822-1.C: Rename to ...
-        * gcc.target/s390/pr77822-1.c: ... this. Add asm scan check.
-        * gcc.target/s390/pr77822-2.c: Add asm scan check.
-        * gcc.target/s390/s390.exp: Remove C from testcase regexps.
+	PR testsuite/85326
+	* gcc.target/s390/pr77822-1.C: Rename to ...
+	* gcc.target/s390/pr77822-1.c: ... this. Add asm scan check.
+	* gcc.target/s390/pr77822-2.c: Add asm scan check.
+	* gcc.target/s390/s390.exp: Remove C from testcase regexps.
 
 2018-04-13  Jan Hubicka  <hubicka@ucw.cz>
 
@@ -2814,7 +3021,7 @@ Add test case that was supposed to be added in commit 255556 on 2017-12-11.
 	* g++.dg/cpp2a/desig7.C: New test.
 
 2018-03-16  Mark Doffman  <mark.doffman@codethink.co.uk>
-            Jim MacArthur  <jim.macarthur@codethink.co.uk>
+	    Jim MacArthur  <jim.macarthur@codethink.co.uk>
 
 	* gfortran.dg/automatic_1.f90: New test.
 	* gfortran.dg/automatic_repeat.f90: New test
@@ -4049,9 +4256,9 @@ Add test case that was supposed to be added in commit 255556 on 2017-12-11.
 
 2018-02-20  Jeff Law  <law@redhat.com>
 
-        PR middle-end/82123
-        PR tree-optimization/81592
-        PR middle-end/79257
+	PR middle-end/82123
+	PR tree-optimization/81592
+	PR middle-end/79257
 	* gcc.dg/pr81592.c: New test.
 	* gcc.dg/pr82123.c: New test.
 	* gcc.dg/builtin-unreachable-6.c: Turn off VRP.
@@ -6775,7 +6982,7 @@ Add test case that was supposed to be added in commit 255556 on 2017-12-11.
 
 2018-02-14  Carl Love  <cel@us.ibm.com>
 
-        * gcc.target/powerpc/builtins-4-int128-runnable.c
+	* gcc.target/powerpc/builtins-4-int128-runnable.c
 	(dg-require-effective-target): Change vsx_hw to p8vector_hw.
 	(dg-options): Change -maltivec -mvsx to -mpower8-vector.
 
