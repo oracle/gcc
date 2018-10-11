@@ -1,3 +1,29 @@
+2018-10-08  Joseph Myers  <joseph@codesourcery.com>
+
+	Backport from mainline
+	2018-10-02  Joseph Myers  <joseph@codesourcery.com>
+
+	* testsuite/lib/libstdc++.exp (libstdc++_init): Use
+	-fno-show-column in default cxxflags.
+
+2018-10-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2018-10-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/87538
+	* include/std/functional (_Not_fn::operator()): Check value of
+	__is_nothrow_invocable as well.
+	* testsuite/20_util/function_objects/not_fn/87538.cc: New test.
+	* testsuite/experimental/functional/87538.cc: New test.
+
+2018-09-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/87278
+	* include/bits/shared_ptr.h (make_shared): Use remove_cv instead of
+	remove_const.
+	* testsuite/20_util/shared_ptr/creation/87278.cc: New test.
+
 2018-08-28  Jonathan Wakely  <jwakely@redhat.com>
 
 	PR libstdc++/87116

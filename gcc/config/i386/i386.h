@@ -1536,10 +1536,10 @@ enum reg_class
 #define FIRST_FLOAT_REG FIRST_STACK_REG
 #define STACK_TOP_P(X) (REG_P (X) && REGNO (X) == FIRST_FLOAT_REG)
 
-#define SSE_REGNO(N) \
-  ((N) < 8 ? FIRST_SSE_REG + (N) \
-         : (N) <= LAST_REX_SSE_REG ? (FIRST_REX_SSE_REG + (N) - 8) \
-                                   : (FIRST_EXT_REX_SSE_REG + (N) - 16))
+#define GET_SSE_REGNO(N)			\
+  ((N) < 8 ? FIRST_SSE_REG + (N)		\
+   : (N) < 16 ? FIRST_REX_SSE_REG + (N) - 8	\
+   : FIRST_EXT_REX_SSE_REG + (N) - 16)
 
 /* The class value for index registers, and the one for base regs.  */
 
@@ -2634,6 +2634,9 @@ struct GTY(()) machine_function {
 
   /* Nonzero if the function places outgoing arguments on stack.  */
   BOOL_BITFIELD outgoing_args_on_stack : 1;
+
+  /* If true, ENDBR is queued at function entrance.  */
+  BOOL_BITFIELD endbr_queued_at_entrance : 1;
 
   /* The largest alignment, in bytes, of stack slot actually used.  */
   unsigned int max_used_stack_alignment;

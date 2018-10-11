@@ -1,3 +1,57 @@
+2018-10-11  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/87582
+	* typeck.c (maybe_warn_about_returning_address_of_local): If
+	whats_returned is a structured binding identifier and the structured
+	binding is a reference, recurse on its initializer.
+
+2018-10-10  Paolo Carlini  <paolo.carlini@oracle.com>
+
+	PR c++/84940
+	* semantics.c (finish_unary_op_expr): Check return value of
+	build_x_unary_op for error_mark_node.
+
+2018-10-03  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2018-10-03  Martin Liska  <mliska@suse.cz>
+
+	PR gcov-profile/86109
+	* parser.c (cp_parser_lambda_declarator_opt):
+	Set DECL_LAMBDA_FUNCTION for lambdas.
+
+2018-09-24  Paolo Carlini  <paolo.carlini@oracle.com>
+
+	PR c++/85070
+	* method.c (lazily_declare_fn): During error-recovery add_method
+	may return false.
+
+2018-09-18  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/86881
+	* name-lookup.c (check_local_shadow): Ignore auto types.
+
+2018-09-13  Ville Voutilainen  <ville.voutilainen@gmail.com>
+
+	Backport from mainline
+	2018-09-13  Ville Voutilainen  <ville.voutilainen@gmail.com>
+	gcc/cp
+
+	PR c++/87093
+	* method.c (constructible_expr): We're in an unevaluated context
+	in all cases, not just for class targets.
+
+	testsuite/
+
+	PR c++/87093
+	* g++.dg/ext/is_constructible2.C: New.
+
+2018-09-05   Pádraig Brady  <p@draigbrady.com>
+
+	PR c++/87185
+	* lambda.c (prune_lambda_captures): Protect against const_vars.get
+	returning NULL.
+
 2018-09-05  Jakub Jelinek  <jakub@redhat.com>
 
 	Backported from mainline

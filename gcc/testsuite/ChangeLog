@@ -1,3 +1,200 @@
+2018-10-11  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/87582
+	* g++.dg/cpp1z/decomp48.C: New test.
+
+	Backported from mainline
+	2018-10-10  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/87550
+	* gcc.target/i386/pr87550.c: New test.
+
+	2018-09-12  Jakub Jelinek  <jakub@redhat.com>
+		    Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	PR tree-optimization/86844
+	* gcc.c-torture/execute/pr86844.c: New test.
+	* gcc.dg/store_merging_22.c: New test.
+	* gcc.dg/store_merging_23.c: New test.
+
+2018-10-10  Paolo Carlini  <paolo.carlini@oracle.com>
+
+	PR c++/84940
+	* g++.dg/expr/unary4.C: New.
+
+2018-10-09  Will Schmidt <will_schmidt@vnet.ibm.com>
+
+	Backport from trunk
+	2018-09-06  Will Schmidt  <will_schmidt@vnet.ibm.com>
+
+	PR target/86731
+	* gcc.target/powerpc/pr86731.c: New test.
+	* gcc.target/powerpc/pr86731-longlong.c: New test.
+	* gcc.target/powerpc/pr86731-fwrapv.c: New test.
+	* gcc.target/powerpc/pr86731-fwrapv-longlong.c: New test.
+	* gcc.target/powerpc/pr86731-nogimplefold.c: New test.
+	* gcc.target/powerpc/pr86731-nogimplefold-longlong.c: New test.
+
+2018-10-09  H.J. Lu  <hongjiu.lu@intel.com>
+
+	Backport from mainline
+	2018-09-29  H.J. Lu  <hongjiu.lu@intel.com>
+
+	PR target/87370
+	* gcc.target/i386/pr87370.c: New test.
+
+2018-10-08  Paul Thomas  <pault@gcc.gnu.org>
+
+	PR fortran/83999
+	Backport from trunk
+	* gfortran.dg/elemental_function_4.f90 : New test.
+
+2018-10-08  Paul Thomas  <pault@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/86372
+	* gfortran.dg/associate_41.f90: New test.
+
+2018-10-06  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	PR fortran/86111
+	Backport from trunk
+	* gfortran.dg/array_constructor_type_23.f90: New test.
+
+2018-10-03  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2018-10-03  Martin Liska  <mliska@suse.cz>
+
+	PR gcov-profile/86109
+	* g++.dg/gcov/pr86109.C: New test.
+
+2018-10-02  H.J. Lu  <hongjiu.lu@intel.com>
+
+	Backport from mainline
+	2018-09-25  H.J. Lu  <hongjiu.lu@intel.com>
+
+	PR target/82699
+	* gcc.target/i386/pr82699-5.c: Add -fno-pic for ia32.
+	* gcc.target/i386/pr82699-6.c: Add -fno-pic.
+
+	2018-09-24  H.J. Lu  <hongjiu.lu@intel.com>
+
+	PR target/82699
+	* gcc.target/i386/pr82699-1.c: New file.
+	* gcc.target/i386/pr82699-2.c: Likewise.
+	* gcc.target/i386/pr82699-3.c: Likewise.
+	* gcc.target/i386/pr82699-4.c: Likewise.
+	* gcc.target/i386/pr82699-5.c: Likewise.
+	* gcc.target/i386/pr82699-6.c: Likewise.
+
+2018-10-01  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	Backport from mainline
+	2018-07-02  Christophe Lyon  <christophe.lyon@linaro.org>
+
+	* gcc.target/arm/arm-soft-strd-even.c: Skip if -mfloat-abi is
+	overriden.
+	2018-06-29  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* gcc.target/arm/arm-soft-strd-even.c: New test.
+
+2018-09-29  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/87467
+	* gcc.target/i386/avx512f-abspd-1.c (SIZE): Divide by two.
+	(CALC): Use double instead of float.
+	(TEST): Adjust to test _mm512_abs_pd and _mm512_mask_abs_pd rather than
+	_mm512_abs_ps and _mm512_mask_abs_ps.
+
+2018-09-27  Michael Meissner  <meissner@linux.ibm.com>
+
+	Backport from mainline
+	2018-08-20  Michael Meissner  <meissner@linux.ibm.com>
+
+	PR target/87033
+	* gcc.target/powerpc/pr87033.c: New test.
+
+2018-09-25  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2018-09-24  Martin Liska  <mliska@suse.cz>
+
+	PR sanitizer/85774
+	* g++.dg/asan/pr85774.C: New test.
+
+2018-09-24  Paolo Carlini  <paolo.carlini@oracle.com>
+
+	PR c++/85070
+	* g++.dg/cpp0x/pr85070.C: New.
+
+2018-09-21  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* gcc.dg/nested-func-11.c: New test.
+
+2018-09-18  Janus Weil  <janus@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/85395
+	* gfortran.dg/proc_ptr_comp_52.f90: New test case.
+
+2018-09-18  Janus Weil  <janus@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/86830
+	* gfortran.dg/typebound_call_30.f90: New test case.
+
+2018-09-18  Paul Thomas  <pault@gcc.gnu.org>
+
+	Backported from trunk
+	PR fortran/85954
+	* gfortran.dg/deferred_character_21.f90 : New test.
+
+2018-09-18  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/86881
+	* g++.dg/warn/pr86881.C: New.
+
+2018-09-12  Paul Thomas  <pault@gcc.gnu.org>
+
+	Backported from trunk
+	PR fortran/87284
+	* gfortran.dg/allocate_with_mold_2.f90: New test.
+
+2018-09-12  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	Backport from mainline
+	2018-09-12  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	* gcc.target/s390/dfp_to_bfp_rounding.c: New test.
+
+2018-09-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/87248
+	* c-c++-common/torture/pr87248.c: New test.
+
+2018-09-11  Paul Thomas  <pault@gcc.gnu.org>
+
+	Backported from trunk
+	PR fortran/87277
+	* gfortran.dg/select_type_43.f90: New test.
+
+2018-09-05  Janus Weil  <janus@gcc.gnu.org>
+
+	Backported from trunk
+	PR fortran/86116
+	* gfortran.dg/generic_34.f90: New test case.
+
+2018-09-05   Pádraig Brady  <p@draigbrady.com>
+
+	PR c++/87185
+	* g++.dg/pr87185.C: New.
+
+2018-09-05  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/87137
+	* g++.dg/abi/pr87137.C: New.
+
 2018-09-05  Jakub Jelinek  <jakub@redhat.com>
 
 	Backported from mainline

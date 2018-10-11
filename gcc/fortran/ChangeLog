@@ -1,3 +1,84 @@
+2018-10-08  Paul Thomas  <pault@gcc.gnu.org>
+
+	PR fortran/83999
+	Backport from trunk
+	* resolve.c (resolve_fl_procedure): Include class functions in
+	the test that elemental function results be scalar.
+
+2018-10-08  Paul Thomas  <pault@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/86372
+	* trans-stmt.c (trans_associate_var): Character associate names
+	with variable string length do not have to be deferred length
+	for the string length to be set, if variable.
+
+2018-10-06  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	PR fortran/86111
+	Backport from trunk
+	* gfortran.h (enum arith): Add ARITH_WRONGCONCAT.
+	* arith.h (gfc_arith_error): Issue error for ARITH_WRONGCONCAT.
+	(gfc_arith_concat):  If the types of op1 and op2 are not
+	character of if their kinds do not match, issue ARITH_WRONGCONCAT.
+
+2018-09-18  Janus Weil  <janus@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/85395
+	* decl.c (match_binding_attributes): Use correct default accessibility
+	for procedure pointer components.
+
+2018-09-18  Janus Weil  <janus@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/86830
+	* expr.c (gfc_is_simply_contiguous): Handle type-bound procedure calls
+	with non-polymorphic objects.
+
+2018-09-18  Paul Thomas  <pault@gcc.gnu.org>
+
+	Backported from trunk
+	PR fortran/85954
+	* resolve.c (resolve_assoc_var): If the target expression is a
+	deferred charlen dummy and the associate name shares the
+	charlen, generate a new one. Make sure that new charlens are in
+	the namespace list so that they get cleaned up.
+	* trans-array.c (gfc_is_reallocatable_lhs): Associate names are
+	not reallocatable.
+	* trans-decl.c (gfc_get_symbol_decl): Put deferred character
+	length dummy and result arrays on the deferred initialization
+	list so that the variable length arrays can be correctly dealt
+	with.
+	* trans-expr.c (gfc_conv_string_length): Return if 'expr' is
+	NULL rather than ICEing.
+
+2018-09-12  Paul Thomas  <pault@gcc.gnu.org>
+
+	Backported from trunk
+	PR fortran/87284
+	* trans-expr.c (gfc_trans_class_init_assign): Access to
+	to array elements of the dynamic type requires that the array
+	reference be added to the class expression and not the _data
+	component, unlike scalar expressions.
+
+2018-09-11  Paul Thomas  <pault@gcc.gnu.org>
+
+	Backported from trunk
+	PR fortran/87277
+	* expr.c (is_subref_array): Add the check of dimensionality for
+	class, dummy, pointer arrays.
+
+2018-09-05  Janus Weil  <janus@gcc.gnu.org>
+
+	Backported from trunk
+	PR fortran/86116
+	* interface.c (compare_type): Remove a CLASS/TYPE check.
+	(compare_type_characteristics): New function that behaves like the old
+	'compare_type'.
+	(gfc_check_dummy_characteristics, gfc_check_result_characteristics):
+	Call 'compare_type_characteristics' instead of 'compare_type'.
+
 2018-09-04  Jerry DeLisle  <jvdelisle@gcc.gnu.org>
 
 	* simplify.c (gfc_simplify_modulo): Re-arrange code to test

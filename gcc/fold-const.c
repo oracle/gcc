@@ -4922,8 +4922,8 @@ build_range_check (location_t loc, tree type, tree exp, int in_p,
   /* Disable this optimization for function pointer expressions
      on targets that require function pointer canonicalization.  */
   if (targetm.have_canonicalize_funcptr_for_compare ()
-      && TREE_CODE (etype) == POINTER_TYPE
-      && TREE_CODE (TREE_TYPE (etype)) == FUNCTION_TYPE)
+      && POINTER_TYPE_P (etype)
+      && FUNC_OR_METHOD_TYPE_P (TREE_TYPE (etype)))
     return NULL_TREE;
 
   if (! in_p)
@@ -11565,10 +11565,16 @@ fold_ternary_loc (location_t loc, enum tree_code code, tree type,
 	  && integer_pow2p (arg1)
 	  && TREE_CODE (TREE_OPERAND (arg0, 0)) == BIT_AND_EXPR
 	  && operand_equal_p (TREE_OPERAND (TREE_OPERAND (arg0, 0), 1),
-			      arg1, OEP_ONLY_CONST))
+			      arg1, OEP_ONLY_CONST)
+	  /* operand_equal_p compares just value, not precision, so e.g.
+	     arg1 could be 8-bit -128 and be power of two, but BIT_AND_EXPR
+	     second operand 32-bit -128, which is not a power of two (or vice
+	     versa.  */
+	  && integer_pow2p (TREE_OPERAND (TREE_OPERAND (arg0, 0), 1)))
 	return pedantic_non_lvalue_loc (loc,
-				    fold_convert_loc (loc, type,
-						      TREE_OPERAND (arg0, 0)));
+					fold_convert_loc (loc, type,
+							  TREE_OPERAND (arg0,
+									0)));
 
       /* Disable the transformations below for vectors, since
 	 fold_binary_op_with_conditional_arg may undo them immediately,
