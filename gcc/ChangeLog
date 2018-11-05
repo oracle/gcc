@@ -1,3 +1,252 @@
+2018-11-05  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/87859
+	* gimple-ssa-store-merging.c (struct merged_store_group): Add
+	first_nonmergeable_order member.
+	(merged_store_group::merged_store_group): Initialize them.
+	(imm_store_chain_info::coalesce_immediate_stores): Don't merge
+	stores with order >= first_nonmergeable_order.
+	Set merged_store->first_nonmergeable_order if we've skipped any
+	stores.  Attempt to merge overlapping INTEGER_CST stores that
+	we would otherwise skip.
+
+	PR sanitizer/87837
+	* match.pd (X + Y < X): Don't optimize if TYPE_OVERFLOW_SANITIZED.
+
+	Backported from mainline
+	2018-10-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/87647
+	* varasm.c (decode_addr_const): Handle COMPOUND_LITERAL_EXPR.
+
+	2018-10-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/85488
+	PR middle-end/87649
+	* omp-low.c (check_omp_nesting_restrictions): Diagnose ordered without
+	depend closely nested inside of loop with ordered clause with
+	a parameter.
+
+2018-10-29  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2018-09-26  Richard Biener  <rguenther@suse.de>
+
+	PR debug/87428
+	PR debug/87362
+	* tree-inline.c (expand_call_inline): When the location
+	of the call is UNKNOWN_LOCATION use DECL_SOURCE_LOCATION
+	or BUILTINS_LOCATION for the BLOCK_SOURCE_LOCATION of
+	the inserted BLOCK to make inlined_function_outer_scope_p
+	recognize it.
+	* dwarf2out.c (add_call_src_coords_attributes): Do not add
+	coords for reserved locations.
+
+2018-10-28  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2018-08-22  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR bootstrap/81033
+	PR target/81733
+	PR target/52795
+	* gcc/dwarf2out.c (FUNC_SECOND_SECT_LABEL): New.
+	(dwarf2out_switch_text_section): Generate a local label for the second
+	function sub-section and apply it as the second FDE start label.
+	* gcc/final.c (final_scan_insn_1): Emit second FDE label after the second
+	sub-section start.
+
+2018-10-28  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2018-08-15  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin.c
+	(darwin_function_switched_text_sections): Delete.
+	* gcc/config/darwin.h
+	(TARGET_ASM_FUNCTION_SWITCHED_TEXT_SECTIONS): Likewise.
+
+2018-10-28  Iain Sandoe  <iain@sandoe.co.uk>
+
+	backport from mainline.
+	2018-10-28  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR target/85669
+	* config/rs6000/darwin.h (STACK_BOUNDARY): New.
+	(RS6000_STARTING_FRAME_OFFSET): Adjust to preserve 16byte alignment.
+	(STACK_DYNAMIC_OFFSET): Likewise.
+
+2018-10-26  Bill Schmidt  <wschmidt@linux.ibm.com>
+
+        Backport from mainline
+        2018-10-19  Bill Schmidt  <wschmidt@linux.ibm.com>
+
+        PR tree-optimization/87473
+        * gimple-ssa-strength-reduction.c (record_phi_increments_1): For
+        phi arguments identical to the base expression of the phi
+        candidate, record a phi-adjust increment of zero minus the index
+        expression of the hidden basis.
+        (phi_incr_cost_1): For phi arguments identical to the base
+        expression of the phi candidate, the difference to compare against
+        the increment is zero minus the index expression of the hidden
+        basis, and there is no potential savings from replacing the (phi)
+        statement.
+        (ncd_with_phi): For phi arguments identical to the base expression
+        of the phi candidate, the difference to compare against the
+        increment is zero minus the index expression of the hidden basis.
+        (all_phi_incrs_profitable_1): For phi arguments identical to the
+        base expression of the phi candidate, the increment to be checked
+        for profitability is zero minus the index expression of the hidden
+        basis.
+
+2018-10-25  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/87665
+	PR tree-optimization/87745
+	* tree-vectorizer.h (get_earlier_stmt): Remove.
+	(get_later_stmt): Pick up UID from the original non-pattern stmt.
+
+2018-10-24  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/87665
+	* tree-vect-data-refs.c (vect_preserves_scalar_order_p): Adjust
+	to reflect reality.
+
+2018-10-23  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/87700
+	* tree-ssa-copy.c (set_copy_of_val): Fix change detection logic.
+
+2018-10-19  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/87645
+	Backport from mainline
+	2018-07-12  Richard Biener  <rguenther@suse.de>
+
+	* tree-ssa-sccvn.c (mprts_hook_cnt): Remove.
+	(vn_lookup_simplify_result): Remove recursion limit applied
+	here.
+	(vn_nary_build_or_lookup_1): Adjust.
+	(try_to_simplify): Likewise.
+	* gimple-match-head.c (gimple_resimplify1): Instead apply one
+	here.
+	(gimple_resimplify2): Likewise.
+	(gimple_resimplify3): Likewise.
+	(gimple_resimplify4): Likewise.
+
+2018-10-19  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	Backport from mainline
+	2018-10-15  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	* config/s390/s390.c (s390_expand_vec_init): Force vector element
+	into reg if it isn't a general operand.
+
+2018-10-18  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/87087
+	Revert
+	2018-02-07  Richard Biener  <rguenther@suse.de>
+
+        PR tree-optimization/84204
+        * tree-chrec.c (chrec_fold_plus_1): Remove size limiting in
+        this place.
+
+2018-10-17  Eric Botcazou  <ebotcazou@adacore.com>
+
+	PR middle-end/87623
+	* fold-const.c (fold_truth_andor_1): If the right side is not constant,
+	bail out if both sides do not have the same storage order.
+
+2018-10-17  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2018-10-08  Richard Sandiford  <richard.sandiford@arm.com>
+
+	PR middle-end/63155
+	* gimple-ssa-backprop.c (backprop::intersect_uses): Use
+	FOR_EACH_IMM_USE_FAST instead of FOR_EACH_IMM_USE_STMT.
+
+2018-10-16  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2018-10-08  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/63155
+	* tree-ssa-propagate.c (add_ssa_edge): Do cheap check first.
+	(ssa_propagation_engine::ssa_propagate): Remove redundant
+	bitmap bit clearing.
+
+	2018-10-05  Richard Biener  <rguenther@suse.de>
+ 
+	PR tree-optimization/63155
+	* tree-ssa-ccp.c (ccp_propagate::visit_phi): Avoid excess
+	vertical space in dumpfiles.
+	* tree-ssa-propagate.h
+	(ssa_propagation_engine::process_ssa_edge_worklist): Remove.
+	* tree-ssa-propagate.c (cfg_blocks_back): New global.
+	(ssa_edge_worklist_back): Likewise.
+	(curr_order): Likewise.
+	(cfg_blocks_get): Remove abstraction.
+	(cfg_blocks_add): Likewise.
+	(cfg_blocks_empty_p): Likewise.
+	(add_ssa_edge): Add to current or next worklist based on
+	RPO index.
+	(add_control_edge): Likewise.
+	(ssa_propagation_engine::process_ssa_edge_worklist): Fold
+	into ...
+	(ssa_propagation_engine::ssa_propagate): ... here.  Unify
+	iteration from CFG and SSA edge worklist so we process
+	everything in RPO order, prioritizing forward progress
+	over iteration.
+	(ssa_prop_init): Allocate new worklists, do not dump
+	immediate uses.
+	(ssa_prop_fini): Free new worklists.
+
+	2018-09-24  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/63155
+	* tree-ssa-propagate.c (add_ssa_edge): Avoid adding PHIs to
+	the worklist when the edge of the respective argument isn't
+	executable.
+
+2018-10-16  Wilco Dijkstra  <wdijkstr@arm.com>
+
+	Backported from mainline
+	PR target/87511
+	* config/aarch64/aarch64.c (aarch64_mask_and_shift_for_ubfiz_p):
+	Use HOST_WIDE_INT_1U for shift.
+
+2018-10-16  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2018-09-18  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/63155
+	* tree-ssa-coalesce.c (tree_int_map_hasher): Remove.
+	(compute_samebase_partition_bases): Likewise.
+	(coalesce_ssa_name): Always use compute_optimized_partition_bases.
+	(gimple_can_coalesce_p): Simplify.
+
+2018-10-16  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2018-10-15  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/87610
+	* tree-ssa-structalias.c (struct vls_data): Add escaped_p member.
+	(visit_loadstore): When a used restrict tag escaped verify that
+	the points-to solution of "other" pointers do not include
+	escaped.
+	(compute_dependence_clique): If a used restrict tag escaped
+	communicated that down to visit_loadstore.
+
+	2018-10-01  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/87465
+	* tree-ssa-loop-ivcanon.c (tree_estimate_loop_size): Fix typo
+	causing branch miscounts.
+
 2018-10-11  Jakub Jelinek  <jakub@redhat.com>
 
 	Backported from mainline

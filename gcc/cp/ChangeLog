@@ -1,3 +1,21 @@
+2018-11-05  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from mainline
+	2018-10-24  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/86288
+	* parser.c (cp_parser_std_attribute): Canonicalize attr_ns, and when
+	:: is not present and attr_ns non-NULL, canonicalize also attr_id.
+	(cp_parser_attribute_spec): Fix comment typo.
+
+2018-10-23  Tom de Vries  <tdevries@suse.de>
+
+	backport from trunk:
+	2018-07-31  Tom de Vries  <tdevries@suse.de>
+
+	PR debug/86687
+	* optimize.c (update_cloned_parm): Copy DECL_BY_REFERENCE.
+
 2018-10-11  Jakub Jelinek  <jakub@redhat.com>
 
 	PR c++/87582
