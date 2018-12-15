@@ -1,3 +1,37 @@
+2018-12-06  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2018-08-25  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR libstdc++/70694
+	* configure.host (OPT_LDFLAGS): Don't append
+	-fvisibility-inlines-hidden for newer Darwin.
+
+2018-11-28  François Dumont  <fdumont@gcc.gnu.org>
+
+	PR libstdc++/88199
+	* include/bits/hashtable.h
+	(_Hashtable<>::_M_move_assign(_Hashtable&&, false_type)): Deallocate
+	former buckets after assignment.
+	* testsuite/23_containers/unordered_set/allocator/move_assign.cc
+	(test03): New.
+
+2018-11-22  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2018-11-22  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/85930
+	PR libstdc++/87520
+	* include/bits/shared_ptr_base.h (_Sp_make_shared_tag::_S_ti)
+	[__cpp_rtti]: Define even when RTTI is enabled. Use array of
+	sizeof(type_info) so that type-punned reference binds to an object
+	of the correct size as well as correct alignment.
+	(_Sp_counted_ptr_inplace::_M_get_deleter) [__cpp_rtti]: Check for
+	_S_ti() reference even when RTTI is enabled.
+	(__shared_ptr(_Sp_make_shared_tag, const _Alloc&, _Args&&...))
+	[__cpp_rtti]: Pass _S_ti() instead of typeid(_Sp_make_shared_tag).
+
 2018-10-31  Jonathan Wakely  <jwakely@redhat.com>
 
 	Backport from mainline

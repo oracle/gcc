@@ -1,3 +1,302 @@
+2018-12-15  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	Backport from trunk
+	2018-12-14  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	PR rtl-optimization/88001
+	* function.c (match_asm_constraints_1): Don't invalidly share RTL.
+
+2018-12-15  Jan Hubicka  <jh@suse.cz>
+
+	* ipa.c (cgraph_build_static_cdtor_1): Add OPTIMIZATION and TARGET
+	parameters.
+	(cgraph_build_static_cdtor): Update.
+	(build_cdtor): Use OPTIMIZATION and TARGET of the first real cdtor
+	callsed.
+
+2018-12-15  Jan Hubicka  <jh@suse.cz>
+
+	Backport from mainline
+	2018-11-02  Richard Biener  <rguenther@suse.de>
+
+	* dwarf2out.c (build_abbrev_table): Guard lookup_external_ref call
+	with is_type_die.
+
+2018-12-14  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	Backport from mainline
+	2018-12-13  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* doc/invoke.texi (-msve-vector-bits): Clarify -msve-vector-bits=128
+	behavior.
+
+2018-12-14  Andre Vieira  <andre.simoesdiasvieira@arm.com>
+
+	Backport from mainline
+	PR target/88224
+	* config/arm/arm-cpus.in (armv7-r): Add FP16conv configurations.
+	(cortex-r7, cortex-r8): Update fpu and add new configuration.
+	* doc/invoke.texi (armv7-r): Add two new vfp options.
+	(nofp.dp): Add cortex-r7 and cortex-r8 to the list of targets that
+	support this option.
+
+2018-12-13  H.J. Lu  <hongjiu.lu@intel.com>
+
+	Backport from mainline
+	2018-11-05  Xuepeng Guo  <xuepeng.guo@intel.com>
+
+	PR target/87853
+	* config/i386/emmintrin.h (__v16qs): New to cope with option
+	-funsigned-char.
+	(_mm_cmpeq_epi8): Replace __v16qi with __v16qs.
+	(_mm_cmplt_epi8): Likewise.
+	(_mm_cmpgt_epi8): Likewise.
+
+2018-12-13  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	Backport from mainline
+	2018-12-13  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	* config/s390/s390-builtins.def (s390_vec_double_s64): Map to
+	s390_vec_double_s64 instead of s390_vcdgb.
+	(s390_vec_double_u64): Map to s390_vec_double_u64 instead of
+	s390_vcdlgb.
+
+2018-12-13  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	Backport from mainline
+	2018-12-13  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	* config/s390/vx-builtins.md ("vec_ctd_s64", "vec_ctd_u64")
+	("vec_ctsl", "vec_ctul"): Replace 0 with VEC_NOINEXACT.
+	("vec_double_s64", "vec_double_u64"): Replace 4 with VEC_INEXACT.
+
+2018-12-13  Eric Botcazou  <ebotcazou@adacore.com>
+
+	Backport from mainline
+	2018-12-11  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* config/rs6000/vxworks.h (RS6000_STARTING_FRAME_OFFSET): Define,
+	accounting for STACK_BOUNDARY 128.
+	(STACK_DYNAMIC_OFFSET): Likewise.
+
+2018-12-12  Peter Bergner  <bergner@linux.ibm.com>
+
+	Backport from mainline
+	2018-12-07  Peter Bergner  <bergner@linux.ibm.com>
+
+	PR target/87496
+	* config/rs6000/rs6000.c (rs6000_option_override_internal): Disallow
+	-mabi=ieeelongdouble and -mabi=ibmlongdouble without -mlong-double-128.
+	Do not error for -mabi=ibmlongdouble and no ISA 2.06 support.
+	* doc/invoke.texi: Document -mabi=ibmlongdouble and -mabi=ieeelongdouble
+	require -mlong-double-128.
+
+2018-12-05  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2018-09-20  Richard Sandiford  <richard.sandiford@arm.com>
+
+	PR tree-optimization/87288
+	* tree-vect-loop.c (vect_analyze_loop_2): Take PEELING_FOR_GAPS
+	into account when determining PEELING_FOR_NITERS.
+
+2018-12-05  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2018-08-18  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin.c (darwin_override_options): If -gsplit-dwarf is set,
+	emit a diagnostic that it is not supported and reset the option.
+	* config/darwin.h (DRIVER_SELF_SPECS): Note that gsplit-dwarf is not
+	supported and consume the option.  (ASM_FINAL_SPEC): New.
+
+2018-12-04  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2018-08-15  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR target/81685
+	* config/darwin.h: (DEBUG_STR_OFFSETS_SECTION, DEBUG_LOCLISTS_SECTION,
+	DEBUG_RNGLISTS_SECTION) new macros.  (DEBUG_PUBNAMES_SECTION,
+	DEBUG_PUBTYPES_SECTION) update to include GNU variant.
+
+2018-11-29  Peter Bergner  <bergner@linux.ibm.com>
+
+	Backport from mainline
+	2018-11-29  Peter Bergner  <bergner@linux.ibm.com>
+
+	PR target/87496
+	* config/rs6000/rs6000.c (rs6000_option_override_internal): Disallow
+	-mabi=ieeelongdouble without both -mpopcntd and -mvsx.
+
+2018-11-28  Aaron Sawdey  <acsawdey@linux.ibm.com>
+
+	Backport from mainline
+	2018-10-25  Aaron Sawdey  <acsawdey@linux.ibm.com>
+
+	* config/rs6000/rs6000-string.c (expand_strncmp_gpr_sequence): Change to
+	a shorter sequence with fewer branches.
+	(emit_final_str_compare_gpr): Ditto.
+
+	Backport from mainline to allow the above code to go in:
+	2018-06-14  Aaron Sawdey  <acsawdey@linux.ibm.com>
+
+	* config/rs6000/rs6000-string.c (do_and3, do_and3_mask,
+	do_cmpb3, do_rotl3): New functions.
+
+2018-11-28  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/79351
+	* tree-ssa-sccvn.c (vn_reference_lookup_3): For assignments from
+	empty CONSTRUCTORs ensure the store is at a constant position.
+
+2018-11-28  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/88229
+	* tree-ssa.c (non_rewritable_mem_ref_base): Check DECL_SIZE_UNIT
+	is an INTEGER_CST before accessing it so.
+
+2018-11-26  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	Backport from mainline
+	2018-11-20  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	* config/s390/s390.md ("clztidi2"): Swap the RTX's written to the
+	DImode parts of the target operand.
+
+2018-11-26  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	Backport from mainline
+	2018-11-26  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	* doc/invoke.texi: Document z14/arch12 -march option.
+
+2018-11-23  Tamar Christina  <tamar.christina@arm.com>
+
+	Backported from mainline.
+	2018-08-16  Tamar Christina  <tamar.christina@arm.com>
+
+	PR target/84711
+	* config/arm/neon.md (movv4hf, movv8hf): Refactored to..
+	(mov<mov>): ..this and enable unconditionally.
+
+2018-11-22  Uros Bizjak  <ubizjak@gmail.com>
+
+	Backport from mainline
+	2018-11-16  Uros Bizjak  <ubizjak@gmail.com>
+
+	PR target/88051
+	* config/i386/sse.md (UNSPEC_MOVDI_TO_SSE): New UNSPEC.
+	(movdi_to_sse): Rewrite using UNSPEC_MOVDI_TO_SSE unspec.
+
+2018-11-20  Eric Botcazou  <ebotcazou@adacore.com>
+
+	PR rtl-optimization/85925
+	* rtl.h (word_register_operation_p): New predicate.
+	* combine.c (record_dead_and_set_regs_1): Only apply specific handling
+	for WORD_REGISTER_OPERATIONS targets to word_register_operation_p RTX.
+	* rtlanal.c (nonzero_bits1): Likewise.  Adjust couple of comments.
+	(num_sign_bit_copies1): Likewise.
+
+2018-11-19  Martin Liska  <mliska@suse.cz>
+
+	PR gcov-profile/88045
+	* coverage.c (coverage_begin_function): One can't relly on the
+	fact that function ends on the same line it starts or later.
+
+2018-11-18  Uros Bizjak  <ubizjak@gmail.com>
+
+	Backport from mainline
+	2018-11-11  Uros Bizjak  <ubizjak@gmail.com>
+
+	PR target/87928
+	* config/i386/i386.h (STACK_BOUNDARY): Use TARGET_64BIT_MS_ABI
+	instead of (TARGET_64BIT && ix86_abi == MS_ABI).
+	* config/i386/darwin.h (STACK_BOUNDARY): Ditto.
+	* config/i386/cygming.h (STACK_BOUNDARY): Remove.
+
+2018-11-16  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* tree-switch-conversion.c (emit_case_decision_tree): Pass location
+	of switch statement to emit_case_nodes.
+	(do_jump_if_equal): Add LOC parameter and set it on the newly built
+	GIMPLE comparison statement.
+	(emit_cmp_and_jump_insns): Likewise.
+	(emit_case_nodes): Add LOC parameter and pass it to do_jump_if_equal
+	as well as recursive calls.
+
+2018-11-15  Nathan Sidwell  <nathan@acm.org>
+
+	PR debug/88006
+	PR debug/87462
+	* dwarf2out.c (dwarf2out_finish): Apply resolve_addr to comdat
+	type list.
+
+2018-11-14  Paul A. Clarke  <pc@us.ibm.com>
+
+	Backport from mainline
+	* config/rs6000/xmmintrin.h (_mm_extract_pi16): Fix for big-endian.
+
+2018-11-14  Claudiu Zissulescu  <claziss@synopsys.com>
+
+	Backport from mainline
+	PR target/85968
+	* config/arc/arc.c (arc_return_address_register): Fix
+	if-condition.
+
+2018-11-14  Claudiu Zissulescu  <claziss@synopsys.com>
+
+	Backport from mainline
+	* config/arc/arc.h (FUNCTION_PROFILER): Redefine to empty.
+	* config/arc/elf.h (PROFILE_HOOK): Define.
+	* config/arc/linux.h (PROFILE_HOOK): Likewise.
+
+2018-11-14  Claudiu Zissulescu  <claziss@synopsys.com>
+
+	Backport from mainline
+	* config/arc/arc.c (hwloop_optimize): Bailout when detecting a
+	jump table data in the text section.
+
+2018-11-14  Claudiu Zissulescu  <claziss@synopsys.com>
+
+	Backport from mainline
+	* config/arc/arc.c (arc_eh_return_address_location): Repurpose it
+	to fit the eh_return pattern.
+	* config/arc/arc.md (eh_return): Define.
+	(VUNSPEC_ARC_EH_RETURN): Likewise.
+	* config/arc/arc-protos.h (arc_eh_return_address_location): Match
+	new implementation.
+	* config/arc/arc.h (EH_RETURN_HANDLER_RTX): Remove it.
+
+2018-11-14  Claudiu Zissulescu  <claziss@synopsys.com>
+
+	Backport from mainline
+	2018-09-17  Alexey Brodkin  <abrodkin@synopsys.com>
+
+	* config/arc/linux.h (LINK_EH_SPEC): Add missing space.
+
+2018-11-14  Claudiu Zissulescu  <claziss@synopsys.com>
+
+	Backport from mainline
+	* config/arc/linux.h (CLEAR_INSN_CACHE): Define.
+
+2018-11-11  Uros Bizjak  <ubizjak@gmail.com>
+
+	Backport from mainline
+	2018-11-04  Uros Bizjak  <ubizjak@gmail.com>
+
+	PR middle-end/58372
+	* cfgexpand.c (pass_expand::execute): Move the call to
+	finish_eh_generation in front of the call to expand_stack_alignment.
+
+2018-11-07  Max Filippov  <jcmvbkbc@gmail.com>
+
+	Backport from mainline
+	2018-11-05  Max Filippov  <jcmvbkbc@gmail.com>
+
+	* config/xtensa/uclinux.h (XTENSA_ALWAYS_PIC): Change to 0.
+
 2018-11-05  Jakub Jelinek  <jakub@redhat.com>
 
 	PR tree-optimization/87859
@@ -78,26 +377,26 @@
 
 2018-10-26  Bill Schmidt  <wschmidt@linux.ibm.com>
 
-        Backport from mainline
-        2018-10-19  Bill Schmidt  <wschmidt@linux.ibm.com>
+	Backport from mainline
+	2018-10-19  Bill Schmidt  <wschmidt@linux.ibm.com>
 
-        PR tree-optimization/87473
-        * gimple-ssa-strength-reduction.c (record_phi_increments_1): For
-        phi arguments identical to the base expression of the phi
-        candidate, record a phi-adjust increment of zero minus the index
-        expression of the hidden basis.
-        (phi_incr_cost_1): For phi arguments identical to the base
-        expression of the phi candidate, the difference to compare against
-        the increment is zero minus the index expression of the hidden
-        basis, and there is no potential savings from replacing the (phi)
-        statement.
-        (ncd_with_phi): For phi arguments identical to the base expression
-        of the phi candidate, the difference to compare against the
-        increment is zero minus the index expression of the hidden basis.
-        (all_phi_incrs_profitable_1): For phi arguments identical to the
-        base expression of the phi candidate, the increment to be checked
-        for profitability is zero minus the index expression of the hidden
-        basis.
+	PR tree-optimization/87473
+	* gimple-ssa-strength-reduction.c (record_phi_increments_1): For
+	phi arguments identical to the base expression of the phi
+	candidate, record a phi-adjust increment of zero minus the index
+	expression of the hidden basis.
+	(phi_incr_cost_1): For phi arguments identical to the base
+	expression of the phi candidate, the difference to compare against
+	the increment is zero minus the index expression of the hidden
+	basis, and there is no potential savings from replacing the (phi)
+	statement.
+	(ncd_with_phi): For phi arguments identical to the base expression
+	of the phi candidate, the difference to compare against the
+	increment is zero minus the index expression of the hidden basis.
+	(all_phi_incrs_profitable_1): For phi arguments identical to the
+	base expression of the phi candidate, the increment to be checked
+	for profitability is zero minus the index expression of the hidden
+	basis.
 
 2018-10-25  Richard Biener  <rguenther@suse.de>
 
@@ -148,9 +447,9 @@
 	Revert
 	2018-02-07  Richard Biener  <rguenther@suse.de>
 
-        PR tree-optimization/84204
-        * tree-chrec.c (chrec_fold_plus_1): Remove size limiting in
-        this place.
+	PR tree-optimization/84204
+	* tree-chrec.c (chrec_fold_plus_1): Remove size limiting in
+	this place.
 
 2018-10-17  Eric Botcazou  <ebotcazou@adacore.com>
 
@@ -449,8 +748,8 @@
 
 2018-09-14  Carl Love  <cel@us.ibm.com>
 
-        Backport from trunk
-        2018-09-14  Carl Love  <cel@us.ibm.com>
+	Backport from trunk
+	2018-09-14  Carl Love  <cel@us.ibm.com>
 
 	* config/rs6000/emmintrin.h: Add _MM_SHUFFLE2.
 	* config/rs6000/xmmintrin.h: Add _MM_SHUFFLE.
@@ -686,11 +985,11 @@
 	Backport from mainline
 	2018-08-02  Martin Liska  <mliska@suse.cz>
 
-        PR gcov-profile/86817
+	PR gcov-profile/86817
 	* gcov.c (process_all_functions): New function.
 	(main): Call it.
 	(process_file): Move functions processing to
-        process_all_functions.
+	process_all_functions.
 
 2018-08-14  Siddhesh Poyarekar  <siddhesh@sourceware.org>
 
@@ -1479,8 +1778,8 @@ gcc/testsuite/ChangeLog:
 
 2018-06-11  Jason Merrill  <jason@redhat.com>
 
-        PR c++/80485 - inline function non-zero address.
-        * symtab.c (nonzero_address): Check DECL_COMDAT.
+	PR c++/80485 - inline function non-zero address.
+	* symtab.c (nonzero_address): Check DECL_COMDAT.
 
 2018-06-11  Peter Bergner  <bergner@vnet.ibm.com>
 
@@ -1773,7 +2072,7 @@ gcc/testsuite/ChangeLog:
 	Backport from mainline
 	2018-05-11  Martin Liska  <mliska@suse.cz>
 
-        PR sanitizer/85556
+	PR sanitizer/85556
 	* doc/extend.texi: Document LLVM style format for no_sanitize
 	attribute.
 
@@ -2201,9 +2500,9 @@ gcc/testsuite/ChangeLog:
 
 2018-04-20  Carl Love  <cel@us.ibm.com>
 
-        PR target/83402
-        * config/rs6000/rs6000-c.c (rs6000_gimple_fold_builtin): Add
-        size check for arg0.
+	PR target/83402
+	* config/rs6000/rs6000-c.c (rs6000_gimple_fold_builtin): Add
+	size check for arg0.
 
 2018-04-20  Nathan Sidwell  <nathan@codesourcery.com>
 	    Tom de Vries  <tom@codesourcery.com>
@@ -2565,7 +2864,7 @@ gcc/testsuite/ChangeLog:
 	PR ipa/85329
 	* multiple_target.c (create_dispatcher_calls): Set apostrophes
 	for target_clone error message.  Make default implementation
-        clone to be a local declaration.
+	clone to be a local declaration.
 	(separate_attrs): Add new argument and check for an empty
 	string.
 	(expand_target_clones): Handle it.
@@ -2667,7 +2966,7 @@ gcc/testsuite/ChangeLog:
 	* cfgloopanal.c (expected_loop_iterations_unbounded): Add
 	by_profile_only parameter.
 	* cfgloopmanip.c (scale_loop_profile): Further scale loop's profile
-        information if the loop was predicted to iterate too many times.
+	information if the loop was predicted to iterate too many times.
 	* cfgloop.h (expected_loop_iterations_unbounded): Update prototype
 
 2018-04-13  Jan Hubicka  <hubicka@ucw.cz>
@@ -5781,7 +6080,7 @@ gcc/testsuite/ChangeLog:
 
 2018-02-26  Ramana Radhakrishnan  <ramana.radhakrishnan@arm.com>
 
-        PR target/84521
+	PR target/84521
 	* common/config/aarch64/aarch64-common.c
 	(aarch_option_optimization_table[]): Switch
 	off fomit-frame-pointer

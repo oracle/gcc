@@ -1,3 +1,73 @@
+2018-12-11  Steven G. Kargl  <kargl@gcc.gnu.org>
+
+	PR fortran/88155
+	* primary.c (gfc_match_structure_constructor):  Set the locus of
+	an expression to avoid a NULL pointer dereference.
+
+2018-12-11  Steven G. Kargl  <kargl@gcc.gnu.org>
+
+	PR fortran/88249
+	* gfortran.h: Update prototype for gfc_resolve_filepos().
+	* io.c (gfc_resolve_filepos): Check for UNIT number if ERR= is present.
+	Use passed in locus for error message.
+	* resolve.c (gfc_resolve_code): Pass locus in gfc_resolve_filepos()
+	call.
+
+2018-12-10  Steven G. Kargl  <kargl@gcc.gnu.org>
+
+	PR fortran/87922
+	* io.c (gfc_match_open): Additional checks on ASYNCHRONOUS.
+
+2018-12-10  Steven G. Kargl  <kargl@gcc.gnu.org>
+
+	PR fortran/88269
+	* io.c (io_constraint): Update macro. If locus line buffer is NULL,
+	use gfc_current_locus in error messages.
+	(check_io_constraints): Catch missing IO UNIT in write and read
+	statements.  io_constraint macro is incompatible here.
+
+2018-12-09  Steven G. Kargl  <kargl@gcc.gnu.org>
+
+	PR fortran/88205
+	* io.c (gfc_match_open): Move NEWUNIT checks to after STATUS checks.
+
+2018-12-09  Steven G. Kargl  <kargl@gcc.gnu.org>
+
+	PR fortran/88206
+	* match.c (gfc_match_type_spec): REAL can be an intrinsic function.
+
+2018-12-09  Fritz Reese  <fritzoreese@gmail.com>
+
+	PR fortran/88228
+	* resolve.c (resolve_operator):  Do not call resolve_function.
+	Break like other cases.
+
+2018-12-08  Steven G. Kargl  <kargl@gcc.gnu.org>
+
+	PR fortran/88048
+	* resolve.c (check_data_variable): Named constant cannot be a
+	data object.
+
+2018-12-08  Steven G. Kargl  <kargl@gcc.gnu.org>
+
+	PR fortran/88025
+	* expr.c (gfc_apply_init):  Remove asserts that cannot trigger.
+	Check for a NULL pointer.
+
+2018-11-25  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/88073
+	* frontend-passes.c (combine_array_constructor): Do not do
+	anything if in a WHERE statement.
+
+2018-11-24  Paul Thomas  <pault@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/88143
+	* resolve.c (resolve_variable): Check for associate names with
+	NULL target.
+
 2018-11-05  Jakub Jelinek  <jakub@redhat.com>
 
 	Backported from mainline
