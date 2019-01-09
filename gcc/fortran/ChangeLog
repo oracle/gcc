@@ -1,3 +1,87 @@
+2019-01-08  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from mainline
+	2018-12-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR fortran/88463
+	* trans-openmp.c (gfc_omp_predetermined_sharing): Handle TREE_READONLY
+	VAR_DECLs with DECL_EXTERNAL like those with TREE_STATIC.
+
+	2018-12-07  Jakub Jelinek  <jakub@redhat.com>
+
+	PR fortran/88377
+	* trans-openmp.c (gfc_omp_clause_default_ctor,
+	gfc_omp_clause_copy_ctor, gfc_omp_clause_assign_op,
+	gfc_omp_clause_linear_ctor, gfc_omp_clause_dtor): Only consider
+	GFC_DECL_GET_SCALAR_ALLOCATABLE vars as scalar allocatables if they
+	have pointer type.
+
+2018-12-23  Paul Thomas  <pault@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/77703
+	* resolve.c (get_temp_from_expr): Use the string length of
+	constant character expressions.
+
+2018-12-23  Paul Thomas  <pault@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/77325
+	* trans-array.c (gfc_alloc_allocatable_for_assignment): If the
+	rhs has a charlen expression, convert that and use it.
+	* trans-expr.c (gfc_trans_assignment_1): The rse.pre for the
+	assignment of deferred character array vars to a realocatable
+	lhs should not be added to the exterior block since vector
+	indices, for example, generate temporaries indexed within the
+	loop.
+
+2018-12-22  Steven G . Kargl  <kargl@gcc.gnu.org>
+
+	PR fortran/85798
+	* decl.c (gfc_match_data): If a component of a derived type entity
+	appears in data statement, check that does not have the allocatable
+	attribute.
+
+2018-12-22  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/85544
+	* frontend-passes.c (optimize_power): Remove.
+	(optimize_op): Remove call to optimize_power.
+	* trans-expr.c (gfc_conv_power_op): Handle cases of 1**integer,
+	(2|4|8|16) ** integer and (-1) ** integer.
+
+2018-12-22  Steven G. Kargl  <kargl@gcc.gnu.org>
+
+	PR fortran/88169
+	* module.c (mio_namelist): Remove an error condition/message that
+	is contrary to the Fortran standard.
+
+2018-12-21  Paul Thomas  <pault@gcc.gnu.org>
+
+	PR fortran/87359
+	* trans-array.c (gfc_is_reallocatable_lhs): Correct the problem
+	introduced by r264358, which prevented components of associate
+	names from being reallocated on assignment.
+
+2018-12-16  Steven G. Kargl  <kargl@gcc.gnu.org>
+
+	PR fortran/88116
+	PR fortran/88467
+	* array.c (gfc_match_array_constructor): Check return value of
+	gfc_convert_type().  Skip constructor elements with BT_UNKNOWN,
+	which need to go through resolution.
+	* intrinsic.c (gfc_convert_type_warn): Return early if the types
+	martch (i.e., no conversion is required).
+	* simplify.c (gfc_convert_constant): Remove a gfc_internal_error,
+	and return gfc_bad_expr.
+
+2018-12-15  Steven G. Kargl  <kargl@gcc.gnu.org>
+
+	PR fortran/88138
+	* decl.c (variable_decl): Check that a derived isn't being assigned
+	an incompatible entity in an initialization.
+
 2018-12-11  Steven G. Kargl  <kargl@gcc.gnu.org>
 
 	PR fortran/88155

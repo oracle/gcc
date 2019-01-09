@@ -9497,11 +9497,12 @@ gfc_is_reallocatable_lhs (gfc_expr *expr)
 
   sym = expr->symtree->n.sym;
 
-  if (sym->attr.associate_var)
+  if (sym->attr.associate_var && !expr->ref)
     return false;
 
   /* An allocatable class variable with no reference.  */
   if (sym->ts.type == BT_CLASS
+      && !sym->attr.associate_var
       && CLASS_DATA (sym)->attr.allocatable
       && expr->ref && expr->ref->type == REF_COMPONENT
       && strcmp (expr->ref->u.c.component->name, "_data") == 0
@@ -9510,9 +9511,10 @@ gfc_is_reallocatable_lhs (gfc_expr *expr)
 
   /* An allocatable variable.  */
   if (sym->attr.allocatable
-	&& expr->ref
-	&& expr->ref->type == REF_ARRAY
-	&& expr->ref->u.ar.type == AR_FULL)
+      && !sym->attr.associate_var
+      && expr->ref
+      && expr->ref->type == REF_ARRAY
+      && expr->ref->u.ar.type == AR_FULL)
     return true;
 
   /* All that can be left are allocatable components.  */
@@ -9925,6 +9927,15 @@ gfc_alloc_allocatable_for_assignment (gfc_loopinfo *loop,
 	      && expr2->value.op.op == INTRINSIC_CONCAT)
 	    {
 	      tmp = concat_str_length (expr2);
+	      expr2->ts.u.cl->backend_decl = gfc_evaluate_now (tmp, &fblock);
+	    }
+	  else if (!tmp && expr2->ts.u.cl->length)
+	    {
+	      gfc_se tmpse;
+	      gfc_init_se (&tmpse, NULL);
+	      gfc_conv_expr_type (&tmpse, expr2->ts.u.cl->length,
+				  gfc_charlen_type_node);
+	      tmp = tmpse.expr;
 	      expr2->ts.u.cl->backend_decl = gfc_evaluate_now (tmp, &fblock);
 	    }
 	  tmp = fold_convert (TREE_TYPE (expr1->ts.u.cl->backend_decl), tmp);

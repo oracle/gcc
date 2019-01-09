@@ -1,3 +1,108 @@
+2019-01-08  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from mainline
+	2018-12-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/88180
+	* parser.c (cp_parser_class_specifier_1): If
+	cp_parser_check_type_definition fails, skip default arguments, NSDMIs,
+	etc. like for erroneous template args.
+
+	2018-12-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/87934
+	* constexpr.c (cxx_eval_constant_expression) <case CONSTRUCTOR>: Do
+	re-process TREE_CONSTANT CONSTRUCTORs if they aren't reduced constant
+	expressions.
+
+	2018-12-17  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/88410
+	* cp-gimplify.c (cp_fold) <case ADDR_EXPR>: For offsetof-like folding,
+	call maybe_constant_value on val to see if it is INTEGER_CST.
+
+	2018-12-14  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/82294
+	PR c++/87436
+	* init.c (build_vec_init): Change num_initialized_elts type from int
+	to HOST_WIDE_INT.  Build a RANGE_EXPR if e needs to be repeated more
+	than once.
+
+	2018-12-07  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/86669
+	* call.c (make_temporary_var_for_ref_to_temp): Call pushdecl even for
+	automatic vars.
+
+	PR c++/87506
+	* constexpr.c (adjust_temp_type): Handle EMPTY_CLASS_EXPR.
+
+	2018-12-04  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/88103
+	* typeck.c (build_class_member_access_expr): If unary_complex_lvalue
+	turned xvalue_p into non-xvalue_p, call move on it.
+
+	2018-11-27  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/88181
+	* class.c (fixup_attribute_variants): Also propagate TYPE_PACKED
+	to variants.
+
+	2018-11-21  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/88122
+	* method.c (maybe_explain_implicit_delete): If
+	FUNCTION_FIRST_USER_PARMTYPE (decl) is NULL, set const_p to false
+	instead of ICEing.
+
+2018-01-02  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	Backport from trunk
+	2018-12-06  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	PR inline-asm/55681
+	* parser.c (cp_parser_asm_definition): Update grammar.  Allow any
+	combination of volatile and goto, in any order, without repetitions.
+
+	Backport from trunk
+	2018-12-06  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	* cp-tree.h (finish_asm_stmt): Update declaration.
+	* parser.c (cp_parser_asm_definition): Detect the inline keyword
+	after asm.  Pass a flag for it to finish_asm_stmt.
+	* pt.c (tsubst_expr): Pass the ASM_INLINE_P flag to finish_asm_stmt.
+	* semantics.c (finish_asm_stmt): Add inline_p parameter.  Use it to
+	set ASM_INLINE_P.
+
+	Backport from trunk
+	2018-12-19  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	* parser.c (cp_parser_asm_definition): Rewrite the loop to work without
+	"done" boolean variable.
+
+	Backport from trunk
+	2018-12-19  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	* parser.c (cp_parser_asm_definition): Rewrite the loop to work without
+	"done" boolean variable.
+	* parser.c (cp_parser_asm_definition): Keep track of the location each
+	asm qualifier is first seen; use that to give nicer "duplicate asm
+	qualifier" messages.
+
+	Backport from trunk
+	2018-12-19  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	* parser.c (cp_parser_asm_definition) <RID_CONST, RID_RESTRICT>: Give
+	a more specific error message (instead of just falling through).
+
+	Backport from trunk
+	2018-12-10  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	* parser.c (cp_parser_asm_definition): Do not allow any asm qualifiers
+	on top-level asm.
+
 2018-12-13  Nathan Sidwell  <nathan@acm.org>
 
 	PR c++/87531

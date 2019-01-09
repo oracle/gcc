@@ -1,3 +1,393 @@
+2019-01-09  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* gcc.target/sparc/tls-ld-int8.c: New test.
+	* gcc.target/sparc/tls-ld-int16.c: Likewise.
+	* gcc.target/sparc/tls-ld-int32.c: Likewise.
+	* gcc.target/sparc/tls-ld-uint8.c: Likewise.
+	* gcc.target/sparc/tls-ld-uint16.c: Likewise.
+	* gcc.target/sparc/tls-ld-uint32.c: Likewise.
+
+2019-01-08  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from mainline
+	2019-01-05  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/82564
+	PR target/88620
+	* gcc.dg/nested-func-12.c: New test.
+	* gcc.c-torture/compile/pr82564.c: New test.
+
+	2019-01-04  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/88594
+	* gcc.dg/pr88594.c: New test.
+
+	2019-01-03  Jakub Jelinek  <jakub@redhat.com>
+
+	PR debug/88644
+	* gcc.dg/debug/dwarf2/pr88644.c: New test.
+
+	2019-01-03  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* gcc.dg/pubtypes-2.c: Adjust expected pubtypes length.
+	* gcc.dg/pubtypes-3.c: Likewise.
+	* gcc.dg/pubtypes-4.c: Likewise.
+
+	2018-12-21  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/85594
+	PR middle-end/88553
+	* gcc.dg/gomp/pr85594.c: New test.
+	* gcc.dg/gomp/pr88553.c: New test.
+
+	PR rtl-optimization/88563
+	* gcc.dg/pr88563.c: New test.
+
+	2018-12-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/88180
+	* g++.dg/parse/pr88180.C: New test.
+	* g++.dg/pr85039-1.C: Don't expect diagnostics inside of the type
+	definition's NSDMIs.
+
+	2018-12-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/88541
+	* gcc.target/i386/avx-vpclmulqdq-1.c: New test.
+
+	PR c++/87934
+	* g++.dg/cpp0x/constexpr-87934.C: New test.
+
+	2018-12-17  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/88410
+	* g++.dg/cpp0x/pr88410.C: New test.
+
+	2018-12-14  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/82294
+	PR c++/87436
+	* g++.dg/tree-ssa/pr82294.C: New test.
+	* g++.dg/tree-ssa/pr87436.C: New test.
+
+	2018-12-13  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/88470
+	* gcc.target/i386/pr88470.c: New test.
+
+	PR rtl-optimization/88416
+	* gcc.target/i386/pr88416.c: New test.
+
+	2018-12-11  Jakub Jelinek  <jakub@redhat.com>
+
+	PR sanitizer/88426
+	* c-c++-common/ubsan/float-cast-overflow-11.c: New test.
+
+	2018-12-07  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/86669
+	* g++.dg/cpp0x/initlist105.C: New test.
+	* g++.dg/cpp0x/initlist106.C: New test.
+	* g++.dg/other/pr86669.C: New test.
+
+	PR target/85593
+	* gcc.target/i386/pr85593.c: New test.
+
+	PR fortran/88377
+	* gfortran.dg/gomp/pr88377.f90: New test.
+
+	PR c++/87506
+	* g++.dg/cpp0x/constexpr-87506.C: New test.
+
+	2018-12-06  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/87598
+	* gcc.target/aarch64/asm-5.c: New test.
+
+	2018-12-05  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/87360
+	* g++.dg/opt/pr87360.C: New test.
+	* gfortran.dg/pr87360.f90: New test.
+
+	2018-12-04  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/87320
+	* gcc.dg/pr87320.c: New test.
+
+	PR c++/88103
+	* g++.dg/cpp0x/rv-cond3.C: New test.
+
+	2018-12-03  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/71109
+	* gcc.c-torture/compile/pr71109.c: New test.
+
+	2018-11-30  Jakub Jelinek  <jakub@redhat.com>
+
+	PR debug/85550
+	* g++.dg/debug/dwarf2/pr85550.C: New test.
+
+	2018-11-29  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/88234
+	* gcc.dg/ubsan/pr88234.c: New test.
+
+	PR c++/87539
+	* g++.dg/cpp0x/pr87539.C: New test.
+
+	2018-11-28  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/88215
+	* c-c++-common/ubsan/pr88215.c: New test.
+
+	2018-11-27  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/88181
+	* g++.dg/debug/pr88181.C: New test.
+
+	2018-11-26  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/86900
+	* g++.dg/debug/dwarf2/pr86900.C: New test.
+
+	2018-11-22  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/85794
+	* gcc.dg/vect/O3-pr85794.c: New test.
+
+	2018-11-21  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/88122
+	* g++.dg/cpp0x/implicit15.C: New test.
+
+	2018-11-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/87895
+	* gcc.dg/gomp/pr87895-1.c: New test.
+	* gcc.dg/gomp/pr87895-2.c: New test.
+	* gcc.dg/gomp/pr87895-3.c: New test.
+
+	2018-11-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/88071
+	* gcc.dg/pr88071.c: New test.
+
+	PR c++/60994
+	* g++.dg/lookup/pr60994.C: New test.
+
+	PR debug/87039
+	* g++.dg/gomp/pr78363-4.C: New test.
+	* g++.dg/gomp/pr78363-5.C: New test.
+	* g++.dg/gomp/pr78363-6.C: New test.
+	* g++.dg/gomp/pr78363-7.C: New test.
+
+	2018-11-16  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/87475
+	* g++.dg/opt/pr87475.C: New test.
+
+	2018-11-15  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/88018
+	* g++.dg/tsan/pr88018.C: New test.
+
+	2018-11-13  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/87898
+	* gcc.dg/gomp/pr87898.c: New test.
+
+2019-01-03  Jan Hubicka  <hubicka@ucw.cz>
+
+	Backport from mainline
+	2019-01-02  Jan Hubicka  <hubicka@ucw.cz>
+
+	PR lto/88130
+	* g++.dg/torture/pr88130.C: New testcase.
+
+2019-01-05  Dominique d'Humieres  <dominiq@gcc.gnu.org>
+
+	PR target/60563
+	* g++.dg/ext/sync-4.C: Add dg-xfail-run-if for darwin.
+
+2019-01-03  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2019-01-02  Jakub Jelinek  <jakub@redhat.com>
+
+	PR ipa/88561
+	* g++.dg/tree-prof/devirt.C: Expect _ZThn16 only for lp64 and llp64
+	targets and expect _ZThn8 for ilp32 targets.
+
+2019-01-03  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2019-01-01  Jan Hubicka  <hubicka@ucw.cz>
+
+	* g++.dg/tree-prof/devirt.C: Update testcase.
+
+2019-01-03  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2018-12-31  Martin Liska  <mliska@suse.cz>
+
+	* g++.dg/tree-prof/devirt.C: Fix scan pattern and test options.
+
+2018-01-02  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	Backport from trunk
+	2018-12-06  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	PR inline-asm/55681
+	* gcc.dg/asm-qual-1.c: Test that "const" and "restrict" are refused.
+	* gcc.dg/asm-qual-2.c: New test, test that asm-qualifiers are allowed
+	in any order, but that duplicates are not allowed.
+
+	Backport from trunk
+	2018-12-06  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	* c-c++-common/torture/asm-inline.c: New testcase.
+	* gcc.dg/asm-qual-2.c: Test asm inline, too.
+
+	Backport from trunk
+	2018-12-19  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	* g++.dg/asm-qual-1.C: New testcase.
+	* g++.dg/asm-qual-2.C: New testcase.
+	* gcc.dg/asm-qual-1.c: Update.
+
+	Backport from trunk
+	2018-12-19  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	* g++.dg/asm-qual-3.C: New testcase.
+	* gcc.dg/asm-qual-3.c: New testcase.
+
+	And extra for the backport
+	2019-01-02  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	* gcc.dg/asm-qual-1.c: Adjust.
+
+2018-12-30  Dominique d'Humieres  <dominiq@gcc.gnu.org>
+
+	* g++.dg/abi/key2.C: Silence the [-Wreturn-type] warning.
+
+2018-12-30  Dominique d'Humieres  <dominiq@gcc.gnu.org>
+
+	PR tree-optimization/68356
+	PR target/81210
+	PR target/81693
+	* gcc.dg/torture/pr68264.c: Skip on darwin.
+	* gcc.dg/torture/pr68037-1.c: Likewise.
+	* gcc.dg/torture/pr68037-2.c: Likewise.
+	* gcc.dg/torture/pr68037-3.c: Likewise.
+	* gcc.dg/torture/pr25967-1.c: Likewise.
+	* gcc.dg/torture/pr25967-2.c: Likewise.
+
+2018-12-27  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2018-12-15  Jan Hubicka  <hubicka@ucw.cz>
+
+	PR ipa/88561
+	* g++.dg/tree-prof/devirt.C: New testcase.
+
+2018-12-24  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR testsuite/67974
+	* gcc.target/x86_64/abi/avx/asm-support-darwin.s: New.
+
+2018-12-23  Paul Thomas  <pault@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/77703
+	* gfortran.dg/ptr_func_assign_5.f08 : New test.
+
+2018-12-23  Paul Thomas  <pault@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/77325
+	* gfortran.dg/deferred_character_22.f90 : New test.
+
+2018-12-22  Steven G . Kargl  <kargl@gcc.gnu.org>
+
+	PR fortran/85798
+	* gfortran.dg/pr85798.f90: New test.
+
+2018-12-22  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/85544
+	* gfortran.dg/power_7.f90: New test.
+
+2018-12-22  Steven G. Kargl  <kargl@gcc.gnu.org>
+
+	PR fortran/88169
+	* gfortran.dg/pr88169_1.f90: new test.
+	* gfortran.dg/pr88169_2.f90: Ditto.
+	* gfortran.dg/pr88169_3.f90: Ditto.
+
+2018-12-22  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2018-08-16  Iain Sandoe <iain@sandoe.co.uk>
+
+	* c-c++-common/asan/pointer-subtract-3.c: Skip for Darwin.
+	* c-c++-common/asan/pointer-subtract-4.c: Likewise.
+	* g++.dg/torture/pr44295.C : Likewise.
+
+2018-12-22  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2018-08-22  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* gcc.dg/lto/pr85248_0.c (test_alias):
+	Stringify __USER_LABEL_PREFIX__.
+	(test_noreturn): Likewise.
+
+	2018-08-16  Iain Sandoe <iain@sandoe.co.uk>
+
+	* gcc.dg/memcmp-1.c (lib_memcmp): Apply __USER_LABEL_PREFIX__.
+	(lib_strncmp): Likewise.
+
+	2018-08-16  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* gcc.dg/asan/pr81923.c: Stringify __USER_LABEL_PREFIX__.
+
+2018-12-21  Paul Thomas  <pault@gcc.gnu.org>
+
+	PR fortran/87359
+	* gfortran.dg/associate_40.f90 : New test.
+
+2018-12-21  Uros Bizjak  <ubizjak@gmail.com>
+
+	Backport from mainline
+	2018-12-10  Uros Bizjak  <ubizjak@gmail.com>
+
+	PR target/88418
+	* gcc.target/i386/pr88418.c: New test.
+
+2018-12-17  Senthil Kumar Selvaraj  <senthilkumar.selvaraj@microchip.com>
+
+	Backport from trunk
+	2018-12-17  Senthil Kumar Selvaraj  <senthilkumar.selvaraj@microchip.com>
+
+	PR rtl-optimization/88253
+	* gcc.target/avr/pr88253.c: New test.
+
+2018-12-18  Steven G. Kargl  <kargl@gcc.gnu.org>
+
+	PR fortran/88116
+	* gfortran.dg/pr88116_1.f90: New test.
+	* gfortran.dg/pr88116_2.f90: Ditto.
+
+	PR fortran/88467
+	* gfortran.dg/pr88467.f90: New test.
+
+2018-12-15  Steven G. Kargl  <kargl@gcc.gnu.org>
+
+	PR fortran/88138
+	* gfortran.dg/pr88138.f90: new test.
+
 2018-12-13  Nathan Sidwell  <nathan@acm.org>
 
 	PR c++/87531
@@ -91,7 +481,7 @@
 
 	Backport from mainline
 	2018-09-20  Richard Sandiford  <richard.sandiford@arm.com>
- 
+
 	PR tree-optimization/87288
 	* gcc.dg/vect/pr87288-1.c: New test.
 	* gcc.dg/vect/pr87288-2.c: Likewise,

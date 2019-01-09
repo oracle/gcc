@@ -3019,6 +3019,83 @@ gfc_conv_power_op (gfc_se * se, gfc_expr * expr)
     if (gfc_conv_cst_int_power (se, lse.expr, rse.expr))
       return;
 
+  if (INTEGER_CST_P (lse.expr)
+      && TREE_CODE (TREE_TYPE (rse.expr)) == INTEGER_TYPE)
+    {
+      wi::tree_to_wide_ref wlhs = wi::to_wide (lse.expr);
+      HOST_WIDE_INT v;
+      v = wlhs.to_shwi ();
+      if (v == 1)
+	{
+	  /* 1**something is always 1.  */
+	  se->expr = build_int_cst (TREE_TYPE (lse.expr), 1);
+	  return;
+	}
+      else if (v == 2 || v == 4 || v == 8 || v == 16)
+	{
+	  /* 2**n = 1<<n, 4**n = 1<<(n+n), 8**n = 1 <<(3*n), 16**n =
+	   1<<(4*n), but we have to make sure to return zero if the
+	   number of bits is too large. */
+	  tree lshift;
+	  tree type;
+	  tree shift;
+	  tree ge;
+	  tree cond;
+	  tree num_bits;
+	  tree cond2;
+
+	  type = TREE_TYPE (lse.expr);
+
+	  if (v == 2)
+	    shift = rse.expr;
+	  else if (v == 4)
+	    shift = fold_build2_loc (input_location, PLUS_EXPR,
+				     TREE_TYPE (rse.expr),
+				       rse.expr, rse.expr);
+	  else if (v == 8)
+	    shift = fold_build2_loc (input_location, MULT_EXPR,
+				     TREE_TYPE (rse.expr),
+				     build_int_cst (TREE_TYPE (rse.expr), 3),
+				     rse.expr);
+	  else if (v == 16)
+	    shift = fold_build2_loc (input_location, MULT_EXPR,
+				     TREE_TYPE (rse.expr),
+				     build_int_cst (TREE_TYPE (rse.expr), 4),
+				     rse.expr);
+	  else
+	    gcc_unreachable ();
+
+	  lshift = fold_build2_loc (input_location, LSHIFT_EXPR, type,
+				    build_int_cst (type, 1), shift);
+	  ge = fold_build2_loc (input_location, GE_EXPR, logical_type_node,
+				rse.expr, build_int_cst (type, 0));
+	  cond = fold_build3_loc (input_location, COND_EXPR, type, ge, lshift,
+				 build_int_cst (type, 0));
+	  num_bits = build_int_cst (TREE_TYPE (rse.expr), TYPE_PRECISION (type));
+	  cond2 = fold_build2_loc (input_location, GE_EXPR, logical_type_node,
+				   rse.expr, num_bits);
+	  se->expr = fold_build3_loc (input_location, COND_EXPR, type, cond2,
+				      build_int_cst (type, 0), cond);
+	  return;
+	}
+      else if (v == -1)
+	{
+	  /* (-1)**n is 1 - ((n & 1) << 1) */
+	  tree type;
+	  tree tmp;
+
+	  type = TREE_TYPE (lse.expr);
+	  tmp = fold_build2_loc (input_location, BIT_AND_EXPR, type,
+				 rse.expr, build_int_cst (type, 1));
+	  tmp = fold_build2_loc (input_location, LSHIFT_EXPR, type,
+				 tmp, build_int_cst (type, 1));
+	  tmp = fold_build2_loc (input_location, MINUS_EXPR, type,
+				 build_int_cst (type, 1), tmp);
+	  se->expr = tmp;
+	  return;
+	}
+    }
+
   gfc_int4_type_node = gfc_get_int_type (4);
 
   /* In case of integer operands with kinds 1 or 2, we call the integer kind 4
@@ -10207,19 +10284,27 @@ gfc_trans_assignment_1 (gfc_expr * expr1, gfc_expr * expr2, bool init_flag,
   /* When assigning a character function result to a deferred-length variable,
      the function call must happen before the (re)allocation of the lhs -
      otherwise the character length of the result is not known.
-     NOTE: This relies on having the exact dependence of the length type
+     NOTE 1: This relies on having the exact dependence of the length type
      parameter available to the caller; gfortran saves it in the .mod files.
-     NOTE ALSO: The concatenation operation generates a temporary pointer,
+     NOTE 2: Vector array references generate an index temporary that must
+     not go outside the loop. Otherwise, variables should not generate
+     a pre block.
+     NOTE 3: The concatenation operation generates a temporary pointer,
      whose allocation must go to the innermost loop.
-     NOTE ALSO (2): A character conversion may generate a temporary, too.  */
+     NOTE 4: Elemental functions may generate a temporary, too.  */
   if (flag_realloc_lhs
       && expr2->ts.type == BT_CHARACTER && expr1->ts.deferred
       && !(lss != gfc_ss_terminator
-	   && ((expr2->expr_type == EXPR_OP
-		&& expr2->value.op.op == INTRINSIC_CONCAT)
+	   && rss != gfc_ss_terminator
+	   && ((expr2->expr_type == EXPR_VARIABLE && expr2->rank)
+	       || (expr2->expr_type == EXPR_FUNCTION
+		   && expr2->value.function.esym != NULL
+		   && expr2->value.function.esym->attr.elemental)
 	       || (expr2->expr_type == EXPR_FUNCTION
 		   && expr2->value.function.isym != NULL
-		   && expr2->value.function.isym->id == GFC_ISYM_CONVERSION))))
+		   && expr2->value.function.isym->elemental)
+	       || (expr2->expr_type == EXPR_OP
+		   && expr2->value.op.op == INTRINSIC_CONCAT))))
     gfc_add_block_to_block (&block, &rse.pre);
 
   /* Nullify the allocatable components corresponding to those of the lhs

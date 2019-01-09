@@ -4856,8 +4856,14 @@ ix86_option_override_internal (bool main_args_p,
 
   /* Handle stack protector */
   if (!opts_set->x_ix86_stack_protector_guard)
-    opts->x_ix86_stack_protector_guard
-      = TARGET_HAS_BIONIC ? SSP_GLOBAL : SSP_TLS;
+    {
+#ifdef TARGET_THREAD_SSP_OFFSET
+      if (!TARGET_HAS_BIONIC)
+	opts->x_ix86_stack_protector_guard = SSP_TLS;
+      else
+#endif
+	opts->x_ix86_stack_protector_guard = SSP_GLOBAL;
+    }
 
 #ifdef TARGET_THREAD_SSP_OFFSET
   ix86_stack_protector_guard_offset = TARGET_THREAD_SSP_OFFSET;
@@ -11716,10 +11722,16 @@ ix86_compute_frame_layout (void)
   /* 64-bit MS ABI seem to require stack alignment to be always 16,
      except for function prologues, leaf functions and when the defult
      incoming stack boundary is overriden at command line or via
-     force_align_arg_pointer attribute.  */
-  if ((TARGET_64BIT_MS_ABI && crtl->preferred_stack_boundary < 128)
+     force_align_arg_pointer attribute.
+
+     Darwin's ABI specifies 128b alignment for both 32 and  64 bit variants
+     at call sites, including profile function calls.
+ */
+  if (((TARGET_64BIT_MS_ABI || TARGET_MACHO)
+        && crtl->preferred_stack_boundary < 128)
       && (!crtl->is_leaf || cfun->calls_alloca != 0
 	  || ix86_current_function_calls_tls_descriptor
+	  || (TARGET_MACHO && crtl->profile)
 	  || ix86_incoming_stack_boundary < 128))
     {
       crtl->preferred_stack_boundary = 128;
@@ -24054,7 +24066,7 @@ ix86_expand_sse_fp_minmax (rtx dest, enum rtx_code code, rtx cmp_op0,
   return true;
 }
 
-/* Expand an sse vector comparison.  Return the register with the result.  */
+/* Expand an SSE comparison.  Return the register with the result.  */
 
 static rtx
 ix86_expand_sse_cmp (rtx dest, enum rtx_code code, rtx cmp_op0, rtx cmp_op1,
@@ -24079,9 +24091,12 @@ ix86_expand_sse_cmp (rtx dest, enum rtx_code code, rtx cmp_op0, rtx cmp_op1,
   else
     cmp_mode = cmp_ops_mode;
 
-
   cmp_op0 = force_reg (cmp_ops_mode, cmp_op0);
-  if (!nonimmediate_operand (cmp_op1, cmp_ops_mode))
+
+  int (*op1_predicate)(rtx, machine_mode)
+    = VECTOR_MODE_P (cmp_ops_mode) ? vector_operand : nonimmediate_operand;
+
+  if (!op1_predicate (cmp_op1, cmp_ops_mode))
     cmp_op1 = force_reg (cmp_ops_mode, cmp_op1);
 
   if (optimize
@@ -24201,7 +24216,7 @@ ix86_expand_sse_movcc (rtx dest, rtx cmp, rtx op_true, rtx op_false)
       rtx (*gen) (rtx, rtx, rtx, rtx) = NULL;
       rtx d = dest;
 
-      if (!nonimmediate_operand (op_true, mode))
+      if (!vector_operand (op_true, mode))
 	op_true = force_reg (mode, op_true);
 
       op_false = force_reg (mode, op_false);
@@ -51324,9 +51339,7 @@ ix86_expand_divmod_libfunc (rtx libfunc, machine_mode mode,
   rtx rem = assign_386_stack_local (mode, SLOT_TEMP);
 
   rtx quot = emit_library_call_value (libfunc, NULL_RTX, LCT_NORMAL,
-				      mode,
-				      op0, GET_MODE (op0),
-				      op1, GET_MODE (op1),
+				      mode, op0, mode, op1, mode,
 				      XEXP (rem, 0), Pmode);
   *quot_p = quot;
   *rem_p = rem;

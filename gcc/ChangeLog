@@ -1,3 +1,483 @@
+2019-01-09  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* config/sparc/sparc.md (*tablejump_sp32): Merge into...
+	(*tablejump_sp64): Likewise.
+	(*tablejump<P:mode>): ...this.
+	(*call_address_sp32): Merge into...
+	(*call_address_sp64): Likewise.
+	(*call_address<P:mode>): ...this.
+	(*call_symbolic_sp32): Merge into...
+	(*call_symbolic_sp64): Likewise.
+	(*call_symbolic<P:mode>): ...this.
+	(call_value): Remove constraint and add predicate.
+	(*call_value_address_sp32): Merge into...
+	(*call_value_address_sp64): Likewise.
+	(*call_value_address<P:mode>): ...this.
+	(*call_value_symbolic_sp32): Merge into...
+	(*call_value_symbolic_sp64): Likewise.
+	(*call_value_symbolic<P:mode>): ...this.
+	(*sibcall_symbolic_sp32): Merge into...
+	(*sibcall_symbolic_sp64): Likewise.
+	(*sibcall_symbolic<P:mode>): ...this.
+	(sibcall_value): Remove constraint and add predicate.
+	(*sibcall_value_symbolic_sp32): Merge into...
+	(*sibcall_value_symbolic_sp64): Likewise.
+	(*sibcall_value_symbolic<P:mode>): ...this.
+	(window_save): Minor tweak.
+	(*branch_sp32): Merge into...
+	(*branch_sp64): Likewise.
+	(*branch<P:mode>): ...this.
+
+2019-01-09  Eric Botcazou  <ebotcazou@adacore.com>
+            James Clarke  <jrtc27@jrtc27.com>
+
+	PR target/84010
+	* config/sparc/sparc.c (sparc_legitimize_tls_address): Only use Pmode
+	consistently in TLS address generation and adjust code to the renaming
+	of patterns.  Mark calls to __tls_get_addr as const.
+	* config/sparc/sparc.md (tgd_hi22): Turn into...
+	(tgd_hi22<P:mode>): ...this and use Pmode throughout.
+	(tgd_lo10): Turn into...
+	(tgd_lo10<P:mode>): ...this and use Pmode throughout.
+	(tgd_add32): Merge into...
+	(tgd_add64): Likewise.
+	(tgd_add<P:mode>): ...this and use Pmode throughout.
+	(tldm_hi22): Turn into...
+	(tldm_hi22<P:mode>): ...this and use Pmode throughout.
+	(tldm_lo10): Turn into...
+	(tldm_lo10<P:mode>): ...this and use Pmode throughout.
+	(tldm_add32): Merge into...
+	(tldm_add64): Likewise.
+	(tldm_add<P:mode>): ...this and use Pmode throughout.
+	(tldm_call32): Merge into...
+	(tldm_call64): Likewise.
+	(tldm_call<P:mode>): ...this and use Pmode throughout.
+	(tldo_hix22): Turn into...
+	(tldo_hix22<P:mode>): ...this and use Pmode throughout.
+	(tldo_lox10): Turn into...
+	(tldo_lox10<P:mode>): ...this and use Pmode throughout.
+	(tldo_add32): Merge into...
+	(tldo_add64): Likewise.
+	(tldo_add<P:mode>): ...this and use Pmode throughout.
+	(tie_hi22): Turn into...
+	(tie_hi22<P:mode>): ...this and use Pmode throughout.
+	(tie_lo10): Turn into...
+	(tie_lo10<P:mode>): ...this and use Pmode throughout.
+	(tie_ld64): Use DImode throughout.
+	(tie_add32): Merge into...
+	(tie_add64): Likewise.
+	(tie_add<P:mode>): ...this and use Pmode throughout.
+	(tle_hix22_sp32): Merge into...
+	(tle_hix22_sp64): Likewise.
+	(tle_hix22<P:mode>): ...this and use Pmode throughout.
+	(tle_lox22_sp32): Merge into...
+	(tle_lox22_sp64): Likewise.
+	(tle_lox22<P:mode>): ...this and use Pmode throughout.
+	(*tldo_ldub_sp32): Merge into...
+	(*tldo_ldub_sp64): Likewise.
+	(*tldo_ldub<P:mode>): ...this and use Pmode throughout.
+	(*tldo_ldub1_sp32): Merge into...
+	(*tldo_ldub1_sp64): Likewise.
+	(*tldo_ldub1<P:mode>): ...this and use Pmode throughout.
+	(*tldo_ldub2_sp32): Merge into...
+	(*tldo_ldub2_sp64): Likewise.
+	(*tldo_ldub2<P:mode>): ...this and use Pmode throughout.
+	(*tldo_ldsb1_sp32): Merge into...
+	(*tldo_ldsb1_sp64): Likewise.
+	(*tldo_ldsb1<P:mode>): ...this and use Pmode throughout.
+	(*tldo_ldsb2_sp32): Merge into...
+	(*tldo_ldsb2_sp64): Likewise.
+	(*tldo_ldsb2<P:mode>): ...this and use Pmode throughout.
+	(*tldo_ldub3_sp64): Use DImode throughout.
+	(*tldo_ldsb3_sp64): Likewise.
+	(*tldo_lduh_sp32): Merge into...
+	(*tldo_lduh_sp64): Likewise.
+	(*tldo_lduh<P:mode>): ...this and use Pmode throughout.
+	(*tldo_lduh1_sp32): Merge into...
+	(*tldo_lduh1_sp64): Likewise.
+	(*tldo_lduh1<P:mode>): ...this and use Pmode throughout.
+	(*tldo_ldsh1_sp32): Merge into...
+	(*tldo_ldsh1_sp64): Likewise.
+	(*tldo_ldsh1<P:mode>): ...this and use Pmode throughout.
+	(*tldo_lduh2_sp64): Use DImode throughout.
+	(*tldo_ldsh2_sp64): Likewise.
+	(*tldo_lduw_sp32): Merge into...
+	(*tldo_lduw_sp64): Likewise.
+	(*tldo_lduw<P:mode>): ...this and use Pmode throughout.
+	(*tldo_lduw1_sp64): Use DImode throughout.
+	(*tldo_ldsw1_sp64): Likewise.
+	(*tldo_ldx_sp64): Likewise.
+	(*tldo_stb_sp32): Merge into...
+	(*tldo_stb_sp64): Likewise.
+	(*tldo_stb<P:mode>): ...this and use Pmode throughout.
+	(*tldo_sth_sp32): Merge into...
+	(*tldo_sth_sp64): Likewise.
+	(*tldo_sth<P:mode>): ...this and use Pmode throughout.
+	(*tldo_stw_sp32): Merge into...
+	(*tldo_stw_sp64): Likewise.
+	(*tldo_stw<P:mode>): ...this and use Pmode throughout.
+	(*tldo_stx_sp64): Use DImode throughout.
+
+2019-01-09  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* doc/invoke.texi (-Os): Add reference to -finline-functions.
+	(-finline-functions): Remove reference to -O2, add references
+	to -fprofile-use and -fauto-profile.
+
+2019-01-08  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from mainline
+	2019-01-05  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/82564
+	PR target/88620
+	* expr.c (expand_assignment): For calls returning VLA structures
+	if to_rtx is not a MEM, force it into a stack temporary.
+
+	2019-01-04  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/88594
+	* config/i386/i386.c (ix86_expand_divmod_libfunc): Use mode instead
+	of GET_MODE (opN) as modes of the libcall arguments.
+
+	2019-01-03  Jakub Jelinek  <jakub@redhat.com>
+
+	PR debug/88644
+	* dwarf2out.c (modified_type_die): If type is equal to sizetype,
+	change it to qualified_type.
+
+	2018-12-21  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/85594
+	PR middle-end/88553
+	* omp-expand.c (extract_omp_for_update_vars): Regimplify the condition
+	if needed.
+	(expand_omp_for_generic): Don't clobber t temporary for ordered loops.
+
+	PR target/88522
+	* config/i386/sse.md (*avx512pf_gatherpf<mode>sf_mask,
+	*avx512pf_gatherpf<mode>df_mask, *avx512pf_scatterpf<mode>sf_mask,
+	*avx512pf_scatterpf<mode>df_mask): Use %X5 instead of %5 for
+	-masm=intel.
+	(gatherq_mode): Remove mode iterator.
+	(*avx512f_gathersi<mode>, *avx512f_gathersi<mode>_2): Use X instead
+	of <xtg_mode>.
+	(*avx512f_gatherdi<mode>): Use X instead of <gatherq_mode>.
+	(*avx512f_gatherdi<mode>_2, *avx512f_scattersi<mode>,
+	*avx512f_scatterdi<mode>): Use %X5 for -masm=intel.
+
+	PR rtl-optimization/88563
+	* expr.c (expand_expr_real_2) <case WIDEN_MULT_EXPR>: Swap innermode
+	and mode arguments to convert_modes.  Likewise swap mode and word_mode
+	arguments.  Handle both arguments with VOIDmode before convert_modes
+	of one of them.  Formatting fixes.
+
+	2018-12-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/88541
+	* config/i386/vpclmulqdqintrin.h (_mm256_clmulepi64_epi128): Enable
+	for -mavx -mvpclmulqdq rather than just for -mavx512vl -mvpclmulqdq.
+
+	2018-12-14  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/82294
+	PR c++/87436
+	* expr.h (categorize_ctor_elements): Add p_unique_nz_elts argument.
+	* expr.c (categorize_ctor_elements_1): Likewise.  Compute it like
+	p_nz_elts, except don't multiply it by mult.  Adjust recursive call.
+	Fix up COMPLEX_CST handling.
+	(categorize_ctor_elements): Add p_unique_nz_elts argument, initialize
+	it and pass it through to categorize_ctor_elements_1.
+	(mostly_zeros_p, all_zeros_p): Adjust categorize_ctor_elements callers.
+	* gimplify.c (gimplify_init_constructor): Likewise.  Don't force
+	ctor into readonly data section if num_unique_nonzero_elements is
+	smaller or equal to 1/8 of num_nonzero_elements and size is >= 64
+	bytes.
+
+	2018-12-13  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/88470
+	* cfgcleanup.c (outgoing_edges_match): If the function is
+	shrink-wrapped and bb1 ends with a JUMP_INSN with a single fake
+	edge to EXIT, return false.
+
+	PR rtl-optimization/88416
+	* valtrack.c (cleanup_auto_inc_dec): Handle pre/post-inc/dec/modify
+	even if !AUTO_INC_DEC.
+
+	2018-12-07  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/85593
+	* final.c (rest_of_handle_final): Don't call collect_fn_hard_reg_usage
+	for functions with naked attribute.
+
+	2018-12-06  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/87598
+	* config/aarch64/aarch64.c (aarch64_print_address_internal): Don't
+	call output_operand_lossage on VOIDmode CONST_INTs.  After
+	output_operand_lossage do return false.
+
+	2018-12-05  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/87360
+	* gimple-loop-jam.c (tree_loop_unroll_and_jam): On failure to analyze
+	data dependencies, don't return false, just continue.
+
+	2018-11-29  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/88234
+	* config/rs6000/rs6000.c (rs6000_gimple_fold_builtin): For
+	vec_add and vec_sub builtins, perform PLUS_EXPR or MINUS_EXPR
+	in unsigned_type_for instead of vector integral type where overflow
+	doesn't wrap.
+
+	2018-11-26  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/86900
+	* dwarf2out.c (secname_for_decl): For functions with
+	DECL_SECTION_NAME if in_cold_section_p, try to return
+	current_function_section's name if it is a named section.
+
+	2018-11-22  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/85644
+	PR target/86832
+	* config/i386/i386.c (ix86_option_override_internal): Default
+	ix86_stack_protector_guard to SSP_TLS only if TARGET_THREAD_SSP_OFFSET
+	is defined.
+	* config/i386/i386.md (stack_protect_set, stack_protect_set_<mode>,
+	stack_protect_test, stack_protect_test_<mode>): Use empty condition
+	instead of TARGET_SSP_TLS_GUARD.
+
+	2018-11-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/87895
+	* omp-simd-clone.c (ipa_simd_modify_function_body): When removing
+	or replacing GIMPLE_RETURN, set EDGE_FALLTHRU on the edge to EXIT.
+	(simd_clone_adjust): Don't set EDGE_FALLTHRU here. In a loop that
+	redirects edges to EXIT to edges to incr_bb, iterate while EXIT
+	has any preds and always use EDGE_PRED (, 0).
+
+	2018-11-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/88071
+	* tree-vect-loop.c (vectorize_fold_left_reduction): Pass true instead
+	of false as last argument to gsi_remove.
+	* tree-vect-stmts.c (vect_finish_replace_stmt): Pass true instead of
+	false as last argument to gsi_replace.
+
+	PR debug/87039
+	* omp-expand.c: Don't include debug.h.
+	(adjust_context_and_scope): Add REGION argument.  Find DECL_CONTEXT
+	from innermost outer parallel, task, or target that has a
+	child_fn set, or, if there is no such outer region, use
+	current_function_decl.  Do the DECL_CONTEXT adjustment regardless of
+	whether a suitable BLOCK is found or not.
+	(expand_parallel_call): Don't call adjust_context_and_scope here.
+	(grid_expand_target_grid_body): Revert 2017-01-25 changes.
+	(expand_omp_taskreg, expand_omp_target): Likewise.  Call
+	adjust_context_and_scope.
+	* dwarf2out.c (dwarf2out_early_global_decl): For
+	decl_function_context recurse instead of calling dwarf2out_decl.
+
+	2018-11-16  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/87475
+	* cfgrtl.c (patch_jump_insn): Allow redirection failure for
+	CROSSING_JUMP_P insns.
+	(cfg_layout_redirect_edge_and_branch): Don't ICE if ret is NULL.
+
+	2018-11-15  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/88018
+	* cfgrtl.c (fixup_abnormal_edges): Guard moving insns to fallthru edge
+	on the presence of fallthru edge, rather than if it is a USE or not.
+
+	2018-11-13  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/87898
+	* omp-simd-clone.c (ipa_simd_modify_function_body): Remove debug stmts
+	where the first argument was changed into a non-decl.
+
+2019-01-03  Jan Hubicka  <hubicka@ucw.cz>
+
+	Backport from mainline
+	2019-01-02  Jan Hubicka  <hubicka@ucw.cz>
+
+	PR lto/88130
+	* varpool.c (varpool_node::ctor_useable_for_folding_p): Also return
+	false at WPA time when body was removed.
+
+2019-01-03  Jan Hubicka  <hubicka@ucw.cz>
+
+	Backport from mainline
+	2018-08-29  Jan Hubicka  <jh@suse.cz>
+
+	PR lto/86517
+	PR lto/88185
+	* lto-opts.c (lto_write_options): Always stream PIC/PIE mode.
+	* lto-wrapper.c (merge_and_complain): Fix merging of PIC/PIE.
+
+2019-01-04  Aaron Sawdey  <acsawdey@linux.ibm.com>
+
+	Backport from mainline
+	2018-11-28  Aaron Sawdey  <acsawdey@linux.ibm.com>
+
+	* config/rs6000/rs6000-string.c (expand_block_clear): Change how
+	we determine if unaligned vsx is ok.
+
+2019-01-03  Jan Hubicka  <hubicka@ucw.cz>
+
+	Backport from mainline
+	2019-01-03  Jan Hubicka  <hubicka@ucw.cz>
+
+	* ipa-utils.c (scale_ipa_profile_for_fn): Break out from ...
+	(ipa_merge_profiles): ... here; do not ICE on thunks and aliases.
+
+2019-01-03  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2019-01-01  Jan Hubicka  <hubicka@ucw.cz>
+
+	* coverage.c (get_coverage_counts): Use current_function_decl.
+	* profile.c (read_thunk_profile): New function.
+	(branch_prob): Add THUNK parameter.
+	* tree-profile.c (tree_profiling): Handle thunks.
+	* value-prof.c (init_node_map): Handle thunks.
+	* value-prof.h (branch_prob): Upate prototype.
+	(read_thunk_profile): Declare.
+
+2019-01-03  Iain Sandoe  <iain@sandoe.co.uk>
+
+	revert:
+	2018-12-23  Iain Sandoe  <iain@sandoe.co.uk>
+
+	backport from mainline.
+	2018-12-12 Segher Boessenkool  <segher@kernel.crashing.org>
+		   Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR target/88343
+	* config/rs6000/rs6000.c (save_reg_p): Do not save the picbase reg
+	unless it has been used.
+	(first_reg_to_save): Remove dead code.
+
+2019-01-02  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	Backport from trunk
+	2018-12-06  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	PR inline-asm/55681
+	* doc/extend.texi (Basic Asm): Update grammar.
+	(Extended Asm): Update grammar.
+
+	Backport from trunk
+	2018-12-06  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	* doc/extend.texi (Using Assembly Language with C): Document asm inline.
+	(Size of an asm): Fix typo.  Document asm inline.
+	* gimple-pretty-print.c (dump_gimple_asm): Handle asm inline.
+	* gimple.h (enum gf_mask): Add GF_ASM_INLINE.
+	(gimple_asm_set_volatile): Fix typo.
+	(gimple_asm_inline_p): New.
+	(gimple_asm_set_inline): New.
+	* gimplify.c (gimplify_asm_expr): Propagate the asm inline flag from
+	tree to gimple.
+	* ipa-icf-gimple.c (func_checker::compare_gimple_asm): Compare the
+	gimple_asm_inline_p flag, too.
+	* tree-core.h (tree_base): Document that protected_flag is ASM_INLINE_P
+	in an ASM_EXPR.
+	* tree-inline.c (estimate_num_insns): If gimple_asm_inline_p return
+	a minimum size for an asm.
+	* tree.h (ASM_INLINE_P): New.
+
+2018-12-28  Thomas Schwinge  <thomas@codesourcery.com>
+	    Julian Brown  <julian@codesourcery.com>
+
+	* gimplify.c (gimplify_scan_omp_clauses): Fix known_eq typo/bug.
+
+2018-12-27  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2018-12-15  Jan Hubicka  <hubicka@ucw.cz>
+
+	PR ipa/88561
+	* ipa-polymorphic-call.c
+	(ipa_polymorphic_call_context::ipa_polymorphic_call_context): Handle
+	arguments of thunks correctly.
+	(ipa_polymorphic_call_context::get_dynamic_context): Be ready for
+	NULL instance pinter.
+	* lto-cgraph.c (lto_output_node): Always stream thunk info.
+
+2018-12-23  Iain Sandoe  <iain@sandoe.co.uk>
+
+	backport from mainline.
+	2018-12-12 Segher Boessenkool  <segher@kernel.crashing.org>
+		   Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR target/88343
+	* config/rs6000/rs6000.c (save_reg_p): Do not save the picbase reg
+	unless it has been used.
+	(first_reg_to_save): Remove dead code.
+
+2018-12-23  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2018-12-06  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR c++/87380
+	* config/darwin.h (TARGET_WEAK_NOT_IN_ARCHIVE_TOC) Remove, use the
+	default.
+	* config/rs6000/darwin7.h (TARGET_WEAK_NOT_IN_ARCHIVE_TOC): New.
+
+2018-12-23  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2018-12-06  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR target/78444
+	* config/i386/darwin.h (STACK_BOUNDARY): Remove macro.
+	* config/i386/i386.c (ix86_compute_frame_layout): Ensure at least 128b
+	stack alignment in non-leaf functions.
+
+2018-12-21  Uros Bizjak  <ubizjak@gmail.com>
+
+	Backport from mainline
+	2018-12-10  Uros Bizjak  <ubizjak@gmail.com>
+
+	PR target/88418
+	* config/i386/i386.c (ix86_expand_sse_cmp): For vector modes,
+	check operand 1 with vector_operand predicate.
+	(ix86_expand_sse_movcc): For vector modes, check op_true with
+	vector_operand, not nonimmediate_operand.
+
+2018-12-19  Bill Schmidt  <wschmidt@linux.ibm.com>
+
+	Backport from mainline
+	2018-12-18  Bill Schmidt  <wschmidt@linux.ibm.com>
+
+	* doc/extend.texi (PowerPC Altivec/VSX Built-in Functions):
+	Describe when a typedef name can be used as the type specifier for
+	a vector type, and when it cannot.
+
+2018-12-19  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	Backport from trunk
+	2018-12-19  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	PR target/88213
+	* config/rs6000/vsx.md (*vsx_extract_<P:mode>_<VSX_D:mode>_load):
+	Require TARGET_POWERPC64.
+
+2018-12-17  Senthil Kumar Selvaraj  <senthilkumar.selvaraj@microchip.com>
+
+	Backport from trunk
+	2018-12-17  Senthil Kumar Selvaraj  <senthilkumar.selvaraj@microchip.com>
+
+	PR rtl-optimization/88253
+	* combine.c (combine_simplify_rtx): Test for side-effects before
+	substituting by zero.
+
 2018-12-15  Segher Boessenkool  <segher@kernel.crashing.org>
 
 	Backport from trunk
@@ -352,8 +832,8 @@
 	* gcc/dwarf2out.c (FUNC_SECOND_SECT_LABEL): New.
 	(dwarf2out_switch_text_section): Generate a local label for the second
 	function sub-section and apply it as the second FDE start label.
-	* gcc/final.c (final_scan_insn_1): Emit second FDE label after the second
-	sub-section start.
+	* gcc/final.c (final_scan_insn_1): Emit second FDE label after the
+	second sub-section start.
 
 2018-10-28  Iain Sandoe  <iain@sandoe.co.uk>
 
@@ -477,7 +957,7 @@
 	bitmap bit clearing.
 
 	2018-10-05  Richard Biener  <rguenther@suse.de>
- 
+
 	PR tree-optimization/63155
 	* tree-ssa-ccp.c (ccp_propagate::visit_phi): Avoid excess
 	vertical space in dumpfiles.
@@ -6745,7 +7225,7 @@ gcc/testsuite/ChangeLog:
 
 2018-02-13  Jeff Law  <law@redhat.com>
 
- 	* config/rl/rl78.c (rl78_attribute_table): Fix terminator and
+	* config/rl/rl78.c (rl78_attribute_table): Fix terminator and
 	entry for "vector".
 
 	* config/rl78/rl78.c (rl78_handle_func_attribute): Mark
