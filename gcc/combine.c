@@ -981,13 +981,16 @@ combine_validate_cost (rtx_insn *i0, rtx_insn *i1, rtx_insn *i2, rtx_insn *i3,
 }
 
 
-/* Delete any insns that copy a register to itself.  */
+/* Delete any insns that copy a register to itself.
+   Return true if the CFG was changed.  */
 
-static void
+static bool
 delete_noop_moves (void)
 {
   rtx_insn *insn, *next;
   basic_block bb;
+
+  bool edges_deleted = false;
 
   FOR_EACH_BB_FN (bb, cfun)
     {
@@ -999,10 +1002,12 @@ delete_noop_moves (void)
 	      if (dump_file)
 		fprintf (dump_file, "deleting noop move %d\n", INSN_UID (insn));
 
-	      delete_insn_and_edges (insn);
+	      edges_deleted |= delete_insn_and_edges (insn);
 	    }
 	}
     }
+
+  return edges_deleted;
 }
 
 
@@ -1141,8 +1146,8 @@ insn_a_feeds_b (rtx_insn *a, rtx_insn *b)
 /* Main entry point for combiner.  F is the first insn of the function.
    NREGS is the first unused pseudo-reg number.
 
-   Return nonzero if the combiner has turned an indirect jump
-   instruction into a direct jump.  */
+   Return nonzero if the CFG was changed (e.g. if the combiner has
+   turned an indirect jump instruction into a direct jump).  */
 static int
 combine_instructions (rtx_insn *f, unsigned int nregs)
 {
@@ -1527,7 +1532,7 @@ retry:
   default_rtl_profile ();
   clear_bb_flags ();
   new_direct_jump_p |= purge_all_dead_edges ();
-  delete_noop_moves ();
+  new_direct_jump_p |= delete_noop_moves ();
 
   /* Clean up.  */
   obstack_free (&insn_link_obstack, NULL);
@@ -7602,6 +7607,7 @@ make_extraction (machine_mode mode, rtx inner, HOST_WIDE_INT pos,
 	      /* We can't do this if we are widening INNER_MODE (it
 		 may not be aligned, for one thing).  */
 	      && !paradoxical_subreg_p (tmode, inner_mode)
+	      && known_le (pos + len, GET_MODE_PRECISION (is_mode))
 	      && (inner_mode == tmode
 		  || (! mode_dependent_address_p (XEXP (inner, 0),
 						  MEM_ADDR_SPACE (inner))

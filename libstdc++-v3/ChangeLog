@@ -1,3 +1,275 @@
+2019-02-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2019-01-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/88066
+	* include/bits/locale_conv.h: Use <> for includes not "".
+	* include/ext/random: Likewise.
+	* include/ext/vstring.h: Likewise.
+
+2019-02-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/html/*: Regenerate.
+
+	* src/c++17/fs_ops.cc (absolute(const path&, error_code&)): Do nothing
+	if the path is already absolute.
+	[!_GLIBCXX_FILESYSTEM_IS_WINDOWS]: Pass error_code to current_path.
+
+	Backport from mainline
+	2019-01-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/chrono (duration_values::zero(), duration_values::min())
+	(duration_values::max()): Add noexcept.
+	(duration::zero(), duration::min(), duration::max()): Likewise.
+	(time_point::zero(), time_point::min(), time_point::max()): Likewise.
+	* testsuite/20_util/duration/requirements/noexcept.cc: New test.
+	* testsuite/20_util/time_point/requirements/noexcept.cc: New test.
+
+2019-02-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2019-01-07  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/87787
+	* include/bits/char_traits.h (char_traits::move): Do not pass null
+	pointers to memmove.
+	* include/bits/locale_facets.h
+	(ctype<char>::widen(const char*, const char*, char*)): Do not
+	pass null pointers to memcpy.
+	(ctype<char>::narrow(const char*, const char*, char, char*)):
+	Likewise.
+	(ctype<char>::do_widen(const char*, const char*, char*)):
+	Likewise.
+	(ctype<char>::do_narrow(const char*, const char*, char, char*)):
+	Likewise.
+
+2019-02-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2018-11-23  Martin Sebor  <msebor@redhat.com>
+		    Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/65229
+	* python/libstdcxx/v6/printers.py (StdBitsetPrinter): Handle
+	exception thrown for std::bitset<0>.
+	* testsuite/libstdc++-prettyprinters/simple.cc: Test std::bitset<0>.
+
+2019-02-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2018-11-23  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/87308 (partial)
+	* python/libstdcxx/v6/printers.py (StdExpAnyPrinter): Adjust regex to
+	work around PR 88166.
+
+2019-02-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2019-02-05  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/89128
+	* include/bits/stl_queue.h (queue, priority_queue): Add deduction
+	guides.
+	* include/bits/stl_stack.h (stack): Likewise.
+	* testsuite/23_containers/priority_queue/deduction.cc: New test.
+	* testsuite/23_containers/queue/deduction.cc: New test.
+	* testsuite/23_containers/stack/deduction.cc: New test.
+
+2019-02-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2018-11-29  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/88119
+	* include/ext/aligned_buffer.h (__aligned_membuf): Add comment.
+	(__aligned_buffer): Use __alignof__ instead of std::alignment_of.
+	* include/std/type_traits (alignment_of): Use alignof instead of
+	__alignof__.
+	* testsuite/20_util/alignment_of/value.cc: Fix test to check values
+	match alignof not __alignof__, as required by the standard.
+
+2019-02-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2018-11-28  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/83511
+	* include/std/string_view (basic_string_view::substr): Add default
+	argument to first parameter.
+	* include/experimental/string_view (basic_string_view::substr):
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/substr/char/
+	83511.cc: New test.
+	* testsuite/21_strings/basic_string_view/operations/substr/wchar_t/
+	83511.cc: New test.
+	* testsuite/experimental/string_view/operations/substr/char/83511.cc:
+	New test.
+	* testsuite/experimental/string_view/operations/substr/wchar_t/83511.cc:
+	New test.
+
+	Backport from mainline
+	2018-11-19  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/88084 - Implement LWG 2777
+	* include/std/string_view (basic_string_view::copy): Use traits to
+	copy.
+	* testsuite/21_strings/basic_string_view/operations/copy/char/2.cc:
+	New test.
+	* testsuite/21_strings/basic_string_view/operations/copy/wchar_t/2.cc:
+	New test.
+
+	Backport from mainline
+	2018-11-29  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/86910
+	PR libstdc++/87846
+	* src/filesystem/ops.cc (experimental::create_directories): Report
+	an error when the path resolves to an existing non-directory (P1164).
+	* src/filesystem/std-ops.cc (create_directories): Likewise. Handle
+	empty filenames due to trailing slashes.
+	* testsuite/27_io/filesystem/operations/create_directories.cc: Test
+	when some component of the path exists and is not a directory. Test
+	trailing slashes.
+	* testsuite/experimental/filesystem/operations/create_directories.cc:
+	Likewise.
+
+	Backport from mainline
+	2018-11-28  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/intro.xml: Document LWG 3096 change.
+	* src/filesystem/std-path.cc (path::lexically_relative(const path&)):
+	Treat a final empty element equivalently to a final dot element.
+	* testsuite/27_io/filesystem/path/generation/relative.cc: Add checks
+	for the examples in the DR.
+
+	Backport from mainline
+	2018-07-20  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/86595
+	* include/bits/fs_dir.h (directory_entry::refresh(error_code&)): Add
+	noexcept.
+
+	Backport from mainline
+	2018-05-21  Jonathan Wakely  <jwakely@redhat.com>
+
+	* src/filesystem/std-ops.cc (absolute): Report an error for empty
+	paths.
+	(weakly_canonical(const path&)): Do not call canonical on empty path.
+	(weakly_canonical(const path&, error_code&)): Likewise.
+	* testsuite/27_io/filesystem/operations/absolute.cc: Check for errors.
+
+	Backport from mainline
+	2019-01-30  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/89117
+	* src/c++17/fs_path.cc (path::replace_extension): Erase extension from
+	final component as well as from _M_pathname.
+	* testsuite/27_io/filesystem/path/modifiers/replace_extension.cc:
+	Add more test cases.
+
+2019-01-21  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2019-01-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/87514
+	PR libstdc++/87520
+	PR libstdc++/88782
+	* include/bits/shared_ptr.h
+	(shared_ptr(_Sp_make_shared_tag, const Alloc&, Args&&...))
+	(allocate_shared): Change to use new tag type.
+	(_Sp_alloc_shared_tag): Define new type.
+	(_Sp_counted_ptr_inplace): Declare __shared_count<_Lp> as a friend.
+	(__shared_count(Ptr, Deleter),__shared_count(Ptr, Deleter, Alloc)):
+	Constrain to prevent being called with _Sp_alloc_shared_tag.
+	(__shared_count(_Sp_make_shared_tag, const _Alloc&, Args&&...)):
+	Replace constructor with ...
+	(__shared_count(Tp*&, _Sp_alloc_shared_tag<_Alloc>, Args&&...)): Use
+	reference parameter so address of the new object can be returned to
+	the caller. Obtain the allocator from the tag type.
+	(__shared_ptr(_Sp_make_shared_tag, const Alloc&, Args&&...)): Replace
+	constructor with ...
+	(__shared_ptr(_Sp_alloc_shared_tag<Alloc>, Args&&...)): Pass _M_ptr
+	to the __shared_count constructor.
+	(__allocate_shared): Change to use new tag type.
+
+2019-01-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/80762
+	* testsuite/experimental/filesystem/path/construct/80762.cc: Add
+	dg-require-filesystem-ts directive.
+
+2019-01-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2019-01-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	(path::lexically_normal()): Use std::vector iterators instead of
+	path::iterator. Use pop_back to remove components from the end. Clear
+	trailing filename, instead of using erase(const_iterator) to remove
+	a non-final component.
+	* testsuite/27_io/filesystem/path/generation/normal.cc: Test
+	additional cases.
+	* testsuite/27_io/filesystem/path/generation/normal2.cc: New test.
+
+2019-01-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2018-12-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/80762
+	* include/bits/fs_path.h (path::_Path): Use remove_cv_t and is_void.
+	* include/experimental/bits/fs_path.h (path::_Path): Likewise.
+	* testsuite/27_io/filesystem/path/construct/80762.cc: New test.
+	* testsuite/experimental/filesystem/path/construct/80762.cc: New test.
+
+2019-01-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2018-05-23  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/fs_path.h (path::_M_type): Change default member
+	initializer to _Filename.
+	(path::begin): Create past-the-end iterator for empty path.
+	(path::has_relative_path()): Return false for empty filenames.
+	(path::_M_split_cmpts): Set _M_type to _Filename for empty paths.
+	Fix offset of empty final component.
+	* testsuite/27_io/filesystem/path/itr/components.cc: New.
+	* testsuite/27_io/filesystem/path/itr/traversal.cc: Add new inputs.
+
+2019-01-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2019-01-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/util/testsuite_fs.h (nonexistent_path): Include name
+	of the source file containing the caller.
+	* testsuite/27_io/filesystem/iterators/directory_iterator.cc: Remove
+	directories created by test.
+	* testsuite/27_io/filesystem/iterators/recursive_directory_iterator.cc:
+	Likewise.
+	* testsuite/experimental/filesystem/iterators/directory_iterator.cc:
+	Likewise.
+	* testsuite/experimental/filesystem/iterators/
+	recursive_directory_iterator.cc: Likewise.
+
+2019-01-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2018-11-27  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/27_io/filesystem/operations/canonical.cc: Remove
+	directory created by test.
+	* testsuite/27_io/filesystem/operations/symlink_status.cc: Remove
+	symlink created by test.
+
+2019-01-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	* src/filesystem/std-path.cc (path::remove_filename()): Remove debug
+	check that prevents building with -fno-exceptions.
+
 2019-01-09  Jonathan Wakely  <jwakely@redhat.com>
 
 	* testsuite/20_util/optional/cons/value_neg.cc: Change dg-error to

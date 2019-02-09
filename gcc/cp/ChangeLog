@@ -1,3 +1,106 @@
+2019-02-08  Jason Merrill  <jason@redhat.com>
+
+	PR c++/88761 - ICE with reference capture of constant.
+	* lambda.c (mark_const_cap_r): Do walk subtrees of DECL_EXPR for
+	non-proxy decls.
+
+	PR c++/88752 - ICE with lambda and constexpr if.
+	* cp-tree.h (LAMBDA_EXPR_INSTANTIATED): New.
+	* pt.c (tsubst_lambda_expr): Set it.
+	(instantiated_lambda_fn_p): Check it.
+	(enclosing_instantiation_of): Use it.
+
+	PR c++/86943 - wrong code converting generic lambda to pointer.
+	* pt.c (tsubst_copy_and_build): Don't propagate CALL_FROM_THUNK_P.
+
+2019-02-07  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from mainline
+	2019-02-05  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/89187
+	* optimize.c (maybe_thunk_body): Clear TREE_ADDRESSABLE on
+	PARM_DECLs of the thunk.
+	* lambda.c (maybe_add_lambda_conv_op): Likewise.
+
+	2019-01-30  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/88988
+	* lambda.c (is_capture_proxy): Don't return true for
+	DECL_OMP_PRIVATIZED_MEMBER artificial vars.
+
+	2019-01-24  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/88976
+	* semantics.c (finish_omp_cancel): Use maybe_convert_cond when not in
+	template or build_x_binary_op otherwise.
+
+	2019-01-21  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/88949
+	* optimize.c (cxx_copy_decl): New function.
+	(clone_body): Use it instead of copy_decl_no_change.
+
+	PR sanitizer/88901
+	* typeck.c (cp_build_binary_op): Don't instrument
+	SANITIZE_POINTER_COMPARE if processing_template_decl.
+	(pointer_diff): Similarly for SANITIZE_POINTER_SUBTRACT.
+
+2019-02-06  Marek Polacek  <polacek@redhat.com>
+
+	Backport from mainline
+	2019-02-05  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/89158 - by-value capture of constexpr variable broken.
+	* call.c (convert_like_real) <case ck_user>: Call mark_exp_read
+	instead of mark_rvalue_use.
+
+	Backport from mainline
+	2019-01-31  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/88983 - ICE with switch in constexpr function.
+	* constexpr.c (cxx_eval_switch_expr): Use SWITCH_COND and SWITCH_BODY.
+	(cxx_eval_constant_expression) <case COND_EXPR>: Don't look for the
+	label in the else branch if we found it in the then branch.
+
+	Backport from mainline
+	2019-01-30  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/89119 - ICE with value-initialization in template.
+	* pt.c (tsubst_copy_and_build): Handle RANGE_EXPR.
+
+	Backport from mainline
+	2019-01-27  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/89024 - ICE with incomplete enum type.
+	* call.c (standard_conversion): When converting an
+	ARITHMETIC_TYPE_P to an incomplete type, return NULL.
+	
+2019-02-05  Marek Polacek  <polacek@redhat.com>
+
+	Backported from mainline
+	2019-01-31  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/89083, c++/80864 - ICE with list initialization in template.
+	* decl.c (reshape_init_r): Don't reshape a digested initializer.
+	Return the initializer for COMPOUND_LITERAL_P.
+
+2019-01-27  Jason Merrill  <jason@redhat.com>
+
+	PR c++/86740, ICE with constexpr if and nested generic lambdas.
+	* tree.c (cp_walk_subtrees): Handle LAMBDA_EXPR.
+
+	PR c++/87075 - ICE with constexpr array initialization.
+	* constexpr.c (cxx_eval_vec_init_1): Handle trivial initialization.
+
+	* pt.c (tsubst) [TEMPLATE_TYPE_PARM]: Use TEMPLATE_PARM_DESCENDANTS.
+
+2019-01-17  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/86610
+	* semantics.c (process_outer_var_ref): Only skip dependent types
+	in templates.
+
 2019-01-08  Jakub Jelinek  <jakub@redhat.com>
 
 	Backported from mainline

@@ -8163,6 +8163,11 @@ copy_ancestor_tree (dw_die_ref unit, dw_die_ref die,
   decl_table_entry **slot = NULL;
   struct decl_table_entry *entry = NULL;
 
+  /* If DIE refers to a stub unfold that so we get the appropriate
+     DIE registered as orig in decl_table.  */
+  if (dw_die_ref c = get_AT_ref (die, DW_AT_signature))
+    die = c;
+
   if (decl_table)
     {
       /* Check if the entry has already been copied to UNIT.  */
@@ -8716,6 +8721,33 @@ copy_decls_walk (dw_die_ref unit, dw_die_ref die, decl_hash_type *decl_table)
   FOR_EACH_CHILD (die, c, copy_decls_walk (unit, c, decl_table));
 }
 
+/* Collect skeleton dies in DIE created by break_out_comdat_types already
+   and record them in DECL_TABLE.  */
+
+static void
+collect_skeleton_dies (dw_die_ref die, decl_hash_type *decl_table)
+{
+  dw_die_ref c;
+
+  if (dw_attr_node *a = get_AT (die, DW_AT_signature))
+    {
+      dw_die_ref targ = AT_ref (a);
+      gcc_assert (targ->die_mark == 0 && targ->comdat_type_p);
+      decl_table_entry **slot
+        = decl_table->find_slot_with_hash (targ,
+					   htab_hash_pointer (targ),
+					   INSERT);
+      gcc_assert (*slot == HTAB_EMPTY_ENTRY);
+      /* Record in DECL_TABLE that TARG has been already copied
+	 by remove_child_or_replace_with_skeleton.  */
+      decl_table_entry *entry = XCNEW (struct decl_table_entry);
+      entry->orig = targ;
+      entry->copy = die;
+      *slot = entry;
+    }
+  FOR_EACH_CHILD (die, c, collect_skeleton_dies (c, decl_table));
+}
+
 /* Copy declarations for "unworthy" types into the new comdat section.
    Incomplete types, modified types, and certain other types aren't broken
    out into comdat sections of their own, so they don't have a signature,
@@ -8727,6 +8759,7 @@ copy_decls_for_unworthy_types (dw_die_ref unit)
 {
   mark_dies (unit);
   decl_hash_type decl_table (10);
+  collect_skeleton_dies (unit, &decl_table);
   copy_decls_walk (unit, unit, &decl_table);
   unmark_dies (unit);
 }
@@ -9022,7 +9055,8 @@ build_abbrev_table (dw_die_ref die, external_ref_hash_type *extern_map)
 
 	if (is_type_die (c)
 	    && (ref_p = lookup_external_ref (extern_map, c))
-	    && ref_p->stub && ref_p->stub != die)
+	    && ref_p->stub && ref_p->stub != die
+	    && a->dw_attr != DW_AT_signature)
 	  change_AT_die_ref (a, ref_p->stub);
 	else
 	  /* We aren't changing this reference, so mark it external.  */
@@ -11068,7 +11102,9 @@ output_comp_unit (dw_die_ref die, int output_if_empty,
 static inline bool
 want_pubnames (void)
 {
-  if (debug_info_level <= DINFO_LEVEL_TERSE)
+  if (debug_info_level <= DINFO_LEVEL_TERSE
+      /* Names and types go to the early debug part only.  */
+      || in_lto_p)
     return false;
   if (debug_generate_pub_sections != -1)
     return debug_generate_pub_sections;
@@ -14401,6 +14437,10 @@ expansion_failed (tree expr, rtx rtl, char const *reason)
     }
 }
 
+/* True if handling a former CONST by mem_loc_descriptor piecewise.  */
+
+static bool in_const_p;
+
 /* Helper function for const_ok_for_output.  */
 
 static bool
@@ -14423,6 +14463,7 @@ const_ok_for_output_1 (rtx rtl)
 	 one in a constant pool entry, so testing SYMBOL_REF_TLS_MODEL
 	 rather than DECL_THREAD_LOCAL_P is not just an optimization.  */
       if (flag_checking
+	  && !in_const_p
 	  && (XVECLEN (rtl, 0) == 0
 	      || GET_CODE (XVECEXP (rtl, 0, 0)) != SYMBOL_REF
 	      || SYMBOL_REF_TLS_MODEL (XVECEXP (rtl, 0, 0)) == TLS_MODEL_NONE))
@@ -14446,13 +14487,6 @@ const_ok_for_output_1 (rtx rtl)
   if (CONST_POLY_INT_P (rtl))
     return false;
 
-  if (targetm.const_not_ok_for_debug_p (rtl))
-    {
-      expansion_failed (NULL_TREE, rtl,
-			"Expression rejected for debug by the backend.\n");
-      return false;
-    }
-
   /* FIXME: Refer to PR60655. It is possible for simplification
      of rtl expressions in var tracking to produce such expressions.
      We should really identify / validate expressions
@@ -14465,6 +14499,41 @@ const_ok_for_output_1 (rtx rtl)
     case NOT:
     case NEG:
       return false;
+    case PLUS:
+      {
+	/* Make sure SYMBOL_REFs/UNSPECs are at most in one of the
+	   operands.  */
+	subrtx_var_iterator::array_type array;
+	bool first = false;
+	FOR_EACH_SUBRTX_VAR (iter, array, XEXP (rtl, 0), ALL)
+	  if (SYMBOL_REF_P (*iter)
+	      || LABEL_P (*iter)
+	      || GET_CODE (*iter) == UNSPEC)
+	    {
+	      first = true;
+	      break;
+	    }
+	if (!first)
+	  return true;
+	FOR_EACH_SUBRTX_VAR (iter, array, XEXP (rtl, 1), ALL)
+	  if (SYMBOL_REF_P (*iter)
+	      || LABEL_P (*iter)
+	      || GET_CODE (*iter) == UNSPEC)
+	    return false;
+	return true;
+      }
+    case MINUS:
+      {
+	/* Disallow negation of SYMBOL_REFs or UNSPECs when they
+	   appear in the second operand of MINUS.  */
+	subrtx_var_iterator::array_type array;
+	FOR_EACH_SUBRTX_VAR (iter, array, XEXP (rtl, 1), ALL)
+	  if (SYMBOL_REF_P (*iter)
+	      || LABEL_P (*iter)
+	      || GET_CODE (*iter) == UNSPEC)
+	    return false;
+	return true;
+      }
     default:
       return true;
     }
@@ -15608,6 +15677,7 @@ mem_loc_descriptor (rtx rtl, machine_mode mode,
 	 pool.  */
     case CONST:
     case SYMBOL_REF:
+    case UNSPEC:
       if (!is_a <scalar_int_mode> (mode, &int_mode)
 	  || (GET_MODE_SIZE (int_mode) > DWARF2_ADDR_SIZE
 #ifdef POINTERS_EXTEND_UNSIGNED
@@ -15615,6 +15685,43 @@ mem_loc_descriptor (rtx rtl, machine_mode mode,
 #endif
 	      ))
 	break;
+
+      if (GET_CODE (rtl) == UNSPEC)
+	{
+	  /* If delegitimize_address couldn't do anything with the UNSPEC, we
+	     can't express it in the debug info.  This can happen e.g. with some
+	     TLS UNSPECs.  Allow UNSPECs formerly from CONST that the backend
+	     approves.  */
+	  bool not_ok = false;
+
+	  if (!in_const_p)
+	    break;
+
+	  subrtx_var_iterator::array_type array;
+	  FOR_EACH_SUBRTX_VAR (iter, array, rtl, ALL)
+	    if (*iter != rtl && !CONSTANT_P (*iter))
+	      {
+		not_ok = true;
+		break;
+	      }
+
+	  if (not_ok)
+	    break;
+
+	  FOR_EACH_SUBRTX_VAR (iter, array, rtl, ALL)
+	    if (!const_ok_for_output_1 (*iter))
+	      {
+		not_ok = true;
+		break;
+	      }
+
+	  if (not_ok)
+	    break;
+
+	  rtl = gen_rtx_CONST (GET_MODE (rtl), rtl);
+	  goto symref;
+	}
+
       if (GET_CODE (rtl) == SYMBOL_REF
 	  && SYMBOL_REF_TLS_MODEL (rtl) != TLS_MODEL_NONE)
 	{
@@ -15662,8 +15769,13 @@ mem_loc_descriptor (rtx rtl, machine_mode mode,
 		  }
 		break;
 	      default:
-		mem_loc_result = mem_loc_descriptor (XEXP (rtl, 0), int_mode,
-						     mem_mode, initialized);
+		{
+		  bool save_in_const_p = in_const_p;
+		  in_const_p = true;
+		  mem_loc_result = mem_loc_descriptor (XEXP (rtl, 0), int_mode,
+						       mem_mode, initialized);
+		  in_const_p = save_in_const_p;
+		}
 		break;
 	      }
 	  break;
@@ -16283,7 +16395,6 @@ mem_loc_descriptor (rtx rtl, machine_mode mode,
     case VEC_CONCAT:
     case VEC_DUPLICATE:
     case VEC_SERIES:
-    case UNSPEC:
     case HIGH:
     case FMA:
     case STRICT_LOW_PART:
@@ -16291,9 +16402,6 @@ mem_loc_descriptor (rtx rtl, machine_mode mode,
     case CONST_FIXED:
     case CLRSB:
     case CLOBBER:
-      /* If delegitimize_address couldn't do anything with the UNSPEC, we
-	 can't express it in the debug info.  This can happen e.g. with some
-	 TLS UNSPECs.  */
       break;
 
     case CONST_STRING:
@@ -24944,7 +25052,7 @@ gen_member_die (tree type, dw_die_ref context_die)
      the TREE node representing the appropriate (containing) type.  */
 
   /* First output info about the base classes.  */
-  if (binfo)
+  if (binfo && early_dwarf)
     {
       vec<tree, va_gc> *accesses = BINFO_BASE_ACCESSES (binfo);
       int i;

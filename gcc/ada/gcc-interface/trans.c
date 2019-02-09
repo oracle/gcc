@@ -199,7 +199,6 @@ struct GTY(()) loop_info_d {
   tree low_bound;
   tree high_bound;
   vec<range_check_info, va_gc> *checks;
-  bool artificial;
 };
 
 typedef struct loop_info_d *loop_info;
@@ -2855,7 +2854,6 @@ Loop_Statement_to_gnu (Node_Id gnat_node)
 
   /* Save the statement for later reuse.  */
   gnu_loop_info->stmt = gnu_loop_stmt;
-  gnu_loop_info->artificial = !Comes_From_Source (gnat_node);
 
   /* Set the condition under which the loop must keep going.
      For the case "LOOP .... END LOOP;" the condition is always true.  */
@@ -3118,7 +3116,7 @@ Loop_Statement_to_gnu (Node_Id gnat_node)
 	 unswitching is enabled, do not require the loop bounds to be also
 	 invariant, as their evaluation will still be ahead of the loop.  */
       if (vec_safe_length (gnu_loop_info->checks) > 0
-	 && (make_invariant (&gnu_low, &gnu_high) || flag_unswitch_loops))
+	 && (make_invariant (&gnu_low, &gnu_high) || optimize >= 3))
 	{
 	  struct range_check_info_d *rci;
 	  unsigned int i, n_remaining_checks = 0;
@@ -3171,22 +3169,21 @@ Loop_Statement_to_gnu (Node_Id gnat_node)
 	  /* Note that loop unswitching can only be applied a small number of
 	     times to a given loop (PARAM_MAX_UNSWITCH_LEVEL default to 3).  */
 	  if (IN_RANGE (n_remaining_checks, 1, 3)
-	      && optimize > 1
+	      && optimize >= 2
 	      && !optimize_size)
 	    FOR_EACH_VEC_ELT (*gnu_loop_info->checks, i, rci)
 	      if (rci->invariant_cond != boolean_false_node)
 		{
 		  TREE_OPERAND (rci->inserted_cond, 0) = rci->invariant_cond;
 
-		  if (flag_unswitch_loops)
+		  if (optimize >= 3)
 		    add_stmt_with_node_force (rci->inserted_cond, gnat_node);
 		}
 	}
 
       /* Second, if loop vectorization is enabled and the iterations of the
 	 loop can easily be proved as independent, mark the loop.  */
-      if (optimize
-	  && flag_tree_loop_vectorize
+      if (optimize >= 3
 	  && independent_iterations_p (LOOP_STMT_BODY (gnu_loop_stmt)))
 	LOOP_STMT_IVDEP (gnu_loop_stmt) = 1;
 
@@ -5707,7 +5704,7 @@ Raise_Error_to_gnu (Node_Id gnat_node, tree *gnu_result_type_p)
 		= build1 (SAVE_EXPR, boolean_type_node, boolean_true_node);
 	      vec_safe_push (loop->checks, rci);
 	      gnu_cond = build_noreturn_cond (gnat_to_gnu (gnat_cond));
-	      if (flag_unswitch_loops)
+	      if (optimize >= 3)
 		gnu_cond = build_binary_op (TRUTH_ANDIF_EXPR,
 					    boolean_type_node,
 					    rci->inserted_cond,
@@ -6986,12 +6983,17 @@ gnat_to_gnu (Node_Id gnat_node)
 		= real_zerop (gnu_rhs)
 		  ? integer_zero_node
 		  : fold_convert (integer_type_node, gnu_rhs);
-	      tree to = gnu_lhs;
-	      tree type = TREE_TYPE (to);
-	      tree size
-	        = SUBSTITUTE_PLACEHOLDER_IN_EXPR (TYPE_SIZE_UNIT (type), to);
-	      tree to_ptr = build_fold_addr_expr (to);
+	      tree dest = build_fold_addr_expr (gnu_lhs);
 	      tree t = builtin_decl_explicit (BUILT_IN_MEMSET);
+	      /* Be extra careful not to write too much data.  */
+	      tree size;
+	      if (TREE_CODE (gnu_lhs) == COMPONENT_REF)
+		size = DECL_SIZE_UNIT (TREE_OPERAND (gnu_lhs, 1));
+	      else if (DECL_P (gnu_lhs))
+		size = DECL_SIZE_UNIT (gnu_lhs);
+	      else
+		size = TYPE_SIZE_UNIT (TREE_TYPE (gnu_lhs));
+	      size = SUBSTITUTE_PLACEHOLDER_IN_EXPR (size, gnu_lhs);
 	      if (TREE_CODE (value) == INTEGER_CST && !integer_zerop (value))
 		{
 		  tree mask
@@ -6999,7 +7001,7 @@ gnat_to_gnu (Node_Id gnat_node)
 				     ((HOST_WIDE_INT) 1 << BITS_PER_UNIT) - 1);
 		  value = int_const_binop (BIT_AND_EXPR, value, mask);
 		}
-	      gnu_result = build_call_expr (t, 3, to_ptr, value, size);
+	      gnu_result = build_call_expr (t, 3, dest, value, size);
 	    }
 
 	  /* Otherwise build a regular assignment.  */
