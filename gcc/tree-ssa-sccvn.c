@@ -2079,6 +2079,7 @@ vn_reference_lookup_3 (ao_ref *ref, tree vuse, void *vr_,
       base2 = get_ref_base_and_extent (gimple_assign_lhs (def_stmt),
 				       &offset2, &size2, &maxsize2,
 				       &reverse);
+      tree def_rhs = gimple_assign_rhs1 (def_stmt);
       if (!reverse
 	  && known_size_p (maxsize2)
 	  && known_eq (maxsize2, size2)
@@ -2090,11 +2091,13 @@ vn_reference_lookup_3 (ao_ref *ref, tree vuse, void *vr_,
 	     according to endianness.  */
 	  && (! INTEGRAL_TYPE_P (vr->type)
 	      || known_eq (ref->size, TYPE_PRECISION (vr->type)))
-	  && multiple_p (ref->size, BITS_PER_UNIT))
+	  && multiple_p (ref->size, BITS_PER_UNIT)
+	  && (! INTEGRAL_TYPE_P (TREE_TYPE (def_rhs))
+	      || type_has_mode_precision_p (TREE_TYPE (def_rhs))))
 	{
 	  code_helper rcode = BIT_FIELD_REF;
 	  tree ops[3];
-	  ops[0] = SSA_VAL (gimple_assign_rhs1 (def_stmt));
+	  ops[0] = SSA_VAL (def_rhs);
 	  ops[1] = bitsize_int (ref->size);
 	  ops[2] = bitsize_int (offset - offset2);
 	  tree val = vn_nary_build_or_lookup (rcode, vr->type, ops);
@@ -3616,7 +3619,17 @@ visit_nary_op (tree lhs, gassign *stmt)
 		  ops[0] = vn_nary_op_lookup_pieces
 		      (2, gimple_assign_rhs_code (def), type, ops, NULL);
 		  /* We have wider operation available.  */
-		  if (ops[0])
+		  if (ops[0]
+		      /* If the leader is a wrapping operation we can
+			 insert it for code hoisting w/o introducing
+			 undefined overflow.  If it is not it has to
+			 be available.  See PR86554.  */
+		      && (TYPE_OVERFLOW_WRAPS (TREE_TYPE (ops[0]))
+			  || TREE_CODE (ops[0]) != SSA_NAME
+			  || SSA_NAME_IS_DEFAULT_DEF (ops[0])
+			  || dominated_by_p_w_unex
+			       (gimple_bb (stmt),
+				gimple_bb (SSA_NAME_DEF_STMT (ops[0])))))
 		    {
 		      unsigned lhs_prec = TYPE_PRECISION (type);
 		      unsigned rhs_prec = TYPE_PRECISION (TREE_TYPE (rhs1));

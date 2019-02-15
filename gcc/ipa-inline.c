@@ -1166,7 +1166,7 @@ edge_badness (struct cgraph_edge *edge, bool dump)
 	    overall_growth += 256 * 256 - 256;
 	  denominator *= overall_growth;
         }
-      denominator *= inlined_time;
+      denominator *= ipa_fn_summaries->get (caller)->self_size + growth;
 
       badness = - numerator / denominator;
 
@@ -1759,7 +1759,7 @@ inline_small_functions (void)
      metrics.  */
 
   max_count = profile_count::uninitialized ();
-  ipa_reduced_postorder (order, true, true, NULL);
+  ipa_reduced_postorder (order, true, NULL);
   free (order);
 
   FOR_EACH_DEFINED_FUNCTION (node)

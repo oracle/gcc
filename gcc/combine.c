@@ -7750,6 +7750,10 @@ make_extraction (machine_mode mode, rtx inner, HOST_WIDE_INT pos,
       && partial_subreg_p (extraction_mode, mode))
     extraction_mode = mode;
 
+  /* Punt if len is too large for extraction_mode.  */
+  if (maybe_gt (len, GET_MODE_PRECISION (extraction_mode)))
+    return NULL_RTX;
+
   if (!MEM_P (inner))
     wanted_inner_mode = wanted_inner_reg_mode;
   else
@@ -10179,7 +10183,8 @@ reg_nonzero_bits_for_combine (const_rtx x, scalar_int_mode xmode,
   rsp = &reg_stat[REGNO (x)];
   if (rsp->last_set_value != 0
       && (rsp->last_set_mode == mode
-	  || (GET_MODE_CLASS (rsp->last_set_mode) == MODE_INT
+	  || (REGNO (x) >= FIRST_PSEUDO_REGISTER
+	      && GET_MODE_CLASS (rsp->last_set_mode) == MODE_INT
 	      && GET_MODE_CLASS (mode) == MODE_INT))
       && ((rsp->last_set_label >= label_tick_ebb_start
 	   && rsp->last_set_label < label_tick)

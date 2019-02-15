@@ -1,3 +1,183 @@
+2019-02-15  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* gcc.target/sparc/struct-ret-check-1.c: Add -fno-pie option.
+
+2019-02-15  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* c-c++-common/patchable_function_entry-decl.c: Do not run on Visium.
+	* c-c++-common/patchable_function_entry-default.c: Likewise.
+	* c-c++-common/patchable_function_entry-definition.c: Likewise.
+	* gcc.dg/tree-ssa/pr84859.c: Add -ftree-cselim switch.
+
+2019-02-15  Richard Biener  <rguenther@suse.de>
+	    Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/89278
+	* gcc.dg/pr89278.c: New test.
+
+2019-02-15  Jakub Jelinek  <jakub@redhat.com>
+
+	PR other/89342
+	* gcc.dg/pr89342.c: New test.
+
+2019-02-14  David Malcolm  <dmalcolm@redhat.com>
+
+	2019-02-13  David Malcolm  <dmalcolm@redhat.com>
+	Backport of r268847 from trunk.
+
+	PR c++/89036
+	* g++.dg/concepts/pr89036.C: New test.
+
+2019-02-14  David Malcolm  <dmalcolm@redhat.com>
+
+	Backport of r267957 from trunk.
+	2019-01-15  David Malcolm  <dmalcolm@redhat.com>
+
+	PR c++/88795
+	* g++.dg/template/pr88795.C: New test.
+
+2019-02-14  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/89354
+	* gcc.dg/pr89354.c: New test.
+
+2019-02-14  David Malcolm  <dmalcolm@redhat.com>
+
+	Backport of r263275 from trunk.
+	2018-08-02  David Malcolm  <dmalcolm@redhat.com>
+
+	* error.c (cxx_print_error_function): Duplicate "file" before
+	passing it to pp_set_prefix.
+	(cp_print_error_function): Use pp_take_prefix when saving the
+	existing prefix.
+
+2019-02-14  David Malcolm  <dmalcolm@redhat.com>
+
+	Backport of r262199 from trunk.
+	2018-06-27  David Malcolm  <dmalcolm@redhat.com>
+
+	PR c++/86329
+	* g++.dg/lookup/pr86329.C: New test.
+
+2019-02-14  David Malcolm  <dmalcolm@redhat.com>
+
+	Backport of r259720 from trunk.
+	2018-04-27  David Malcolm  <dmalcolm@redhat.com>
+
+	PR c++/85515
+	* g++.dg/pr85515-1.C: New test.
+	* g++.dg/pr85515-2.C: New test.
+
+2019-02-14  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2019-02-14  Martin Liska  <mliska@suse.cz>
+
+	PR rtl-optimization/89242
+	* g++.dg/pr89242.C: New test.
+
+2019-02-14  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2019-02-11  Martin Liska  <mliska@suse.cz>
+
+	PR ipa/89009
+	* g++.dg/ipa/pr89009.C: New test.
+
+2019-02-14  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/89314
+	* gcc.dg/pr89314.c: New test.
+
+	Backported from mainline
+	2019-02-13  Jonathan Wakely  <jwakely@redhat.com>
+		    Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/89303
+	* g++.dg/torture/pr89303.C: New test.
+
+	2019-02-13  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/89290
+	* gcc.target/i386/pr89290.c: New test.
+
+	2019-02-09  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/89246
+	* gcc.dg/gomp/pr89246-1.c: New test.
+	* gcc.dg/gomp/pr89246-2.c: New test.
+
+2019-02-13  Bill Schmidt  <wschmidt@linux.ibm.com>
+
+        Backport from mainline
+        2019-02-11  Bill Schmidt  <wschmidt@linux.ibm.com>
+
+        * gcc.target/powerpc/vec-sld-modulo.c: New.
+        * gcc.target/powerpc/vec-srad-modulo.c: New.
+        * gcc.target/powerpc/vec-srd-modulo.c: New.
+
+        2018-01-12  Bill Schmidt  <wschmidt@linux.ibm.com>
+
+	* gcc.target/powerpc/vec-sld-modulo.c: Require p8vector_hw.
+	* gcc.target/powerpc/vec-srad-modulo.c: Likewise.
+	* gcc.target/powerpc/vec-srd-modulo.c: Likewise.
+
+2019-02-13  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2019-01-08  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/86554
+	* gcc.dg/torture/pr86554-1.c: New testcase.
+	* gcc.dg/torture/pr86554-2.c: Likewise.
+
+2019-02-13  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2019-02-12  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/89253
+	* gfortran.dg/pr89253.f: New testcase.
+
+	2019-02-08  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/89223
+	* gcc.dg/torture/pr89223.c: New testcase.
+
+	2019-01-28  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/88739
+	* gcc.c-torture/execute/pr88739.c: New test.
+
+2019-02-11  Stefan Agner  <stefan@agner.ch>
+
+	Backport from mainline
+	2019-01-10  Stefan Agner  <stefan@agner.ch>
+
+	PR target/88648
+	* gcc.target/arm/pr88648-asm-syntax-unified.c: Add test to
+	check if -masm-syntax-unified gets applied properly.
+
+2019-02-10  Harald Anlauf  <anlauf@gmx.de>
+
+	Backport from trunk
+	PR fortran/89077
+	* gfortran.dg/pr89077.f90: New test.
+
+2019-02-10  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	PR fortran/71237
+	Backport from trunk
+	* gfortran.dg/pointer_init_2.f90: Adjust error messages.
+	* gfortran.dg/pointer_init_6.f90: Likewise.
+	* gfortran.dg/pointer_init_9.f90: New test.
+
+2019-02-09  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	PR fortran/71860
+	Backport from trunk
+	* gfortran.dg/null_10.f90: New test.
+
 2019-02-09  Jakub Jelinek  <jakub@redhat.com>
 
 	PR middle-end/89243

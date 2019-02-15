@@ -1,3 +1,56 @@
+2019-02-14  David Malcolm  <dmalcolm@redhat.com>
+
+	2019-02-13  David Malcolm  <dmalcolm@redhat.com>
+	Backport of r268847 from trunk.
+
+	PR c++/89036
+	* class.c (add_method): Drop destructor assertion.
+
+2019-02-14  David Malcolm  <dmalcolm@redhat.com>
+
+	Backport of r267957 from trunk.
+	2019-01-15  David Malcolm  <dmalcolm@redhat.com>
+
+	PR c++/88795
+	* pt.c (build_deduction_guide): Bail out if tsubst_arg_types
+	fails.
+
+2019-02-14  David Malcolm  <dmalcolm@redhat.com>
+
+	Backport of r262199 from trunk.
+	2018-06-27  David Malcolm  <dmalcolm@redhat.com>
+
+	PR c++/86329
+	* name-lookup.c (consider_binding_level): Filter out names that
+	match anon_aggrname_p.
+
+2019-02-14  David Malcolm  <dmalcolm@redhat.com>
+
+	Backport of r259720 from trunk.
+	2018-04-27  David Malcolm  <dmalcolm@redhat.com>
+
+	PR c++/85515
+	* name-lookup.c (consider_binding_level): Skip compiler-generated
+	variables.
+	* search.c (lookup_field_fuzzy_info::fuzzy_lookup_field): Flatten
+	nested if statements into a series of rejection tests.  Reject
+	lambda-ignored entities as suggestions.
+
+2019-02-11  Jason Merrill  <jason@redhat.com>
+
+	Revert:
+	PR c++/88752 - ICE with lambda and constexpr if.
+	* cp-tree.h (LAMBDA_EXPR_INSTANTIATED): New.
+	* pt.c (tsubst_lambda_expr): Set it.
+	(instantiated_lambda_fn_p): Check it.
+	(enclosing_instantiation_of): Use it.
+
+2019-02-11  Jason Merrill  <jason@redhat.com>
+
+	PR c++/89267 - change of error location.
+	* pt.c (tsubst_copy_and_build): Do still clear expr location
+	for instantiated thunk calls.
+
 2019-02-08  Jason Merrill  <jason@redhat.com>
 
 	PR c++/88761 - ICE with reference capture of constant.

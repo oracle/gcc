@@ -1,3 +1,277 @@
+2019-02-15  Richard Biener  <rguenther@suse.de>
+	    Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/89278
+	* tree-loop-distribution.c: Include tree-eh.h.
+	(generate_memset_builtin, generate_memcpy_builtin): Call
+	rewrite_to_non_trapping_overflow on builtin->size before passing it
+	to force_gimple_operand_gsi.
+
+2019-02-15  Jakub Jelinek  <jakub@redhat.com>
+
+	PR other/89342
+	* optc-save-gen.awk: Handle optimize_fast like optimize_size or
+	optimize_debug.
+	* opth-gen.awk: Likewise.
+
+2019-02-14  David Malcolm  <dmalcolm@redhat.com>
+
+	Backport of r267957 from trunk.
+	2019-01-15  David Malcolm  <dmalcolm@redhat.com>
+
+	PR c++/88795
+	* tree.c (build_function_type): Assert that arg_types is not
+	error_mark_node.
+
+2019-02-14  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/89354
+	* combine.c (make_extraction): Punt if extraction_mode is narrower
+	than len bits.
+
+2019-02-14  David Malcolm  <dmalcolm@redhat.com>
+
+	Backport of r263339 from trunk.
+	2018-08-06  David Malcolm  <dmalcolm@redhat.com>
+
+	* function-tests.c (selftest::test_expansion_to_rtl): Call
+	free_after_compilation.
+
+2019-02-14  David Malcolm  <dmalcolm@redhat.com>
+
+	Backport of r263295 from trunk.
+	2018-08-03  David Malcolm  <dmalcolm@redhat.com>
+
+	* doc/gcov.texi (-x): Remove duplicate "to".
+	* doc/invoke.texi (-Wnoexcept-type): Remove duplicate "calls".
+	(-Wif-not-aligned): Remove duplicate "is".
+	(-flto): Remove duplicate "the".
+	(MicroBlaze Options): In examples of "-mcpu=cpu-type", remove
+	duplicate "v5.00.b".
+	(MSP430 Options): Remove duplicate "and" from the description
+	of "-mgprel-sec=regexp".
+	(x86 Options): Remove duplicate copies of "vmldLog102" and
+	vmlsLog104 from description of "-mveclibabi=type".
+
+2019-02-14  David Malcolm  <dmalcolm@redhat.com>
+
+	Backport of r263275 from trunk.
+	2018-08-02  David Malcolm  <dmalcolm@redhat.com>
+
+	* diagnostic-show-locus.c (diagnostic_show_locus): Use
+	pp_take_prefix when saving the existing prefix.
+	* diagnostic.c (diagnostic_append_note): Likewise.
+	* langhooks.c (lhd_print_error_function): Likewise.
+	* pretty-print.c (pp_set_prefix): Drop the "const" from "prefix"
+	param's type.  Free the existing prefix.
+	(pp_take_prefix): New function.
+	(pretty_printer::pretty_printer): Drop the prefix parameter.
+	Rename the length parameter to match the comment.
+	(pretty_printer::~pretty_printer): Free the prefix.
+	* pretty-print.h (pretty_printer::pretty_printer): Drop the prefix
+	parameter.
+	(struct pretty_printer): Drop the "const" from "prefix" field's
+	type and clarify memory management.
+	(pp_set_prefix): Drop the "const" from the 2nd param.
+	(pp_take_prefix): New decl.
+
+2019-02-14  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	Backport from trunk
+	2018-08-31  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	PR target/86684
+	PR target/87149
+	* config/rs6000/rs6000.md (lround<mode>di2): Gate on TARGET_FPRND.
+
+2019-02-14  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	Backport from trunk
+	2019-01-18  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	PR target/88892
+	* config/rs6000/rs6000.md (*movsi_from_df): Allow only register
+	operands.
+
+2019-02-14  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	Backport from trunk
+	2018-07-26  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	PR rtl-optimization/85805
+	* combine.c (reg_nonzero_bits_for_combine): Only use the last set
+	value for hard registers if that was written in the same mode.
+
+2019-02-14  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2019-02-14  Martin Liska  <mliska@suse.cz>
+
+	PR rtl-optimization/89242
+	* dce.c (delete_unmarked_insns): Call free_dominance_info we
+	process a transformation.
+
+2019-02-14  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2019-02-13  Martin Liska  <mliska@suse.cz>
+
+	PR lto/88858
+	* cfgrtl.c (remove_barriers_from_footer): New function.
+	(try_redirect_by_replacing_jump): Use it.
+	(cfg_layout_redirect_edge_and_branch): Likewise.
+
+2019-02-14  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2019-02-11  Martin Liska  <mliska@suse.cz>
+
+	PR ipa/89009
+	* ipa-cp.c (build_toporder_info): Remove usage of a param.
+	* ipa-inline.c (inline_small_functions): Likewise.
+	* ipa-pure-const.c (propagate_pure_const): Likewise.
+	(propagate_nothrow): Likewise.
+	* ipa-reference.c (propagate): Likewise.
+	* ipa-utils.c (struct searchc_env): Remove unused field.
+	(searchc): Always search across AVAIL_INTERPOSABLE.
+	(ipa_reduced_postorder): Always allow AVAIL_INTERPOSABLE as
+	the only called IPA pure const can properly not propagate
+	across interposable boundary.
+	* ipa-utils.h (ipa_reduced_postorder): Remove param.
+
+2019-02-14  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/89314
+	* fold-const.c (fold_binary_loc): Cast strlen argument to
+	const char * before dereferencing it.  Formatting fixes.
+
+	Backported from mainline
+	2019-02-13  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/89303
+	* tree-ssa-structalias.c (set_uids_in_ptset): Or in vi->is_heap_var
+	into pt->vars_contains_escaped_heap instead of setting
+	pt->vars_contains_escaped_heap to it.
+
+	PR middle-end/89281
+	* optabs.c (prepare_cmp_insn): Use UINTVAL (size) instead of
+	INTVAL (size), compare it to GET_MODE_MASK instead of
+	1 << GET_MODE_BITSIZE.
+
+	PR target/89290
+	* config/i386/predicates.md (x86_64_immediate_operand): Allow
+	TLS UNSPECs offsetted by signed 32-bit CONST_INT even with
+	-mcmodel=large.
+
+	2019-02-09  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/89246
+	* config/i386/i386.c (ix86_simd_clone_compute_vecsize_and_simdlen):
+	If !node->definition and TYPE_ARG_TYPES is non-NULL, use
+	TYPE_ARG_TYPES instead of DECL_ARGUMENTS.
+
+2019-02-13  Bill Schmidt  <wschmidt@linux.ibm.com>
+
+        Backport from mainline
+        2019-02-11  Bill Schmidt  <wschmidt@linux.ibm.com>
+
+        * config/rs6000/rs6000.c (rs6000_gimple_fold_builtin): Shift-right
+        and shift-left vector built-ins need to include a TRUNC_MOD_EXPR
+        for correct semantics.
+
+2019-02-13  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2019-01-08  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/86554
+	* tree-ssa-sccvn.c (visit_nary_op): When value-numbering to
+	expressions with different overflow behavior make sure there's an
+	available expression on the path.
+
+2019-02-13  Martin Liska  <mliska@suse.cz>
+
+	PR lto/89260
+	* lto-streamer.h (LTO_minor_version): Bump version due
+	to r268698.
+
+2019-02-13  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2019-02-12  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/89253
+	* tree-ssa-loop-split.c (tree_ssa_split_loops): Check we can
+	duplicate the loop.
+
+	2019-02-08  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/89223
+	* tree-data-ref.c (initialize_matrix_A): Fail if constant
+	doesn't fit in HWI.
+	(analyze_subscript_affine_affine): Handle failure from
+	initialize_matrix_A.
+
+	2019-01-28  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/88739
+	* tree-ssa-sccvn.c (vn_reference_lookup_3): Avoid generating
+	BIT_FIELD_REFs of non-mode-precision integral operands.
+
+2019-02-12  Jan Hubicka  <hubicka@ucw.cz>
+
+	Backport from mainline:
+	2019-02-09  Jan Hubicka  <hubicka@ucw.cz>
+
+	* ipa-visibility.c (localize_node): Also do not localize
+	LDPR_PREVAILING_DEF_IRONLY_EXP.
+
+2019-02-11  Stefan Agner  <stefan@agner.ch>
+
+	Backport from mainline.
+	2019-01-10  Stefan Agner  <stefan@agner.ch>
+
+	PR target/88648
+	* config/arm/arm.c (arm_option_override_internal): Force
+	opts->x_inline_asm_unified to true only if TARGET_THUMB2_P.
+
+2019-02-09  Jan Hubicka  <hubicka@ucw.cz>
+
+	Backport from mainline:
+	2019-01-05  Jan Hubicka  <hubicka@ucw.cz>
+
+	PR tree-opt/86020
+	Revert:
+	2017-05-22  Jan Hubicka  <hubicka@ucw.cz>
+
+        * ipa-inline.c (edge_badness): Use inlined_time instead of
+        inline_summaries->get.
+
+2019-02-09  Aaron Sawdey  <acsawdey@linux.ibm.com>
+
+	Backported from mainline
+	2019-02-05  Aaron Sawdey  <acsawdey@linux.ibm.com>
+
+	PR target/89112
+	* config/rs6000/rs6000.md (<bd>tf_<mode>): Generate a local label
+	for the long branch case.
+
+	2019-02-05  Aaron Sawdey  <acsawdey@linux.ibm.com>
+
+	PR target/89112
+	* config/rs6000/rs6000-string.c (do_ifelse, expand_cmp_vec_sequence,
+	expand_compare_loop, expand_block_compare_gpr,
+	expand_strncmp_align_check, expand_strncmp_gpr_sequence): Insert
+	REG_BR_PROB notes in inline expansion of memcmp/strncmp. Add
+	#include "profile-count.h" and "predict.h" for types and functions
+	needed to work with REG_BR_PROB notes.
+
+	2019-02-09  Aaron Sawdey  <acsawdey@linux.ibm.com>
+
+	* config/rs6000/rs6000-string.c (expand_compare_loop,
+	expand_block_compare): Insert REG_BR_PROB notes in inline expansion of
+	memcmp/strncmp.
+
 2019-02-09  Jakub Jelinek  <jakub@redhat.com>
 
 	Backported from mainline

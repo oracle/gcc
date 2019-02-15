@@ -13269,19 +13269,6 @@ lambda_fn_in_template_p (tree fn)
   return CLASSTYPE_TEMPLATE_INFO (closure) != NULL_TREE;
 }
 
-/* True if FN is the substitution (via tsubst_lambda_expr) of a function for
-   which the above is true.  */
-
-bool
-instantiated_lambda_fn_p (tree fn)
-{
-  if (!fn || !LAMBDA_FUNCTION_P (fn))
-    return false;
-  tree closure = DECL_CONTEXT (fn);
-  tree lam = CLASSTYPE_LAMBDA_EXPR (closure);
-  return LAMBDA_EXPR_INSTANTIATED (lam);
-}
-
 /* We're instantiating a variable from template function TCTX.  Return the
    corresponding current enclosing scope.  This gets complicated because lambda
    functions in templates are regenerated rather than instantiated, but generic
@@ -13301,19 +13288,13 @@ enclosing_instantiation_of (tree otctx)
     {
       tree ofn = fn;
       int flambda_count = 0;
-      for (; fn && instantiated_lambda_fn_p (fn);
+      for (; flambda_count < lambda_count && fn && LAMBDA_FUNCTION_P (fn);
 	   fn = decl_function_context (fn))
 	++flambda_count;
       if ((fn && DECL_TEMPLATE_INFO (fn))
 	  ? most_general_template (fn) != most_general_template (tctx)
 	  : fn != tctx)
 	continue;
-      if (flambda_count != lambda_count)
-	{
-	  gcc_assert (flambda_count > lambda_count);
-	  for (; flambda_count > lambda_count; --flambda_count)
-	    ofn = decl_function_context (ofn);
-	}
       gcc_assert (DECL_NAME (ofn) == DECL_NAME (otctx)
 		  || DECL_CONV_FN_P (ofn));
       return ofn;
@@ -17579,7 +17560,6 @@ tsubst_lambda_expr (tree t, tree args, tsubst_flags_t complain, tree in_decl)
   LAMBDA_EXPR_DEFAULT_CAPTURE_MODE (r)
     = LAMBDA_EXPR_DEFAULT_CAPTURE_MODE (t);
   LAMBDA_EXPR_MUTABLE_P (r) = LAMBDA_EXPR_MUTABLE_P (t);
-  LAMBDA_EXPR_INSTANTIATED (r) = true;
 
   if (LAMBDA_EXPR_EXTRA_SCOPE (t) == NULL_TREE)
     /* A lambda in a default argument outside a class gets no
@@ -18539,12 +18519,18 @@ tsubst_copy_and_build (tree t,
 	    bool op = CALL_EXPR_OPERATOR_SYNTAX (t);
 	    bool ord = CALL_EXPR_ORDERED_ARGS (t);
 	    bool rev = CALL_EXPR_REVERSE_ARGS (t);
-	    if (op || ord || rev)
+	    bool thk = CALL_FROM_THUNK_P (t);
+	    if (op || ord || rev || thk)
 	      {
 		function = extract_call_expr (ret);
 		CALL_EXPR_OPERATOR_SYNTAX (function) = op;
 		CALL_EXPR_ORDERED_ARGS (function) = ord;
 		CALL_EXPR_REVERSE_ARGS (function) = rev;
+		if (thk)
+		  {
+		    /* The thunk location is not interesting.  */
+		    SET_EXPR_LOCATION (function, UNKNOWN_LOCATION);
+		  }
 	      }
 	  }
 
@@ -26488,6 +26474,8 @@ build_deduction_guide (tree ctor, tree outer_args, tsubst_flags_t complain)
 	  targs = template_parms_to_args (tparms);
 	  fparms = tsubst_arg_types (fparms, tsubst_args, NULL_TREE,
 				     complain, ctor);
+	  if (fparms == error_mark_node)
+	    ok = false;
 	  fargs = tsubst (fargs, tsubst_args, complain, ctor);
 	  if (ci)
 	    ci = tsubst_constraint_info (ci, tsubst_args, complain, ctor);
