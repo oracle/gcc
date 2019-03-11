@@ -1681,8 +1681,6 @@ is_illegal_recursion (gfc_symbol* sym, gfc_namespace* context)
       || gfc_fl_struct (sym->attr.flavor))
     return false;
 
-  gcc_assert (sym->attr.flavor == FL_PROCEDURE);
-
   /* If we've got an ENTRY, find real procedure.  */
   if (sym->attr.entry && sym->ns->entries)
     proc_sym = sym->ns->entries->sym;
@@ -4881,6 +4879,7 @@ gfc_resolve_substring_charlen (gfc_expr *e)
   gfc_ref *char_ref;
   gfc_expr *start, *end;
   gfc_typespec *ts = NULL;
+  mpz_t diff;
 
   for (char_ref = e->ref; char_ref; char_ref = char_ref->next)
     {
@@ -4932,11 +4931,25 @@ gfc_resolve_substring_charlen (gfc_expr *e)
       return;
     }
 
-  /* Length = (end - start + 1).  */
-  e->ts.u.cl->length = gfc_subtract (end, start);
-  e->ts.u.cl->length = gfc_add (e->ts.u.cl->length,
-				gfc_get_int_expr (gfc_charlen_int_kind,
-						  NULL, 1));
+  /* Length = (end - start + 1).
+     Check first whether it has a constant length.  */
+  if (gfc_dep_difference (end, start, &diff))
+    {
+      gfc_expr *len = gfc_get_constant_expr (BT_INTEGER, gfc_charlen_int_kind,
+					     &e->where);
+
+      mpz_add_ui (len->value.integer, diff, 1);
+      mpz_clear (diff);
+      e->ts.u.cl->length = len;
+      /* The check for length < 0 is handled below */
+    }
+  else
+    {
+      e->ts.u.cl->length = gfc_subtract (end, start);
+      e->ts.u.cl->length = gfc_add (e->ts.u.cl->length,
+				    gfc_get_int_expr (gfc_charlen_int_kind,
+						      NULL, 1));
+    }
 
   /* F2008, 6.4.1:  Both the starting point and the ending point shall
      be within the range 1, 2, ..., n unless the starting point exceeds
@@ -7640,13 +7653,54 @@ resolve_allocate_expr (gfc_expr *e, gfc_code *code, bool *array_alloc_wo_spec)
 
   if (codimension)
     for (i = ar->dimen; i < ar->dimen + ar->codimen; i++)
-      if (ar->dimen_type[i] == DIMEN_THIS_IMAGE)
-	{
-	  gfc_error ("Coarray specification required in ALLOCATE statement "
-		     "at %L", &e->where);
-	  goto failure;
-	}
+      {
+	switch (ar->dimen_type[i])
+	  {
+	  case DIMEN_THIS_IMAGE:
+	    gfc_error ("Coarray specification required in ALLOCATE statement "
+		       "at %L", &e->where);
+	    goto failure;
 
+	  case  DIMEN_RANGE:
+	    if (ar->start[i] == 0 || ar->end[i] == 0)
+	      {
+		/* If ar->stride[i] is NULL, we issued a previous error.  */
+		if (ar->stride[i] == NULL)
+		  gfc_error ("Bad array specification in ALLOCATE statement "
+			     "at %L", &e->where);
+		goto failure;
+	      }
+	    else if (gfc_dep_compare_expr (ar->start[i], ar->end[i]) == 1)
+	      {
+		gfc_error ("Upper cobound is less than lower cobound at %L",
+			   &ar->start[i]->where);
+		goto failure;
+	      }
+	    break;
+
+	  case DIMEN_ELEMENT:
+	    if (ar->start[i]->expr_type == EXPR_CONSTANT)
+	      {
+		gcc_assert (ar->start[i]->ts.type == BT_INTEGER);
+		if (mpz_cmp_si (ar->start[i]->value.integer, 1) < 0)
+		  {
+		    gfc_error ("Upper cobound is less than lower cobound "
+			       " of 1 at %L", &ar->start[i]->where);
+		    goto failure;
+		  }
+	      }
+	    break;
+
+	  case DIMEN_STAR:
+	    break;
+
+	  default:
+	    gfc_error ("Bad array specification in ALLOCATE statement at %L",
+		       &e->where);
+	    goto failure;
+
+	  }
+      }
   for (i = 0; i < ar->dimen; i++)
     {
       if (ar->type == AR_ELEMENT || ar->type == AR_FULL)

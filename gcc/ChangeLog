@@ -1,3 +1,201 @@
+2019-03-11  Eric Botcazou  <ebotcazou@adacore.com>
+
+	PR rtl-optimization/89588
+	* loop-unroll.c (decide_unroll_constant_iterations): Make guard for
+	explicit unrolling factor more robust.
+
+2019-03-11  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2019-03-08  Martin Liska  <mliska@suse.cz>
+
+	PR target/86952
+	* config/i386/i386.c (ix86_option_override_internal): Disable
+	jump tables when retpolines are used.
+
+2019-03-11  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2019-02-11  David Malcolm  <dmalcolm@redhat.com>
+
+	PR lto/88147
+	* input.c (selftest::test_line_offset_overflow): New selftest.
+	(selftest::input_c_tests): Call it.
+
+2019-03-08  Martin Jambor  <mjambor@suse.cz>
+
+	Backport from mainline
+	2019-03-07  Martin Jambor  <mjambor@suse.cz>
+
+	PR ipa/88235
+	* cgraph.h (cgraph_node): New inline method former_thunk_p.
+	* cgraph.c (cgraph_node::dump): Dump a note if node is a former thunk.
+	(clone_of_p): Treat expanded thunks like thunks, be optimistic if they
+	have multiple callees.  At the end check if declarations match as
+	opposed to cgraph_nodes.
+
+2019-03-06  Tamar Christina  <tamar.christina@arm.com>
+
+	Backport from trunk.
+	2019-02-25  Tamar Christina  <tamar.christina@arm.com>
+
+	PR target/88530
+	* common/config/aarch64/aarch64-common.c
+	(struct aarch64_option_extension): Add is_synthetic.
+	(all_extensions): Use it.
+	(TARGET_OPTION_INIT_STRUCT): Define hook.
+	(struct gcc_targetm_common): Moved to end.
+	(all_extensions_by_on): New.
+	(opt_ext_cmp, typedef opt_ext): New.
+	(aarch64_option_init_struct): New.
+	(aarch64_contains_opt): New.
+	(aarch64_get_extension_string_for_isa_flags): Output smallest set.
+	* config/aarch64/aarch64-option-extensions.def
+	(AARCH64_OPT_EXTENSION): Explicitly include AES and SHA2 in crypto.
+	(fp, simd, crc, lse, fp16, rcpc, rdma, dotprod, aes, sha2, sha3,
+	sm4, fp16fml, sve):
+	Set is_synthetic to false.
+	(crypto): Set is_synthetic to true.
+	* config/aarch64/driver-aarch64.c (AARCH64_OPT_EXTENSION): Add
+	SYNTHETIC.
+
+2019-03-06  Tamar Christina  <tamar.christina@arm.com>
+
+	Backport from trunk.
+	2019-02-28  Tamar Christina  <tamar.christina@arm.com>
+
+	PR target/88530
+	* config/aarch64/aarch64-option-extensions.def: Document it.
+	* config/aarch64/driver-aarch64.c (host_detect_local_cpu): Skip feature
+	if empty hwcaps.
+
+2019-03-06  Xiong Hu Luo  <luoxhu@linux.ibm.com>
+
+	Backport of r268834 from mainline to gcc-8-branch.
+	2019-02-13  Xiong Hu Luo  <luoxhu@linux.vnet.ibm.com>
+
+	* config/rs6000/altivec.h (vec_sbox_be, vec_cipher_be,
+	vec_cipherlast_be, vec_ncipher_be, vec_ncipherlast_be): New #defines.
+	* config/rs6000/crypto.md (CR_vqdi): New define_mode_iterator.
+	(crypto_vsbox_<mode>, crypto_<CR_insn>_<mode>): New define_insns.
+	* config/rs6000/rs6000-builtin.def (VSBOX_BE): New BU_CRYPTO_1.
+	(VCIPHER_BE, VCIPHERLAST_BE, VNCIPHER_BE, VNCIPHERLAST_BE):
+	New BU_CRYPTO_2.
+	* config/rs6000/rs6000.c (builtin_function_type)
+	<CRYPTO_BUILTIN_VSBOX_BE, CRYPTO_BUILTIN_VCIPHER_BE,
+	CRYPTO_BUILTIN_VCIPHERLAST_BE, CRYPTO_BUILTIN_VNCIPHER_BE,
+	CRYPTO_BUILTIN_VNCIPHERLAST_BE>: New switch options.
+	* doc/extend.texi (vec_sbox_be, vec_cipher_be, vec_cipherlast_be,
+	vec_ncipher_be, vec_ncipherlast_be): New builtin functions.
+
+2019-03-05  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2019-02-26  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/89505
+	* tree-ssa-structalias.c (compute_dependence_clique): Make sure
+	to handle restrict pointed-to vars with multiple subvars
+	correctly.
+
+2019-03-01  Tamar Christina  <tamar.christina@arm.com>
+
+	PR target/89517
+	* config/aarch64/aarch64-option-extensions.def (fp, simd, crypto,
+	fp16): Collapse line.
+
+2019-03-01  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2019-03-01  Jakub Jelinek  <jakub@redhat.com>
+
+	PR bootstrap/89539
+	* dwarf2out.c (output_comdat_type_unit): Add ATTRIBUTE_UNUSED to
+	early_lto_debug argument.
+
+	2019-02-27  Richard Biener  <rguenther@suse.de>
+
+	PR debug/88878
+	* dwarf2out.c (use_debug_types): Disable when in_lto_p.
+
+	2019-02-27  Richard Biener  <rguenther@suse.de>
+
+	PR debug/88878
+	* dwarf2out.c (output_comdat_type_unit): Add early_lto_debug
+	parameter, prefix section name with .gnu.debuglto_ if true.
+	(dwarf2out_finish): Pass false to output_comdat_type_unit.
+	(dwarf2out_early_finish): Pass true to output_comdat_type_unit.
+
+	2019-02-27  Richard Biener  <rguenther@suse.de>
+
+	PR debug/89514
+	* dwarf2out.c (size_of_die): Key on AT_ref (a)->comdat_type_p
+	rather than on use_debug_types, doing what output_die does.
+	(value_format): Likewise.
+
+2019-02-28  Eric Botcazou  <ebotcazou@adacore.com>
+
+	PR tree-optimization/89536
+	* tree-ssa-dom.c (edge_info::derive_equivalences) <BIT_NOT_EXPR>: Test
+	only whether bit #0 of the value is 0 instead of the entire value.
+
+2019-02-28  Li Jia He  <helijia@linux.ibm.com>
+
+	Backport from trunk
+	2019-02-20  Li Jia He  <helijia@linux.ibm.com>
+
+	PR target/88100
+	* gcc/config/rs6000/rs6000.c (rs6000_gimple_fold_builtin)
+	<case ALTIVEC_BUILTIN_VSPLTISB, ALTIVEC_BUILTIN_VSPLTISH,
+	ALTIVEC_BUILTIN_VSPLTISW>: Don't convert the operand before
+	range checking it.
+
+2019-02-27  Uroš Bizjak  <ubizjak@gmail.com>
+
+	PR target/89397
+	* config/i386/i386.c (ix86_atomic_assign_expand_fenv): Check
+	TARGET_SSE in addition to TARGET_SSE_MATH.
+
+	(ix86_excess_precision): Ditto.
+	(ix86_float_exceptions_rounding_supported_p): Ditto.
+	(use_rsqrt_p): Ditto.
+	* config/i386/sse.md (rsqrt<mode>2): Ditto.
+
+2019-02-27  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from mainline
+	2019-02-18  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/89361
+	* config/s390/s390.c (s390_indirect_branch_attrvalue,
+	s390_indirect_branch_settings): Define unconditionally.
+	(s390_set_current_function): Likewise, but guard the whole body except
+	the s390_indirect_branch_settings call with
+	#if S390_USE_TARGET_ATTRIBUTE.
+	(TARGET_SET_CURRENT_FUNCTION): Redefine unconditionally.
+
+2019-02-26  Eric Botcazou  <ebotcazou@adacore.com>
+
+	Backport from mainline
+	2019-02-19  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* rtlanal.c (get_initial_register_offset): Fall back to the estimate
+	as long as the epilogue isn't completed.
+
+2019-02-26  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* tree-ssa-dom.c (edge_info::derive_equivalences) <BIT_IOR_EXPR>: Fix
+	and move around comment.
+	<BIT_AND_EXPR>: Likewise.
+	<BIT_NOT_EXPR>: Add specific handling for boolean types.
+
+2019-02-24  Alan Modra  <amodra@gmail.com>
+
+	PR target/89271
+	* config/rs6000/rs6000.md (<bd>_<mode> split): Check for an int
+	output reg on add insn.
+	(<bd>tf_<mode> split): Likewise.  Match predicates with insn.
+
 2019-02-22  Jakub Jelinek  <jakub@redhat.com>
 
 	* BASE-VER: Set to 8.3.1.

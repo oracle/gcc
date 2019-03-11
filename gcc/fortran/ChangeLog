@@ -1,3 +1,115 @@
+2019-03-10  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	PR fortran/71544
+	Backport from trunk
+	* trans-types.c (gfc_typenode_for_spec) Set ts->is_c_interop of
+	C_PTR and C_FUNPTR.
+	(create_fn_spec): Mark argument as escaping if ts->is_c_interop is set.
+
+2019-03-10  Thomas Koenig  <tkoenig@gcc.gnu.org>
+	Steven G. Kargl  <kargl@gcc.gnu.org>
+
+	PR fortran/87734
+	Backort from trunk
+	* symbol.c (gfc_add_procedure): Only throw an error if the
+	procedure has not been declared either PUBLIC or PRIVATE.
+	* resolve.c (is_illegal_recursion): Remove an assert().
+
+2019-03-06  Harald Anlauf  <anlauf@gmx.de>
+
+	Backport from trunk
+	PR fortran/71203
+	* expr.c (simplify_const_ref): Avoid null pointer dereference.
+
+2019-03-06  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	PR fortran/72714
+	Backport from trunk
+	* resolve.c (resolve_allocate_expr): Add some tests for coarrays.
+
+2019-03-03  Harald Anlauf  <anlauf@gmx.de>
+
+	Backport from trunk
+	PR fortran/89077
+	* decl.c (gfc_set_constant_character_len): Clear original string
+	representation after padding has been performed to target length.
+	* resolve.c (gfc_resolve_substring_charlen): Check substring
+	length for constantness prior to general calculation of length.
+
+2019-03-03  Harald Anlauf  <anlauf@gmx.de>
+	    Steven G. Kargl  <kargl@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/77583
+	* symbol.c (check_conflict): Check for valid procedure name
+	passed to error reporting routine.
+
+2019-03-03  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	PR fortran/89174
+	Backport from trunk
+	* trans-expr.c (gfc_find_and_cut_at_last_class_ref): Add is_mold
+	to garguments. If we are dealing with a MOLD, call
+	gfc_expr_to_initialize().
+	* trans-stmt.c (gfc_trans_allocate): For MOLD, pass is_mold=true
+	to gfc_find_and_cut_at_last_class_ref.
+	* trans.h (gfc_find_and_cut_at_last_class_ref): Add optional
+	argument is_mold with default false.
+
+2019-03-03  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	PR fortran/87689
+	Backport from trunk
+	* gfortran.dg/lto/20091028-1_0.f90: Add -Wno-lto-type-mismatch to
+	options.
+	* gfortran.dg/lto/20091028-2_0.f90: Likewise.
+	* gfortran.dg/lto/pr87689_0.f: New file.
+	* gfortran.dg/lto/pr87689_1.f: New file.
+	* gfortran.dg/altreturn_9_0.f90: New file.
+	* gfortran.dg/altreturn_9_1.f90: New file.
+
+2019-03-02  Jerry DeLisle <jvdelisle@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/84387
+	* trans-io.c (transfer_expr): Do not return if there are no
+	components to the derived type or class.
+
+2019-03-02  Harald Anlauf  <anlauf@gmx.de>
+
+	Backport from trunk
+	PR fortran/89516
+	* check.c (gfc_calculate_transfer_sizes): Correct checks for cases
+	where storage size of elements of MOLD is 0.
+
+	PR fortran/89492
+	* check.c (gfc_calculate_transfer_sizes): Handle cases where
+	storage size of elements of MOLD is 0.
+
+	PR fortran/89266
+	PR fortran/88326
+	* target-memory.c (gfc_element_size): Return false if element size
+	cannot be determined; element size is returned separately.
+	(gfc_target_expr_size): Return false if expression size cannot be
+	determined; expression size is returned separately.
+	* target-memory.h: Adjust prototypes.
+	* check.c (gfc_calculate_transfer_sizes): Adjust references to
+	gfc_target_expr_size, gfc_element_size.
+	* arith.c (hollerith2representation): Likewise.
+	* class.c (find_intrinsic_vtab): Likewise.
+	* simplify.c (gfc_simplify_sizeof): Likewise.
+
+2019-02-23  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	PR fortran/86119
+	Backport from trunk
+	* class.c (gfc_get_len_component): Add argument k for kind.
+	If the kind of the resulting expression is not equal to k,
+	convert it.
+	* gfortran.h (gfc_len_component): Adjust prototype.
+	* simplify.c (gfc_simplify_len): Pass kind to
+	gfc_get_len_component.
+
 2019-02-23  Paul Thomas  <pault@gcc.gnu.org>
 
 	Backport from trunk

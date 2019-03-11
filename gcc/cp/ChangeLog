@@ -1,3 +1,58 @@
+2019-03-08  Jason Merrill  <jason@redhat.com>
+
+	PR c++/88820 - ICE with CTAD and member template used in DMI.
+	* pt.c (do_class_deduction): Handle parm used as its own arg.
+
+	PR c++/88869 - C++17 ICE with CTAD and explicit specialization.
+	* pt.c (do_class_deduction): Don't include explicit specialization
+	args in outer_args.
+
+	PR c++/88419 - C++17 ICE with class template arg deduction.
+	* pt.c (make_template_placeholder): Set TYPE_CANONICAL after
+	CLASS_PLACEHOLDER_TEMPLATE.
+
+	PR c++/88690 - C++17 ICE with empty base in aggregate.
+	* typeck2.c (process_init_constructor_record): Skip trivial
+	initialization of an empty base.
+
+	PR c++/87921 - wrong error with inline static data member.
+	* decl2.c (c_parse_final_cleanups): Don't force out uninstantiated
+	inline static data members.
+
+	PR c++/89381 - implicit copy and using-declaration.
+	* class.c (classtype_has_move_assign_or_move_ctor_p): Don't consider
+	op= brought in by a using-declaration.
+
+	PR c++/89576 - if constexpr of lambda capture.
+	* semantics.c (maybe_convert_cond): Do convert a non-dependent
+	condition in a template.
+	* typeck.c (condition_conversion): Handle being called in a
+	template.
+
+	PR c++/89422 - ICE with -g and lambda in default arg in template.
+	* pt.c (tsubst_function_decl): SET_DECL_FRIEND_CONTEXT sooner.
+
+	PR c++/87513 - 'sorry' mangling PMF template-id.
+	* mangle.c (write_expression): Handle SCOPE_REF to BASELINK.
+
+	PR c++/88183 - ICE with .* fold-expression.
+	* pt.c (fold_expression) [DOTSTAR_EXPR]: Remove special handling.
+
+2019-03-07  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/89585
+	* parser.c (cp_parser_asm_definition): Parse asm qualifiers even
+	at toplevel, but diagnose them.
+
+2019-02-26  Marek Polacek  <polacek@redhat.com>
+
+	Backported from mainline
+	2019-02-11  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/89212 - ICE converting nullptr to pointer-to-member-function.
+	* pt.c (tsubst_copy_and_build) <case CONSTRUCTOR>: Return early for
+	null member pointer value.
+
 2019-02-22  Release Manager
 
 	* GCC 8.3.0 released.

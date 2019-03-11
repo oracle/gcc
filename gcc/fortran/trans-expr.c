@@ -352,7 +352,7 @@ gfc_vptr_size_get (tree vptr)
    of refs following.  */
 
 gfc_expr *
-gfc_find_and_cut_at_last_class_ref (gfc_expr *e)
+gfc_find_and_cut_at_last_class_ref (gfc_expr *e, bool is_mold)
 {
   gfc_expr *base_expr;
   gfc_ref *ref, *class_ref, *tail = NULL, *array_ref;
@@ -394,7 +394,10 @@ gfc_find_and_cut_at_last_class_ref (gfc_expr *e)
       e->ref = NULL;
     }
 
-  base_expr = gfc_copy_expr (e);
+  if (is_mold)
+    base_expr = gfc_expr_to_initialize (e);
+  else
+    base_expr = gfc_copy_expr (e);
 
   /* Restore the original tail expression.  */
   if (class_ref)
@@ -3834,7 +3837,8 @@ conv_base_obj_fcn_val (gfc_se * se, tree base_object, gfc_expr * expr)
 
 
 static void
-conv_function_val (gfc_se * se, gfc_symbol * sym, gfc_expr * expr)
+conv_function_val (gfc_se * se, gfc_symbol * sym, gfc_expr * expr,
+		   gfc_actual_arglist *actual_args)
 {
   tree tmp;
 
@@ -3852,7 +3856,7 @@ conv_function_val (gfc_se * se, gfc_symbol * sym, gfc_expr * expr)
   else
     {
       if (!sym->backend_decl)
-	sym->backend_decl = gfc_get_extern_function_decl (sym);
+	sym->backend_decl = gfc_get_extern_function_decl (sym, actual_args);
 
       TREE_USED (sym->backend_decl) = 1;
 
@@ -6276,7 +6280,7 @@ gfc_conv_procedure_call (gfc_se * se, gfc_symbol * sym,
 
   /* Generate the actual call.  */
   if (base_object == NULL_TREE)
-    conv_function_val (se, sym, expr);
+    conv_function_val (se, sym, expr, args);
   else
     conv_base_obj_fcn_val (se, base_object, expr);
 

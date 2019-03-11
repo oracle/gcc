@@ -1,8 +1,191 @@
+2019-03-11  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* c-c++-common/unroll-6.c: New test.
+
+2019-03-11  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2019-03-10  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
+
+	* gcc.target/i386/indirect-thunk-extern-7.c: Add -fjump-tables to
+	dg-options.
+
+2019-03-11  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2019-03-08  Martin Liska  <mliska@suse.cz>
+
+	PR target/86952
+	* gcc.target/i386/indirect-thunk-7.c: Use jump tables to match
+	scanned pattern.
+	* gcc.target/i386/indirect-thunk-inline-7.c: Likewise.
+
+2019-03-10  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	PR fortran/71544
+	Backport from trunk
+	* gfortran.dg/c_ptr_tests_19.f90: New test.
+
+2019-03-10  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	PR fortran/87734
+	Backport from trunk
+	* gfortran.dg/public_private_module_10.f90: New test.
+
+2019-03-08  Martin Jambor  <mjambor@suse.cz>
+
+	Backport from mainline
+	2019-03-07  Martin Jambor  <mjambor@suse.cz>
+
+	* g++.dg/ipa/pr88235.C: New test.
+
+2019-03-07  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/89585
+	* g++.dg/asm-qual-3.C: Adjust expected diagnostics.
+
+2019-03-06  Harald Anlauf  <anlauf@gmx.de>
+
+	Backport from trunk
+	PR fortran/71203
+	* gfortran.dg/substr_8.f90: New test.
+
+2019-03-06  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	PR fortran/72714
+	Backport from trunk
+	* gfortran.dg/coarray_allocate_11.f90: New test.
+
+2019-03-06  Tamar Christina  <tamar.christina@arm.com>
+
+	Backport from trunk.
+	2019-02-25  Tamar Christina  <tamar.christina@arm.com>
+
+	PR target/88530
+	* common/config/aarch64/aarch64-common.c
+	(struct aarch64_option_extension): Add is_synthetic.
+	(all_extensions): Use it.
+	(TARGET_OPTION_INIT_STRUCT): Define hook.
+	(struct gcc_targetm_common): Moved to end.
+	(all_extensions_by_on): New.
+	(opt_ext_cmp, typedef opt_ext): New.
+	(aarch64_option_init_struct): New.
+	(aarch64_contains_opt): New.
+	(aarch64_get_extension_string_for_isa_flags): Output smallest set.
+	* config/aarch64/aarch64-option-extensions.def
+	(AARCH64_OPT_EXTENSION): Explicitly include AES and SHA2 in crypto.
+	(fp, simd, crc, lse, fp16, rcpc, rdma, dotprod, aes, sha2, sha3,
+	sm4, fp16fml, sve):
+	Set is_synthetic to false.
+	(crypto): Set is_synthetic to true.
+	* config/aarch64/driver-aarch64.c (AARCH64_OPT_EXTENSION): Add
+	SYNTHETIC.
+
+2019-03-06  Tamar Christina  <tamar.christina@arm.com>
+
+	Backport from trunk.
+	2019-02-28  Tamar Christina  <tamar.christina@arm.com>
+
+	PR target/88530
+	* gcc.target/aarch64/options_set_10.c: New test.
+
+2019-03-06  Xiong Hu Luo  <luoxhu@linux.ibm.com>
+
+	Backport of r268834 from mainline to gcc-8-branch.
+	2019-01-23  Xiong Hu Luo  <luoxhu@linux.vnet.ibm.com>
+
+	* gcc.target/powerpc/crypto-builtin-1.c
+	(crypto1_be, crypto2_be, crypto3_be, crypto4_be, crypto5_be):
+	New testcases.
+
+2019-03-05  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2019-02-26  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/89505
+	* gcc.dg/torture/pr89505.c: New testcase.
+
+2019-03-03  Harald Anlauf  <anlauf@gmx.de>
+
+	Backport from trunk
+	PR fortran/89077
+	* gfortran.dg/transfer_simplify_12.f90: New test.
+	* gfortran.dg/substr_simplify.f90: New test.
+
+2019-03-03  Harald Anlauf  <anlauf@gmx.de>
+
+	Backport from trunk
+	PR fortran/77583
+	* gfortran.dg/pr77583.f90: New test.
+
+2019-03-03  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	PR fortran/89174
+	Backport from trunk
+	* gfortran.dg/allocate_with_mold_3.f90: New test.
+
+2019-03-03  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	PR fortran/87689
+	Backport from trunk
+	* gfortran.dg/lto/20091028-1_0.f90: Add -Wno-lto-type-mismatch to
+	options.
+	* gfortran.dg/lto/20091028-2_0.f90: Likewise.
+	* gfortran.dg/lto/pr87689_0.f: New file.
+	* gfortran.dg/lto/pr87689_1.f: New file.
+	* gfortran.dg/altreturn_9_0.f90: New file.
+	* gfortran.dg/altreturn_9_1.f90: New file.
+
+2019-03-02  Jerry DeLisle <jvdelisle@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/84387
+	* gfortran.dg/dtio_34.f90: New test.
+
+2019-03-02  Harald Anlauf  <anlauf@gmx.de>
+
+	Backport from trunk
+	PR fortran/89516
+	* gfortran.dg/pr89492.f90: Adjust testcase.
+	* gfortran.dg/transfer_check_5.f90: New test.
+
+	PR fortran/89492
+	* gfortran.dg/pr89492.f90: New test.
+
+	PR fortran/89266
+	PR fortran/88326
+	* gfortran.dg/pr89266.f90: New test.
+	* gfortran.dg/pr88326.f90: New test.
+
+2019-02-28  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* gcc.c-torture/execute/20190228-1.c: New test.
+
+2019-02-28  Li Jia He  <helijia@linux.ibm.com>
+
+	Backport from trunk
+	2019-02-20  Li Jia He  <helijia@linux.ibm.com>
+
+	PR target/88100
+	* gcc/testsuite/gcc.target/powerpc/pr88100.c: New testcase.
+
+2019-02-26  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* gnat.dg/opt77.adb: New test.
+	* gnat.dg/opt77_pkg.ad[sb]: New helper.
+
+2019-02-23  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	PR fortran/86119
+	Backport from trunk
+	* gfortran.dg/warn_conversion_11.f90: New test.
+
 2019-02-23  Paul Thomas  <pault@gcc.gnu.org>
 
 	Backport from trunk
 	PR fortran/88117
-	* gfortran.dg/deferred_character_32.f90 : New test
+	* gfortran.dg/deferred_character_32.f90: New test
 
 2019-02-12  Thomas Koenig  <tkoenig@gcc.gnu.org>
 

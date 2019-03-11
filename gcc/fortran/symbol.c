@@ -522,7 +522,7 @@ check_conflict (symbol_attribute *attr, const char *name, locus *where)
   /* The copying of procedure dummy arguments for module procedures in
      a submodule occur whilst the current state is COMP_CONTAINS. It
      is necessary, therefore, to let this through.  */
-  if (attr->dummy
+  if (name && attr->dummy
       && (attr->function || attr->subroutine)
       && gfc_current_state () == COMP_CONTAINS
       && !(gfc_new_block && gfc_new_block->abr_modproc_decl))
@@ -1801,7 +1801,8 @@ gfc_add_procedure (symbol_attribute *attr, procedure_type t,
   if (where == NULL)
     where = &gfc_current_locus;
 
-  if (attr->proc != PROC_UNKNOWN && !attr->module_procedure)
+  if (attr->proc != PROC_UNKNOWN && !attr->module_procedure
+      && attr->access == ACCESS_UNKNOWN)
     {
       if (attr->proc == PROC_ST_FUNCTION && t == PROC_INTERNAL
 	  && !gfc_notification_std (GFC_STD_F2008))
