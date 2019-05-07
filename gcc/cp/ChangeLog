@@ -1,3 +1,76 @@
+2019-04-30  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from mainline
+	2019-04-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/90108
+	* decl.c (duplicate_decls): If remove is main variant and
+	DECL_ORIGINAL_TYPE is some other type, remove a DECL_ORIGINAL_TYPE
+	variant that has newdecl as TYPE_NAME if any.
+
+	2019-04-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c/89933
+	* decl.c (duplicate_decls): When newdecl's type is its main variant,
+	don't try to remove it from the variant list, but instead assert
+	it has no variants.
+
+	2019-03-29  Jakub Jelinek  <jakub@redhat.com>
+
+	PR sanitizer/89869
+	* typeck.c: Include gimplify.h.
+	(cp_build_modify_expr) <case COND_EXPR>: Unshare rhs before using it
+	for second time.  Formatting fixes.
+
+	2019-03-26  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/89796
+	* semantics.c (finish_omp_atomic): Add warning_sentinel for
+	-Wunused-value around finish_expr_stmt call.
+
+	2019-03-22  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/60702
+	* cp-tree.h (get_tls_wrapper_fn): Remove declaration.
+	(maybe_get_tls_wrapper_call): Declare.
+	* decl2.c (get_tls_wrapper_fn): Make static.
+	(maybe_get_tls_wrapper_call): New function.
+	* typeck.c (build_class_member_access_expr): Handle accesses to TLS
+	variables.
+	* semantics.c (finish_qualified_id_expr): Likewise.
+	(finish_id_expression_1): Use maybe_get_tls_wrapper_call.
+	* pt.c (tsubst_copy_and_build): Likewise.
+
+	2019-03-21  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/89767
+	* parser.c (cp_parser_lambda_introducer): Add ids and first_capture_id
+	variables, check for duplicates in this function.
+	* lambda.c (add_capture): Don't check for duplicates nor use
+	IDENTIFIER_MARKED.
+	(register_capture_members): Don't clear IDENTIFIER_MARKED here.
+
+	2019-03-14  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/89512
+	* semantics.c (finish_qualified_id_expr): Reject variable templates.
+
+	2019-03-06  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/87148
+	* init.c (build_value_init_noctor): Ignore flexible array members.
+
+	2019-02-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/89403
+	* decl2.c (c_parse_final_cleanups): Move TREE_ASM_WRITTEN setting
+	for flag_syntax_only from here...
+	* semantics.c (expand_or_defer_fn_1): ... here.
+
+	PR c++/89405
+	* decl.c (maybe_commonize_var): When clearing TREE_PUBLIC and
+	DECL_COMMON, set DECL_INTERFACE_KNOWN.
+
 2019-03-08  Jason Merrill  <jason@redhat.com>
 
 	PR c++/88820 - ICE with CTAD and member template used in DMI.

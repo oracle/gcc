@@ -1,3 +1,665 @@
+2019-05-06  Richard Biener  <rguenther@suse.de>
+
+	PR bootstrap/90359
+	Backport from mainline
+	2019-03-11  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/89655
+	PR bootstrap/89656
+	* vr-values.c (vr_values::update_value_range): If
+	old_vr->varying_p (), don't update it, make new_vr also VARYING
+	and return false.
+
+2019-05-03  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2019-03-14  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/89698
+	* fold-const.c (operand_equal_p): For INDIRECT_REF check
+	that the access types are similar.
+
+	2019-03-07  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/89595
+	* tree-ssa-dom.c (dom_opt_dom_walker::optimize_stmt): Take
+	stmt iterator as reference, take boolean output parameter to
+	indicate whether the stmt was removed and thus the iterator
+	already advanced.
+	(dom_opt_dom_walker::before_dom_children): Re-iterate over
+	stmts created by folding.
+
+	2019-03-14  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/89710
+	* tree-ssa-loop-ch.c (should_duplicate_loop_header_p): Use
+	safe_dyn_cast.
+
+	2019-04-15  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/90071
+	* tree-ssa-reassoc.c (init_range_entry): Do not pick up
+	abnormal operands from def stmts.
+
+	2018-08-20  Bernd Edlinger  <bernd.edlinger@hotmail.de>
+
+	PR target/86984
+	* expr.c (expand_assignment): Assert that bitpos is positive.
+	(store_field): Likewise
+	(expand_expr_real_1): Make sure that bitpos is positive.
+	* config/alpha/alpha.h (CONSTANT_ADDRESS_P): Avoid signed
+	integer overflow.
+
+	2019-03-14  Richard Biener  <rguenther@suse.de>
+
+	PR target/89711
+	* config/i386/i386.c (make_resolver_func): Properly set
+	DECL_CONTEXT on the RESULT_DECL.
+	* config/rs6000/rs6000.c (make_resolver_func): Likewise.
+
+2019-04-30  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from mainline
+	2019-04-24  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/90193
+	* rtl.c (classify_insn): Return JUMP_INSN for asm goto.
+	* emit-rtl.c (try_split): Copy over REG_LABEL_TARGET.
+
+	PR target/90187
+	* config/i386/i386.c (ix86_expand_sse_fp_minmax): Force if_true into
+	a register if both if_true and if_false are MEMs.
+
+	PR tree-optimization/90208
+	* tree-cfg.c (remove_bb): Move forced labels from removed bbs
+	after labels of new_bb, not before them.
+
+	2019-04-16  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/90082
+	* dce.c (can_delete_call): New function.
+	(deletable_insn_p, mark_insn): Use it.
+
+	PR tree-optimization/90090
+	* tree-ssa-math-opts.c (is_division_by): Ignore divisions that can
+	throw internally.
+	(is_division_by_square): Likewise.  Formatting fix.
+
+	2019-04-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/89965
+	* dce.c: Include rtl-iter.h.
+	(struct check_argument_load_data): New type.
+	(check_argument_load): New function.
+	(find_call_stack_args): Check for loads from stack slots still tracked
+	in sp_bytes and punt if any is found.
+
+	PR c/89946
+	* varasm.c (assemble_start_function): Don't use tree_fits_uhwi_p
+	and gcc_unreachable if it fails, just call tree_to_uhwi which
+	verifies that too.  Test TREE_CHAIN instead of list_length > 1.
+	Start warning message with a lower-case letter.  Formatting fixes.
+
+	PR rtl-optimization/90026
+	* cfgcleanup.c (try_optimize_cfg): When removing empty bb with no
+	successors, look for BARRIERs inside of the whole BB_FOOTER chain
+	rather than just at the start of it.  If e->src BB_FOOTER is not NULL
+	in cfglayout mode, use emit_barrier_after_bb.
+
+	2019-04-11  Jakub Jelinek  <jakub@redhat.com>
+	
+	PR rtl-optimization/89965
+	* dce.c (sp_based_mem_offset): New function.
+	(find_call_stack_args): Use sp_based_mem_offset.
+
+	2019-04-10  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/90010
+	* gimple-ssa-sprintf.c (target_to_host): Fix handling of targstr
+	with strlen in between hostsz-3 and hostsz-1 inclusive when no
+	translation is needed, and when translation is needed, only append
+	... if the string length is hostsz or more bytes long.  Avoid using
+	strncpy or strcat.
+
+	2019-04-09  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/89998
+	* gimple-ssa-sprintf.c (try_substitute_return_value): Use lhs type
+	instead of integer_type_node if possible, don't add ranges if return
+	type is not compatible with int.
+	* gimple-fold.c (gimple_fold_builtin_sprintf,
+	gimple_fold_builtin_snprintf): Use lhs type instead of hardcoded
+	integer_type_node.
+
+	2019-03-29  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c/89872
+	* gimplify.c (gimplify_compound_literal_expr): Don't optimize a
+	non-addressable complit into its initializer if it is volatile.
+
+	2019-03-28  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/89621
+	* tree-inline.h (struct copy_body_data): Add
+	dont_remap_vla_if_no_change flag.
+	* tree-inline.c (remap_type_3, remap_type_2): New functions.
+	(remap_type): Don't remap vla types if id->dont_remap_vla_if_no_change
+	and remap_type_2 returns false.
+	* omp-low.c (new_omp_context): Set ctx->cb.dont_remap_vla_if_no_change.
+
+	2019-03-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/89752
+	* lra-constraints.c (process_alt_operands) <reg>: For BLKmode, don't
+	update this_alternative nor this_alternative_set.
+
+	2019-03-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/89768
+	* loop-unroll.c (unroll_loop_constant_iterations): Use gen_int_mode
+	instead of GEN_INT.
+	(unroll_loop_runtime_iterations): Likewise.
+
+	PR target/89752
+	* gimplify.c (gimplify_asm_expr): For output argument with
+	TREE_ADDRESSABLE type, clear allows_reg if it allows memory, otherwise
+	diagnose error.
+
+	PR target/89726
+	* config/i386/i386.c (ix86_expand_floorceildf_32): In ceil
+	compensation use x2 += 1 instead of x2 -= -1 and when honoring
+	signed zeros, do another copysign after the compensation.
+
+	2019-03-15  Jakub Jelinek  <jakub@redhat.com>
+
+	PR debug/89704
+	* dwarf2out.c (add_const_value_attribute): Return false for MINUS,
+	SIGN_EXTEND and ZERO_EXTEND.
+
+	2019-03-14  Jakub Jelinek  <jakub@redhat.com>
+
+	PR ipa/89684
+	* multiple_target.c (create_dispatcher_calls): Change
+	references_to_redirect from vector of ipa_ref * to vector of ipa_ref.
+	In the node->iterate_referring loop, push *ref rather than ref, call
+	ref->remove_reference () and always pass 0 to iterate_referring.
+
+	PR rtl-optimization/89679
+	* expmed.c (expand_mult_const): Don't add a REG_EQUAL note if it
+	would contain a paradoxical SUBREG.
+
+	PR tree-optimization/89703
+	* tree-ssa-strlen.c (valid_builtin_call): Punt if stmt call types
+	aren't compatible also with builtin_decl_explicit.  Check pure
+	or non-pure status of BUILT_IN_STR{{,N}CMP,N{LEN,{CAT,CPY}{,_CHK}}}
+	and BUILT_IN_STPNCPY{,_CHK}.
+
+	2019-03-13  Jakub Jelinek  <jakub@redhat.com>
+
+	PR debug/89498
+	* dwarf2out.c (size_of_die): For dw_val_class_view_list always use
+	DWARF_OFFSET_SIZE.
+	(value_format): For dw_val_class_view_list never use DW_FORM_loclistx.
+
+	PR middle-end/88588
+	* omp-simd-clone.c (ipa_simd_modify_stmt_ops): Handle PHI args.
+	(ipa_simd_modify_function_body): Handle PHIs.
+
+	2019-03-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/89663
+	* builtins.c (expand_builtin_int_roundingfn,
+	expand_builtin_int_roundingfn_2): Return NULL_RTX instead of
+	gcc_unreachable if validate_arglist fails.
+
+	2019-03-09  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c/88568
+	* attribs.c (handle_dll_attribute): Don't clear TREE_STATIC for
+	dllimport on VAR_DECLs with RECORD_TYPE or UNION_TYPE DECL_CONTEXT.
+
+	2019-03-05  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/89587
+	* config/rs6000/t-linux (MULTIARCH_DIRNAME): Set to non-empty only
+	if_multiarch.
+
+	PR middle-end/89590
+	* builtins.c (maybe_emit_free_warning): Punt if free doesn't have
+	exactly one argument.
+
+	2019-02-28  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c/89520
+	* convert.c (convert_to_real_1, convert_to_integer_1): Punt for
+	builtins if they don't have a single scalar floating point argument.
+	Formatting fixes.
+
+	2019-02-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/89412
+	* expr.c (expand_assignment): If result is a MEM, use change_address
+	instead of simplify_gen_subreg.
+
+	2019-02-20  Jakub Jelinek  <jakub@redhat.com>
+		    David Malcolm  <dmalcolm@redhat.com>
+
+	PR middle-end/89091
+	* fold-const.c (decode_field_reference): Return NULL_TREE if
+	lang_hooks.types.type_for_size returns NULL.  Check it before
+	overwriting *exp_.  Use return NULL_TREE instead of return 0.
+
+	2019-02-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/88074
+	PR middle-end/89415
+	* toplev.c (do_compile): Double the emin/emax exponents to workaround
+	buggy mpc_norm.
+
+	2019-02-19  Richard Biener  <rguenther@suse.de>
+
+        PR middle-end/88074
+	* toplev.c (do_compile): Initialize mpfr's exponent range
+	based on available float modes.
+
+2019-04-30  Ramana Radhakrishnan  <ramana.radhakrishnan@arm.com>
+
+	Backport from mainline.
+	2019-04-30  Ramana Radhakrishnan  <ramana.radhakrishnan@arm.com>
+	PR target/86538
+	* config/aarch64/aarch64-c.c (aarch64_update_cpp_builtins):
+	Define __ARM_FEATURE_ATOMICS.
+
+2019-04-30  Srinath Parvathaneni  <srinath.parvathaneni@arm.com>
+
+	Backport from mainline
+	2018-12-11  Richard Earnshaw  <Richard.Earnshaw@arm.com>
+
+	PR target/37369
+	* config/aarch64/iterators.md (sizem1): Add sizes for
+	SFmode and DFmode.
+	(Vbtype): Add SFmode mapping.
+	* config/aarch64/aarch64.md (copysigndf3, copysignsf3): Delete.
+	(copysign<GPF:mode>3): New expand pattern.
+	(copysign<GPF:mode>3_insn): New insn pattern.
+
+2019-04-29  Richard Sandiford  <richard.sandiford@arm.com>
+
+	Backport from mainline:
+	2019-01-25  Richard Sandiford  <richard.sandiford@arm.com>
+
+	PR middle-end/89037
+	* varasm.c (output_constructor_bitfield): Use wi::extract_uhwi
+	instead of accessing TREE_INT_CST_ELT directly.
+
+2019-04-29  Richard Sandiford  <richard.sandiford@arm.com>
+
+	Backport from mainline:
+	2018-08-23  Richard Sandiford  <richard.sandiford@arm.com>
+
+	PR target/85910
+	* config/aarch64/aarch64.c (aarch64_expand_vec_perm_const_1): Fix
+	aarch64_evpc_tbl guard.
+
+2019-04-29  Richard Sandiford  <richard.sandiford@arm.com>
+
+	Backport from mainline:
+	2019-03-08  Richard Sandiford  <richard.sandiford@arm.com>
+
+	PR debug/89631
+	* dwarf2cfi.c (dwarf2out_frame_debug_expr): Use CONST_POLY_INT
+	instead of POLY_INT_CST.
+
+2019-04-26  Roman Zhuykov  <zhroma@ispras.ru>
+
+	Backport from mainline
+	2019-04-23  Roman Zhuykov  <zhroma@ispras.ru>
+
+	PR rtl-optimization/87979
+	* modulo-sched.c (sms_schedule): Start ii value "mii" should
+	not equal zero.
+
+	PR rtl-optimization/84032
+	* modulo-sched.c (ps_insn_find_column): Change condition so that
+	branch will always be the last insn in a row inside partial
+	schedule.
+
+2019-04-19  Pat Haugen  <pthaugen@us.ibm.com>
+
+	Backport from mainline:
+	2019-04-16  Pat Haugen  <pthaugen@us.ibm.com>
+
+	PR target/84369
+	* config/rs6000/power9.md: Add store forwarding bypass.
+
+2019-04-17  Martin Jambor  <mjambor@suse.cz>
+
+	Backport from mainline
+	2019-03-10  Martin Jambor  <mjambor@suse.cz>
+
+        PR tree-optimization/85762
+        PR tree-optimization/87008
+        PR tree-optimization/85459
+        * tree-sra.c (contains_vce_or_bfcref_p): New parameter, set the bool
+        it points to if there is a type changing MEM_REF.  Adjust all callers.
+        (build_accesses_from_assign): Disable total scalarization if
+        contains_vce_or_bfcref_p returns true through the new parameter, for
+        both rhs and lhs.
+
+2019-04-17  Kelvin Nilsen  <kelvin@gcc.gnu.org>
+
+	Backport from mainline
+	2019-03-15  Kelvin Nilsen  <kelvin@gcc.gnu.org>
+
+	PR target/87532
+	* config/rs6000/rs6000-c.c (altivec_resolve_overloaded_builtin):
+	When handling vec_extract, use modular arithmetic to allow
+	constant selectors greater than vector length.
+	* config/rs6000/rs6000.c (rs6000_expand_vector_extract): Allow
+	V1TImode vectors to have constant selector values greater than 0.
+	Use modular arithmetic to compute vector index.
+	(rs6000_split_vec_extract_var): Use modular arithmetic to compute
+	index for in-memory vectors.  Correct code generation for
+	in-register vectors.  Use inner mode of vector rather than mode of
+	destination for move instruction.
+	(altivec_expand_vec_ext_builtin): Use modular arithmetic to
+	compute index.
+
+	2019-04-12  Kelvin Nilsen  <kelvin@gcc.gnu.org>
+
+	PR target/87532
+	* config/rs6000/vsx.md (*vsx_extract_<mode>_<VS_scalar>mode_var):
+	Use QI inner mode with V16QI vector mode.
+
+2019-04-15  Martin Jambor  <mjambor@suse.cz>
+
+	Backport from mainline
+	2019-04-15  Martin Jambor  <mjambor@suse.cz>
+
+	PR ipa/89693
+	* cgraph.c (clone_of_p): Loop over clone chain for each step in
+	the thunk chain.
+
+2019-04-15  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2019-01-18  Martin Liska  <mliska@suse.cz>
+		    Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/88587
+	* cgraph.h (create_version_clone_with_body): Add new argument
+	with attributes.
+	* cgraphclones.c (cgraph_node::create_version_clone): Add
+	DECL_ATTRIBUTES to a newly created decl.  And call
+	valid_attribute_p so that proper cl_target_optimization_node
+	is set for the newly created declaration.
+	* multiple_target.c (create_target_clone): Set DECL_ATTRIBUTES
+	for declaration.
+	(expand_target_clones): Do not call valid_attribute_p, it must
+	be already done.
+	* tree-inline.c (copy_decl_for_dup_finish): Reset mode for
+	vector types.
+
+2019-04-11  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/90018
+	* tree-vect-data-refs.c (vect_preserves_scalar_order_p):
+	Test both SLP and interleaving variants.
+
+2019-04-10  Matthew Malcomson  <matthew.malcomson@arm.com>
+
+	PR target/90024
+	* config/arm/arm.c (neon_valid_immediate): Disallow VOIDmode parameter.
+	* config/arm/constraints.md (Dm, DN, Dn): Split previous Dn constraint
+	into three.
+	* config/arm/neon.md (*neon_mov<mode>): Account for TImode and DImode
+	differences directly.
+	(*smax<mode>3_neon, vashl<mode>3, vashr<mode>3_imm): Use Dm constraint.
+
+2019-04-07  Uroš Bizjak  <ubizjak@gmail.com>
+
+	PR target/89945
+	* config/i386/i386.md (anddi_1 to andsi_1_zext splitter):
+	Avoid calling gen_lowpart with SYMBOL_REF and LABEL_REF operand.
+
+2019-04-04  Martin Sebor  <msebor@redhat.com>
+
+	PR middle-end/89934
+	* gimple-ssa-warn-restrict.c (builtin_access::builtin_access): Bail
+	out if the number of arguments is less than expected.
+
+2019-04-03  Richard Biener  <rguenther@suse.de>
+
+	PR lto/89896
+	* lto-wrapper.c (run_gcc): Avoid implicit rules making
+	the all target phony.
+
+2019-04-02  Uroš Bizjak  <ubizjak@gmail.com>
+
+	PR target/89902
+	PR target/89903
+	* config/i386/i386.c (dimode_scalar_to_vector_candidate_p):
+	Return false for variable DImode shifts.
+	(dimode_scalar_chain::compute_convert_gain): Do not handle
+	register count operand in variable DImode shifts.
+	(dimode_scalar_chain::make_vector_copies): Remove support to copy
+	count argument of a variable shift instruction to a vector register.
+	(dimode_scalar_chain::convert_reg): Remove support to convert
+	count argument of a variable shift instruction.
+
+2019-03-29  Kugan Vivekanandarajah  <kuganv@linaro.org>
+
+	Backport from mainline
+	2019-03-29  Kugan Vivekanandarajah  <kuganv@linaro.org>
+		    Eric Botcazou  <ebotcazou@adacore.com>
+
+	PR rtl-optimization/89862
+	* rtl.h (word_register_operation_p): Exclude CONST_INT from operations
+	that operates on the full registers for WORD_REGISTER_OPERATIONS
+	architectures.
+
+2019-03-28  Uroš Bizjak  <ubizjak@gmail.com>
+
+	PR target/89848
+	* config/i386/i386.c (dimode_scalar_chain::make_vector_copies):
+	Also process XEXP (src, 0) of a shift insn.
+
+2019-03-28  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2018-11-05  Martin Liska  <mliska@suse.cz>
+
+	PR web/87829
+	* doc/invoke.texi: Remove options that are
+	not disabled with -Os.
+
+2019-03-26  Uroš Bizjak  <ubizjak@gmail.com>
+
+	PR target/89827
+	* config/i386/i386.c (dimode_scalar_chain::convert_reg):
+	Also process XEXP (src, 0) of a shift insn.
+
+2019-03-25  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	Backport from mainline
+	2019-03-20  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	PR target/89775
+	* config/s390/s390.c (global_not_special_regno_p): Move to make it
+	available to ...
+	(s390_optimize_register_info): Use global_not_special_regno_p to
+	check for global regs.
+
+2019-03-22  Bill Schmidt  <wschmidt@linux.ibm.com>
+
+	Backport from mainline
+	2019-03-22  Bill Schmidt  <wschmidt@linux.ibm.com>
+
+	* config/rs6000/mmintrin.h (_mm_sub_pi32): Fix typo.
+
+2019-03-21  Bill Schmidt  <wschmidt@linux.ibm.com>
+
+        Backport from mainline
+        2019-03-08  Bill Schmidt  <wschmidt@linux.ibm.com>
+
+        * config/rs6000/rs6000-p8swap.c (rs6000_analyze_swaps): Rebuild
+        ud- and du-chains between phases.
+
+2019-03-19  Richard Biener  <rguenther@suse.de>
+
+	PR debug/88389
+	* opts.c (finish_options): Disable -gsplit-dwarf when doing LTO.
+
+2019-03-19  Eric Botcazou  <ebotcazou@adacore.com>
+
+	PR rtl-optimization/89753
+	* loop-unroll.c (decide_unroll_constant_iterations): Make guard for
+	explicit unrolling factor even more robust.
+
+2019-03-18  Martin Sebor  <msebor@redhat.com>
+
+	PR middle-end/88273
+	* gimple-ssa-warn-restrict.c (builtin_memref::extend_offset_range):
+	Handle anti-ranges the same as no range at all.
+
+2019-03-18  Martin Jambor  <mjambor@suse.cz>
+
+	Backport from mainline
+	2019-03-18  Martin Jambor  <mjambor@suse.cz>
+
+	PR tree-optimization/89546
+	* tree-sra.c (propagate_subaccesses_across_link): Requeue new_acc if
+	any propagation to its children took place.
+
+2019-03-17  H.J. Lu  <hongjiu.lu@intel.com>
+
+	Backport from mainline
+	2019-03-14  H.J. Lu  <hongjiu.lu@intel.com>
+
+	PR target/89523
+	* config/i386/i386.c (ix86_print_operand): Handle 'M' to add
+	addr32 prefix to VSIB address for X32.
+	* config/i386/sse.md (*avx512pf_gatherpf<mode>sf_mask): Prepend
+	"%M2" to opcode.
+	(*avx512pf_gatherpf<mode>df_mask): Likewise.
+	(*avx512pf_scatterpf<mode>sf_mask): Likewise.
+	(*avx512pf_scatterpf<mode>df_mask): Likewise.
+	(*avx2_gathersi<mode>): Prepend "%M3" to opcode.
+	(*avx2_gathersi<mode>_2): Prepend "%M2" to opcode.
+	(*avx2_gatherdi<mode>): Prepend "%M3" to opcode.
+	(*avx2_gatherdi<mode>_2): Prepend "%M2" to opcode.
+	(*avx2_gatherdi<mode>_3): Prepend "%M3" to opcode.
+	(*avx2_gatherdi<mode>_4): Prepend "%M2" to opcode.`
+	(*avx512f_gathersi<mode>): Prepend "%M4" to opcode.
+	(*avx512f_gathersi<mode>_2): Prepend "%M3" to opcode.
+	(*avx512f_gatherdi<mode>): Prepend "%M4" to opcode.
+	(*avx512f_gatherdi<mode>_2): Prepend "%M3" to opcode.
+	(*avx512f_scattersi<mode>): Prepend "%M0" to opcode.
+	(*avx512f_scatterdi<mode>): Likewise.
+
+2019-03-15  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2018-11-30  Jakub Jelinek  <jakub@redhat.com>
+
+	PR testsuite/85368
+	* params.def (PARAM_LOGICAL_OP_NON_SHORT_CIRCUIT): New param.
+	* tree-ssa-ifcombine.c (ifcombine_ifandif): If
+	--param logical-op-non-short-circuit is present, override
+	LOGICAL_OP_NON_SHORT_CIRCUIT value from the param.
+	* fold-const.c (fold_range_test, fold_truth_andor): Likewise.
+
+2019-03-15  Martin Liska  <mliska@suse.cz>
+
+	PR other/89712
+	* doc/invoke.texi: Remove -fdump-class-hierarchy option.
+
+2019-03-14  Martin Jambor  <mjambor@suse.cz>
+
+	Backport from mainline
+	2019-03-07  Martin Jambor  <mjambor@suse.cz>
+
+	PR lto/87525
+	* ipa-cp.c (perform_estimation_of_a_value): Account zero time benefit
+	for extern inline functions.
+
+2019-03-14  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/89572
+	* tree-scalar-evolution.c (get_loop_exit_condition): Use
+	safe_dyn_cast.
+	* tree-ssa-loop-ivcanon.c (canonicalize_loop_induction_variables):
+	Use gimple_location_safe.
+
+2019-03-13  Vladimir Makarov  <vmakarov@redhat.com>
+
+	PR target/85860
+	* lra-constraints.c (inherit_in_ebb): Update
+	potential_reload_hard_regs along with live_hard_regs.
+
+2019-03-14  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2019-03-13  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/89677
+	* tree-scalar-evolution.c (simplify_peeled_chrec): Do not
+	throw FP expressions at tree-affine.
+
+	2019-03-01  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/89497
+	* tree-cfgcleanup.h (cleanup_tree_cfg): Add SSA update flags
+	argument, defaulted to zero.
+	* passes.c (execute_function_todo): Pass down SSA update flags
+	to cleanup_tree_cfg.
+	* tree-cfgcleanup.c: Include tree-into-ssa.h and tree-cfgcleanup.h.
+	(cleanup_tree_cfg_1): After cleanup_control_flow_pre update SSA
+	form if requested.
+	(cleanup_tree_cfg_noloop): Pass down SSA update flags.
+	(cleanup_tree_cfg): Get and pass down SSA update flags.
+
+	2019-02-18  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/89296
+	* tree-ssa-loop-ch.c (ch_base::copy_headers): Restrict setting
+	of no-warning flag to cases that might emit the bogus warning.
+
+2019-03-13  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	Backport from mainline
+	2019-03-11  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	* config/s390/s390.c (s390_expand_builtin): Do the copy_to_reg not
+	only on the else branch.
+
+2019-03-13  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	Backport from mainline
+	2019-02-07  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	* config/s390/s390-builtin-types.def: Add new types.
+	* config/s390/s390-builtins.def: (s390_vec_xl, s390_vec_xld2)
+	(s390_vec_xlw4): Make the memory operand into a const pointer.
+	(s390_vec_xld2, s390_vec_xlw4): Add a variant for single precision
+	float.
+	* config/s390/s390-c.c (s390_expand_overloaded_builtin): Generate
+	a new vector type with the alignment of the scalar memory operand.
+
+2019-03-12  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/89664
+	* tree-ssa-math-opts.c (execute_cse_reciprocals_1): Properly
+	free the occurance tree after the early out.
+
+2019-03-12  Andre Vieira  <andre.simoesdiasvieira@arm.com>
+
+	Backport from mainline
+	2019-03-08  Andre Vieira  <andre.simoesdiasvieira@arm.com>
+
+	* config/arm/arm.h (TARGET_FP16_TO_DOUBLE): Add TARGET_VFP_DOUBLE
+	requirement.
+
 2018-12-10  Bin Cheng  <bin.cheng@linux.alibaba.com>
 
 	* auto-profile.c (afdo_calculate_branch_prob): Convert profile_count
@@ -783,7 +1445,7 @@
 
 	Backport from mainline
 	2018-11-20  Richard Biener  <rguenther@suse.de>
- 
+
 	PR tree-optimization/88105
 	* tree-ssa-dom.c (pass_dominator::execute): Do not walk
 	backedges.

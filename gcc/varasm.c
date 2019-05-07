@@ -1857,28 +1857,20 @@ assemble_start_function (tree decl, const char *fnname)
       tree pp_val = TREE_VALUE (patchable_function_entry_attr);
       tree patchable_function_entry_value1 = TREE_VALUE (pp_val);
 
-      if (tree_fits_uhwi_p (patchable_function_entry_value1))
-	patch_area_size = tree_to_uhwi (patchable_function_entry_value1);
-      else
-	gcc_unreachable ();
-
+      patch_area_size = tree_to_uhwi (patchable_function_entry_value1);
       patch_area_entry = 0;
-      if (list_length (pp_val) > 1)
+      if (TREE_CHAIN (pp_val) != NULL_TREE)
 	{
-	  tree patchable_function_entry_value2 =
-	    TREE_VALUE (TREE_CHAIN (pp_val));
-
-	  if (tree_fits_uhwi_p (patchable_function_entry_value2))
-	    patch_area_entry = tree_to_uhwi (patchable_function_entry_value2);
-	  else
-	    gcc_unreachable ();
+	  tree patchable_function_entry_value2
+	    = TREE_VALUE (TREE_CHAIN (pp_val));
+	  patch_area_entry = tree_to_uhwi (patchable_function_entry_value2);
 	}
     }
 
   if (patch_area_entry > patch_area_size)
     {
       if (patch_area_size > 0)
-	warning (OPT_Wattributes, "Patchable function entry > size");
+	warning (OPT_Wattributes, "patchable function entry > size");
       patch_area_entry = 0;
     }
 
@@ -1898,7 +1890,8 @@ assemble_start_function (tree decl, const char *fnname)
   /* And the area after the label.  Record it if we haven't done so yet.  */
   if (patch_area_size > patch_area_entry)
     targetm.asm_out.print_patchable_function_entry (asm_out_file,
-					     patch_area_size-patch_area_entry,
+						    patch_area_size
+						    - patch_area_entry,
 						    patch_area_entry == 0);
 
   if (lookup_attribute ("no_split_stack", DECL_ATTRIBUTES (decl)))
@@ -5292,7 +5285,7 @@ output_constructor_bitfield (oc_local_state *local, unsigned int bit_offset)
     {
       int this_time;
       int shift;
-      HOST_WIDE_INT value;
+      unsigned HOST_WIDE_INT value;
       HOST_WIDE_INT next_byte = next_offset / BITS_PER_UNIT;
       HOST_WIDE_INT next_bit = next_offset % BITS_PER_UNIT;
 
@@ -5324,15 +5317,13 @@ output_constructor_bitfield (oc_local_state *local, unsigned int bit_offset)
 	      this_time = end - shift + 1;
 	    }
 
-	  /* Now get the bits from the appropriate constant word.  */
-	  value = TREE_INT_CST_ELT (local->val, shift / HOST_BITS_PER_WIDE_INT);
-	  shift = shift & (HOST_BITS_PER_WIDE_INT - 1);
+	  /* Now get the bits we want to insert.  */
+	  value = wi::extract_uhwi (wi::to_widest (local->val),
+				    shift, this_time);
 
 	  /* Get the result.  This works only when:
 	     1 <= this_time <= HOST_BITS_PER_WIDE_INT.  */
-	  local->byte |= (((value >> shift)
-			   & (((HOST_WIDE_INT) 2 << (this_time - 1)) - 1))
-			  << (BITS_PER_UNIT - this_time - next_bit));
+	  local->byte |= value << (BITS_PER_UNIT - this_time - next_bit);
 	}
       else
 	{
@@ -5349,15 +5340,13 @@ output_constructor_bitfield (oc_local_state *local, unsigned int bit_offset)
 	    this_time
 	      = HOST_BITS_PER_WIDE_INT - (shift & (HOST_BITS_PER_WIDE_INT - 1));
 
-	  /* Now get the bits from the appropriate constant word.  */
-	  value = TREE_INT_CST_ELT (local->val, shift / HOST_BITS_PER_WIDE_INT);
-	  shift = shift & (HOST_BITS_PER_WIDE_INT - 1);
+	  /* Now get the bits we want to insert.  */
+	  value = wi::extract_uhwi (wi::to_widest (local->val),
+				    shift, this_time);
 
 	  /* Get the result.  This works only when:
 	     1 <= this_time <= HOST_BITS_PER_WIDE_INT.  */
-	  local->byte |= (((value >> shift)
-			   & (((HOST_WIDE_INT) 2 << (this_time - 1)) - 1))
-			  << next_bit);
+	  local->byte |= value << next_bit;
 	}
 
       next_offset += this_time;

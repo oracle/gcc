@@ -1045,7 +1045,7 @@ resolve_common_blocks (gfc_symtree *common_root)
 	}
       if (!gsym)
 	{
-	  gsym = gfc_get_gsymbol (common_root->n.common->name);
+	  gsym = gfc_get_gsymbol (common_root->n.common->name, false);
 	  gsym->type = GSYM_COMMON;
 	  gsym->where = common_root->n.common->where;
 	  gsym->defined = 1;
@@ -1067,7 +1067,7 @@ resolve_common_blocks (gfc_symtree *common_root)
 	}
       if (!gsym)
 	{
-	  gsym = gfc_get_gsymbol (common_root->n.common->binding_label);
+	  gsym = gfc_get_gsymbol (common_root->n.common->binding_label, true);
 	  gsym->type = GSYM_COMMON;
 	  gsym->where = common_root->n.common->where;
 	  gsym->defined = 1;
@@ -2482,7 +2482,8 @@ resolve_global_procedure (gfc_symbol *sym, locus *where,
 
   type = sub ? GSYM_SUBROUTINE : GSYM_FUNCTION;
 
-  gsym = gfc_get_gsymbol (sym->binding_label ? sym->binding_label : sym->name);
+  gsym = gfc_get_gsymbol (sym->binding_label ? sym->binding_label : sym->name,
+			  sym->binding_label != NULL);
 
   if ((gsym->type != GSYM_UNKNOWN && gsym->type != type))
     gfc_global_used (gsym, where);
@@ -2492,64 +2493,64 @@ resolve_global_procedure (gfc_symbol *sym, locus *where,
       && gsym->type != GSYM_UNKNOWN
       && !gsym->binding_label
       && gsym->ns
-      && gsym->ns->resolved != -1
       && gsym->ns->proc_name
       && not_in_recursive (sym, gsym->ns)
       && not_entry_self_reference (sym, gsym->ns))
     {
       gfc_symbol *def_sym;
-
-      /* Resolve the gsymbol namespace if needed.  */
-      if (!gsym->ns->resolved)
-	{
-	  gfc_dt_list *old_dt_list;
-
-	  /* Stash away derived types so that the backend_decls do not
-	     get mixed up.  */
-	  old_dt_list = gfc_derived_types;
-	  gfc_derived_types = NULL;
-
-	  gfc_resolve (gsym->ns);
-
-	  /* Store the new derived types with the global namespace.  */
-	  if (gfc_derived_types)
-	    gsym->ns->derived_types = gfc_derived_types;
-
-	  /* Restore the derived types of this namespace.  */
-	  gfc_derived_types = old_dt_list;
-	}
-
-      /* Make sure that translation for the gsymbol occurs before
-	 the procedure currently being resolved.  */
-      ns = gfc_global_ns_list;
-      for (; ns && ns != gsym->ns; ns = ns->sibling)
-	{
-	  if (ns->sibling == gsym->ns)
-	    {
-	      ns->sibling = gsym->ns->sibling;
-	      gsym->ns->sibling = gfc_global_ns_list;
-	      gfc_global_ns_list = gsym->ns;
-	      break;
-	    }
-	}
-
       def_sym = gsym->ns->proc_name;
 
-      /* This can happen if a binding name has been specified.  */
-      if (gsym->binding_label && gsym->sym_name != def_sym->name)
-	gfc_find_symbol (gsym->sym_name, gsym->ns, 0, &def_sym);
-
-      if (def_sym->attr.entry_master)
+      /* Resolve the gsymbol namespace if needed.  */
+      if (gsym->ns->resolved != -1)
 	{
-	  gfc_entry_list *entry;
-	  for (entry = gsym->ns->entries; entry; entry = entry->next)
-	    if (strcmp (entry->sym->name, sym->name) == 0)
-	      {
-		def_sym = entry->sym;
-		break;
-	      }
-	}
+	  if (!gsym->ns->resolved)
+	    {
+	      gfc_dt_list *old_dt_list;
 
+	      /* Stash away derived types so that the backend_decls
+	     do not get mixed up.  */
+	      old_dt_list = gfc_derived_types;
+	      gfc_derived_types = NULL;
+
+	      gfc_resolve (gsym->ns);
+
+	      /* Store the new derived types with the global namespace.  */
+	      if (gfc_derived_types)
+		gsym->ns->derived_types = gfc_derived_types;
+
+	      /* Restore the derived types of this namespace.  */
+	      gfc_derived_types = old_dt_list;
+	    }
+
+	  /* Make sure that translation for the gsymbol occurs before
+	     the procedure currently being resolved.  */
+	  ns = gfc_global_ns_list;
+	  for (; ns && ns != gsym->ns; ns = ns->sibling)
+	    {
+	      if (ns->sibling == gsym->ns)
+		{
+		  ns->sibling = gsym->ns->sibling;
+		  gsym->ns->sibling = gfc_global_ns_list;
+		  gfc_global_ns_list = gsym->ns;
+		  break;
+		}
+	    }
+
+	  /* This can happen if a binding name has been specified.  */
+	  if (gsym->binding_label && gsym->sym_name != def_sym->name)
+	    gfc_find_symbol (gsym->sym_name, gsym->ns, 0, &def_sym);
+
+	  if (def_sym->attr.entry_master || def_sym->attr.entry)
+	    {
+	      gfc_entry_list *entry;
+	      for (entry = gsym->ns->entries; entry; entry = entry->next)
+		if (strcmp (entry->sym->name, sym->name) == 0)
+		  {
+		    def_sym = entry->sym;
+		    break;
+		  }
+	    }
+	}
       if (sym->attr.function && !gfc_compare_types (&sym->ts, &def_sym->ts))
 	{
 	  gfc_error ("Return type mismatch of function %qs at %L (%s/%s)",
@@ -5628,11 +5629,14 @@ resolve_procedure:
 
 
 /* Checks to see that the correct symbol has been host associated.
-   The only situation where this arises is that in which a twice
-   contained function is parsed after the host association is made.
-   Therefore, on detecting this, change the symbol in the expression
-   and convert the array reference into an actual arglist if the old
-   symbol is a variable.  */
+   The only situations where this arises are:
+	(i)  That in which a twice contained function is parsed after
+	     the host association is made. On detecting this, change
+	     the symbol in the expression and convert the array reference
+	     into an actual arglist if the old symbol is a variable; or
+	(ii) That in which an external function is typed but not declared
+	     explcitly to be external. Here, the old symbol is changed
+	     from a variable to an external function.  */
 static bool
 check_host_association (gfc_expr *e)
 {
@@ -5721,6 +5725,26 @@ check_host_association (gfc_expr *e)
 
 	  gfc_resolve_expr (e);
 	  sym->refs++;
+	}
+      /* This case corresponds to a call, from a block or a contained
+	 procedure, to an external function, which has not been declared
+	 as being external in the main program but has been typed.  */
+      else if (sym && old_sym != sym
+	       && !e->ref
+	       && sym->ts.type == BT_UNKNOWN
+	       && old_sym->ts.type != BT_UNKNOWN
+	       && sym->attr.flavor == FL_PROCEDURE
+	       && old_sym->attr.flavor == FL_VARIABLE
+	       && sym->ns->parent == old_sym->ns
+	       && sym->ns->proc_name
+	       && (sym->ns->proc_name->attr.flavor == FL_LABEL
+		   || sym->ns->proc_name->attr.flavor == FL_PROCEDURE))
+	{
+	  old_sym->attr.flavor = FL_PROCEDURE;
+	  old_sym->attr.external = 1;
+	  old_sym->attr.function = 1;
+	  old_sym->result = old_sym;
+	  gfc_resolve_expr (e);
 	}
     }
   /* This might have changed!  */
@@ -11704,7 +11728,7 @@ gfc_verify_binding_labels (gfc_symbol *sym)
 	  && (gsym->type == GSYM_FUNCTION || gsym->type == GSYM_SUBROUTINE)))
     {
       if (!gsym)
-	gsym = gfc_get_gsymbol (sym->binding_label);
+	gsym = gfc_get_gsymbol (sym->binding_label, true);
       gsym->where = sym->declared_at;
       gsym->sym_name = sym->name;
       gsym->binding_label = sym->binding_label;

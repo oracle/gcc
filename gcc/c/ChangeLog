@@ -1,3 +1,26 @@
+2019-04-30  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from mainline
+	2019-04-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/90108
+	* c-decl.c (merge_decls): If remove is main variant and
+	DECL_ORIGINAL_TYPE is some other type, remove a DECL_ORIGINAL_TYPE
+	variant that has newdecl as TYPE_NAME if any.
+
+	2019-04-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c/89933
+	* c-decl.c (merge_decls): When newdecl's type is its main variant,
+	don't try to remove it from the variant list, but instead assert
+	it has no variants.
+
+	2019-03-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c/89734
+	* c-decl.c (grokdeclarator): Call c_build_qualified_type on function
+	return type even if quals_used is 0.  Formatting fixes.
+
 2019-02-22  Release Manager
 
 	* GCC 8.3.0 released.
