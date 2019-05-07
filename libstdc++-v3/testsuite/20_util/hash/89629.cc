@@ -1,4 +1,4 @@
-// Copyright (C) 2017-2018 Free Software Foundation, Inc.
+// Copyright (C) 2019 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -15,17 +15,29 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
-// { dg-do compile { target c++11 } }
+// { dg-do run { target { lp64 || llp64 } } }
+// { dg-require-effective-target c++11 }
+// { dg-require-effective-target run_expensive_tests }
 
-#include <unordered_map>
+#include <functional>
+#include <string>
 
 void
 test01()
 {
-  using namespace std;
-  unordered_map<int, int, equal_to<int>, hash<int>> c2;
+  const std::size_t big = std::size_t(1) << 31;
+  std::string s;
+  try {
+    s.resize(big, 'a');
+  } catch (const std::bad_alloc&) {
+    return; // try to avoid a FAIL if memory allocation fails
+  }
+  // PR libstdc++/89629
+  (void) std::hash<std::string>{}(s);
 }
 
-// { dg-error "hash function must be invocable" "" { target *-*-* } 0 }
-// { dg-error "key equality predicate must be invocable" "" { target *-*-* } 0 }
-// { dg-prune-output "use of deleted function" }
+int
+main()
+{
+  test01();
+}

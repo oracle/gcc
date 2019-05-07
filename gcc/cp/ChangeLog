@@ -1,3 +1,34 @@
+2019-05-07  Marek Polacek  <polacek@redhat.com>	
+
+	Backported from mainline
+	2019-02-27  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/88857 - ICE with value-initialization of argument in template.
+	* call.c (convert_like_real): Don't call build_value_init in template.
+
+	2019-03-25  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/89214 - ICE when initializing aggregates with bases.
+	* typeck2.c (digest_init_r): Warn about object slicing instead of
+	crashing.
+
+	2019-02-27  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/89511 - ICE with using-declaration and unscoped enumerator.
+	* parser.c (cp_parser_using_declaration): For an unscoped enum
+	only use its context if it's not a function declaration.
+
+	2019-03-25  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/89705 - ICE with reference binding with conversion function.
+	* call.c (reference_binding): If the result of the conversion function
+	is a prvalue of non-class type, use the cv-unqualified type.
+
+	2019-03-29  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/89876 - ICE with deprecated conversion.
+	* call.c (convert_like_real): Only give warnings with tf_warning.
+
 2019-04-30  Jakub Jelinek  <jakub@redhat.com>
 
 	Backported from mainline
