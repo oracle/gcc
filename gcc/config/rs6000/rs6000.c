@@ -24172,7 +24172,6 @@ rs6000_output_function_prologue (FILE *file,
       gcc_assert (!TARGET_32BIT);
 
       asm_fprintf (file, "\tmflr %s\n", reg_names[0]);
-      asm_fprintf (file, "\tstd %s,16(%s)\n", reg_names[0], reg_names[1]);
 
       /* In the ELFv2 ABI we have no compiler stack word.  It must be
 	 the resposibility of _mcount to preserve the static chain
@@ -24191,6 +24190,14 @@ rs6000_output_function_prologue (FILE *file,
     }
 
   rs6000_pic_labelno++;
+}
+
+/* -mprofile-kernel code calls mcount before the function prolog,
+   so a profiled leaf function should stay a leaf function.  */
+static bool
+rs6000_keep_leaf_when_profiled ()
+{
+  return TARGET_PROFILE_KERNEL;
 }
 
 /* Non-zero if vmx regs are restored before the frame pop, zero if
