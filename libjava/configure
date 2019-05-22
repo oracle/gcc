@@ -1621,6 +1621,8 @@ Optional Features:
                           default=yes
   --enable-java-maintainer-mode
                           allow rebuilding of .class and .h files
+  --enable-libjava-multilib
+                          build libjava as multilib
   --disable-dependency-tracking  speeds up one-time build
   --enable-dependency-tracking   do not reject slow dependency extractors
   --enable-maintainer-mode  enable make rules and dependencies not useful
@@ -3378,6 +3380,16 @@ else
   JAVA_MAINTAINER_MODE_FALSE=
 fi
 
+
+# Check whether --enable-libjava-multilib was given.
+if test "${enable_libjava_multilib+set}" = set; then
+  enableval=$enable_libjava_multilib;
+fi
+
+if test "$enable_libjava_multilib" = no; then
+  multilib=no
+  ac_configure_args="$ac_configure_args --disable-multilib"
+fi
 
 # It may not be safe to run linking tests in AC_PROG_CC/AC_PROG_CXX.
 
