@@ -216,10 +216,6 @@ static const size_t extra_order_size_table[] = {
 
 #define ROUND_UP_VALUE(x, f) ((f) - 1 - ((f) - 1 + (x)) % (f))
 
-/* Compute the smallest multiple of F that is >= X.  */
-
-#define ROUND_UP(x, f) (CEIL (x, f) * (f))
-
 /* Round X to next multiple of the page size */
 
 #define PAGE_ALIGN(x) (((x) + G.pagesize - 1) & ~(G.pagesize - 1))
