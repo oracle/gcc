@@ -2632,6 +2632,7 @@ ix86_target_string (HOST_WIDE_INT isa, int flags, const char *arch,
     { "-mrtm",		OPTION_MASK_ISA_RTM },
     { "-mxsave",	OPTION_MASK_ISA_XSAVE },
     { "-mxsaveopt",	OPTION_MASK_ISA_XSAVEOPT },
+    { "-mpku",		OPTION_MASK_ISA_PKU },
   };
 
   /* Flag options.  */
@@ -2905,6 +2906,7 @@ ix86_option_override_internal (bool main_args_p)
 #define PTA_FXSR		(HOST_WIDE_INT_1 << 37)
 #define PTA_XSAVE		(HOST_WIDE_INT_1 << 38)
 #define PTA_XSAVEOPT		(HOST_WIDE_INT_1 << 39)
+#define PTA_PKU			(HOST_WIDE_INT_1 << 60)
 
 /* if this reaches 64, need to widen struct pta flags below */
 
@@ -3429,6 +3431,9 @@ ix86_option_override_internal (bool main_args_p)
 	if (processor_alias_table[i].flags & PTA_XSAVEOPT
 	    && !(ix86_isa_flags_explicit & OPTION_MASK_ISA_XSAVEOPT))
 	  ix86_isa_flags |= OPTION_MASK_ISA_XSAVEOPT;
+	if (processor_alias_table[i].flags & PTA_PKU
+	    && !(ix86_isa_flags_explicit & OPTION_MASK_ISA_PKU))
+	  ix86_isa_flags |= OPTION_MASK_ISA_PKU;
 	if (processor_alias_table[i].flags & (PTA_PREFETCH_SSE | PTA_SSE))
 	  x86_prefetch_sse = true;
 
@@ -4220,6 +4225,7 @@ ix86_valid_target_attribute_inner_p (tree args, char *p_strings[],
     IX86_ATTR_ISA ("fxsr",	OPT_mfxsr),
     IX86_ATTR_ISA ("xsave",	OPT_mxsave),
     IX86_ATTR_ISA ("xsaveopt",	OPT_mxsaveopt),
+    IX86_ATTR_ISA ("pku",	OPT_mpku),
 
     /* enum options */
     IX86_ATTR_ENUM ("fpmath=",	OPT_mfpmath_),
@@ -27046,6 +27052,10 @@ enum ix86_builtins
   IX86_BUILTIN_CPU_IS,
   IX86_BUILTIN_CPU_SUPPORTS,
 
+  /* PKU instructions.  */
+  IX86_BUILTIN_RDPKRU,
+  IX86_BUILTIN_WRPKRU,
+
   IX86_BUILTIN_MAX
 };
 
@@ -27361,6 +27371,10 @@ static const struct builtin_description bdesc_special_args[] =
   { OPTION_MASK_ISA_RTM, CODE_FOR_xbegin, "__builtin_ia32_xbegin", IX86_BUILTIN_XBEGIN, UNKNOWN, (int) UNSIGNED_FTYPE_VOID },
   { OPTION_MASK_ISA_RTM, CODE_FOR_xend, "__builtin_ia32_xend", IX86_BUILTIN_XEND, UNKNOWN, (int) VOID_FTYPE_VOID },
   { OPTION_MASK_ISA_RTM, CODE_FOR_xtest, "__builtin_ia32_xtest", IX86_BUILTIN_XTEST, UNKNOWN, (int) INT_FTYPE_VOID },
+
+  /* RDPKRU and WRPKRU.  */
+  { OPTION_MASK_ISA_PKU, CODE_FOR_rdpkru, "__builtin_ia32_rdpkru", IX86_BUILTIN_RDPKRU, UNKNOWN, (int) UNSIGNED_FTYPE_VOID },
+  { OPTION_MASK_ISA_PKU, CODE_FOR_wrpkru, "__builtin_ia32_wrpkru", IX86_BUILTIN_WRPKRU, UNKNOWN, (int) VOID_FTYPE_UNSIGNED },
 };
 
 /* Builtins with variable number of arguments.  */
