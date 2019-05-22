@@ -1975,7 +1975,9 @@ add_function_candidate (struct z_candidate **candidates,
 		  bool rv = FUNCTION_RVALUE_QUALIFIED (TREE_TYPE (fn));
 		  parmtype = cp_build_reference_type (parmtype, rv);
 		  if (TREE_CODE (arg) == CONVERT_EXPR
-		      && TYPE_PTR_P (TREE_TYPE (arg)))
+		      && TYPE_PTR_P (TREE_TYPE (arg))
+		      && (TREE_CODE (TREE_TYPE (TREE_OPERAND (arg, 0)))
+			  == REFERENCE_TYPE))
 		    /* Strip conversion from reference to pointer.  */
 		    arg = TREE_OPERAND (arg, 0);
 		  arg = build_fold_indirect_ref (arg);
