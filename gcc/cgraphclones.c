@@ -246,6 +246,33 @@ cgraph_clone_node (struct cgraph_node *n, tree decl, gcov_type count, int freq,
 /* Create a new name for clone of DECL, add SUFFIX.  Returns an identifier.  */
 
 static GTY(()) unsigned int clone_fn_id_num;
+/* Hash table entry, mapping a decl NAME to a CLONE_ID counter.  */
+typedef struct GTY (()) decl_cloneid_map
+{
+  const char *name;
+  unsigned clone_id;
+} decl_cloneid_map;
+
+/* Hash table for mapping function names to clone id counters.  */
+static GTY ((param_is (struct decl_cloneid_map))) htab_t
+  decl_to_cloneid_htab;
+
+/* Compute hash values for decl_to_cloneid_map.  */
+static unsigned int
+decl_to_cloneid_hash (const void *item)
+{
+  return htab_hash_string (((const decl_cloneid_map *) item)->name);
+}
+
+/* Checks element equality for decl_to_cloneid_map.  */
+static int
+decl_to_cloneid_eq (const void *a, const void *b)
+{
+  const char *a0 = ((const decl_cloneid_map *)a)->name;
+  const char *b0 = ((const decl_cloneid_map *)b)->name;
+
+  return (strcmp (a0, b0) == 0);
+}
 
 tree
 clone_function_name (tree decl, const char *suffix)
@@ -253,6 +280,8 @@ clone_function_name (tree decl, const char *suffix)
   tree name = DECL_ASSEMBLER_NAME (decl);
   size_t len = IDENTIFIER_LENGTH (name);
   char *tmp_name, *prefix;
+  decl_cloneid_map new_mapping, *mapping;
+  void **slot;
 
   prefix = XALLOCAVEC (char, len + strlen (suffix) + 2);
   memcpy (prefix, IDENTIFIER_POINTER (name), len);
@@ -264,7 +293,38 @@ clone_function_name (tree decl, const char *suffix)
 #else
   prefix[len] = '_';
 #endif
-  ASM_FORMAT_PRIVATE_NAME (tmp_name, prefix, clone_fn_id_num++);
+  if (flag_stable_asm_output)
+    {
+      if (decl_to_cloneid_htab == NULL)
+	{
+	  /* Initialize the per-decl counter hash table if this is the
+	     first call.  */
+	  decl_to_cloneid_htab = htab_create_ggc (1000, decl_to_cloneid_hash,
+						  decl_to_cloneid_eq, NULL);
+	}
+      new_mapping.name = IDENTIFIER_POINTER (name);
+      slot = htab_find_slot (decl_to_cloneid_htab, &new_mapping, INSERT);
+      gcc_assert (slot != NULL);
+      if (*slot)
+	{
+	  /* found an existing counter; increment and use it.  */
+	  mapping = (decl_cloneid_map *)*slot;
+	  mapping->clone_id++;
+	}
+      else
+	{
+	  /* first time seeing this NAME; allocate a counter and use it.  */
+	  mapping = ggc_alloc_decl_cloneid_map ();
+	  mapping->name = IDENTIFIER_POINTER (name);
+	  mapping->clone_id = 0;
+	  *slot = mapping;
+	}
+      ASM_FORMAT_PRIVATE_NAME (tmp_name, prefix, mapping->clone_id);
+    }
+  else
+    {
+      ASM_FORMAT_PRIVATE_NAME (tmp_name, prefix, clone_fn_id_num++);
+  }
   return get_identifier (tmp_name);
 }
 
