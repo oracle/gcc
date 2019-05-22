@@ -1,6 +1,7 @@
 /* { dg-do compile } */
 /* { dg-options "-O2 -fstack-clash-protection -mtune=generic -fdump-rtl-expand" } */
 /* { dg-require-effective-target supports_stack_clash_protection } */
+/* { dg-skip-if "" { *-*-* } { "-fstack-protector" } { "" } } */
 
 int f1 (char *);
 
@@ -24,6 +25,6 @@ f2 (const int size)
    in the probe loop and one that bypasses the residual probe.
 
    These will all be equality tests.  */
-/* { dg-final { scan-assembler-times "(\?:je|jne)" 3 } } */
+/* { dg-final { scan-assembler-times "(\?:jmp|je|jne)" 3 } } */
 
 
