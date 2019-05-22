@@ -1,7 +1,8 @@
-/* Copyright (C) 2008-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2015-2016 Free Software Foundation, Inc.
    Contributed by Jakub Jelinek <jakub@redhat.com>.
 
-   This file is part of the GNU OpenMP Library (libgomp).
+   This file is part of the GNU Offloading and Multi Processing Library
+   (libgomp).
 
    Libgomp is free software; you can redistribute it and/or modify it
    under the terms of the GNU General Public License as published by
@@ -22,52 +23,40 @@
    see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
    <http://www.gnu.org/licenses/>.  */
 
-/* This is a Linux specific implementation of a mutex synchronization
-   mechanism for libgomp.  This type is private to the library.  This
-   implementation uses atomic instructions and the futex syscall.  */
+/* This is a generic implementation of doacross spinning.  */
 
-#ifndef GOMP_WAIT_H
-#define GOMP_WAIT_H 1
+#ifndef GOMP_DOACROSS_H
+#define GOMP_DOACROSS_H 1
 
 #include "libgomp.h"
 #include <errno.h>
-
-#define FUTEX_WAIT	0
-#define FUTEX_WAKE	1
-#define FUTEX_PRIVATE_FLAG	128
 
 #ifdef HAVE_ATTRIBUTE_VISIBILITY
 # pragma GCC visibility push(hidden)
 #endif
 
-extern int gomp_futex_wait, gomp_futex_wake;
-
-#include <futex.h>
-
-static inline int do_spin (int *addr, int val)
+static inline void
+cpu_relax (void)
 {
-  unsigned long long i, count = gomp_spin_count_var;
-
-  if (__builtin_expect (__atomic_load_n (&gomp_managed_threads,
-                                         MEMMODEL_RELAXED)
-                        > gomp_available_cpus, 0))
-    count = gomp_throttled_spin_count_var;
-  for (i = 0; i < count; i++)
-    if (__builtin_expect (__atomic_load_n (addr, MEMMODEL_RELAXED) != val, 0))
-      return 0;
-    else
-      cpu_relax ();
-  return 1;
+  __asm volatile ("" : : : "memory");
 }
 
-static inline void do_wait (int *addr, int val)
+static inline void doacross_spin (unsigned long *addr, unsigned long expected,
+				  unsigned long cur)
 {
-  if (do_spin (addr, val))
-    futex_wait (addr, val);
+  /* FIXME: back off depending on how large expected - cur is.  */
+  do
+    {
+      cpu_relax ();
+      cur = __atomic_load_n (addr, MEMMODEL_RELAXED);
+      if (expected < cur)
+	return;
+    }
+  while (1);
 }
 
 #ifdef HAVE_ATTRIBUTE_VISIBILITY
 # pragma GCC visibility pop
 #endif
 
-#endif /* GOMP_WAIT_H */
+#endif /* GOMP_DOACROSS_H */
