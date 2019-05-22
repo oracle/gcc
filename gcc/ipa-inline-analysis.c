@@ -990,6 +990,7 @@ reset_inline_summary (struct cgraph_node *node)
   info->stack_frame_offset = 0;
   info->size = 0;
   info->time = 0;
+  info->num_calls = 0;
   info->growth = 0;
   info->scc_no = 0;
   if (info->loop_iterations)
@@ -2704,6 +2705,7 @@ compute_inline_parameters (struct cgraph_node *node, bool early)
   /* Inlining characteristics are maintained by the cgraph_mark_inline.  */
   info->time = info->self_time;
   info->size = info->self_size;
+  info->num_calls = 0;
   info->stack_frame_offset = 0;
   info->estimated_stack_size = info->estimated_self_stack_size;
 #ifdef ENABLE_CHECKING
@@ -2816,7 +2818,7 @@ estimate_edge_size_and_time (struct cgraph_edge *e, int *size, int *time,
 
 static void
 estimate_calls_size_and_time (struct cgraph_node *node, int *size, int *time,
-			      inline_hints *hints,
+			      inline_hints *hints, int *num,
 			      clause_t possible_truths,
 			      vec<tree> known_vals,
 			      vec<tree> known_binfos,
@@ -2826,6 +2828,7 @@ estimate_calls_size_and_time (struct cgraph_node *node, int *size, int *time,
   for (e = node->callees; e; e = e->next_callee)
     {
       struct inline_edge_summary *es = inline_edge_summary (e);
+      (*num)++;
       if (!es->predicate
 	  || evaluate_predicate (es->predicate, possible_truths))
 	{
@@ -2838,7 +2841,7 @@ estimate_calls_size_and_time (struct cgraph_node *node, int *size, int *time,
 					   known_aggs, hints);
 	    }
 	  else
-	    estimate_calls_size_and_time (e->callee, size, time, hints,
+	    estimate_calls_size_and_time (e->callee, size, time, hints, num,
 					  possible_truths,
 					  known_vals, known_binfos,
 					  known_aggs);
@@ -2846,6 +2849,7 @@ estimate_calls_size_and_time (struct cgraph_node *node, int *size, int *time,
     }
   for (e = node->indirect_calls; e; e = e->next_callee)
     {
+      (*num)++;
       struct inline_edge_summary *es = inline_edge_summary (e);
       if (!es->predicate
 	  || evaluate_predicate (es->predicate, possible_truths))
@@ -2936,7 +2940,8 @@ estimate_node_size_and_time (struct cgraph_node *node,
   if (DECL_DECLARED_INLINE_P (node->symbol.decl))
     hints |= INLINE_HINT_declared_inline;
 
-  estimate_calls_size_and_time (node, &size, &time, &hints, possible_truths,
+  int num = 0;
+  estimate_calls_size_and_time (node, &size, &time, &hints, &num, possible_truths,
 				known_vals, known_binfos, known_aggs);
   gcc_checking_assert (size >= 0);
   gcc_checking_assert (time >= 0);
@@ -3369,13 +3374,14 @@ inline_update_overall_summary (struct cgraph_node *node)
 
   info->size = 0;
   info->time = 0;
+  info->num_calls = 0;
   for (i = 0; vec_safe_iterate (info->entry, i, &e); i++)
     {
       info->size += e->size, info->time += e->time;
       if (info->time > MAX_TIME * INLINE_TIME_SCALE)
 	info->time = MAX_TIME * INLINE_TIME_SCALE;
     }
-  estimate_calls_size_and_time (node, &info->size, &info->time, NULL,
+  estimate_calls_size_and_time (node, &info->size, &info->time, NULL, &info->num_calls,
 				~(clause_t) (1 << predicate_false_condition),
 				vNULL, vNULL, vNULL);
   info->time = (info->time + INLINE_TIME_SCALE / 2) / INLINE_TIME_SCALE;
@@ -3526,6 +3532,14 @@ do_estimate_edge_hints (struct cgraph_edge *edge)
   known_aggs.release ();
   hints |= simple_edge_hints (edge);
   return hints;
+}
+
+/* Return true if edge is never executed.  */
+bool
+never_executed_edge_p (struct cgraph_edge *e)
+{
+ struct inline_edge_summary *es = inline_edge_summary (e);
+ return es->predicate && false_predicate_p (es->predicate);
 }
 
 

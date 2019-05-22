@@ -103,3 +103,6 @@ DEFCIFCODE(TARGET_OPTION_MISMATCH, N_("target specific option mismatch"))
 
 /* We can't inline because of mismatched optimization levels.  */
 DEFCIFCODE(OPTIMIZATION_MISMATCH, N_("optimization level attribute mismatch"))
+
+/* We know that the call will be optimized out.  */
+DEFCIFCODE(NEVER_EXECUTED, N_("never executed"))
