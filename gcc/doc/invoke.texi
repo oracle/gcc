@@ -658,7 +658,7 @@ Objective-C and Objective-C++ Dialects}.
 -m32 -m64 -mx32 -mlarge-data-threshold=@var{num} @gol
 -msse2avx -mfentry -m8bit-idiv @gol
 -mavx256-split-unaligned-load -mavx256-split-unaligned-store @gol
--mindirect-branch=@var{choice}}
+-mindirect-branch=@var{choice} -mfunction-return==@var{choice}}
 
 @emph{i386 and x86-64 Windows Options}
 @gccoptlist{-mconsole -mcygwin -mno-cygwin -mdll @gol
@@ -14657,6 +14657,17 @@ and return thunk.  @samp{thunk-extern} converts indirect call and jump
 to external call and return thunk provided in a separate object file.
 You can control this behavior for a specific function by using the
 function attribute @code{indirect_branch}.  @xref{Function Attributes}.
+
+@item -mfunction-return=@var{choice}
+@opindex -mfunction-return
+Convert function return with @var{choice}.  The default is @samp{keep},
+which keeps function return unmodified.  @samp{thunk} converts function
+return to call and return thunk.  @samp{thunk-inline} converts function
+return to inlined call and return thunk.  @samp{thunk-extern} converts
+function return to external call and return thunk provided in a separate
+object file.  You can control this behavior for a specific function by
+using the function attribute @code{function_return}.
+@xref{Function Attributes}.
 
 @end table
 

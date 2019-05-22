@@ -4635,6 +4635,31 @@ ix86_set_indirect_branch_type (tree fndecl)
       else
 	cfun->machine->indirect_branch_type = ix86_indirect_branch;
     }
+
+  if (cfun->machine->function_return_type == indirect_branch_unset)
+    {
+      tree attr = lookup_attribute ("function_return",
+				    DECL_ATTRIBUTES (fndecl));
+      if (attr != NULL)
+	{
+	  tree args = TREE_VALUE (attr);
+	  if (args == NULL)
+	    gcc_unreachable ();
+	  tree cst = TREE_VALUE (args);
+	  if (strcmp (TREE_STRING_POINTER (cst), "keep") == 0)
+	    cfun->machine->function_return_type = indirect_branch_keep;
+	  else if (strcmp (TREE_STRING_POINTER (cst), "thunk") == 0)
+	    cfun->machine->function_return_type = indirect_branch_thunk;
+	  else if (strcmp (TREE_STRING_POINTER (cst), "thunk-inline") == 0)
+	    cfun->machine->function_return_type = indirect_branch_thunk_inline;
+	  else if (strcmp (TREE_STRING_POINTER (cst), "thunk-extern") == 0)
+	    cfun->machine->function_return_type = indirect_branch_thunk_extern;
+	  else
+	    gcc_unreachable ();
+	}
+      else
+	cfun->machine->function_return_type = ix86_function_return;
+    }
 }
 
 /* Remember the last target of ix86_set_current_function.  */
@@ -8733,8 +8758,11 @@ static int indirect_thunks_used;
 /* Fills in the label name that should be used for the indirect thunk.  */
 
 static void
-indirect_thunk_name (char name[32], int regno)
+indirect_thunk_name (char name[32], int regno, bool ret_p)
 {
+  if (regno >= 0 && ret_p)
+    gcc_unreachable ();
+
   if (USE_HIDDEN_LINKONCE)
     {
       if (regno >= 0)
@@ -8748,14 +8776,22 @@ indirect_thunk_name (char name[32], int regno)
 		   reg_prefix, reg_names[regno]);
 	}
       else
-	sprintf (name, "__x86_indirect_thunk");
+	{
+	  const char *ret = ret_p ? "return" : "indirect";
+	  sprintf (name, "__x86_%s_thunk", ret);
+	}
     }
   else
     {
       if (regno >= 0)
 	ASM_GENERATE_INTERNAL_LABEL (name, "LITR", regno);
       else
-	ASM_GENERATE_INTERNAL_LABEL (name, "LIT", 0);
+	{
+	  if (ret_p)
+	    ASM_GENERATE_INTERNAL_LABEL (name, "LRT", 0);
+	  else
+	    ASM_GENERATE_INTERNAL_LABEL (name, "LIT", 0);
+	}
     }
 }
 
@@ -8841,7 +8877,7 @@ output_indirect_thunk_function (int regno)
   tree decl;
 
   /* Create __x86_indirect_thunk.  */
-  indirect_thunk_name (name, regno);
+  indirect_thunk_name (name, regno, false);
   decl = build_decl (BUILTINS_LOCATION, FUNCTION_DECL,
 		     get_identifier (name),
 		     build_function_type_list (void_type_node, NULL_TREE));
@@ -8884,6 +8920,36 @@ output_indirect_thunk_function (int regno)
 	switch_to_section (text_section);
 	ASM_OUTPUT_LABEL (asm_out_file, name);
       }
+
+  if (regno < 0)
+    {
+      /* Create alias for __x86.return_thunk/__x86.return_thunk_bnd.  */
+      char alias[32];
+
+      indirect_thunk_name (alias, regno, true);
+#if TARGET_MACHO
+      if (TARGET_MACHO)
+	{
+	  fputs ("\t.weak_definition\t", asm_out_file);
+	  assemble_name (asm_out_file, alias);
+	  fputs ("\n\t.private_extern\t", asm_out_file);
+	  assemble_name (asm_out_file, alias);
+	  putc ('\n', asm_out_file);
+	  ASM_OUTPUT_LABEL (asm_out_file, alias);
+	}
+#else
+      ASM_OUTPUT_DEF (asm_out_file, alias, name);
+      if (USE_HIDDEN_LINKONCE)
+	{
+	  fputs ("\t.globl\t", asm_out_file);
+	  assemble_name (asm_out_file, alias);
+	  putc ('\n', asm_out_file);
+	  fputs ("\t.hidden\t", asm_out_file);
+	  assemble_name (asm_out_file, alias);
+	  putc ('\n', asm_out_file);
+	}
+#endif
+    }
 
   DECL_INITIAL (decl) = make_node (BLOCK);
   current_function_decl = decl;
@@ -24419,7 +24485,7 @@ ix86_output_indirect_branch_via_reg (rtx call_op, bool sibcall_p)
 	    i -= (FIRST_REX_INT_REG - LAST_INT_REG - 1);
 	  indirect_thunks_used |= 1 << i;
 	}
-      indirect_thunk_name (thunk_name_buf, regno);
+      indirect_thunk_name (thunk_name_buf, regno, false);
       thunk_name = thunk_name_buf;
     }
   else
@@ -24503,7 +24569,7 @@ ix86_output_indirect_branch_via_push (rtx call_op, const char *xasm,
     {
       if (cfun->machine->indirect_branch_type == indirect_branch_thunk)
 	indirect_thunk_needed = true;
-      indirect_thunk_name (thunk_name_buf, regno);
+      indirect_thunk_name (thunk_name_buf, regno, false);
       thunk_name = thunk_name_buf;
     }
   else
@@ -24623,6 +24689,37 @@ ix86_output_indirect_jmp (rtx call_op, bool ret_p)
     }
   else
     return "jmp\t%A0";
+}
+
+/* Output function return.  CALL_OP is the jump target.  Add a REP
+   prefix to RET if LONG_P is true and function return is kept.  */
+
+const char *
+ix86_output_function_return (bool long_p)
+{
+  if (cfun->machine->function_return_type != indirect_branch_keep)
+    {
+      char thunk_name[32];
+
+      if (cfun->machine->function_return_type
+	  != indirect_branch_thunk_inline)
+	{
+	  bool need_thunk = (cfun->machine->function_return_type
+			     == indirect_branch_thunk);
+	  indirect_thunk_name (thunk_name, -1, true);
+	  indirect_thunk_needed |= need_thunk;
+	  fprintf (asm_out_file, "\tjmp\t%s\n", thunk_name);
+	}
+      else
+	output_indirect_thunk (-1);
+
+      return "";
+    }
+
+  if (!long_p)
+    return "ret";
+
+  return "rep%; ret";
 }
 
 /* Output the assembly for a call instruction.  */
@@ -36038,6 +36135,28 @@ ix86_handle_fndecl_attribute (tree *node, tree name,
 	}
     }
 
+  if (is_attribute_p ("function_return", name))
+    {
+      tree cst = TREE_VALUE (args);
+      if (TREE_CODE (cst) != STRING_CST)
+	{
+	  warning (OPT_Wattributes,
+		   "%qE attribute requires a string constant argument",
+		   name);
+	  *no_add_attrs = true;
+	}
+      else if (strcmp (TREE_STRING_POINTER (cst), "keep") != 0
+	       && strcmp (TREE_STRING_POINTER (cst), "thunk") != 0
+	       && strcmp (TREE_STRING_POINTER (cst), "thunk-inline") != 0
+	       && strcmp (TREE_STRING_POINTER (cst), "thunk-extern") != 0)
+	{
+	  warning (OPT_Wattributes,
+		   "argument to %qE attribute is not "
+		   "(keep|thunk|thunk-inline|thunk-extern)", name);
+	  *no_add_attrs = true;
+	}
+    }
+
   return NULL_TREE;
 }
 
@@ -39558,6 +39677,9 @@ static const struct attribute_spec ix86_attribute_table[] =
     ix86_handle_callee_pop_aggregate_return, true },
   { "indirect_branch", 1, 1, true, false, false,
     ix86_handle_fndecl_attribute, false },
+  { "function_return", 1, 1, true, false, false,
+    ix86_handle_fndecl_attribute, false },
+
   /* End element.  */
   { NULL,        0, 0, false, false, false, NULL, false }
 };

@@ -2329,6 +2329,9 @@ struct GTY(()) machine_function {
      "indirect_jump" or "tablejump".  */
   BOOL_BITFIELD has_local_indirect_jump : 1;
 
+  /* How to generate function return.  */
+  ENUM_BITFIELD(indirect_branch) function_return_type : 3;
+
   /* During prologue/epilogue generation, the current frame state.
      Otherwise, the frame state at the end of the prologue.  */
   struct machine_frame_state fs;
