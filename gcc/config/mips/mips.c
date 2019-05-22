@@ -10745,7 +10745,9 @@ mips_expand_prologue (void)
   if (flag_stack_usage_info)
     current_function_static_stack_size = size;
 
-  if (flag_stack_check == STATIC_BUILTIN_STACK_CHECK && size)
+  if ((flag_stack_check == STATIC_BUILTIN_STACK_CHECK
+       || flag_stack_clash_protection)
+      && size)
     mips_emit_probe_stack_range (get_stack_check_protect (), size);
 
   /* Save the registers.  Allocate up to MIPS_MAX_FIRST_STACK_STEP
