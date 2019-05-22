@@ -81,7 +81,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 #define LIB_SPEC GNU_USER_TARGET_LIB_SPEC
 
 #if defined(HAVE_LD_EH_FRAME_HDR)
-#define LINK_EH_SPEC "%{!static:--eh-frame-hdr} "
+#define LINK_EH_SPEC "--no-add-needed %{!static:--eh-frame-hdr} "
 #endif
 
 #undef LINK_GCC_C_SEQUENCE_SPEC

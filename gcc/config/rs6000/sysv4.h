@@ -778,7 +778,7 @@ ENDIAN_SELECT(" -mbig", " -mlittle", DEFAULT_ASM_ENDIAN)
   -dynamic-linker " GNU_USER_DYNAMIC_LINKER "}}"
 
 #if defined(HAVE_LD_EH_FRAME_HDR)
-# define LINK_EH_SPEC "%{!static:--eh-frame-hdr} "
+# define LINK_EH_SPEC "--no-add-needed %{!static:--eh-frame-hdr} "
 #endif
 
 #define CPP_OS_LINUX_SPEC "-D__unix__ -D__gnu_linux__ -D__linux__ \
