@@ -7806,6 +7806,30 @@ unmark_all_dies (dw_die_ref die)
       unmark_all_dies (AT_ref (a));
 }
 
+/* Calculate if the entry should appear in the final output file.  It may be
+   from a pruned a type.  */
+
+static bool
+include_pubname_in_output (vec<pubname_entry, va_gc> *table, pubname_entry *p)
+{
+  if (table == pubname_table)
+    {
+      /* Enumerator names are part of the pubname table, but the parent
+	 DW_TAG_enumeration_type die may have been pruned.  Don't output
+	 them if that is the case.  */
+      if (p->die->die_tag == DW_TAG_enumerator && !p->die->die_mark)
+	return false;
+
+      /* Everything else in the pubname table is included.  */
+      return true;
+    }
+
+  /* The pubtypes table shouldn't include types that have been
+     pruned.  */
+  return (p->die->die_offset != 0
+	  || !flag_eliminate_unused_debug_types);
+}
+
 /* Return the size of the .debug_pubnames or .debug_pubtypes table
    generated for the compilation unit.  */
 
@@ -7818,9 +7842,7 @@ size_of_pubnames (vec<pubname_entry, va_gc> *names)
 
   size = DWARF_PUBNAMES_HEADER_SIZE;
   FOR_EACH_VEC_ELT (*names, i, p)
-    if (names != pubtype_table
-	|| p->die->die_offset != 0
-	|| !flag_eliminate_unused_debug_types)
+    if (include_pubname_in_output (names, p))
       size += strlen (p->name) + DWARF_OFFSET_SIZE + 1;
 
   size += DWARF_OFFSET_SIZE;
@@ -8999,21 +9021,13 @@ output_pubnames (vec<pubname_entry, va_gc> *names)
 
   FOR_EACH_VEC_ELT (*names, i, pub)
     {
-      /* Enumerator names are part of the pubname table, but the parent
-         DW_TAG_enumeration_type die may have been pruned.  Don't output
-         them if that is the case.  */
-      if (pub->die->die_tag == DW_TAG_enumerator && !pub->die->die_mark)
-        continue;
-
-      /* We shouldn't see pubnames for DIEs outside of the main CU.  */
-      if (names == pubname_table)
-	gcc_assert (pub->die->die_mark);
-
-      if (names != pubtype_table
-	  || pub->die->die_offset != 0
-	  || !flag_eliminate_unused_debug_types)
+      if (include_pubname_in_output (names, pub))
 	{
 	  dw_offset die_offset = pub->die->die_offset;
+
+	  /* We shouldn't see pubnames for DIEs outside of the main CU.  */
+	  if (names == pubname_table)
+	    gcc_assert (pub->die->die_mark);
 
 	  /* If we're putting types in their own .debug_types sections,
 	     the .debug_pubtypes table will still point to the compile
