@@ -79,8 +79,7 @@ typedef Char *Str_Ptr;
 /* Types for the fat pointer used for strings and the template it
    points to.  */
 typedef struct {int Low_Bound, High_Bound; } String_Template;
-typedef struct {const char *Array; String_Template *Bounds; }
-	__attribute ((aligned (sizeof (char *) * 2))) Fat_Pointer;
+typedef struct {const char *Array; String_Template *Bounds; } Fat_Pointer;
 
 /* Types for Node/Entity Kinds:  */
 

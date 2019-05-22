@@ -562,7 +562,9 @@ __gnat_error_handler (int sig, siginfo_t *si ATTRIBUTE_UNUSED, void *ucontext)
   Raise_From_Signal_Handler (exception, msg);
 }
 
-#if defined (i386) || defined (__x86_64__) || defined (__powerpc__)
+#if defined (i386) || defined (__x86_64__) || defined (__powerpc__) \
+    || defined (__aarch64__)
+#define HAVE_GNAT_ALTERNATE_STACK 1
 /* This must be in keeping with System.OS_Interface.Alternate_Stack_Size.  */
 char __gnat_alternate_stack[16 * 1024]; /* 2 * SIGSTKSZ */
 #endif
@@ -603,7 +605,7 @@ __gnat_install_handler (void)
      handled properly, avoiding a SEGV generation from stack usage by the
      handler itself.  */
 
-#if defined (i386) || defined (__x86_64__) || defined (__powerpc__)
+#ifdef HAVE_GNAT_ALTERNATE_STACK
   stack_t stack;
   stack.ss_sp = __gnat_alternate_stack;
   stack.ss_size = sizeof (__gnat_alternate_stack);
@@ -624,7 +626,7 @@ __gnat_install_handler (void)
     sigaction (SIGILL,  &act, NULL);
   if (__gnat_get_interrupt_state (SIGBUS) != 's')
     sigaction (SIGBUS,  &act, NULL);
-#if defined (i386) || defined (__x86_64__) || defined (__powerpc__)
+#ifdef HAVE_GNAT_ALTERNATE_STACK
   act.sa_flags |= SA_ONSTACK;
 #endif
   if (__gnat_get_interrupt_state (SIGSEGV) != 's')
