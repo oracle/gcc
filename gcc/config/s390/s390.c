@@ -14091,7 +14091,7 @@ s390_output_indirect_thunk_function (unsigned int regno, bool z10_p)
 
      calls: Instead of caller->thunk the backtrace will be
      caller->callee->thunk   */
-  if (flag_asynchronous_unwind_tables)
+  if (flag_asynchronous_unwind_tables && flag_dwarf2_cfi_asm)
     {
       fputs ("\t.cfi_signal_frame\n", asm_out_file);
       fprintf (asm_out_file, "\t.cfi_return_column %d\n", regno);
