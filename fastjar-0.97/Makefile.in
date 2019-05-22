@@ -515,7 +515,7 @@ EXTRA_DIST = \
 	texi2pod.pl
 
 TEXI2POD = perl $(srcdir)/texi2pod.pl
-POD2MAN = pod2man --center="GNU" --release=@VERSION@
+POD2MAN = pod2man --center="GNU" --release=@VERSION@ --date=$(shell sed -n '1s/ .*//p' <$(srcdir)/ChangeLog)
 
 #SPLINT_FLAGS=-I . -I $(srcdir)/lib -I $(srcdir) -DHAVE_CONFIG_H +posixlib +weak
 SPLINT_FLAGS = -I . -I $(srcdir)/lib -I $(srcdir) -DHAVE_CONFIG_H -DPRIx32= -warnposix +weak
