@@ -1257,7 +1257,7 @@ int add_file_to_jar(int jfd, int ffd, const char *fname, struct stat *statbuf,
       exit_on_error("write");
 
   /* write the file name to the zip file */
-  if (1 == write(jfd, fname, file_name_length))
+  if (-1 == write(jfd, fname, file_name_length))
     exit_on_error("write");
 
   if(verbose){
