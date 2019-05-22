@@ -3435,7 +3435,7 @@ ia64_expand_prologue (void)
     current_function_static_stack_size = current_frame_info.total_size;
 
   if (flag_stack_check == STATIC_BUILTIN_STACK_CHECK)
-    ia64_emit_probe_stack_range (STACK_CHECK_PROTECT,
+    ia64_emit_probe_stack_range (get_stack_check_protect (),
 				 current_frame_info.total_size,
 				 current_frame_info.n_input_regs
 				   + current_frame_info.n_local_regs);

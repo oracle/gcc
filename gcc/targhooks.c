@@ -1566,4 +1566,10 @@ default_canonicalize_comparison (int *, rtx *, rtx *, bool)
 {
 }
 
+bool
+default_stack_clash_protection_final_dynamic_probe (rtx residual ATTRIBUTE_UNUSED)
+{
+  return 0;
+}
+
 #include "gt-targhooks.h"

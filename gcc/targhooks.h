@@ -196,3 +196,4 @@ extern const char *default_pch_valid_p (const void *, size_t);
 extern void default_asm_output_ident_directive (const char*);
 
 extern bool default_member_type_forces_blk (const_tree, enum machine_mode);
+extern bool default_stack_clash_protection_final_dynamic_probe (rtx);

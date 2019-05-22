@@ -1756,6 +1756,17 @@ extern int currently_expanding_to_rtl;
 /* In explow.c */
 extern HOST_WIDE_INT trunc_int_for_mode	(HOST_WIDE_INT, enum machine_mode);
 extern rtx plus_constant (enum machine_mode, rtx, HOST_WIDE_INT);
+extern HOST_WIDE_INT get_stack_check_protect (void);
+
+/* Support for building allocation/probing loops for stack-clash
+   protection of dyamically allocated stack space.  */
+extern void compute_stack_clash_protection_loop_data (rtx *, rtx *, rtx *,
+						      HOST_WIDE_INT *, rtx);
+extern void emit_stack_clash_protection_probe_loop_start (rtx *, rtx *,
+							  rtx, bool);
+extern void emit_stack_clash_protection_probe_loop_end (rtx, rtx,
+							rtx, bool);
+
 
 /* In rtl.c */
 extern rtx rtx_alloc_stat (RTX_CODE MEM_STAT_DECL);

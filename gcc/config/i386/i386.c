@@ -10544,12 +10544,12 @@ ix86_expand_prologue (void)
 	  HOST_WIDE_INT size = allocate;
 
 	  if (TARGET_64BIT && size >= (HOST_WIDE_INT) 0x80000000)
-	    size = 0x80000000 - STACK_CHECK_PROTECT - 1;
+	    size = 0x80000000 - get_stack_check_protect () - 1;
 
 	  if (TARGET_STACK_PROBE)
-	    ix86_emit_probe_stack_range (0, size + STACK_CHECK_PROTECT);
+	    ix86_emit_probe_stack_range (0, size + get_stack_check_protect ());
 	  else
-	    ix86_emit_probe_stack_range (STACK_CHECK_PROTECT, size);
+	    ix86_emit_probe_stack_range (get_stack_check_protect (), size);
 	}
     }
 
