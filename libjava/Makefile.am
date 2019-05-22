@@ -550,7 +550,7 @@ libgcj_tools_la_LDFLAGS = -rpath $(toolexeclibdir) \
  $(LIBGCJ_LD_SYMBOLIC_FUNCTIONS) $(LIBJAVA_LDFLAGS_NOUNDEF) \
  $(LIBJAVA_LDFLAGS_LIBMATH)
 
-libgcj_tools_la_LIBADD = libgcj.la
+libgcj_tools_la_LIBADD = -L$(here)/.libs libgcj.la
 libgcj_tools_la_DEPENDENCIES = libgcj.la libgcj.spec \
  $(libgcj_tools_la_version_dep)
 if BUILD_SUBLIBS
