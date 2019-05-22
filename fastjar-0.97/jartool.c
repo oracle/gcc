@@ -790,6 +790,7 @@ int read_entries (int fd)
 		   progname, jarfile);
 	  return 1;
 	}
+      ze->filename[len] = '\0';
       len = UNPACK_UB4(header, CEN_EFLEN);
       len += UNPACK_UB4(header, CEN_COMLEN);
       if (lseek (fd, len, SEEK_CUR) == -1)
