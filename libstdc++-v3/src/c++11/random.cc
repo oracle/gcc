@@ -126,8 +126,10 @@ namespace std _GLIBCXX_VISIBILITY(default)
 #endif
 
     result_type __ret;
-    std::fread(reinterpret_cast<void*>(&__ret), sizeof(result_type),
-	       1, _M_file);
+    const size_t e = std::fread(reinterpret_cast<void*>(&__ret),
+				sizeof(result_type), 1, _M_file);
+    if (e != 1)
+      std::__throw_runtime_error(__N("random_device could not be read"));
     return __ret;
   }
 
