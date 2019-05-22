@@ -1076,6 +1076,23 @@ s390_label_align (rtx label)
   return align_labels_log;
 }
 
+static GTY(()) rtx got_symbol;
+
+/* Return the GOT table symbol.  The symbol will be created when the
+   function is invoked for the first time.  */
+
+static rtx
+s390_got_symbol (void)
+{
+  if (!got_symbol)
+    {
+      got_symbol = gen_rtx_SYMBOL_REF (Pmode, "_GLOBAL_OFFSET_TABLE_");
+      SYMBOL_REF_FLAGS (got_symbol) = SYMBOL_FLAG_LOCAL;
+    }
+
+  return got_symbol;
+}
+
 static enum machine_mode
 s390_libgcc_cmp_return_mode (void)
 {
@@ -2807,6 +2824,9 @@ s390_option_override (void)
      is beneficial on s390, we enable it if available.  */
   if (flag_prefetch_loop_arrays < 0 && HAVE_prefetch && optimize >= 3)
     flag_prefetch_loop_arrays = 1;
+
+  if (!s390_pic_data_is_text_relative && !flag_pic)
+    error ("-mno-pic-data-is-text-relative cannot be used without -fpic/-fPIC");
 
   /* Use the alternative scheduling-pressure algorithm by default.  */
   maybe_set_param_value (PARAM_SCHED_PRESSURE_ALGORITHM, 2,
@@ -4587,6 +4607,26 @@ s390_load_address (rtx dst, rtx src)
     emit_insn (gen_force_la_31 (dst, src));
 }
 
+/* Return true if it ok to use SYMBOL_REF in a relative address.  */
+
+bool
+s390_rel_address_ok_p (rtx symbol_ref)
+{
+  tree decl;
+
+  if (symbol_ref == s390_got_symbol () || CONSTANT_POOL_ADDRESS_P (symbol_ref))
+    return true;
+
+  decl = SYMBOL_REF_DECL (symbol_ref);
+
+  if (!flag_pic || SYMBOL_REF_LOCAL_P (symbol_ref))
+    return (s390_pic_data_is_text_relative
+	    || (decl
+		&& TREE_CODE (decl) == FUNCTION_DECL));
+
+  return false;
+}
+
 /* Return a legitimate reference for ORIG (an address) using the
    register REG.  If REG is 0, a new pseudo is generated.
 
@@ -4624,7 +4664,7 @@ legitimize_pic_address (rtx orig, rtx reg)
     }
 
   if ((GET_CODE (addr) == LABEL_REF
-       || (GET_CODE (addr) == SYMBOL_REF && SYMBOL_REF_LOCAL_P (addr))
+       || (GET_CODE (addr) == SYMBOL_REF && s390_rel_address_ok_p (addr))
        || (GET_CODE (addr) == UNSPEC &&
 	   (XINT (addr, 1) == UNSPEC_GOTENT
 	    || (TARGET_CPU_ZARCH && XINT (addr, 1) == UNSPEC_PLT))))
@@ -10291,7 +10331,6 @@ restore_gprs (rtx base, int offset, int first, int last)
 
 /* Return insn sequence to load the GOT register.  */
 
-static GTY(()) rtx got_symbol;
 rtx
 s390_load_got (void)
 {
@@ -10303,23 +10342,17 @@ s390_load_got (void)
      aren't usable.  */
   rtx got_rtx = gen_rtx_REG (Pmode, 12);
 
-  if (!got_symbol)
-    {
-      got_symbol = gen_rtx_SYMBOL_REF (Pmode, "_GLOBAL_OFFSET_TABLE_");
-      SYMBOL_REF_FLAGS (got_symbol) = SYMBOL_FLAG_LOCAL;
-    }
-
   start_sequence ();
 
   if (TARGET_CPU_ZARCH)
     {
-      emit_move_insn (got_rtx, got_symbol);
+      emit_move_insn (got_rtx, s390_got_symbol ());
     }
   else
     {
       rtx offset;
 
-      offset = gen_rtx_UNSPEC (Pmode, gen_rtvec (1, got_symbol),
+      offset = gen_rtx_UNSPEC (Pmode, gen_rtvec (1, s390_got_symbol ()),
 			       UNSPEC_LTREL_OFFSET);
       offset = gen_rtx_CONST (Pmode, offset);
       offset = force_const_mem (Pmode, offset);

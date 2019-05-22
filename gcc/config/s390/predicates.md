@@ -126,7 +126,7 @@
   if (GET_CODE (op) == SYMBOL_REF)
     return (!SYMBOL_REF_ALIGN1_P (op)
 	    && SYMBOL_REF_TLS_MODEL (op) == 0
-	    && (!flag_pic || SYMBOL_REF_LOCAL_P (op)));
+	    && s390_rel_address_ok_p (op));
 
   /* Everything else must have a CONST, so strip it.  */
   if (GET_CODE (op) != CONST)
@@ -151,7 +151,7 @@
   if (GET_CODE (op) == SYMBOL_REF)
     return ((SYMBOL_REF_FLAGS (op) & SYMBOL_FLAG_ALIGN1) == 0
 	    && SYMBOL_REF_TLS_MODEL (op) == 0
-	    && (!flag_pic || SYMBOL_REF_LOCAL_P (op)));
+	    && s390_rel_address_ok_p (op));
 
   /* Now we must have a @GOTENT offset or @PLT stub
      or an @INDNTPOFF TLS offset.  */
