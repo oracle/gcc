@@ -139,7 +139,14 @@ enum excess_precision
   EXCESS_PRECISION_STANDARD
 };
 
-/* Type of stack check.  */
+/* Type of stack check.
+
+   Stack checking is designed to detect infinite recursion and stack
+   overflows for Ada programs.  Furthermore stack checking tries to ensure
+   in that scenario that enough stack space is left to run a signal handler.
+
+   -fstack-check= does not prevent stack-clash style attacks.  For that
+   you want -fstack-clash-protection.  */
 enum stack_check_type
 {
   /* Do not check the stack.  */
