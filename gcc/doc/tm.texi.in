@@ -8854,6 +8854,8 @@ register in Dwarf.  Otherwise, this hook should return @code{NULL_RTX}.
 If not defined, the default is to return @code{NULL_RTX}.
 @end deftypefn
 
+@hook TARGET_DWARF_FRAME_REG_MODE
+
 @hook TARGET_INIT_DWARF_REG_SIZES_EXTRA
 If some registers are represented in Dwarf-2 unwind information in
 multiple pieces, define this hook to fill in information about the

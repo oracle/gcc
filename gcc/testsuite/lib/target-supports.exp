@@ -3800,7 +3800,8 @@ proc check_effective_target_vect_natural_alignment { } {
         verbose "check_effective_target_vect_natural_alignment: using cached result" 2
     } else {
         set et_vect_natural_alignment_saved 1
-        if { [check_effective_target_arm_eabi] } {
+        if { [check_effective_target_arm_eabi]
+	     || [istarget s390*-*-*] } {
             set et_vect_natural_alignment_saved 0
         }
     }

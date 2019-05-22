@@ -21,7 +21,7 @@ along with GCC; see the file COPYING3.  If not see
 #define GCC_RECOG_H
 
 /* Random number that should be large enough for all purposes.  */
-#define MAX_RECOG_ALTERNATIVES 30
+#define MAX_RECOG_ALTERNATIVES 35
 
 /* Types of operands.  */
 enum op_type {
