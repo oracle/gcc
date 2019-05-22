@@ -64,6 +64,7 @@ along with GCC; see the file COPYING3.  If not see
 #include "tree-flow.h"
 
 static rtx legitimize_dllimport_symbol (rtx, bool);
+static void ix86_emit_restore_reg_using_pop (rtx);
 
 #ifndef CHECK_STACK_LIMIT
 #define CHECK_STACK_LIMIT (-1)
@@ -9884,8 +9885,14 @@ ix86_adjust_stack_and_probe_stack_clash (const HOST_WIDE_INT size)
      we just probe when we cross PROBE_INTERVAL.  */
   if (TREE_THIS_VOLATILE (cfun->decl))
     {
-      emit_stack_probe (plus_constant (Pmode, stack_pointer_rtx,
-				       -GET_MODE_SIZE (word_mode)));
+      /* We can safely use any register here since we're just going to push
+	 its value and immediately pop it back.  But we do try and avoid
+	 argument passing registers so as not to introduce dependencies in
+	 the pipeline.  For 32 bit we use %esi and for 64 bit we use %rax.  */
+      rtx dummy_reg = gen_rtx_REG (word_mode, TARGET_64BIT ? AX_REG : SI_REG);
+      rtx insn = emit_insn (gen_push (dummy_reg));
+      RTX_FRAME_RELATED_P (insn) = 1;
+      ix86_emit_restore_reg_using_pop (dummy_reg);
       emit_insn (gen_blockage ());
     }
 
