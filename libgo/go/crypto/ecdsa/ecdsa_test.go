@@ -33,7 +33,6 @@ func testKeyGeneration(t *testing.T, c elliptic.Curve, tag string) {
 }
 
 func TestKeyGeneration(t *testing.T) {
-	testKeyGeneration(t, elliptic.P224(), "p224")
 	if testing.Short() {
 		return
 	}
@@ -63,7 +62,6 @@ func testSignAndVerify(t *testing.T, c elliptic.Curve, tag string) {
 }
 
 func TestSignAndVerify(t *testing.T) {
-	testSignAndVerify(t, elliptic.P224(), "p224")
 	if testing.Short() {
 		return
 	}
@@ -129,8 +127,6 @@ func TestVectors(t *testing.T) {
 			parts := strings.SplitN(line, ",", 2)
 
 			switch parts[0] {
-			case "P-224":
-				pub.Curve = elliptic.P224()
 			case "P-256":
 				pub.Curve = elliptic.P256()
 			case "P-384":

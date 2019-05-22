@@ -327,7 +327,6 @@ var p384 *CurveParams
 var p521 *CurveParams
 
 func initAll() {
-	initP224()
 	initP256()
 	initP384()
 	initP521()
