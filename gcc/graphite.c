@@ -70,11 +70,39 @@ __typeof (cloog_pointers__) cloog_pointers__;
 static bool
 init_cloog_pointers (void)
 {
-  void *h;
+  void *h = NULL;
+  extern const char **toplev_main_argv;
+  char *buf, *p;
+  size_t len;
 
   if (cloog_pointers__.inited)
     return cloog_pointers__.h != NULL;
-  h = dlopen ("libcloog-isl.so.4", RTLD_LAZY);
+  len = progname - toplev_main_argv[0];
+  buf = XALLOCAVAR (char, len + sizeof "libcloog-isl.so.4");
+  memcpy (buf, toplev_main_argv[0], len);
+  strcpy (buf + len, "libcloog-isl.so.4");
+  len += sizeof "libcloog-isl.so.4";
+  p = strstr (buf, "/libexec/");
+  if (p != NULL)
+    {
+      while (1)
+	{
+	  char *q = strstr (p + 8, "/libexec/");
+	  if (q == NULL)
+	    break;
+	  p = q;
+	}
+      memmove (p + 4, p + 8, len - (p + 8 - buf));
+      h = dlopen (buf, RTLD_LAZY);
+      if (h == NULL)
+	{
+	  len = progname - toplev_main_argv[0];
+	  memcpy (buf, toplev_main_argv[0], len);
+	  strcpy (buf + len, "libcloog-isl.so.4");
+	}
+    }
+  if (h == NULL)
+    h = dlopen (buf, RTLD_LAZY);
   cloog_pointers__.h = h;
   if (h == NULL)
     return false;
