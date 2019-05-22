@@ -135,7 +135,8 @@
 
 (define_constraint "w"
   "@internal Call memory operand."
-  (and (not (match_test "TARGET_X32"))
+  (and (not (match_test "ix86_indirect_branch_register"))
+       (not (match_test "TARGET_X32"))
        (match_operand 0 "memory_operand")))
 
 ;; Integer constant constraints.
