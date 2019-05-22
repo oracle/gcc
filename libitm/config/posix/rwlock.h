@@ -44,19 +44,32 @@ struct gtm_thread;
 //
 // In this implementation, writers are given highest priority access but
 // read-to-write upgrades do not have a higher priority than writers.
+//
+// Do not change the layout of this class; it must remain a POD type with
+// standard layout, and the summary field must be first (i.e., so the
+// assembler code can assume that its address is equal to the address of the
+// respective instance of the class), and htm_fastpath must be second.
 
 class gtm_rwlock
 {
-  pthread_mutex_t mutex;	        // Held if manipulating any field.
-  pthread_cond_t c_readers;	        // Readers wait here
-  pthread_cond_t c_writers;	        // Writers wait here for writers
-  pthread_cond_t c_confirmed_writers;	// Writers wait here for readers
-
   static const unsigned a_writer  = 1;	// An active writer.
   static const unsigned w_writer  = 2;	// The w_writers field != 0
   static const unsigned w_reader  = 4;  // The w_readers field != 0
 
   std::atomic<unsigned int> summary;	// Bitmask of the above.
+
+  // We put the HTM fastpath control variable here so that HTM fastpath
+  // transactions can check efficiently whether they are allowed to run.
+  // This must be accessed atomically because threads can load this value
+  // when they are neither a registered reader nor writer (i.e., when they
+  // attempt to execute the HTM fastpath).
+  std::atomic<uint32_t> htm_fastpath;
+
+  pthread_mutex_t mutex;	        // Held if manipulating any field.
+  pthread_cond_t c_readers;	        // Readers wait here
+  pthread_cond_t c_writers;	        // Writers wait here for writers
+  pthread_cond_t c_confirmed_writers;	// Writers wait here for readers
+
   unsigned int a_readers;	// Nr active readers as observed by a writer
   unsigned int w_readers;	// Nr waiting readers
   unsigned int w_writers;	// Nr waiting writers
@@ -74,12 +87,28 @@ class gtm_rwlock
   bool write_upgrade (gtm_thread *tx);
   void write_upgrade_finish (gtm_thread *tx);
 
-  // Returns true iff there is a concurrent active or waiting writer.
-  // This is primarily useful for simple HyTM approaches, and the value being
-  // checked is loaded with memory_order_relaxed.
-  bool is_write_locked()
+  // Returns true iff there is a concurrent active or waiting writer, or
+  // htm_fastpath is zero. This is primarily useful for simple HyTM
+  // approaches, and the values being checked are loaded with
+  // memory_order_relaxed.
+  bool htm_fastpath_disabled ()
   {
-    return summary.load (memory_order_relaxed) & (a_writer | w_writer);
+    return (summary.load (memory_order_relaxed) & (a_writer | w_writer))
+	|| htm_fastpath.load (memory_order_relaxed) == 0;
+  }
+
+  // This does not need to return an exact value, hence relaxed MO is
+  // sufficient.
+  uint32_t get_htm_fastpath ()
+  {
+    return htm_fastpath.load (memory_order_relaxed);
+  }
+  // This must only be called while having acquired the write lock, and other
+  // threads do not need to load an exact value; hence relaxed MO is
+  // sufficient.
+  void set_htm_fastpath (uint32_t val)
+  {
+    htm_fastpath.store (val, memory_order_relaxed);
   }
 
  protected:
