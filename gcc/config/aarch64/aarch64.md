@@ -88,6 +88,7 @@
     UNSPEC_ST4
     UNSPEC_TLS
     UNSPEC_TLSDESC
+    UNSPECV_PROBE_STACK_RANGE   ; Represent stack range probing.
     UNSPEC_VSTRUCTDUMMY
 ])
 
@@ -3397,6 +3398,18 @@
   ""
   ""
   [(set_attr "length" "0")]
+)
+
+(define_insn "probe_stack_range"
+  [(set (match_operand:DI 0 "register_operand" "=r")
+	(unspec_volatile:DI [(match_operand:DI 1 "register_operand" "0")
+			     (match_operand:DI 2 "register_operand" "r")]
+			      UNSPECV_PROBE_STACK_RANGE))]
+  ""
+{
+  return aarch64_output_probe_stack_range (operands[0], operands[2]);
+}
+  [(set_attr "length" "32")]
 )
 
 ;; Named pattern for expanding thread pointer reference.
