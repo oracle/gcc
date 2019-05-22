@@ -13,7 +13,7 @@ foo (void)
 /* { dg-final { scan-assembler "jmp\[ \t\]*__x86_return_thunk" } } */
 /* { dg-final { scan-assembler "jmp\[ \t\]*\.LIND" } } */
 /* { dg-final { scan-assembler "call\[ \t\]*\.LIND" } } */
-/* { dg-final { scan-assembler "__x86_indirect_thunk:" } } */
+/* { dg-final { scan-assembler "__x86_return_thunk:" } } */
 /* { dg-final { scan-assembler-times {\tpause} 1 { target { ! x32 } } } } */
 /* { dg-final { scan-assembler-times {\tlfence} 1 { target { ! x32 } } } } */
 /* { dg-final { scan-assembler "push(?:l|q)\[ \t\]*_?bar" { target { { ! x32 } && *-*-linux* } } } } */
