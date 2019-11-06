@@ -298,6 +298,9 @@ handle_lto_debug_sections (const char *name, int rename)
      COMDAT sections in objects produced by GCC.  */
   else if (strcmp (name, ".comment") == 0)
     return strcpy (newname, name);
+  /* Copy over .ctf section under the same name if present.  */
+  else if (strcmp (name, ".ctf") == 0)
+    return strcpy (newname, name);
   free (newname);
   return NULL;
 }
