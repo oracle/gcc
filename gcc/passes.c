@@ -63,6 +63,7 @@ along with GCC; see the file COPYING3.  If not see
 #include "diagnostic-core.h" /* for fnotice */
 #include "stringpool.h"
 #include "attribs.h"
+#include "ctfout.h"
 
 using namespace gcc;
 
@@ -322,7 +323,11 @@ rest_of_decl_compilation (tree decl,
       /* Avoid confusing the debug information machinery when there are
 	 errors.  */
       && !seen_error ())
-    (*debug_hooks->early_global_decl) (decl);
+	{
+	  (*debug_hooks->early_global_decl) (decl);
+	  /* Generate CTF debug info.  */
+	  ctf_early_global_decl (decl);
+	}
 }
 
 /* Called after finishing a record, union or enumeral type.  */
