@@ -4632,9 +4632,13 @@ find_array_spec (gfc_expr *e)
   gfc_array_spec *as;
   gfc_component *c;
   gfc_ref *ref;
+  bool class_as = false;
 
   if (e->symtree->n.sym->ts.type == BT_CLASS)
-    as = CLASS_DATA (e->symtree->n.sym)->as;
+    {
+      as = CLASS_DATA (e->symtree->n.sym)->as;
+      class_as = true;
+    }
   else
     as = e->symtree->n.sym->as;
 
@@ -4653,7 +4657,7 @@ find_array_spec (gfc_expr *e)
 	c = ref->u.c.component;
 	if (c->attr.dimension)
 	  {
-	    if (as != NULL)
+	    if (as != NULL && !(class_as && as == c->as))
 	      gfc_internal_error ("find_array_spec(): unused as(1)");
 	    as = c->as;
 	  }
@@ -6925,19 +6929,6 @@ gfc_resolve_iterator (gfc_iterator *iter, bool real_ok, bool own_scope)
 				  "Step expression in DO loop"))
     return false;
 
-  if (iter->step->expr_type == EXPR_CONSTANT)
-    {
-      if ((iter->step->ts.type == BT_INTEGER
-	   && mpz_cmp_ui (iter->step->value.integer, 0) == 0)
-	  || (iter->step->ts.type == BT_REAL
-	      && mpfr_sgn (iter->step->value.real) == 0))
-	{
-	  gfc_error ("Step expression in DO loop at %L cannot be zero",
-		     &iter->step->where);
-	  return false;
-	}
-    }
-
   /* Convert start, end, and step to the same type as var.  */
   if (iter->start->ts.kind != iter->var->ts.kind
       || iter->start->ts.type != iter->var->ts.type)
@@ -6950,6 +6941,19 @@ gfc_resolve_iterator (gfc_iterator *iter, bool real_ok, bool own_scope)
   if (iter->step->ts.kind != iter->var->ts.kind
       || iter->step->ts.type != iter->var->ts.type)
     gfc_convert_type (iter->step, &iter->var->ts, 1);
+
+  if (iter->step->expr_type == EXPR_CONSTANT)
+    {
+      if ((iter->step->ts.type == BT_INTEGER
+	   && mpz_cmp_ui (iter->step->value.integer, 0) == 0)
+	  || (iter->step->ts.type == BT_REAL
+	      && mpfr_sgn (iter->step->value.real) == 0))
+	{
+	  gfc_error ("Step expression in DO loop at %L cannot be zero",
+		     &iter->step->where);
+	  return false;
+	}
+    }
 
   if (iter->start->expr_type == EXPR_CONSTANT
       && iter->end->expr_type == EXPR_CONSTANT
@@ -7252,6 +7256,10 @@ gfc_expr_to_initialize (gfc_expr *e)
   for (ref = result->ref; ref; ref = ref->next)
     if (ref->type == REF_ARRAY && ref->next == NULL)
       {
+	if (ref->u.ar.dimen == 0
+	    && ref->u.ar.as && ref->u.ar.as->corank)
+	  return result;
+
 	ref->u.ar.type = AR_FULL;
 
 	for (i = 0; i < ref->u.ar.dimen; i++)
@@ -16347,8 +16355,8 @@ resolve_equivalence (gfc_equiv *eq)
 }
 
 
-/* Function called by resolve_fntype to flag other symbol used in the
-   length type parameter specification of function resuls.  */
+/* Function called by resolve_fntype to flag other symbols used in the
+   length type parameter specification of function results.  */
 
 static bool
 flag_fn_result_spec (gfc_expr *expr,

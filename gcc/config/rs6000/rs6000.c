@@ -3880,10 +3880,22 @@ darwin_rs6000_override_options (void)
       rs6000_isa_flags |= OPTION_MASK_POWERPC64;
       warning (0, "%qs requires PowerPC64 architecture, enabling", "-m64");
     }
+
+  /* The linkers [ld64] that support 64Bit do not need the JBSR longcall
+     optimisation, and will not work with the most generic case (where the
+     symbol is undefined external, but there is no symbl stub).  */
+  if (TARGET_64BIT)
+    rs6000_default_long_calls = 0;
+
+  /* ld_classic is (so far) still used for kernel (static) code, and supports
+     the JBSR longcall / branch islands.  */
   if (flag_mkernel)
     {
       rs6000_default_long_calls = 1;
-      rs6000_isa_flags |= OPTION_MASK_SOFT_FLOAT;
+
+      /* Allow a kext author to do -mkernel -mhard-float.  */
+      if (! (rs6000_isa_flags_explicit & OPTION_MASK_SOFT_FLOAT))
+        rs6000_isa_flags |= OPTION_MASK_SOFT_FLOAT;
     }
 
   /* Make -m64 imply -maltivec.  Darwin's 64-bit ABI includes
@@ -7424,6 +7436,10 @@ rs6000_expand_vector_extract (rtx target, rtx vec, rtx elt)
 
       switch (mode)
 	{
+	case E_V1TImode:
+	  emit_move_insn (target, gen_lowpart (TImode, vec));
+	  return;
+
 	case E_V2DFmode:
 	  emit_insn (gen_vsx_extract_v2df_var (target, vec, elt));
 	  return;
@@ -8242,6 +8258,101 @@ address_offset (rtx op)
   return NULL_RTX;
 }
 
+/* This tests that a lo_sum {constant, symbol, symbol+offset} is valid for
+   the mode.  If we can't find (or don't know) the alignment of the symbol
+   we assume (optimistically) that it's sufficiently aligned [??? maybe we
+   should be pessimistic].  Offsets are validated in the same way as for
+   reg + offset.  */
+static bool
+darwin_rs6000_legitimate_lo_sum_const_p (rtx x, machine_mode mode)
+{
+  if (GET_CODE (x) == CONST)
+    x = XEXP (x, 0);
+
+  if (GET_CODE (x) == UNSPEC && XINT (x, 1) == UNSPEC_MACHOPIC_OFFSET)
+    x =  XVECEXP (x, 0, 0);
+
+  rtx sym = NULL_RTX;
+  unsigned HOST_WIDE_INT offset = 0;
+
+  if (GET_CODE (x) == PLUS)
+    {
+      sym = XEXP (x, 0);
+      if (! SYMBOL_REF_P (sym))
+	return false;
+      if (!CONST_INT_P (XEXP (x, 1)))
+	return false;
+      offset = INTVAL (XEXP (x, 1));
+    }
+  else if (SYMBOL_REF_P (x))
+    sym = x;
+  else if (CONST_INT_P (x))
+    offset = INTVAL (x);
+  else if (GET_CODE (x) == LABEL_REF)
+    offset = 0; // We assume code labels are Pmode aligned
+  else
+    return false; // not sure what we have here.
+
+  /* If we don't know the alignment of the thing to which the symbol refers,
+     we assume optimistically it is "enough".
+     ??? maybe we should be pessimistic instead.  */
+  unsigned align = 0;
+
+  if (sym)
+    {
+      tree decl = SYMBOL_REF_DECL (sym);
+#if TARGET_MACHO
+      if (MACHO_SYMBOL_INDIRECTION_P (sym))
+      /* The decl in an indirection symbol is the original one, which might
+	 be less aligned than the indirection.  Our indirections are always
+	 pointer-aligned.  */
+	;
+      else
+#endif
+      if (decl && DECL_ALIGN (decl))
+	align = DECL_ALIGN_UNIT (decl);
+   }
+
+  unsigned int extra = 0;
+  switch (mode)
+    {
+    case E_DFmode:
+    case E_DDmode:
+    case E_DImode:
+      /* If we are using VSX scalar loads, restrict ourselves to reg+reg
+	 addressing.  */
+      if (VECTOR_MEM_VSX_P (mode))
+	return false;
+
+      if (!TARGET_POWERPC64)
+	extra = 4;
+      else if ((offset & 3) || (align & 3))
+	return false;
+      break;
+
+    case E_TFmode:
+    case E_IFmode:
+    case E_KFmode:
+    case E_TDmode:
+    case E_TImode:
+    case E_PTImode:
+      extra = 8;
+      if (!TARGET_POWERPC64)
+	extra = 12;
+      else if ((offset & 3) || (align & 3))
+	return false;
+      break;
+
+    default:
+      break;
+    }
+
+  /* We only care if the access(es) would cause a change to the high part.  */
+  offset = ((offset & 0xffff) ^ 0x8000) - 0x8000;
+  return IN_RANGE (offset, -(HOST_WIDE_INT_1 << 15),
+                            (HOST_WIDE_INT_1 << 15) - 1 - extra);
+}
+
 /* Return true if the MEM operand is a memory operand suitable for use
    with a (full width, possibly multiple) gpr load/store.  On
    powerpc64 this means the offset must be divisible by 4.
@@ -8276,7 +8387,13 @@ mem_operand_gpr (rtx op, machine_mode mode)
       && legitimate_indirect_address_p (XEXP (addr, 0), false))
     return true;
 
-  /* Don't allow non-offsettable addresses.  See PRs 83969 and 84279.  */
+  /* We need to look through Mach-O PIC unspecs to determine if a lo_sum is
+     really OK.  Doing this early avoids teaching all the other machinery
+     about them.  */
+  if (TARGET_MACHO && GET_CODE (addr) == LO_SUM)
+    return darwin_rs6000_legitimate_lo_sum_const_p (XEXP (addr, 1), mode);
+
+  /* Only allow offsettable addresses.  See PRs 83969 and 84279.  */
   if (!rs6000_offsettable_memref_p (op, mode, false))
     return false;
 
@@ -12611,7 +12728,9 @@ rs6000_function_arg (cumulative_args_t cum_v, machine_mode mode,
       if (elt_mode == TDmode && (cum->fregno % 2) == 1)
 	cum->fregno++;
 
-      if (USE_FP_FOR_ARG_P (cum, elt_mode))
+      if (USE_FP_FOR_ARG_P (cum, elt_mode)
+	  && !(TARGET_AIX && !TARGET_ELF
+	       && type != NULL && AGGREGATE_TYPE_P (type)))
 	{
 	  rtx rvec[GP_ARG_NUM_REG + AGGR_ARG_NUM_REG + 1];
 	  rtx r, off;
@@ -12747,7 +12866,9 @@ rs6000_arg_partial_bytes (cumulative_args_t cum_v, machine_mode mode,
 
   align_words = rs6000_parm_start (mode, type, cum->words);
 
-  if (USE_FP_FOR_ARG_P (cum, elt_mode))
+  if (USE_FP_FOR_ARG_P (cum, elt_mode)
+      && !(TARGET_AIX && !TARGET_ELF
+	   && type != NULL && AGGREGATE_TYPE_P (type)))
     {
       unsigned long n_fpreg = (GET_MODE_SIZE (elt_mode) + 7) >> 3;
 
@@ -21905,7 +22026,7 @@ print_operand (FILE *file, rtx x, int code)
 	{
 	  const char *name = XSTR (x, 0);
 #if TARGET_MACHO
-	  if (darwin_emit_branch_islands
+	  if (darwin_symbol_stubs
 	      && MACHOPIC_INDIRECT
 	      && machopic_classify_symbol (x) == MACHOPIC_UNDEFINED_FUNCTION)
 	    name = machopic_indirection_name (x, /*stub_p=*/true);
@@ -26018,10 +26139,14 @@ rs6000_emit_allocate_stack (HOST_WIDE_INT size, rtx copy_reg, int copy_off)
 						    stack_limit_rtx,
 						    GEN_INT (size)));
 
-	  emit_insn (gen_elf_high (tmp_reg, toload));
-	  emit_insn (gen_elf_low (tmp_reg, tmp_reg, toload));
-	  emit_insn (gen_cond_trap (LTU, stack_reg, tmp_reg,
-				    const0_rtx));
+	  /* We cannot use r0 with elf_low.  Lamely solve this problem by
+	     moving registers around.  */
+	  rtx r11_reg = gen_rtx_REG (Pmode, 11);
+	  emit_move_insn (tmp_reg, r11_reg);
+	  emit_insn (gen_elf_high (r11_reg, toload));
+	  emit_insn (gen_elf_low (r11_reg, r11_reg, toload));
+	  emit_insn (gen_cond_trap (LTU, stack_reg, r11_reg, const0_rtx));
+	  emit_move_insn (r11_reg, tmp_reg);
 	}
       else
 	warning (0, "stack limit expression is not supported");
@@ -33654,7 +33779,7 @@ output_call (rtx_insn *insn, rtx *operands, int dest_operand_number,
 	     int cookie_operand_number)
 {
   static char buf[256];
-  if (darwin_emit_branch_islands
+  if (darwin_symbol_stubs
       && GET_CODE (operands[dest_operand_number]) == SYMBOL_REF
       && (INTVAL (operands[cookie_operand_number]) & CALL_LONG))
     {
@@ -34231,6 +34356,10 @@ rs6000_xcoff_asm_init_sections (void)
 			   rs6000_xcoff_output_readwrite_section_asm_op,
 			   &xcoff_private_data_section_name);
 
+  read_only_private_data_section
+    = get_unnamed_section (0, rs6000_xcoff_output_readonly_section_asm_op,
+			   &xcoff_private_rodata_section_name);
+
   tls_data_section
     = get_unnamed_section (SECTION_TLS,
 			   rs6000_xcoff_output_tls_section_asm_op,
@@ -34239,10 +34368,6 @@ rs6000_xcoff_asm_init_sections (void)
   tls_private_data_section
     = get_unnamed_section (SECTION_TLS,
 			   rs6000_xcoff_output_tls_section_asm_op,
-			   &xcoff_private_data_section_name);
-
-  read_only_private_data_section
-    = get_unnamed_section (0, rs6000_xcoff_output_readonly_section_asm_op,
 			   &xcoff_private_data_section_name);
 
   toc_section
@@ -34425,6 +34550,8 @@ rs6000_xcoff_file_start (void)
 			   main_input_filename, ".bss_");
   rs6000_gen_section_name (&xcoff_private_data_section_name,
 			   main_input_filename, ".rw_");
+  rs6000_gen_section_name (&xcoff_private_rodata_section_name,
+			   main_input_filename, ".rop_");
   rs6000_gen_section_name (&xcoff_read_only_section_name,
 			   main_input_filename, ".ro_");
   rs6000_gen_section_name (&xcoff_tls_data_section_name,
@@ -36644,10 +36771,20 @@ rs6000_init_dwarf_reg_sizes_extra (tree address)
 unsigned int
 rs6000_dbx_register_number (unsigned int regno, unsigned int format)
 {
-  /* Except for the above, we use the internal number for non-DWARF
-     debug information, and also for .eh_frame.  */
+  /* We use the GCC 7 (and before) internal number for non-DWARF debug
+     information, and also for .eh_frame.  */
   if ((format == 0 && write_symbols != DWARF2_DEBUG) || format == 2)
-    return regno;
+    {
+      /* Translate the regnos to their numbers in GCC 7 (and before).  */
+      if (regno == TFHAR_REGNO)
+	regno = 114;
+      else if (regno == TFIAR_REGNO)
+	regno = 115;
+      else if (regno == TEXASR_REGNO)
+	regno = 116;
+
+      return regno;
+    }
 
   /* On some platforms, we use the standard DWARF register
      numbering for .debug_info and .debug_frame.  */
@@ -36674,6 +36811,12 @@ rs6000_dbx_register_number (unsigned int regno, unsigned int format)
     return 356;
   if (regno == VSCR_REGNO)
     return 67;
+  if (regno == TFHAR_REGNO)
+    return 228;
+  if (regno == TFIAR_REGNO)
+    return 229;
+  if (regno == TEXASR_REGNO)
+    return 230;
 #endif
   return regno;
 }
@@ -38101,25 +38244,31 @@ rs6000_can_inline_p (tree caller, tree callee)
   tree caller_tree = DECL_FUNCTION_SPECIFIC_TARGET (caller);
   tree callee_tree = DECL_FUNCTION_SPECIFIC_TARGET (callee);
 
-  /* If callee has no option attributes, then it is ok to inline.  */
+  /* If the callee has no option attributes, then it is ok to inline.  */
   if (!callee_tree)
     ret = true;
 
-  /* If caller has no option attributes, but callee does then it is not ok to
-     inline.  */
-  else if (!caller_tree)
-    ret = false;
-
   else
     {
-      struct cl_target_option *caller_opts = TREE_TARGET_OPTION (caller_tree);
+      HOST_WIDE_INT caller_isa;
       struct cl_target_option *callee_opts = TREE_TARGET_OPTION (callee_tree);
+      HOST_WIDE_INT callee_isa = callee_opts->x_rs6000_isa_flags;
+      HOST_WIDE_INT explicit_isa = callee_opts->x_rs6000_isa_flags_explicit;
 
-      /* Callee's options should a subset of the caller's, i.e. a vsx function
-	 can inline an altivec function but a non-vsx function can't inline a
-	 vsx function.  */
-      if ((caller_opts->x_rs6000_isa_flags & callee_opts->x_rs6000_isa_flags)
-	  == callee_opts->x_rs6000_isa_flags)
+      /* If the caller has option attributes, then use them.
+	 Otherwise, use the command line options.  */
+      if (caller_tree)
+	caller_isa = TREE_TARGET_OPTION (caller_tree)->x_rs6000_isa_flags;
+      else
+	caller_isa = rs6000_isa_flags;
+
+      /* The callee's options must be a subset of the caller's options, i.e.
+	 a vsx function may inline an altivec function, but a no-vsx function
+	 must not inline a vsx function.  However, for those options that the
+	 callee has explicitly enabled or disabled, then we must enforce that
+	 the callee's and caller's options match exactly; see PR70010.  */
+      if (((caller_isa & callee_isa) == callee_isa)
+	  && (caller_isa & explicit_isa) == (callee_isa & explicit_isa))
 	ret = true;
     }
 

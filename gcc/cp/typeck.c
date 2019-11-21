@@ -1384,6 +1384,11 @@ structural_comptypes (tree t1, tree t2, int strict)
 	 template parameters set, they can't be equal.  */
       if (!comp_template_parms_position (t1, t2))
 	return false;
+      /* If T1 and T2 don't represent the same class template deduction,
+         they aren't equal.  */
+      if (CLASS_PLACEHOLDER_TEMPLATE (t1)
+	  != CLASS_PLACEHOLDER_TEMPLATE (t2))
+	return false;
       /* Constrained 'auto's are distinct from parms that don't have the same
 	 constraints.  */
       if (!equivalent_placeholder_constraints (t1, t2))
@@ -9104,8 +9109,10 @@ maybe_warn_about_returning_address_of_local (tree retval)
 	  tree base = DECL_DECOMP_BASE (whats_returned);
 	  if (TREE_CODE (TREE_TYPE (base)) == REFERENCE_TYPE)
 	    {
-	      tree init = DECL_INITIAL (base);
-	      return maybe_warn_about_returning_address_of_local (init);
+	      if (tree init = DECL_INITIAL (base))
+		return maybe_warn_about_returning_address_of_local (init);
+	      else
+		return false;
 	    }
 	}
       if (TREE_CODE (valtype) == REFERENCE_TYPE)

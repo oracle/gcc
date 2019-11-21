@@ -3380,7 +3380,7 @@ ix86_option_override_internal (bool main_args_p,
     | PTA_AVX512VBMI | PTA_AVX512IFMA | PTA_SHA;
   const wide_int_bitmask PTA_ICELAKE_CLIENT = PTA_CANNONLAKE | PTA_AVX512VNNI
     | PTA_GFNI | PTA_VAES | PTA_AVX512VBMI2 | PTA_VPCLMULQDQ | PTA_AVX512BITALG
-    | PTA_RDPID | PTA_CLWB;
+    | PTA_RDPID | PTA_CLWB | PTA_AVX512VPOPCNTDQ;
   const wide_int_bitmask PTA_ICELAKE_SERVER = PTA_ICELAKE_CLIENT | PTA_PCONFIG
     | PTA_WBNOINVD;
   const wide_int_bitmask PTA_KNL = PTA_BROADWELL | PTA_AVX512PF | PTA_AVX512ER
@@ -5450,7 +5450,25 @@ ix86_valid_target_attribute_inner_p (tree args, char *p_strings[],
 	      ret = false;
 	    }
 	  else
-	    p_strings[opt] = xstrdup (p + opt_len);
+	    {
+	      p_strings[opt] = xstrdup (p + opt_len);
+	      if (opt == IX86_FUNCTION_SPECIFIC_ARCH)
+		{
+		  /* If arch= is set,  clear all bits in x_ix86_isa_flags,
+		     except for ISA_64BIT, ABI_64, ABI_X32, and CODE16
+		     and all bits in x_ix86_isa_flags2.  */
+		  opts->x_ix86_isa_flags &= (OPTION_MASK_ISA_64BIT
+					     | OPTION_MASK_ABI_64
+					     | OPTION_MASK_ABI_X32
+					     | OPTION_MASK_CODE16);
+		  opts->x_ix86_isa_flags_explicit &= (OPTION_MASK_ISA_64BIT
+						      | OPTION_MASK_ABI_64
+						      | OPTION_MASK_ABI_X32
+						      | OPTION_MASK_CODE16);
+		  opts->x_ix86_isa_flags2 = 0;
+		  opts->x_ix86_isa_flags2_explicit = 0;
+		}
+	    }
 	}
 
       else if (type == ix86_opt_enum)
@@ -5525,18 +5543,8 @@ ix86_valid_target_attribute_tree (tree args,
       /* If we are using the default tune= or arch=, undo the string assigned,
 	 and use the default.  */
       if (option_strings[IX86_FUNCTION_SPECIFIC_ARCH])
-	{
-	  opts->x_ix86_arch_string
-	    = ggc_strdup (option_strings[IX86_FUNCTION_SPECIFIC_ARCH]);
-
-	  /* If arch= is set,  clear all bits in x_ix86_isa_flags,
-	     except for ISA_64BIT, ABI_64, ABI_X32, and CODE16.  */
-	  opts->x_ix86_isa_flags &= (OPTION_MASK_ISA_64BIT
-				     | OPTION_MASK_ABI_64
-				     | OPTION_MASK_ABI_X32
-				     | OPTION_MASK_CODE16);
-	  opts->x_ix86_isa_flags2 = 0;
-	}
+	opts->x_ix86_arch_string
+	  = ggc_strdup (option_strings[IX86_FUNCTION_SPECIFIC_ARCH]);
       else if (!orig_arch_specified)
 	opts->x_ix86_arch_string = NULL;
 
@@ -17211,7 +17219,7 @@ output_pic_addr_const (FILE *file, rtx x, int code)
       break;
 
     case SYMBOL_REF:
-      if (TARGET_64BIT || ! TARGET_MACHO_BRANCH_ISLANDS)
+      if (TARGET_64BIT || ! TARGET_MACHO_SYMBOL_STUBS)
 	output_addr_const (file, x);
       else
 	{
@@ -28678,6 +28686,25 @@ ix86_nopic_noplt_attribute_p (rtx call_op)
   return false;
 }
 
+/* Helper to output the jmp/call.  */
+static void
+ix86_output_jmp_thunk_or_indirect (const char *thunk_name,
+				   enum indirect_thunk_prefix need_prefix,
+				   const int regno)
+{
+  if (thunk_name != NULL)
+    {
+      if (need_prefix == indirect_thunk_prefix_bnd)
+	fprintf (asm_out_file, "\tbnd jmp\t");
+      else
+	fprintf (asm_out_file, "\tjmp\t");
+      assemble_name (asm_out_file, thunk_name);
+      putc ('\n', asm_out_file);
+    }
+  else
+    output_indirect_thunk (need_prefix, regno);
+}
+
 /* Output indirect branch via a call and return thunk.  CALL_OP is a
    register which contains the branch target.  XASM is the assembly
    template for CALL_OP.  Branch is a tail call if SIBCALL_P is true.
@@ -28719,25 +28746,17 @@ ix86_output_indirect_branch_via_reg (rtx call_op, bool sibcall_p)
     thunk_name = NULL;
 
   if (sibcall_p)
-    {
-      if (thunk_name != NULL)
-	{
-	  if (need_prefix == indirect_thunk_prefix_bnd)
-	    fprintf (asm_out_file, "\tbnd jmp\t%s\n", thunk_name);
-	  else
-	    fprintf (asm_out_file, "\tjmp\t%s\n", thunk_name);
-	}
-      else
-	output_indirect_thunk (need_prefix, regno);
-    }
+    ix86_output_jmp_thunk_or_indirect (thunk_name, need_prefix, regno);
   else
     {
       if (thunk_name != NULL)
 	{
 	  if (need_prefix == indirect_thunk_prefix_bnd)
-	    fprintf (asm_out_file, "\tbnd call\t%s\n", thunk_name);
+	    fprintf (asm_out_file, "\tbnd call\t");
 	  else
-	    fprintf (asm_out_file, "\tcall\t%s\n", thunk_name);
+	    fprintf (asm_out_file, "\tcall\t");
+	  assemble_name (asm_out_file, thunk_name);
+	  putc ('\n', asm_out_file);
 	  return;
 	}
 
@@ -28761,15 +28780,7 @@ ix86_output_indirect_branch_via_reg (rtx call_op, bool sibcall_p)
 
       ASM_OUTPUT_INTERNAL_LABEL (asm_out_file, indirectlabel1);
 
-      if (thunk_name != NULL)
-	{
-	  if (need_prefix == indirect_thunk_prefix_bnd)
-	    fprintf (asm_out_file, "\tbnd jmp\t%s\n", thunk_name);
-	  else
-	    fprintf (asm_out_file, "\tjmp\t%s\n", thunk_name);
-	}
-      else
-	output_indirect_thunk (need_prefix, regno);
+      ix86_output_jmp_thunk_or_indirect (thunk_name, need_prefix, regno);
 
       ASM_OUTPUT_INTERNAL_LABEL (asm_out_file, indirectlabel2);
 
@@ -28834,15 +28845,7 @@ ix86_output_indirect_branch_via_push (rtx call_op, const char *xasm,
   if (sibcall_p)
     {
       output_asm_insn (push_buf, &call_op);
-      if (thunk_name != NULL)
-	{
-	  if (need_prefix == indirect_thunk_prefix_bnd)
-	    fprintf (asm_out_file, "\tbnd jmp\t%s\n", thunk_name);
-	  else
-	    fprintf (asm_out_file, "\tjmp\t%s\n", thunk_name);
-	}
-      else
-	output_indirect_thunk (need_prefix, regno);
+      ix86_output_jmp_thunk_or_indirect (thunk_name, need_prefix, regno);
     }
   else
     {
@@ -28901,15 +28904,7 @@ ix86_output_indirect_branch_via_push (rtx call_op, const char *xasm,
 
       output_asm_insn (push_buf, &call_op);
 
-      if (thunk_name != NULL)
-	{
-	  if (need_prefix == indirect_thunk_prefix_bnd)
-	    fprintf (asm_out_file, "\tbnd jmp\t%s\n", thunk_name);
-	  else
-	    fprintf (asm_out_file, "\tjmp\t%s\n", thunk_name);
-	}
-      else
-	output_indirect_thunk (need_prefix, regno);
+      ix86_output_jmp_thunk_or_indirect (thunk_name, need_prefix, regno);
 
       ASM_OUTPUT_INTERNAL_LABEL (asm_out_file, indirectlabel2);
 
@@ -28978,13 +28973,15 @@ ix86_output_function_return (bool long_p)
 	  if (need_prefix == indirect_thunk_prefix_bnd)
 	    {
 	      indirect_return_bnd_needed |= need_thunk;
-	      fprintf (asm_out_file, "\tbnd jmp\t%s\n", thunk_name);
+	      fprintf (asm_out_file, "\tbnd jmp\t");
 	    }
 	  else
 	    {
 	      indirect_return_needed |= need_thunk;
-	      fprintf (asm_out_file, "\tjmp\t%s\n", thunk_name);
+	      fprintf (asm_out_file, "\tjmp\t");
 	    }
+	  assemble_name (asm_out_file, thunk_name);
+	  putc ('\n', asm_out_file);
 	}
       else
 	output_indirect_thunk (need_prefix, INVALID_REGNUM);
@@ -29025,7 +29022,7 @@ ix86_output_indirect_function_return (rtx ret_op)
 		  indirect_return_via_cx_bnd = true;
 		  indirect_thunks_bnd_used |= 1 << CX_REG;
 		}
-	      fprintf (asm_out_file, "\tbnd jmp\t%s\n", thunk_name);
+	      fprintf (asm_out_file, "\tbnd jmp\t");
 	    }
 	  else
 	    {
@@ -29034,8 +29031,10 @@ ix86_output_indirect_function_return (rtx ret_op)
 		  indirect_return_via_cx = true;
 		  indirect_thunks_used |= 1 << CX_REG;
 		}
-	      fprintf (asm_out_file, "\tjmp\t%s\n", thunk_name);
+	      fprintf (asm_out_file, "\tjmp\t");
 	    }
+	  assemble_name (asm_out_file, thunk_name);
+	  putc ('\n', asm_out_file);
 	}
       else
 	output_indirect_thunk (need_prefix, regno);
@@ -46302,7 +46301,8 @@ static bool
 expand_vec_perm_blend (struct expand_vec_perm_d *d)
 {
   machine_mode mmode, vmode = d->vmode;
-  unsigned i, mask, nelt = d->nelt;
+  unsigned i, nelt = d->nelt;
+  unsigned HOST_WIDE_INT mask;
   rtx target, op0, op1, maskop, x;
   rtx rperm[32], vperm;
 
@@ -46356,7 +46356,7 @@ expand_vec_perm_blend (struct expand_vec_perm_d *d)
     case E_V16SImode:
     case E_V8DImode:
       for (i = 0; i < nelt; ++i)
-	mask |= (d->perm[i] >= nelt) << i;
+	mask |= ((unsigned HOST_WIDE_INT) (d->perm[i] >= nelt)) << i;
       break;
 
     case E_V2DImode:

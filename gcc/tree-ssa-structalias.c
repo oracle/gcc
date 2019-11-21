@@ -3232,9 +3232,29 @@ get_constraint_for_component_ref (tree t, vec<ce_s> *results,
       return;
     }
 
-  /* Pretend to take the address of the base, we'll take care of
-     adding the required subset of sub-fields below.  */
-  get_constraint_for_1 (t, results, true, lhs_p);
+  /* Avoid creating pointer-offset constraints, so handle MEM_REF
+     offsets directly.  Pretend to take the address of the base,
+     we'll take care of adding the required subset of sub-fields below.  */
+  if (TREE_CODE (t) == MEM_REF
+      && !integer_zerop (TREE_OPERAND (t, 0)))
+    {
+      poly_offset_int off = mem_ref_offset (t);
+      off <<= LOG2_BITS_PER_UNIT;
+      off += bitpos;
+      poly_int64 off_hwi;
+      if (off.to_shwi (&off_hwi))
+	bitpos = off_hwi;
+      else
+	{
+	  bitpos = 0;
+	  bitmaxsize = -1;
+	}
+      get_constraint_for_1 (TREE_OPERAND (t, 0), results, false, lhs_p);
+      do_deref (results);
+    }
+  else
+    get_constraint_for_1 (t, results, true, lhs_p);
+
   /* Strip off nothing_id.  */
   if (results->length () == 2)
     {
@@ -7461,7 +7481,11 @@ maybe_set_dependence_info (tree ref, tree ptr,
       if (MR_DEPENDENCE_CLIQUE (ref) == 0)
 	{
 	  if (clique == 0)
-	    clique = ++cfun->last_clique;
+	    {
+	      if (cfun->last_clique == 0)
+		cfun->last_clique = 1;
+	      clique = 1;
+	    }
 	  if (restrict_var->ruid == 0)
 	    restrict_var->ruid = ++last_ruid;
 	  MR_DEPENDENCE_CLIQUE (ref) = clique;
@@ -7472,12 +7496,42 @@ maybe_set_dependence_info (tree ref, tree ptr,
   return false;
 }
 
+/* Clear dependence info for the clique DATA.  */
+
+static bool
+clear_dependence_clique (gimple *, tree base, tree, void *data)
+{
+  unsigned short clique = (uintptr_t)data;
+  if ((TREE_CODE (base) == MEM_REF
+       || TREE_CODE (base) == TARGET_MEM_REF)
+      && MR_DEPENDENCE_CLIQUE (base) == clique)
+    {
+      MR_DEPENDENCE_CLIQUE (base) = 0;
+      MR_DEPENDENCE_BASE (base) = 0;
+    }
+
+  return false;
+}
+
 /* Compute the set of independend memory references based on restrict
    tags and their conservative propagation to the points-to sets.  */
 
 static void
 compute_dependence_clique (void)
 {
+  /* First clear the special "local" clique.  */
+  basic_block bb;
+  if (cfun->last_clique != 0)
+    FOR_EACH_BB_FN (bb, cfun)
+      for (gimple_stmt_iterator gsi = gsi_start_bb (bb);
+	   !gsi_end_p (gsi); gsi_next (&gsi))
+	{
+	  gimple *stmt = gsi_stmt (gsi);
+	  walk_stmt_load_store_ops (stmt, (void *)(uintptr_t) 1,
+				    clear_dependence_clique,
+				    clear_dependence_clique);
+	}
+
   unsigned short clique = 0;
   unsigned short last_ruid = 0;
   bitmap rvars = BITMAP_ALLOC (NULL);

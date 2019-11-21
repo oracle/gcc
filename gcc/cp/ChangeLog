@@ -1,3 +1,134 @@
+2019-11-21  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from mainline
+	2019-10-22  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/85887
+	* decl.c (expand_static_init): Drop ECF_LEAF from __cxa_guard_acquire
+	and __cxa_guard_release.
+
+	2019-10-29  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/92201
+	* cp-gimplify.c (cp_gimplify_expr): If gimplify_to_rvalue changes the
+	function pointer type, re-add cast to the original one.
+
+	2019-10-04  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/91974
+	* cp-gimplify.c (cp_gimplify_expr) <case CALL_EXPR>: For
+	-fstrong-eval-order ensure CALL_EXPR_FN side-effects are evaluated
+	before any arguments.  Additionally, ensure CALL_EXPR_FN that isn't
+	invariant nor OBJ_TYPE_REF nor SSA_NAME is forced into a temporary.
+
+	2019-08-09  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c/91401
+	* parser.c (cp_parser_omp_clause_dist_schedule): Comment out the
+	check_no_duplicate_clause call, instead emit a warning for duplicate
+	dist_schedule clauses.
+
+2019-11-05  Jason Merrill  <jason@redhat.com>
+
+	PR c++/88075
+	* parser.c (cp_parser_decl_specifier_seq): Support C++20
+	concept-definition syntax without 'bool'.
+
+2019-10-22  Marek Polacek  <polacek@redhat.com>
+
+	Backported from mainline
+	2019-10-21  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/92106 - ICE with structured bindings and -Wreturn-local-addr.
+	* typeck.c (maybe_warn_about_returning_address_of_local): Avoid
+	recursing on null initializer and return false instead.
+
+2019-09-03  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backported from mainline
+	2019-08-23  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR pch/61250
+	* parser.c (cp_parser_initial_pragma): Call c_common_no_more_pch ()
+	after determining that the first token is not
+	PRAGMA_GCC_PCH_PREPROCESS.
+
+2019-08-30  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2019-02-21  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/89392
+	* vtable-class-hierarchy.c (vtv_generate_init_routine): Do not
+	make symtab process new functions here.
+
+2019-08-29  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from mainline
+	2019-06-21  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/90950
+	* semantics.c (finish_omp_clauses): Don't reject references to
+	incomplete types if processing_template_decl.
+
+	2019-05-15  Jakub Jelinek  <jakub@redhat.com>
+
+	PR debug/90197
+	* cp-gimplify.c (genericize_cp_loop): Emit a DEBUG_BEGIN_STMT
+	before the condition (or if missing or constant non-zero at the end
+	of the loop.  Emit a DEBUG_BEGIN_STMT before the increment expression
+	if any.  Don't call protected_set_expr_location on incr if it already
+	has a location.
+
+	2019-05-10  Jakub Jelinek  <jakub@redhat.com>
+
+	PR pch/90326
+	* config-lang.in (gtfiles): Remove c-family/c-lex.c, add
+	c-family/c-cppbuiltin.c.
+
+2019-08-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline.
+	2019-08-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR c++/91436
+	* name-lookup.c (get_std_name_hint): Fix min_dialect field for
+	complex_literals and make_unique entries.
+
+2019-08-01  Marek Polacek  <polacek@redhat.com>	
+
+	Backported from mainline
+	2018-06-12  Jason Merrill  <jason@redhat.com>
+
+	PR c++/86098 - ICE with template placeholder for TTP.
+	* typeck.c (structural_comptypes) [TEMPLATE_TYPE_PARM]: Check
+	CLASS_PLACEHOLDER_TEMPLATE.
+
+2019-06-11  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/90810
+	* init.c (constant_value_1): Handle VECTOR_CST DECL_INITIAL for
+	!DECL_INITIALIZED_BY_CONSTANT_EXPRESSION_P decls like CONSTRUCTOR.
+
+2019-05-22  Eric Botcazou  <ebotcazou@adacore.com>
+
+	Backport from mainline
+	2018-05-10  Eric Botcazou  <ebotcazou@adacore.com>
+
+	PR c++/85400
+	* decl2.c (adjust_var_decl_tls_model): New static function.
+	(comdat_linkage): Call it on a variable.
+	(maybe_make_one_only): Likewise.
+
+2019-05-20  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from mainline
+	2019-05-20  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR c++/90532 Ensure __is_constructible(T[]) is false
+	* method.c (is_xible_helper): Return error_mark_node for construction
+	of an array of unknown bound.
+
 2019-05-07  Marek Polacek  <polacek@redhat.com>	
 
 	Backported from mainline

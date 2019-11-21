@@ -1,3 +1,91 @@
+2019-10-12  Eric Botcazou  <ebotcazou@adacore.com>
+
+	PR ada/91995
+	* sem_ch8.adb (Chain_Use_Clause): Remove second argument in calls
+	to Defining_Entity.
+	* sem_elab.adb (Find_Unit_Entity): Likewise.  Deal with N_Subunit
+	here in lieu of in Defining_Entity.
+	* sem_spark.adb (Check_Callable_Body): Likewise.
+	(Check_Package_Body): Likewise.
+	* sem_util.ads (Defining_Entity): Remove 2nd and 3th parameters.
+	* sem_util.adb (Defining_Entity): Remove 2nd and 3th parameters,
+	and adjust accordingly.  Deal with N_Compilation_Unit.
+
+2019-10-11  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* gcc-interface/decl.c (annotate_value) <INTEGER_CST>: Really test the
+	sign of the value when deciding to build a NEGATE_EXPR.
+	<PLUS_EXPR>: Remove redundant line.
+	<BIT_AND_EXPR>: Do the negation here.
+
+2019-09-23  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* gcc-interface/trans.c (Attribute_to_gnu): Test Can_Use_Internal_Rep
+	on the underlying type of the node.
+	(Call_to_gnu): Likewise with the type of the prefix.
+
+2019-09-01  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline.
+	2019-07-02  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* libgnat/system-darwin-ppc.ads: Set Stack_Check_Probes True for
+	PPC Darwin.
+
+2019-08-05  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline.
+	2019-06-30  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* gnatlink.adb (Link_Step): Push -shared-libgcc explicitly, when it
+	is the target default (unless overidden by the static flag).
+	When the user has put an instance of shared/static-libgcc do not push
+	a duplicate of this.
+
+2019-06-29  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* gcc-interface/decl.c (gnat_to_gnu_entity): Beep up comment on SAVED,
+	and tweak comment on the assertion about the scopes of Itypes.  Do not
+	skip the regular processing for Itypes that are E_Record_Subtype with
+	a Cloned_Subtype.  Get the Cloned_Subtype for every E_Record_Subtype
+	if the type is dummy and hasn't got its own freeze node.
+	<E_Record_Subtype>: Save again the DECL of the Cloned_Subtype, if any.
+	<E_Access_Subtype>: Save again the DECL of the equivalent type.
+	(Gigi_Equivalent_Type) <E_Access_Subtype>: New case.
+
+2019-06-29  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* gcc-interface/trans.c (mark_visited_r): Set TYPE_SIZES_GIMPLIFIED on
+	the main variant of a type, if any.
+
+2019-06-29  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* gcc-interface/decl.c (set_nonaliased_component_on_array_type): Add
+	missing guard for the presence of TYPE_CANONICAL.
+	(set_reverse_storage_order_on_array_type): Likewise.
+
+2019-06-17  Arnaud Charlet  <charlet@adacore.com>
+
+	PR ada/80590
+	* exp_ch9.adb (Expand_N_Delay_Relative_Statement): Swap the two
+	conditions to avoid a unnecessary exception propagation in the default
+	case.
+
+2019-05-28  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* gcc-interface/trans.c (walk_nesting_tree): New static function.
+	(finalize_nrv): Use it to walk the entire nesting tree.
+
+2019-05-27  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* gcc-interface/utils.c (maybe_pad_type): Issue the warning for the
+	specific case of component types preferably.
+
+2019-05-27  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* gcc-interface/trans.c (Call_to_gnu): Use the unpadded type when
+	putting back an intermediate conversion the type of the actuals.
+
 2019-05-07  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
 
 	* gcc-interface/Makefile.in (install-gcc-specs): Use foreach.

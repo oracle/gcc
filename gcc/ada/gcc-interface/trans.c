@@ -1720,32 +1720,29 @@ Attribute_to_gnu (Node_Id gnat_node, tree *gnu_result_type_p, int attribute)
       /* For other address attributes applied to a nested function,
 	 find an inner ADDR_EXPR and annotate it so that we can issue
 	 a useful warning with -Wtrampolines.  */
-      else if (TREE_CODE (TREE_TYPE (gnu_prefix)) == FUNCTION_TYPE)
+      else if (TREE_CODE (TREE_TYPE (gnu_prefix)) == FUNCTION_TYPE
+	       && (gnu_expr = remove_conversions (gnu_result, false))
+	       && TREE_CODE (gnu_expr) == ADDR_EXPR
+	       && decl_function_context (TREE_OPERAND (gnu_expr, 0)))
 	{
-	  gnu_expr = remove_conversions (gnu_result, false);
+	  set_expr_location_from_node (gnu_expr, gnat_node);
 
-	  if (TREE_CODE (gnu_expr) == ADDR_EXPR
-	      && decl_function_context (TREE_OPERAND (gnu_expr, 0)))
-	    {
-	      set_expr_location_from_node (gnu_expr, gnat_node);
+	  /* Also check the inlining status.  */
+	  check_inlining_for_nested_subprog (TREE_OPERAND (gnu_expr, 0));
 
-	      /* Also check the inlining status.  */
-	      check_inlining_for_nested_subprog (TREE_OPERAND (gnu_expr, 0));
+	  /* Moreover, for 'Access or 'Unrestricted_Access with non-
+	     foreign-compatible representation, mark the ADDR_EXPR so
+	     that we can build a descriptor instead of a trampoline.  */
+	  if ((attribute == Attr_Access
+	       || attribute == Attr_Unrestricted_Access)
+	      && targetm.calls.custom_function_descriptors > 0
+	      && Can_Use_Internal_Rep (Underlying_Type (Etype (gnat_node))))
+	    FUNC_ADDR_BY_DESCRIPTOR (gnu_expr) = 1;
 
-	      /* Moreover, for 'Access or 'Unrestricted_Access with non-
-		 foreign-compatible representation, mark the ADDR_EXPR so
-		 that we can build a descriptor instead of a trampoline.  */
-	      if ((attribute == Attr_Access
-		   || attribute == Attr_Unrestricted_Access)
-		  && targetm.calls.custom_function_descriptors > 0
-		  && Can_Use_Internal_Rep (Etype (gnat_node)))
-		FUNC_ADDR_BY_DESCRIPTOR (gnu_expr) = 1;
-
-	      /* Otherwise, we need to check that we are not violating the
-		 No_Implicit_Dynamic_Code restriction.  */
-	      else if (targetm.calls.custom_function_descriptors != 0)
-	        Check_Implicit_Dynamic_Code_Allowed (gnat_node);
-	    }
+	  /* Otherwise, we need to check that we are not violating the
+	     No_Implicit_Dynamic_Code restriction.  */
+	  else if (targetm.calls.custom_function_descriptors != 0)
+	    Check_Implicit_Dynamic_Code_Allowed (gnat_node);
 	}
       break;
 
@@ -3534,6 +3531,20 @@ finalize_nrv_unc_r (tree *tp, int *walk_subtrees, void *data)
   return NULL_TREE;
 }
 
+/* Apply FUNC to all the sub-trees of nested functions in NODE.  FUNC is called
+   with the DATA and the address of each sub-tree.  If FUNC returns a non-NULL
+   value, the traversal is stopped.  */
+
+static void
+walk_nesting_tree (struct cgraph_node *node, walk_tree_fn func, void *data)
+{
+  for (node = node->nested; node; node = node->next_nested)
+    {
+      walk_tree_without_duplicates (&DECL_SAVED_TREE (node->decl), func, data);
+      walk_nesting_tree (node, func, data);
+    }
+}
+
 /* Finalize the Named Return Value optimization for FNDECL.  The NRV bitmap
    contains the candidates for Named Return Value and OTHER is a list of
    the other return values.  GNAT_RET is a representative return node.  */
@@ -3541,7 +3552,6 @@ finalize_nrv_unc_r (tree *tp, int *walk_subtrees, void *data)
 static void
 finalize_nrv (tree fndecl, bitmap nrv, vec<tree, va_gc> *other, Node_Id gnat_ret)
 {
-  struct cgraph_node *node;
   struct nrv_data data;
   walk_tree_fn func;
   unsigned int i;
@@ -3562,10 +3572,7 @@ finalize_nrv (tree fndecl, bitmap nrv, vec<tree, va_gc> *other, Node_Id gnat_ret
     return;
 
   /* Prune also the candidates that are referenced by nested functions.  */
-  node = cgraph_node::get_create (fndecl);
-  for (node = node->nested; node; node = node->next_nested)
-    walk_tree_without_duplicates (&DECL_SAVED_TREE (node->decl), prune_nrv_r,
-				  &data);
+  walk_nesting_tree (cgraph_node::get_create (fndecl), prune_nrv_r, &data);
   if (bitmap_empty_p (nrv))
     return;
 
@@ -4308,7 +4315,8 @@ Call_to_gnu (Node_Id gnat_node, tree *gnu_result_type_p, tree gnu_target,
       /* If the access type doesn't require foreign-compatible representation,
 	 be prepared for descriptors.  */
       if (targetm.calls.custom_function_descriptors > 0
-	  && Can_Use_Internal_Rep (Etype (Prefix (Name (gnat_node)))))
+	  && Can_Use_Internal_Rep
+	     (Underlying_Type (Etype (Prefix (Name (gnat_node))))))
 	by_descriptor = true;
     }
   else if (Nkind (Name (gnat_node)) == N_Attribute_Reference)
@@ -4575,7 +4583,7 @@ Call_to_gnu (Node_Id gnat_node, tree *gnu_result_type_p, tree gnu_target,
 	 since the parent is a procedure call, so put it back here.  Note that
 	 we might have a dummy type here if the actual is the dereference of a
 	 pointer to it, but that's OK if the formal is passed by reference.  */
-      tree gnu_actual_type = gnat_to_gnu_type (Etype (gnat_actual));
+      tree gnu_actual_type = get_unpadded_type (Etype (gnat_actual));
       if (TYPE_IS_DUMMY_P (gnu_actual_type))
 	gcc_assert (is_true_formal_parm && DECL_BY_REF_P (gnu_formal));
       else if (suppress_type_conversion
@@ -8167,8 +8175,9 @@ mark_visited_r (tree *tp, int *walk_subtrees, void *data ATTRIBUTE_UNUSED)
   else if (!TYPE_IS_DUMMY_P (t))
     TREE_VISITED (t) = 1;
 
+  /* The test in gimplify_type_sizes is on the main variant.  */
   if (TYPE_P (t))
-    TYPE_SIZES_GIMPLIFIED (t) = 1;
+    TYPE_SIZES_GIMPLIFIED (TYPE_MAIN_VARIANT (t)) = 1;
 
   return NULL_TREE;
 }

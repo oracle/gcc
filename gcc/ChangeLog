@@ -1,3 +1,1618 @@
+2019-11-21  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/91355
+	* tree-ssa-sink.c (select_best_block): Use >= rather than >
+	for early_bb scaled count with best_bb count comparison.
+
+	Backported from mainline
+	2019-11-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/90840
+	* expmed.c (store_bit_field_1): Handle the case where op0 is not a MEM
+	and has a mode that doesn't have corresponding integral type.
+
+	PR target/90867
+	* config/i386/i386.c (ix86_valid_target_attribute_tree): Don't
+	clear opts->x_ix86_isa_flags{,2} here...
+	(ix86_valid_target_attribute_inner_p): ... but here when seeing
+	arch=.  Also clear opts->x_ix86_isa_flags{,2}_explicit.
+
+	PR c/90898
+	* tree-ssa-ccp.c (insert_clobber_before_stack_restore): Remove
+	assertion.
+	(insert_clobbers_for_var): Fix a typo in function comment.
+
+	2019-11-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/91450
+	* internal-fn.c (expand_mul_overflow): For s1 * s2 -> ur, if one
+	operand is negative and one non-negative, compare the non-negative
+	one against 0 rather than comparing s1 & s2 against 0.  Otherwise,
+	don't compare (s1 & s2) == 0, but compare separately both s1 == 0
+	and s2 == 0, unless one of them is known to be negative.  Remove
+	tem2 variable, use tem where tem2 has been used before.
+
+	2019-11-08  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/92384
+	* function.c (assign_parm_setup_block, assign_parm_setup_stack): Don't
+	copy TYPE_EMPTY_P arguments from data->entry_parm to data->stack_parm
+	slot.
+	(assign_parms): For TREE_ADDRESSABLE parms with TYPE_EMPTY_P type
+	force creation of a unique data.stack_parm slot.
+
+	2019-10-17  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/92056
+	* tree-object-size.c (cond_expr_object_size): Return early if then_
+	processing resulted in unknown size.
+
+	2019-09-07  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/91665
+	* tree-vect-loop.c (vectorizable_reduction): Punt if base has type
+	incompatible with the type of PHI result.
+
+	2019-09-06  Jakub Jelinek  <jakub@redhat.com>
+
+	* function.c (assign_parm_find_data_types): Use RECORD_OR_UNION_TYPE_P
+	before testing TYPE_TRANSPARENT_AGGR.
+	* calls.c (initialize_argument_information, load_register_parameters):
+	Likewise.
+
+	2019-09-05  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/91001
+	PR middle-end/91105
+	PR middle-end/91106
+	* calls.c (load_register_parameters): For TYPE_TRANSPARENT_AGGR
+	types, use type of their first field instead of type of
+	args[i].tree_value.
+
+	2019-09-01  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/91623
+	* optabs.c (expand_vec_cond_expr): If op0 is a VECTOR_CST and only
+	EQ_EXPR/NE_EXPR is supported, verify that op0 only contains
+	zeros or negative elements and use NE_EXPR instead of LT_EXPR against
+	zero vector.
+
+2019-11-20  Peter Bergner <bergner@linux.ibm.com>
+
+	Backport from mainline
+	2019-11-07  Peter Bergner <bergner@linux.ibm.com>
+
+	PR other/92090
+	* config/rs6000/predicates.md (input_operand): Allow MODE_PARTIAL_INT
+	modes for integer constants.
+
+2019-11-19  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* doc/invoke.texi (-gno-internal-reset-location-views): Fix typo.
+
+2019-11-14  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2019-11-14  Martin Liska  <mliska@suse.cz>
+
+	PR target/92389
+	* config/i386/i386.h: Add PTA_AVX512VPOPCNTDQ to
+	PTA_ICELAKE_CLIENT which is later interited by
+	PTA_ICELAKE_SERVER and PTA_TIGERLAKE.
+
+2019-11-13  Dragan Mladjenovic  <dmladjenovic@wavecomp.com>
+
+	Backport from mainline
+	* config/mips/mips.md (rotr<mode>3): Sanitize the constant argument
+	instead of asserting its value.
+
+2019-11-11  H.J. Lu  <hjl.tools@gmail.com>
+
+	Backport from trunk:
+	PR target/87833
+	* config/i386/intelmic-mkoffload.c (prepare_target_image): Put
+	-fPIC and -shared the last to create offload image.
+
+2019-11-11  Thomas Schwinge  <thomas@codesourcery.com>
+
+	Backport from trunk:
+	* gimplify.c (gimplify_scan_omp_clauses): Assert 'offset2' instead
+	of 'offset'.
+
+	Backport from trunk:
+	* Makefile.in (LANG_CONFIGUREFRAGS): Define.
+	(config.status): Use/depend on it.
+	* configure.ac (all_lang_configurefrags): Track, 'AC_SUBST'.
+	* configure: Regenerate.
+
+2019-11-09  John David Anglin  <danglin@gcc.gnu.org>
+
+	Backport from mainline
+	2019-11-07  John David Anglin  <danglin@gcc.gnu.org>
+
+	* config/pa/pa.md (memory_barrier): Revise to use ldcw barriers.
+	Enhance comment.
+	(memory_barrier_coherent, memory_barrier_64, memory_barrier_32): New
+	insn patterns using ldcw instruction.
+	(memory_barrier): Remove insn pattern using sync instruction.
+	* config/pa/pa.opt (coherent-ldcw): New option.
+	(ordered): New option.
+
+2019-11-08  Eric Botcazou  <ebotcazou@adacore.com>
+
+	PR target/92095
+	* config/sparc/sparc-protos.h (output_load_pcrel_sym): Declare.
+	* config/sparc/sparc.c (sparc_cannot_force_const_mem): Revert latest
+ 	change.
+	(got_helper_needed): New static variable.
+	(output_load_pcrel_sym): New function.
+	(get_pc_thunk_name): Remove after inlining...
+	(load_got_register): ...here.  Rework the initialization of the GOT
+	register and of the GOT helper.
+	(save_local_or_in_reg_p): Test the REGNO of the GOT register.
+	(sparc_file_end): Test got_helper_needed to decide whether the GOT
+	helper must be emitted.  Use output_asm_insn instead of fprintf.
+	(sparc_init_pic_reg): In PIC mode, always initialize the PIC register
+	if optimization is enabled.
+	* config/sparc/sparc.md (load_pcrel_sym<P:mode>): Emit the assembly
+	by calling output_load_pcrel_sym.
+
+2019-11-06  John David Anglin  <danglin@gcc.gnu.org>
+
+	Backport from mainline
+	2018-09-19  John David Anglin  <danglin@gcc.gnu.org>
+
+	PR rtl-optimization/85458
+	* config/pa/pa.c (pa_adjust_priority): Delete.
+	(TARGET_SCHED_ADJUST_PRIORITY): Delete define.
+
+2019-11-05  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	Backport from trunk
+	2019-10-24  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	* config/rs6000/altivec.md (altivec_vavgu<VI_char>): Rename to...
+	(uavg<mode>3_ceil): ... This.
+	(altivec_vavgs<VI_char>): Rename to...
+	(avg<mode>3_ceil): ... This.
+	* config/rs6000/rs6000-builtin.def (VAVGUB, VAVGSB, VAVGUH, VAVGSH,
+	VAVGUW, VAVGSW): Adjust.
+
+2019-11-05  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	Backport from trunk
+	2019-10-26  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	PR target/91289
+	* config/rs6000/rs6000.c (rs6000_emit_allocate_stack): Don't add an
+	immediate to r0; use r11 instead.  Save and restore r11 to r0 around
+	this.
+
+2019-11-04  John David Anglin  <danglin@gcc.gnu.org>
+
+	Backport from mainline
+	2019-10-03  John David Anglin  <danglin@gcc.gnu.org>
+
+	* config/pa/pa.h (MAX_PCREL17F_OFFSET): Adjust.
+
+2019-11-04  John David Anglin  <danglin@gcc.gnu.org>
+
+	Backport from mainline
+	2019-10-03  John David Anglin  <danglin@gcc.gnu.org>
+
+	* config/pa/pa.c (pa_output_call): Remove 64-bit sibcall sequence.
+	(pa_attr_length_call): Adjust length for 64-bit plabel sequence.
+
+2019-11-04 John David Anglin  <danglin@gcc.gnu.org>
+
+	Backport from mainline
+	2019-10-12  John David Anglin  <danglin@gcc.gnu.org>
+
+	* config/pa/pa.c (pa_output_call): Load descriptor address to register
+	%r22.  Load function address before global pointer.
+	(pa_attr_length_indirect_call): Adjust length of inline versions of
+	$$dyncall.
+	(pa_output_indirect_call): Remove fast inline version of $$dyncall
+	before normal cases.  Update inline $$dyncall sequences to preserve
+	function descriptor address in register %r22.
+	(TRAMPOLINE_CODE_SIZE): Adjust.
+	(pa_asm_trampoline_template): Revise 32-bit trampoline.  Don't assume
+	register %r22 contains trampoline address.
+	(pa_trampoline_init): Adjust offsets.
+	(pa_trampoline_adjust_address): Likewise.
+	* config/pa/pa.h (TRAMPOLINE_SIZE): Adjust 32-bit size.
+
+	2019-10-17  John David Anglin  <danglin@gcc.gnu.org>
+
+	* config/pa/pa.c (pa_output_indirect_call): Fix typos in last change.
+
+2019-11-1  Delia Burduv  <Delia.Burduv@arm.com>
+
+         Backport from trunk
+         2019-02-20  Andre Vieira <andre.simoesdiasvieira@arm.com>
+
+         PR target/86487
+         * lra-constraints.c(uses_hard_regs_p): Fix handling of
+         paradoxical SUBREGS.
+
+2019-10-31  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2019-10-13  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin.c (machopic_indirection_name): Rework the
+	function to emit linker-visible symbols only for indirections
+	in the data section.  Clean up the code and update comments.
+
+2019-10-31  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2019-10-09  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin.c (darwin_override_options): Make the check for
+	Objective-C ABI version more specific for 64bit code.
+
+	Backport from mainline
+	2019-10-06  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin.c (darwin_override_options): Adjust objective-c
+	ABI version error messages to avoid punctuation and contracted
+	negations.
+
+2019-10-31  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2019-07-03  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin.h (REAL_LIBGCC_SPEC): Adjust for earlier Darwin.
+	(STARTFILE_SPEC): Split crt3 into a separate spec.
+	(DARWIN_EXTRA_SPECS): Add crt2 and crt3 spec.
+	(DARWIN_CRT2_SPEC): New.
+	(DARWIN_CRT3_SPEC): New.
+	(MIN_LD64_OMIT_STUBS): Revise to 62.1.
+	* config/rs6000/darwin.h (DARWIN_CRT2_SPEC): Revise conditions.
+	(DARWIN_CRT3_SPEC): New.
+
+2019-10-31  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2019-06-27  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/rs6000/darwin.h (ENDFILE_SPEC): Correct whitespace in the
+	spec.
+
+	Backport from mainline
+	2019-06-25  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/rs6000/darwin.h (ENDFILE_SPEC): New.
+
+2019-10-31  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2019-06-18  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin.c (darwin_emit_unwind_label): New default to false.
+	(darwin_override_options): Set darwin_emit_unwind_label as needed.
+
+2019-10-31  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2019-08-13 Iain Sandoe <iain@sandoe.co.uk>
+
+	* config/darwin.c (machopic_indirect_call_target): Rename symbol stub
+	flag.
+	(darwin_override_options): Likewise.
+	* config/darwin.h: Likewise.
+	* config/darwin.opt: Likewise.
+	* config/i386/i386.c (output_pic_addr_const): Likewise.
+	* config/rs6000/darwin.h: Likewise.
+	* config/rs6000/rs6000.c (rs6000_call_darwin_1): Likewise.
+	* config/i386/darwin.h (TARGET_MACHO_PICSYM_STUBS): Rename to ...
+	... this TARGET_MACHO_SYMBOL_STUBS.
+	(FUNCTION_PROFILER):Likewise.
+	* config/i386/i386.h: Likewise.
+
+	Backport from mainline
+	2019-06-16  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin.c (machopic_indirect_call_target): Use renamed
+	darwin_picsymbol_stubs to decide on output.
+	(darwin_override_options): Handle darwin_picsymbol_stubs.
+	* config/darwin.h (MIN_LD64_OMIT_STUBS): New.
+	(LD64_VERSION): Revise default.
+	* config/darwin.opt: (mpic-symbol-stubs): New option.
+	(darwin_picsymbol_stubs): New variable.
+	* config/i386/darwin.h (TARGET_MACHO_BRANCH_ISLANDS):
+	rename to TARGET_MACHO_PICSYM_STUBS.
+	* config/i386/i386.c (output_pic_addr_const): Likewise.
+	* config/i386/i386.h Likewise.
+	* config/rs6000/darwin.h: Likewise.
+	* config/rs6000/rs6000.c (rs6000_call_darwin_1): Use renamed
+	darwin_picsymbol_stubs.
+
+2019-10-31  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2019-06-27  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/rs6000/rs6000.c (darwin_rs6000_override_options): Honour
+	user-specified float mode choice for kernel mode code.
+
+2019-10-31  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2019-06-23  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/rs6000/darwin.h: Handle GCC target pragma.
+
+2019-10-30  Dragan Mladjenovic  <dmladjenovic@wavecomp.com>
+
+	Backport from mainline
+	2019-07-09  Dragan Mladjenovic  <dmladjenovic@wavecomp.com>
+
+	* cfgcleanup.c (old_insns_match_p): Check if used hard regs set is equal
+	for both call instructions.
+
+2019-10-28  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2019-10-17  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR target/65342
+	* config/rs6000/darwin.md (movdi_low, movsi_low_st): Delete.
+	(movdi_low_st): Delete.
+	* config/rs6000/rs6000.c
+	(darwin_rs6000_legitimate_lo_sum_const_p): New.
+	(mem_operand_gpr): Validate Mach-O LO_SUM cases separately.
+	* config/rs6000/rs6000.md (movsi_low): Delete.
+
+2019-10-28  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2019-10-12  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR target/67183
+	* config/darwin.c (machopic_indirection): New field to flag
+	non-lazy-symbol-pointers in the data section.
+	(machopic_indirection_name): Compute if an indirection should
+	appear in the data section.
+	(machopic_output_data_section_indirection): New callback split
+	from machopic_output_indirection.
+	(machopic_output_stub_indirection): Likewise.
+	(machopic_output_indirection): Retain the code for non-lazy
+	symbol pointers in their regular section.
+	(machopic_finish): Use the new callbacks to order the indirection
+	output.
+
+2019-10-28  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2019-10-12  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin-protos.h (machopic_finish): Delete.
+	* config/darwin.c (machopic_finish): Make static.
+
+	Backport from mainline
+	2019-10-09  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin.c (machopic_indirect_data_reference): Set flag to
+	indicate that the new symbol is an indirection.
+	(machopic_indirect_call_target): Likewise.
+	* config/darwin.h (MACHO_SYMBOL_FLAG_INDIRECTION): New.
+	(MACHO_SYMBOL_INDIRECTION_P): New.
+	(MACHO_SYMBOL_FLAG_STATIC): Adjust bit number.
+
+	Backport from mainline
+	2019-10-08  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin.c (machopic_indirect_data_reference): Check for
+	required indirections before making direct access to defined
+	values.
+	(machopic_output_indirection): Place the indirected pointes for
+	required indirections into the non-lazy symbol pointers section.
+	(darwin_encode_section_info):
+	* config/darwin.h (MACHO_SYMBOL_FLAG_MUST_INDIRECT): New.
+	(MACHO_SYMBOL_MUST_INDIRECT_P): New.
+
+	Backport from mainline
+	2019-10-07  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin.c (machopic_output_indirection): Don't put
+	hidden symbol indirections into the .data section, use the
+	non-lazy symbol pointers section as normal.
+	(darwin_encode_section_info): Record if a symbol is hidden.
+	* config/darwin.h (MACHO_SYMBOL_FLAG_HIDDEN_VIS): New.
+	(MACHO_SYMBOL_HIDDEN_VIS_P): New.
+
+	Backport from mainline
+	2019-10-07  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin.c (machopic_symbol_defined_p): Use symbol flag
+	predicates instead of accessing bits directly.
+	(machopic_indirect_call_target): Likewise.
+	(machopic_output_indirection): Likewise.
+	(darwin_encode_section_info): Improve description.  Use renamed
+	symbol flags.  Use predicate macros for variables and functions.
+	* config/darwin.h:
+	Rename MACHO_SYMBOL_VARIABLE to MACHO_SYMBOL_FLAG_VARIABLE.
+	Rename MACHO_SYMBOL_DEFINED to MACHO_SYMBOL_FLAG_DEFINED.
+	Rename MACHO_SYMBOL_STATIC to MACHO_SYMBOL_FLAG_STATIC.
+	(MACHO_SYMBOL_VARIABLE_P): New.
+	(MACHO_SYMBOL_DEFINED_P):New.
+	(MACHO_SYMBOL_STATIC_P): New.
+	* config/i386/darwin.h (MACHO_SYMBOL_FLAG_VARIABLE): Delete.
+	(SYMBOL_FLAG_SUBT_DEP): New.
+	* config/rs6000/darwin.h (SYMBOL_FLAG_SUBT_DEP): New.
+
+2019-10-28  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2019-10-05  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR target/59888
+	* config/darwin.c (darwin_rodata_section): Add relocation flag,
+	choose const_data section for constants with relocations.
+	(machopic_select_section): Pass relocation flag to
+	darwin_rodata_section ().
+
+2019-10-28  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2019-09-21  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin.c (machopic_legitimize_pic_address): Check
+	for lra, rather than reload.
+
+2019-10-28  Peter Bergner <bergner@linux.ibm.com>
+	    Jiufu Guo  <guojiufu@linux.ibm.com>
+
+	PR target/70010
+	* config/rs6000/rs6000.c (rs6000_can_inline_p): Prohibit inlining if
+	the callee explicitly disables some isa_flags the caller is using.
+
+2019-10-25  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/rs6000/darwin.h (ASM_OUTPUT_MAX_SKIP_ALIGN):Guard
+	against out of range max skip or log values.
+
+2019-10-25  Richard Earnshaw  <rearnsha@arm.com>
+
+	Backport from mainline
+	2019-05-08  Mihail Ionescu  <mihail.ionescu@arm.com>
+	    Richard Earnshaw  <rearnsha@arm.com>
+	PR target/88167
+	* config/arm/arm.c (thumb1_prologue_unused_call_clobbered_lo_regs): New
+	function.
+	(thumb1_epilogue_unused_call_clobbered_lo_regs): New function.
+	(thumb1_compute_save_core_reg_mask): Don't force a spare work
+	register if both the epilogue and prologue can use call-clobbered
+	regs.
+	(thumb1_unexpanded_epilogue): Use
+	thumb1_epilogue_unused_call_clobbered_lo_regs.  Reverse the logic for
+	picking temporaries for restoring high regs to match that of the
+	prologue where possible.
+	(thumb1_expand_prologue): Add any usable call-clobbered low registers to
+	the list of work registers.  Detect if the return address is still live
+	at the end of the prologue and avoid using it for a work register if so.
+	If the return address is not live, add LR to the list of pushable regs
+	after the first pass.
+
+2019-10-23  Peter Bergner  <bergner@linux.ibm.com>
+
+	Backport from mainline
+	2019-10-08  Tulio Magno Quites Machado Filho  <tuliom@linux.ibm.com>
+
+	* config.gcc: Move -L usage from LINK_OS_EXTRA_SPEC32 and
+	LINK_OS_EXTRA_SPEC64 to MD_STARTFILE_PREFIX and
+	MD_STARTFILE_PREFIX_1 when using --with-advance-toolchain.
+
+2019-10-23  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2019-10-17  Richard Biener  <rguenther@suse.de>
+
+	PR debug/91887
+	* dwarf2out.c (gen_formal_parameter_die): Also try to match
+	context_die against a DW_TAG_GNU_formal_parameter_pack parent.
+
+	2019-09-19  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/91812
+	* tree-ssa-phiprop.c (propagate_with_phi): Do not replace
+	volatile loads.
+
+	2019-09-17  Richard Biener  <rguenther@suse.de>
+
+	PR debug/91772
+	* dwarf2out.c (dwarf2out_late_global_decl): If early dwarf
+	was missing generate locations only once.
+
+2019-10-23  Eric Botcazou  <ebotcazou@adacore.com>
+
+	PR tree-optimization/92131
+	* tree-vrp.c (extract_range_from_plus_minus_expr): If the resulting
+	range would be symbolic, drop to varying for any explicit overflow
+	in the constant part or if neither range is a singleton.
+
+2019-10-20  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2019-10-03  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR target/87243
+	* config/darwin-driver.c (maybe_get_sysroot_from_sdkroot): New.
+	(darwin_driver_init): Use the sysroot provided by SDKROOT when that
+	is available and the user has not set one on the command line.
+
+2019-10-20  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2019-07-03  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin.h (DRIVER_SELF_SPECS): Remove the linker cases.
+	(RDYNAMIC): Rename to, DARWIN_RDYNAMIC.
+	(DARWIN_PIE_SPEC, DARWIN_NOPIE_SPEC): Adjust to remove the Xlinker
+	clauses.
+	(LINK_COMMAND_SPEC_A): Add DARWIN_RDYNAMIC, DARWIN_PIE_SPEC and
+	DARWIN_NOPIE_SPEC.
+
+	Backport from mainline
+	2019-06-19  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin.h (DRIVER_SELF_SPECS): Add RDYNAMIC, DARWIN_PIE_SPEC
+	and DARWIN_NOPIE_SPEC.
+	(RDYNAMIC): New, modified from DARWIN_EXPORT_DYNAMIC.
+	(DARWIN_PIE_SPEC): Collate from darwin.h and darwin9.h.
+	(DARWIN_NOPIE_SPEC): Collate from darwin10.h.
+	(DARWIN_NOCOMPACT_UNWIND): New from darwin10.h
+	(DARWIN_EXPORT_DYNAMIC): Delete.
+	* config/darwin10.h (LINK_GCC_C_SEQUENCE_SPEC): Move no_compact_unwind
+	and pie options processing to  darwin.h.
+	* config/darwin9.h (DARWIN_PIE_SPEC): Move pie processing to darwin.h
+
+2019-10-18  Georg-Johann Lay  <avr@gjlay.de>
+
+	Backport from 2019-10-18 trunk r277143.
+
+	PR target/86040
+	* config/avr/avr.c (avr_out_lpm): Do not shortcut-return.
+
+2019-10-17  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	Backport from trunk
+	2019-03-15  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	PR rtl-optimization/89721
+	* lra-constraints (invariant_p): Return false if side_effects_p holds.
+
+2019-10-17  Richard Earnshaw  <rearnsha@arm.com>
+
+	Backport from mainline
+	2019-05-03  Richard Earnshaw  <rearnsha@arm.com>
+
+	PR target/89400
+	* config/arm/arm.md (unaligned_loadsi): Add variant for thumb1.
+	Restrict 'all' variant to 32-bit configurations.
+	(unaligned_loadhiu): Likewise.
+	(unaligned_storehi): Likewise.
+	(unaligned_storesi): Likewise.
+	(unaligned_loadhis): Disable when compiling for thumb1.
+
+2019-10-14  Will Schmidt  <will_schmidt@vnet.ibm.com>
+
+	Backport from trunk
+	2019-09-26  Will Schmidt <will_schmidt@vnet.ibm.com>
+
+	* config/rs6000/rs6000-builtin.def: (LVSL, LVSR, LVEBX, LVEHX,
+	LVEWX, LVXL, LVXL_V2DF, LVXL_V2DI, LVXL_V4SF, LVXL_V4SI, LVXL_V8HI,
+	LVXL_V16QI, LVX, LVX_V1TI, LVX_V2DF, LVX_V2DI, LVX_V4SF, LVX_V4SI,
+	LVX_V8HI, LVX_V16QI, LVLX, LVLXL, LVRX, LVRXL, LXSDX, LXVD2X_V1TI,
+	LXVD2X_V2DF, LXVD2X_V2DI, LXVDSX, LXVW4X_V4SF, LXVW4X_V4SI,
+	LXVW4X_V8HI, LXVW4X_V16QI, LD_ELEMREV_V1TI, LD_ELEMREV_V2DF,
+	LD_ELEMREV_V2DI, LD_ELEMREV_V4SF, LD_ELEMREV_V4SI, LD_ELEMREV_V8HI,
+	LD_ELEMREV_V16QI): Use the PURE attribute.
+
+2019-10-10  Uroš Bizjak  <ubizjak@gmail.com>
+
+	PR target/92022
+	* config/alpha/alpha.c (alpha_handle_trap_shadows): Skip DEBUG_INSN.
+
+2019-10-10  Oleg Endo  <olegendo@gcc.gnu.org>
+
+	Backport from mainline
+	2019-10-10  Oleg Endo  <olegendo@gcc.gnu.org>
+
+	PR target/88630
+	* config/sh/sh.h (TARGET_FPU_SH4_300): New macro.
+	* config/sh/sh.c (sh_option_override): Enable fsca and fsrra insns
+	also for TARGET_FPU_SH4_300.
+	(sh_emit_mode_set): Check for TARGET_FPU_SH4_300 instead of
+	TARGET_SH4_300.
+	* config/sh/sh.md (toggle_pr): Add TARGET_FPU_SH4_300 condition.
+	(negsf2): Expand to either negsf2_fpscr or negsf2_no_fpscr.
+	(*negsf2_i): Split into ...
+	(negsf2_fpscr, negsf2_no_fpscr): ... these new patterns.
+	(abssf2): Expand to either abssf2_fpsc or abssf2_no_fpsc.
+	(**abssf2_i): Split into ...
+	(abssf2_fpscr, abssf2_no_fpscr): ... these new patterns.
+	(negdf2): Expand to either negdf2_fpscr or negdf2_no_fpscr.
+	(*negdf2_i): Split into ...
+	(negdf2_fpscr, negdf2_no_fpscr): ... these new patterns.
+	(absdf2): Expand to either absdf2_fpscr or absdf2_no_fpsc.
+	(**abssf2_i): Split into ...
+	(absdf2_fpscr, absdf2_no_fpscr): ... these new patterns.
+
+2019-10-07  Bill Schmidt  <wschmidt@linux.ibm.com>
+
+	Backport from mainline
+	2019-10-01  Bill Schmidt  <wschmidt@linux.ibm.com>
+
+	PR target/91275
+	* config/rs6000/rs6000-p8swap.c (rtx_is_swappable_p): Don't swap
+	vpmsumd.
+
+2019-10-01  Oleg Endo  <olegendo@gcc.gnu.org>
+
+	Backport from mainline
+
+	2019-10-01  Oleg Endo  <olegendo@gcc.gnu.org>
+
+	PR target/88562
+	* config/sh/sh.c (sh_extending_set_of_reg::use_as_extended_reg): Use
+	sh_check_add_incdec_notes to preserve REG_INC notes when replacing
+	a memory access insn.
+
+2019-10-01  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	Backport from mainline
+	2019-09-24  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* config/aarch64/aarch64.md (mov<mode>): Don't call
+	aarch64_split_dimode_const_store on volatile MEM.
+
+2019-10-01  Eric Botcazou  <ebotcazou@adacore.com>
+
+	PR target/91854
+	Backport from mainline
+	2019-09-20  Eric Botcazou  <ebotcazou@adacore.com>
+
+	PR target/91269
+	* config/sparc/sparc.h (HARD_REGNO_CALLER_SAVE_MODE): Define.
+
+2019-09-28  Oleg Endo  <olegendo@gcc.gnu.org>
+
+	Backport from mainline
+	2019-09-28  Oleg Endo  <olegendo@gcc.gnu.org>
+
+	PR target/80672
+	* config/sh/sh.c (parse_validate_atomic_model_option): Use
+	std::string::compare instead of std::string::find.
+
+2019-09-28  Oleg Endo  <olegendo@gcc.gnu.org>
+
+	Backport from mainline
+	2018-07-15  Jeff Law  <law@redhat.com>
+
+	PR target/85993
+	* config/sh/sh.c (output_mi_thunk): Remove dead conditional
+	block.
+
+2019-09-26  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2019-06-16  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin.opt (prebind, noprebind, seglinkedit,
+	noseglinkedit): Add RejectNegative.
+
+	Backport from mainline
+	2019-06-14  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin.opt: Add RejectNegative where needed, reorder
+	and add minimal functional descriptions.
+
+2019-09-25  Kyrylo Tkachov <kyrylo.tkachov@arm.com>
+
+	Backport from mainline
+	2019-08-22  Kyrylo Tkachov <kyrylo.tkachov@arm.com>
+
+	* config/arm/arm_acle.h: Use arch=armv8-a+crc+simd pragma for CRC32
+	intrinsics if __ARM_FP.
+	Use __ARM_FEATURE_CRC32 ifdef guard.
+
+2019-09-23  Max Filippov  <jcmvbkbc@gmail.com>
+
+	Backport from mainline
+	2019-06-18  Max Filippov  <jcmvbkbc@gmail.com>
+
+	* config/xtensa/xtensa.c (xtensa_expand_prologue): Add stack
+	pointer adjustment for the case of no callee-saved registers and
+	stack frame bigger than 128 bytes.
+
+2019-09-20  John David Anglin  <danglin@gcc.gnu.org>
+
+	* config/pa/pa.c (pa_trampoline_init): Remove spurious extended
+	character.
+
+2019-09-20  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	Backport from mainline
+	2019-06-06  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	PR rtl-optimization/88751
+	* ira.c (ira): Use the number of the actually referenced registers
+	when calculating the threshold.
+
+2019-09-11  Eric Botcazou  <ebotcazou@adacore.com>
+
+	PR rtl-optimization/89795
+	* rtlanal.c (nonzero_bits1) <SUBREG>: Do not propagate results from
+	inner REGs to paradoxical SUBREGs if WORD_REGISTER_OPERATIONS is set.
+
+2019-09-09  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/87853
+	* config/i386/emmintrin.h (_mm_cmpeq_epi8): Use casts to __v16qi
+	instead of __v16qs.
+
+	PR target/91704
+	* config/i386/avxintrin.h (__v32qs): New typedef.
+	* config/i386/avx2intrin.h (_mm256_cmpgt_epi8): Use casts to __v32qs
+	instead of __v32qi.
+
+2019-09-04  Wilco Dijkstra  <wdijkstr@arm.com>
+
+	Backport from mainline
+	2019-08-13  Wilco Dijkstra  <wdijkstr@arm.com>
+	 
+	PR target/81800
+	* gcc/config/aarch64/aarch64.md (lrint): Disable lrint pattern if GPF
+	operand is larger than a long int.
+
+2019-09-03  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2019-08-23  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR pch/61250
+	* ggc-page.c (ggc_pch_read): Read the ggc_pch_ondisk structure
+	and issue any diagnostics needed before collecting the pre-PCH
+	state.
+
+2019-09-01  Eric Botcazou  <ebotcazou@adacore.com>
+
+	PR target/91472
+	* config/sparc/sparc.c (sparc_cannot_force_const_mem): Return true
+	during LRA/reload in PIC mode if the PIC register hasn't been used yet.
+	(sparc_pic_register_p): Test reload_in_progress for consistency's sake.
+
+2019-08-30  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2019-06-21  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/90930
+	* tree-ssa-reassoc.c (rewrite_expr_tree_parallel): Set visited
+	flag on new stmts to avoid re-processing them.
+
+	2019-05-27  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/90637
+	* tree-ssa-sink.c (statement_sink_location): Honor the
+	computed sink location for single-uses.
+
+2019-08-30  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2019-07-08  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/91108
+	* tree-ssa-sccvn.c: Include builtins.h.
+	(vn_reference_lookup_3): Use only alignment constraints to
+	verify same-valued store disambiguation.
+
+2019-08-30  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	Backport from trunk
+	2019-08-22  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	PR target/91481
+	* config/rs6000/rs6000.md (unspec): Delete UNSPEC_DARN, UNSPEC_DARN_32,
+	and UNSPEC_DARN_RAW.
+	(unspecv): New enumerator values UNSPECV_DARN, UNSPECV_DARN_32, and
+	UNSPECV_DARN_RAW.
+	(darn_32): Use an unspec_volatile, and UNSPECV_DARN_32.
+	(darn_raw): Use an unspec_volatile, and UNSPECV_DARN_RAW.
+	(darn): Use an unspec_volatile, and UNSPECV_DARN.
+
+2019-08-30  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	Backport from trunk
+	2019-08-22  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	* config/rs6000/altivec.md (unspec): Delete UNSPEC_DARN, UNSPEC_DARN_32,
+	UNSPEC_DARN_RAW, UNSPEC_CMPRB, UNSPEC_CMPRB2, UNSPEC_CMPEQB; move to...
+	* config/rs6000/rs6000.md (unspec): ... here.
+	* config/rs6000/altivec.md (darn_32, darn_raw, darn, cmprb,
+	*cmprb_internal, setb_signed, setb_unsigned, cmprb2, *cmprb2_internal,
+	cmpeqb, *cmpeqb_internal): Delete, move to...
+	* config/rs6000/rs6000.md (darn_32, darn_raw, darn, cmprb,
+	*cmprb_internal, setb_signed, setb_unsigned, cmprb2, *cmprb2_internal,
+	cmpeqb, *cmpeqb_internal): ... here.
+
+2019-08-30  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2019-01-07  Richard Sandiford  <richard.sandiford@arm.com>
+
+	PR middle-end/88567
+	* tree-vect-loop.c (get_initial_defs_for_reduction): Pass the
+	output vector directly to duplicate_and_interleave instead of
+	going through a temporary.  Postpone insertion of ctor_seq to
+	the end of the loop.
+
+	2018-12-04  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/88315
+	* tree-vect-loop.c (get_initial_defs_for_reduction): Simplify
+	and fix initialization vector for SAD and DOT_PROD SLP reductions.
+
+2019-08-30  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2019-06-18  Richard Biener  <rguenther@suse.de>
+
+	PR debug/90900
+	* cfgexpand.c (expand_debug_expr): Treat NOTE_P DECL_RTL
+	as if optimized away.
+
+	2019-04-29  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/90278
+	* tree-ssa-forwprop.c (pass_forwprop::execute): Transfer/clean
+	EH on comparison simplification.
+
+	2019-04-25  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/90194
+	* match.pd: Add pattern to simplify view-conversion of an
+	empty constructor.
+
+2019-08-30  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2019-08-12  Richard Biener  <rguenther@suse.de>
+
+	PR lto/91375
+	* tree.c (free_lang_data_in_type): Do not free TYPE_BINFO dependent on
+	flag_devirtualize.
+
+	2019-07-31  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/91293
+	* tree-vect-slp.c (vect_build_slp_tree_2): Do not swap operands
+	of reduction stmts.
+
+	2019-07-31  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/91280
+	* tree-ssa-structalias.c (get_constraint_for_component_ref):
+	Decompose MEM_REF manually for offset handling.
+
+	2019-07-19  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/91200
+	* tree-ssa-phiopt.c (cond_store_replacement): Check we have
+	no PHI nodes in middle-bb.
+
+	2019-07-15  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/91162
+	* tree-cfg.c (move_block_to_fn): When releasing a virtual PHI
+	node make sure to replace all uses with something valid.
+
+	2019-07-11  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/91131
+	* gimplify.c (gimplify_compound_literal_expr): Force a temporary
+	when the object is volatile and we have not cleared it even though
+	there are no nonzero elements.
+
+	2019-07-10  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/91126
+	* tree-ssa-sccvn.c (vn_reference_lookup_3): Adjust
+	native encoding offset for BYTES_BIG_ENDIAN.
+
+2019-08-30  Richard Biener  <rguenther@suse.de>
+
+	* lto-streamer.h (LTO_minor_version): Bump.
+
+	Backport from mainline
+	2019-05-06  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/90328
+	* tree-data-ref.h (dr_may_alias_p): Pass in the actual loop nest.
+	* tree-data-ref.c (dr_may_alias_p): Check whether the clique
+	is valid in the loop nest before using it.
+	(initialize_data_dependence_relation): Adjust.
+	* graphite-scop-detection.c (build_alias_set): Pass the SCOP enclosing
+	loop as loop-nest to dr_may_alias_p.
+
+	2019-03-08  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/89578
+	* cfgloop.h (struct loop): Add owned_clique field.
+	* cfgloopmanip.c (copy_loop_info): Copy it.
+	* tree-cfg.c (gimple_duplicate_bb): Do not remap owned_clique
+	cliques.
+	* tree-inline.c (copy_loops): Remap owned_clique.
+	* lto-streamer-in.c (input_cfg): Stream owned_clique.
+	* lto-streamer-out.c (output_cfg): Likewise.
+
+	2019-02-22  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/87609
+	* tree-cfg.c (gimple_duplicate_bb): Only remap inlined cliques.
+
+	2019-02-22  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/87609
+	* cfghooks.h (dependence_hash): New typedef.
+	(struct copy_bb_data): New type.
+	(cfg_hooks::duplicate_block): Adjust to take a copy_bb_data argument.
+	(duplicate_block): Likewise.
+	* cfghooks.c (duplicate_block): Pass down copy_bb_data.
+	(copy_bbs): Create and pass down copy_bb_data.
+	* cfgrtl.c (cfg_layout_duplicate_bb): Adjust.
+	(rtl_duplicate_bb): Likewise.
+	* tree-cfg.c (gimple_duplicate_bb): If the copy_bb_data arg is not NULL
+	remap dependence info.
+
+	2019-02-22  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/87609
+	* tree-core.h (tree_base): Document special clique values.
+	* tree-inline.c (remap_dependence_clique): Do not use the
+	special clique value of one.
+	(maybe_set_dependence_info): Use clique one.
+	(clear_dependence_clique): New callback.
+	(compute_dependence_clique): Clear clique one from all refs
+	before assigning it (again).
+
+2019-08-30  Bin Cheng  <bin.linux@linux.alibaba.com>
+
+	Backport from mainline
+	2019-07-18  Bin Cheng  <bin.linux@linux.alibaba.com>
+
+	PR tree-optimization/91137
+	* tree-ssa-loop-ivopts.c (struct ivopts_data): New field.
+	(tree_ssa_iv_optimize_init, alloc_iv, tree_ssa_iv_optimize_finalize):
+	Init, use and fini the above new field.
+	(determine_base_object_1): New function.
+	(determine_base_object): Reimplement using walk_tree.
+
+2019-08-30  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2019-04-09  Richard Sandiford  <richard.sandiford@arm.com>
+
+	* tree-vect-data-refs.c (vect_get_smallest_scalar_type): Always
+	use gimple_expr_type for load and store calls.  Skip over the
+	condition argument in a conditional internal function.
+	Protect use of TREE_INT_CST_LOW.
+
+	2019-04-08  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/90006
+	* tree-vect-data-refs.c (vect_get_smallest_scalar_type): Handle
+	calls like lrint.
+
+	2019-04-01  Bin Cheng  <bin.cheng@linux.alibaba.com>
+
+	PR tree-optimization/89725
+	* tree-chrec.c (chrec_contains_symbols): New parameter.  Handle outer
+	loop's chrec as invariant symbol.
+	* tree-chrec.h (chrec_contains_symbols): New parameter.
+	* tree-data-ref.c (analyze_miv_subscript): Pass new argument.
+	(build_classic_dist_vector_1, add_other_self_distances): Bypass access
+	function of loops not in DDR's loop_nest.
+
+	2019-03-26  Bin Cheng  <bin.cheng@linux.alibaba.com>
+
+	PR tree-optimization/81740
+	* tree-vect-data-refs.c (vect_analyze_data_ref_dependence):
+	In case of outer loop vectorization, check for backward dependence
+	at the inner loop if outer loop dependence is reversed.
+
+2019-08-30  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2019-04-24  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/90213
+	* gimple-fold.c (fold_const_aggregate_ref_1): Do multiplication
+	by size and BITS_PER_UNIT on poly-wide-ints.
+
+	2019-04-11  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/90020
+	* tree-ssa-sccvn.c (vn_reference_may_trap): New function.
+	* tree-ssa-sccvn.h (vn_reference_may_trap): Declare.
+	* tree-ssa-pre.c (compute_avail): Use it to not put
+	possibly trapping references after a call that might not
+	return into EXP_GEN.
+	* gcse.c (compute_hash_table_work): Do not elide
+	marking a block containing a call if the call might not
+	return.
+
+2019-08-29  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2019-07-24  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR bootstrap/87030
+	* config/i386/darwin.h (REAL_LIBGCC_SPEC): Revert change from r273749.
+
+	PR bootstrap/87030
+	* config/i386/darwin.h (REAL_LIBGCC_SPEC): Move from here...
+	* config/i386/darwin32-biarch.h .. to here.
+	* config/i386/darwin64-biarch.h: Adjust comments.
+	* config/rs6000/darwin32-biarch.h: Likewise.
+	* config/rs6000/darwin64-biarch.h: Likewise.
+	* config.gcc: Missed commit from r273746
+	(*-*-darwin*): Don't include CPU t-darwin here.
+	(i[34567]86-*-darwin*): Adjust to use biarch files. Produce
+	an error message if i686-darwin configuration is attempted for
+	Darwin >= 18.
+
+	Backport from mainline
+	2019-07-23  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR bootstrap/87030
+	* config.gcc (*-*-darwin*): Don't include CPU t-darwin here.
+	(i[34567]86-*-darwin*): Adjust to use biarch files. Produce
+	an error message if i686-darwin configuration is attempted for
+	Darwin >= 18.
+	(x86_64-*-darwin*): Switch to single multilib for Darwin >= 18.
+	(powerpc-*-darwin*): Use biarch files where needed.
+	(powerpc64-*-darwin*): Likewise.
+	* config/i386/darwin.h (REAL_LIBGCC_SPEC): Move to new biarch file.
+	(DARWIN_ARCH_SPEC, DARWIN_SUBARCH_SPEC): Revise for default single
+	arch case.
+	* config/i386/darwin32-biarch.h: New.
+	* config/i386/darwin64.h: Rename.
+	* gcc/config/i386/darwin64-biarch.h: To this.
+	* config/i386/t-darwin: Rename.
+	* gcc/config/i386/t-darwin32-biarch: To this.
+	* config/i386/t-darwin64: Rename.
+	* gcc/config/i386/t-darwin64-biarch: To this.
+	* config/rs6000/darwin32-biarch.h: New.
+	* config/rs6000/darwin64.h: Rename.
+	* config/rs6000/darwin64-biarch.h: To this.
+	(DARWIN_ARCH_SPEC, DARWIN_SUBARCH_SPEC): Revise for default single
+	arch case.
+	* config/rs6000/t-darwin8: Rename.
+	* config/rs6000/t-darwin32-biarch: To this.
+	* config/rs6000/t-darwin64 Rename.
+	* config/rs6000/t-darwin64-biarch: To this.
+
+2019-08-29  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from mainline
+	2019-07-30  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/91150
+	* config/i386/i386.c (expand_vec_perm_blend): Change mask type
+	from unsigned to unsigned HOST_WIDE_INT.  For E_V64QImode cast
+	comparison to unsigned HOST_WIDE_INT before shifting it left.
+
+	2019-07-04  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/78884
+	* gimplify.c (struct gimplify_omp_ctx): Add add_safelen1 member.
+	(gimplify_bind_expr): If seeing TREE_ADDRESSABLE VLA inside of simd
+	loop body, set ctx->add_safelen1 instead of making it GOVD_PRIVATE.
+	(gimplify_adjust_omp_clauses): Add safelen (1) clause if
+	ctx->add_safelen1 is set.
+
+	PR rtl-optimization/90756
+	* explow.c (promote_ssa_mode): Always use TYPE_MODE, don't bypass it
+	for VECTOR_TYPE_P.
+
+	2019-06-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c/90760
+	* symtab.c (symtab_node::set_section): Allow being called on aliases
+	as long as they aren't analyzed yet.
+
+	2019-06-05  Jakub Jelinek  <jakub@redhat.com>
+
+	PR debug/90733
+	* var-tracking.c (vt_expand_loc_callback): Don't create raw subregs
+	with VOIDmode inner operands.
+
+	2019-04-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/90139
+	* tree-outof-ssa.c (get_temp_reg): If reg_mode is BLKmode, return
+	assign_temp instead of gen_reg_rtx.
+
+2019-08-27  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2019-07-07  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin.c (darwin_override_options): Make a final check on PIC
+	options.
+
+2019-08-27  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2019-07-07  Iain Sandoe  <iain@sandoe.co.uk>
+	* config/darwin.c (darwin_override_options): Don't jam symbol stubs
+	on for kernel code.
+
+2019-08-27  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2019-06-27  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/rs6000/rs6000.c (darwin_rs6000_override_options): Do not
+	use longcall for 64b code.
+
+2019-08-27  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2019-08-18  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/rs6000/darwin.h (TARGET_OS_CPP_BUILTINS): Add asserts
+	for cpu and machine.  Factor 64/32b builtins.
+
+	Backport from mainline
+	2019-06-23  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/rs6000/darwin.h: (__PPC__, __PPC64__): New.
+
+2019-08-25  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2019-06-19  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin-driver.c (darwin_driver_init): Fix off-by-one errors
+	in computing the number of options to be moved.
+
+	Backport from mainline
+	2019-06-13  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin-driver.c (validate_macosx_version_min): New.
+	(darwin_default_min_version): Cleanup and validate supplied version.
+	(darwin_driver_init): Likewise and push cleaned version into opts.
+
+2019-08-25  Uroš Bizjak  <ubizjak@gmail.com>
+
+	PR target/91533
+	Backport from mainline
+	2019-06-30  Uroš Bizjak  <ubizjak@gmail.com>
+
+	* config/i386/sse.md (ssse3_abs<mode>2): Rename from abs<mode>2.
+	* config/i386/i386-builtin.def (__builtin_ia32_pabsb):
+	Use CODE_FOR_ssse3_absv8qi2.
+	(__builtin_ia32_pabsw): Use CODE_FOR_ssse3_absv4hi2.
+	(__builtin_ia32_pabsd): Use CODE_FOR_ssse3_absv2si2.
+
+2019-08-23  Mihailo Stojanovic  <mistojanovic@wavecomp.com>
+
+	Backport from mainline
+	2019-08-23  Mihailo Stojanovic  <mistojanovic@wavecomp.com>
+
+	* config/mips/mips.md (mips_get_fcsr, *mips_get_fcsr): Use SI
+	machine mode for unspec_volatile operand.
+
+2019-08-22  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2018-12-23  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/i386/darwin.h (TARGET_ASM_OUTPUT_IDENT): New.
+
+2019-08-22  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2019-05-31  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/i386/darwin.h (ASM_OUTPUT_MAX_SKIP_ALIGN): New.
+
+2019-08-22  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2019-05-18  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin-c.c (darwin_register_objc_includes): Do not
+	prepend the sysroot when building gnu-runtime header search
+	paths.
+
+2019-08-22  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2019-05-18  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin.c (darwin_file_end): Use switch_to_section ()
+	instead of direct output of the asm.
+
+2019-08-20  Eric Botcazou  <ebotcazou@adacore.com>
+
+	PR rtl-optimization/91347
+	* dse.c (scan_insn): Call add_wild_read for non-const/memset tail calls
+	before reload if HARD_FRAME_POINTER_IS_ARG_POINTER.
+
+2019-08-16  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2019-04-21  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/rs6000/rs6000.md (group_end_nop): Emit insn register
+	names using operand format, rather than hard-wired.
+	(speculation_barrier): Likewise.
+
+2019-08-14  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2018-08-22 Iain Sandoe <iain@sandoe.co.uk>
+
+	* config/darwin.h (LINK_COMMAND_SPEC_A): Update lto options
+	to match gcc/gcc.c.
+
+2019-08-05  Kito Cheng  <kito.cheng@sifive.com>
+
+	Backport from mainline
+	2019-08-05  Kito Cheng  <kito.cheng@sifive.com>
+
+	* config/riscv/riscv.c (riscv_promote_function_mode): New.
+	(TARGET_PROMOTE_FUNCTION_MODE): Use riscv_promote_function_mode.
+
+2019-08-04  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	Backport from trunk
+	2019-05-02  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	* config/rs6000/rs6000.c (rs6000_dbx_register_number): Return the
+	correct numbers for TFHAR, TFIAR, TEXASR.
+
+2019-07-23  Matthew Beliveau  <mbelivea@redhat.com>
+
+	Backported from mainline
+	2019-07-16  Jeff Law  <law@redhat.com>
+
+	PR rtl-optimization/91173
+	* tree-ssa-address.c (addr_for_mem_ref): If the base is an
+	SSA_NAME with a constant value, fold its value into the offset
+	and clear the base before calling gen_addr_rtx.
+	* g++.dg/pr91173.C: New test.
+
+2019-07-23  Richard Biener  <rguenther@suse.de>
+
+	PR debug/91231
+	* lto-streamer-in.c (input_function): Drop inline-entry markers
+	that ended up with an unknown location block.
+
+2019-07-22  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2019-07-22  Martin Liska  <mliska@suse.cz>
+
+	PR driver/91172
+	* opts-common.c (decode_cmdline_option): Decode
+	argument of -Werror and check it for a wrong language.
+	* opts-global.c (complain_wrong_lang): Remove such case.
+
+2019-07-21  Richard Sandiford  <richard.sandiford@arm.com>
+
+	Backport from mainline
+	2019-07-10  Richard Sandiford  <richard.sandiford@arm.com>
+
+	* fold-const.c (fold_relational_const): Fix folding of
+	vector-to-scalar NE_EXPRs.
+	(test_vector_folding): Add more tests.
+
+2019-07-19  Jason Merrill  <jason@redhat.com>
+
+	PR c++/82081 - tail call optimization breaks noexcept
+	* tree-tailcall.c (find_tail_calls): Don't turn a call from a
+	nothrow function to a might-throw function into a tail call.
+
+2019-07-16  Wilco Dijkstra  <wdijkstr@arm.com>
+
+	Backport from mainline
+	PR target/89222
+	* config/arm/arm.md (movsi): Use targetm.cannot_force_const_mem
+	to decide when to split off a non-zero offset from a symbol.
+	* config/arm/arm.c (arm_cannot_force_const_mem): Disallow offsets
+	in function symbols.
+
+2019-07-16  Wilco Dijkstra  <wdijkstr@arm.com>
+
+	Backport from mainline
+	2019-02-13  Wilco Dijkstra  <wdijkstr@arm.com>
+	PR target/89190
+	* config/arm/arm.c (ldm_stm_operation_p) Set
+	addr_reg_in_reglist correctly for first register.
+	(load_multiple_sequence): Remove dead base check.
+	(gen_ldm_seq): Correctly set write_back for Thumb-1.
+
+2019-07-15  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	Backport from mainline
+	2019-07-01  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	* config/s390/vector.md: Fix shift count operand printing.
+
+2019-07-15  Wilco Dijkstra  <wdijkstr@arm.com>
+
+	Backport from mainline
+	2019-01-23  Bin Cheng  <bin.cheng@arm.com>
+		    Steve Ellcey  <sellcey@marvell.com>
+
+	PR target/85711
+	* recog.c (address_operand): Return false on wrong mode for address.
+	(constrain_operands): Check for mode with 'p' constraint.
+
+2019-07-12  Eric Botcazou  <ebotcazou@adacore.com>
+
+	PR rtl-optimization/91136
+	* df-core.c (ACCESSING REFS): Fix typos in comment.
+	* resource.c (mark_target_live_reg): Add artificial defs that occur at
+	the beginning of the block to the initial set of live registers.
+
+2019-07-04  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2019-07-03  Martin Liska  <mliska@suse.cz>
+
+	PR middle-end/90899
+	* multiple_target.c (create_dispatcher_calls): Add to comdat
+	group only if set for ifunc.
+
+2019-06-28  Jeff Law  <law@redhat.com>
+
+	Backport from mainline
+	2019-06-21  Jeff Law  <law@redhat.com>
+
+	PR tree-optimization/90949
+	* tree-ssa-copy.c (fini_copy_prop): Use reset_flow_sensitive_info.
+	* tree-ssanames.c (reset_flow_sensitive_info): Reset non-null state.
+
+2019-06-26  Martin Jambor  <mjambor@suse.cz>
+
+	Backport from mainline
+	2019-06-25  Martin Jambor  <mjambor@suse.cz>
+
+	PR ipa/90939
+	* ipa-cp.c (ipcp_bits_lattice::meet_with): Remove assert.
+
+2019-06-26  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
+
+	Backport from mainline
+	2019-06-17  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
+
+	* configure.ac (ld_vers) <*-*-solaris2*>: Remove support for
+	alternative Solaris 11.4 format.
+	* configure: Regenerate.
+
+2019-06-16  Jeff Law  <law@redhat.com>
+
+	Backport from mainline
+	2019-06-16  Prachi Godbole  <prachi.godbole@imgtec.com>
+		    Robert Suchanek  <robert.suchanek@mips.com>
+	* config/mips/mips.c (mips_expand_builtin_insn): Swap the 1st
+	and 3rd operands of the fmadd/fmsub/maddv builtin.
+
+2019-06-16  John David Anglin  <danglin@gcc.gnu.org>
+
+	PR middle-end/64242
+	* config/pa/pa.md (nonlocal_goto): Restore frame pointer last.  Add
+	frame clobbers and schedule block.
+	(builtin_longjmp): Likewise.
+
+2019-06-11  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/90811
+	* config/nvptx/nvptx.c (nvptx_output_softstack_switch): Use and.b%d
+	instead of and.u%d.
+
+2019-06-07  John David Anglin  <danglin@gcc.gnu.orig>
+
+	PR target/90751
+	* config/pa/pa-linux.h (ASM_DECLARE_FUNCTION_NAME): Update comment.
+	Call pa_output_function_label.
+	(TARGET_ASM_FUNCTION_PROLOGUE): define.
+	* config/pa/pa-protos.h (pa_output_function_label): Declare.
+	* config/pa/pa.c (pa_output_function_prologue): Add ATTRIBUTE_UNUSED
+	to declaration.
+	(pa_linux_output_function_prologue): Declare.
+	(TARGET_ASM_FUNCTION_PROLOGUE): Delete define.
+	(pa_output_function_label): New.
+	(pa_output_function_prologue): Revise to use pa_output_function_label.
+	(pa_linux_output_function_prologue): New.
+	* config/pa/pa.h (TARGET_ASM_FUNCTION_PROLOGUE): Define.
+
+2019-06-07  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline.
+	2019-05-12  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR target/82920
+	* config/i386/darwin.h (CC1_SPEC): Report -mx32 as an error for
+	Darwin.
+
+2019-06-07  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline.
+	2019-05-12  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR target/82920
+	* config/i386/i386.c (ix86_output_jmp_thunk_or_indirect): New.
+	(ix86_output_indirect_branch_via_reg): Use output mechanism
+	accounting for __USER_LABEL_PREFIX__.
+	(ix86_output_indirect_branch_via_push): Likewise.
+	(ix86_output_function_return): Likewise.
+	(ix86_output_indirect_function_return): Likewise.
+
+2019-05-30  Jakub Jelinek  <jakub@redhat.com>
+
+	* tree-predcom.c (is_inv_store_elimination_chain): Fix a typo - lenght
+	to length.
+
+2019-05-29  Jakub Jelinek  <jakub@redhat.com>
+
+	PR fortran/90329
+	* lto-streamer.h (LTO_minor_version): Bump to 2.
+
+	Backported from mainline
+	2019-05-16  Jakub Jelinek  <jakub@redhat.com>
+
+	PR fortran/90329
+	* tree-core.h (struct tree_decl_common): Document
+	decl_nonshareable_flag for PARM_DECLs.
+	* tree.h (DECL_HIDDEN_STRING_LENGTH): Define.
+	* calls.c (expand_call): Don't try tail call if caller
+	has any DECL_HIDDEN_STRING_LENGTH PARM_DECLs that are or might be
+	passed on the stack and callee needs to pass any arguments on the
+	stack.
+	* tree-streamer-in.c (unpack_ts_decl_common_value_fields): Use
+	else if instead of series of mutually exclusive ifs.  Handle
+	DECL_HIDDEN_STRING_LENGTH for PARM_DECLs.
+	* tree-streamer-out.c (pack_ts_decl_common_value_fields): Likewise.
+
+2019-05-28  John David Anglin  <danglin@gcc.gnu.org>
+
+	* config/pa/pa.c (hppa_profile_hook): Remove offset adjustment.
+
+2019-05-27  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* dwarf2out.c (resolve_args_picking_1): Deal with DW_OP_GNU_addr_index
+	and DW_OP_GNU_const_index opcodes.
+
+2019-05-24  John David Anglin  <danglin@gcc.gnu.org>
+
+	PR target/90530
+	* config/pa/pa.c (pa_can_change_mode_class): Accept mode changes from
+	DImode to SImode in floating-point registers on 64-bit target.
+	* config/pa/pa.md (umulsidi3): Change nonimmediate_operand to
+	register_operand in xmpyu patterns.
+
+2019-05-24  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2019-05-23  Martin Liska  <mliska@suse.cz>
+
+	PR sanitizer/90570
+	* gimplify.c (gimplify_target_expr): Skip TREE_STATIC target
+	expression similarly to gimplify_decl_expr.
+
+2019-05-23  Uroš Bizjak  <ubizjak@gmail.com>
+
+	Backport from mainline
+	2019-05-21  Uroš Bizjak  <ubizjak@gmail.com>
+
+	* config/i386/cpuid.h (__cpuid): For 32bit targets, zero
+	%ebx and %ecx bafore calling cpuid with leaf 1 or
+	non-constant leaf argument.
+
+	2019-05-21  Uroš Bizjak  <ubizjak@gmail.com>
+
+	PR target/90547
+	* config/i386/i386.md (anddi_1 to andsi_1_zext splitter):
+	Avoid calling gen_lowpart with CONST operand.
+
+2019-05-21  Sebastian Huber  <sebastian.huber@embedded-brains.de>
+
+	Backported from mainline
+	2019-05-16  Sebastian Huber  <sebastian.huber@embedded-brains.de>
+
+	* config/arm/t-rtems: Replace ARMv7-M multilibs with Cortex-M
+	multilibs.
+
+2019-05-20  Jeff Law  <law@redhat.com>
+
+	Backport from mainline
+	2019-05-17  Dragan Mladjenovic  <dmladjenovic@wavecomp.com>
+
+	* config/mips/mips.c (mips_dwarf_frame_reg_mode): Replace
+	TARGET_FLOAT64 with !TARGET_FLOAT32, thus handling both fp64
+	and fpxx modes.
+
+2019-05-16  Kelvin Nilsen  <kelvin@gcc.gnu.org>
+
+	Backport from mainline.
+	2019-05-07  Kelvin Nilsen  <kelvin@gcc.gnu.org>
+
+	PR target/89765
+	* config/rs6000/rs6000-c.c (altivec_resolve_overloaded_builtin):
+	In handling of ALTIVEC_BUILTIN_VEC_INSERT, use modular arithmetic
+	to compute vector element selector for both constant and variable
+	operands.
+
+2019-05-15  David Edelsohn  <dje.gcc@gmail.com>
+
+	Backport from mainline
+	2019-04-11  David Edelsohn  <dje.gcc@gmail.com>
+	* xcoffout.h (xcoff_private_rodata_section_name): Declare.
+	* xcoffout.c (xcoff_private_rodata_section_name): Define.
+	* config/rs6000/rs6000.c (rs6000_xcoff_asm_init_sections): Create
+	read_only_private_data_section using coff_private_rodata_section_name.
+	(rs6000_xcoff_file_start): Generate coff_private_rodata_section_name.
+
+	2018-12-04  David Edelsohn  <dje.gcc@gmail.com>
+	2018-12-13  David Edelsohn  <dje.gcc@gmail.com>
+	PR target/61976
+	* config/rs6000/rs6000.c (rs6000_function_arg): Don't pass aggregates
+	in FPRs on AIX. Ensure type is non-NULL.
+	(rs6000_arg_partial_bytes): Same.
+
+2019-05-14  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2019-05-13  Martin Liska  <mliska@suse.cz>
+
+	PR gcov-profile/90380
+	* gcov.c (handle_cycle): Do not support zero cycle count,
+	it should not be possible.
+	(path_contains_zero_cycle_arc): New function.
+	(circuit): Ignore zero cycle arc counts.
+
+2019-05-14  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2019-05-13  Martin Liska  <mliska@suse.cz>
+
+	PR gcov-profile/90380
+	* gcov.c (enum loop_type): Remove the enum and
+	the operator.
+	(handle_cycle): Assert that we should not reach
+	a negative count.
+	(circuit): Use loop_found instead of a tri-state loop_type.
+	(get_cycles_count): Do not handle NEGATIVE_LOOP as it can't
+	happen.
+
+2019-05-11  Andreas Tobler <andreast@gcc.gnu.org>
+
+	Backport from mainline.
+	2019-04-25  Andreas Tobler  <andreast@gcc.gnu.org>
+
+	* config/i386/freebsd64.h: Add bits for 32-bit multilib support.
+	* config/i386/t-freebsd64: New file.
+	* config.gcc: Add the t-freebsd64 for multilib support.
+
+2019-05-08  Kelvin Nilsen  <kelvin@gcc.gnu.org>
+
+	Backport from mainline.
+	2019-05-06  Kelvin Nilsen  <kelvin@gcc.gnu.org>
+
+	PR target/89424
+	* config/rs6000/rs6000.c (rs6000_expand_vector_extract): Add
+	handling of V1TImode.
+
 2019-05-06  Richard Biener  <rguenther@suse.de>
 
 	PR bootstrap/90359
@@ -107,7 +1722,7 @@
 	in cfglayout mode, use emit_barrier_after_bb.
 
 	2019-04-11  Jakub Jelinek  <jakub@redhat.com>
-	
+
 	PR rtl-optimization/89965
 	* dce.c (sp_based_mem_offset): New function.
 	(find_call_stack_args): Use sp_based_mem_offset.

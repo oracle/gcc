@@ -1,3 +1,175 @@
+2019-11-10  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/92113
+	* trans-decl.c (gfc_get_symbol_decl): If __def_init actually
+	contains a value, put it into  the read-only section.
+
+2019-10-27  Paul Thomas  <pault@gcc.gnu.org>
+
+	Backport from mainline
+	PR fortran/86248
+	* resolve.c (flag_fn_result_spec): Correct a typo before the
+	function declaration.
+	* trans-decl.c (gfc_sym_identifier): Boost the length of 'name'
+	to allow for all variants. Simplify the code by using a pointer
+	to the symbol's proc_name and taking the return out of each of
+	the conditional branches. Allow symbols with fn_result_spec set
+	that do not come from a procedure namespace and have a module
+	name to go through the non-fn_result_spec branch.
+
+2019-10-18  Steven G. Kargl  <kargl@gcc.gnu.org>
+
+	PR fortran/69455
+	* trans-decl.c (generate_local_decl): Avoid misconstructed
+	intrinsic modules in a BLOCK construct.
+
+2019-10-07  Thomas Koenig <tkoenig@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/84487
+	* trans-decl.c (gfc_get_symbol_decl): For __def_init, set
+	DECL_ARTIFICAL and do not set TREE_READONLY.
+
+2019-09-28  Paul Thomas  <pault@gcc.gnu.org>
+
+	Backport from mainline
+	PR fortran/91588
+	* expr.c (check_inquiry): Remove extended component refs by
+	using symbol pointers. If a function argument is an associate
+	variable with a constant target, copy the target expression in
+	place of the argument expression. Check that the charlen is not
+	NULL before using the string length.
+
+2019-09-18  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/91550
+	* frontend-passes.c (do_subscript): If step equals
+	zero, a previuos error has been reported; do nothing
+	in this case.
+	* resolve.c (gfc_resolve_iterator): Move error checking
+	after type conversion.
+
+2019-09-15  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/91557
+	* trans-decl.c (generate_local_decl): Do not warn if the symbol
+	is artificial.
+	* trans-types.c (get_formal_from_actual_arglist): Set artificial
+	attribute on dummy arguments.
+
+2013-08-13  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/90563
+	* frontend-passes.c (insert_index): Suppress errors while
+	simplifying the resulting expression.
+
+2019-08-02  Thomas Koenig  <tkoenig@gcc.gnu.org>
+	Paul Thomas <pault@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/90786
+	PR fortran/90813
+	* trans-expr.c (pointer_assignment_is_proc_pointer) Remove as
+	it is very simple and only called from one place.
+	(gfc_trans_pointer_assignment): Rename non_proc_pointer_assign
+	as non_proc_ptr_assign. Assign to it directly, rather than call
+	to above, deleted function and use gfc_expr_attr instead of
+	only checking the reference chain.
+	* trans-decl.c (sym_identifier): New function.
+	(mangled_identifier): New function, doing most of the work
+	of gfc_sym_mangled_identifier.
+	(gfc_sym_mangled_identifier): Use mangled_identifier.  Add mangled
+	identifier to global symbol table.
+	(get_proc_pointer_decl): Use backend decl from global identifier
+	if present.
+
+2019-07-07  Paul Thomas  <pault@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/91077
+	* trans-array.c (gfc_conv_scalarized_array_ref) Delete code
+	that gave symbol backend decl for subref arrays.
+
+2019-06-21  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/90937
+	* trans-types.c (get_formal_from_actual_arglist): Get symbol from
+	current namespace so it will be freed later.  If symbol is of type
+	character, get an empty character length.
+
+2019-06-12  Thomas Koenig  <tkoenig@gcc.gnu.org>
+	Tomáš Trnka  <trnka@scm.com>
+
+	Backport from trunk
+	PR fortran/90744
+	* trans-types.c (get_formal_from_actual_arglist): Unset typespec
+	flags which make no sense for procedures without explicit
+	interface.
+
+2019-06-10  Paul Thomas  <pault@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/90498
+	* trans-stmt.c (trans_associate_var) Do not use the saved
+	descriptor if the expression is a COMPONENT_REF.
+
+2019-06-09  Paul Thomas  <pault@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/57284
+	* resolve.c (find_array_spec): If this is a class expression
+	and the symbol and component array specs are the same, this is
+	not an error.
+	*trans-intrinsic.c (gfc_conv_intrinsic_size): If a class symbol
+	argument, has no namespace, it has come from the interface
+	mapping and the _data component must be accessed directly.
+
+2019-05-30  Marek Polacek  <polacek@redhat.com>
+
+	* lang.opt (ftail-call-workaround): Fix a typo.
+
+2019-05-30  Jakub Jelinek  <jakub@redhat.com>
+
+	* lang.opt (ftail-call-workaround=): Fix a typo - lenghts to lengths.
+
+2019-05-29  Jakub Jelinek  <jakub@redhat.com>
+
+	PR fortran/90329
+	Backported from mainline
+	2019-05-29  Jakub Jelinek  <jakub@redhat.com>
+
+	PR fortran/90329
+	* lang.opt (fbroken-callers): Remove.
+	(ftail-call-workaround, ftail-call-workaround=): New options.
+	* gfortran.h (struct gfc_namespace): Add implicit_interface_calls.
+	* interface.c (gfc_procedure_use): Set implicit_interface_calls
+	for calls to implicit interface procedures.
+	* trans-decl.c (create_function_arglist): Use flag_tail_call_workaround
+	instead of flag_broken_callers.  If it is not 2, also require
+	sym->ns->implicit_interface_calls.
+	* invoke.texi (fbroken-callers): Remove documentation.
+	(ftail-call-workaround, ftail-call-workaround=): Document.
+
+	2019-05-19  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	PR fortran/90329
+	* invoke.texi: Document -fbroken-callers.
+	* lang.opt: Add -fbroken-callers.
+	* trans-decl.c (create_function_arglist): Only set
+	DECL_HIDDEN_STRING_LENGTH if flag_broken_callers is set.
+
+	2019-05-16  Jakub Jelinek  <jakub@redhat.com>
+
+	PR fortran/90329
+	* trans-decl.c (create_function_arglist): Set
+	DECL_HIDDEN_STRING_LENGTH on hidden string length PARM_DECLs if
+	len is constant.
+
 2019-04-30  Jakub Jelinek  <jakub@redhat.com>
 
 	Backported from mainline
