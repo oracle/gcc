@@ -1,3 +1,79 @@
+2020-01-10  Martin Jambor  <mjambor@suse.cz>
+
+	Backport from mainline
+	2019-12-17  Martin Jambor  <mjambor@suse.cz>
+
+        PR ipa/92971
+        * gcc.dg/ipa/ipcp-agg-12.c: New test.
+
+2020-01-10  Tobias Burnus  <tobias@codesourcery.com>
+
+	Backported from mainline
+	2020-01-09  Tobias Burnus  <tobias@codesourcery.com>
+
+	PR fortran/84135
+	* gfortran.dg/coarray/codimension_3.f90: New.
+
+2019-12-30  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/92961
+	* gfortran.dg/arith_divide_2.f90: New test.
+
+2019-12-20  Roman Zhuykov  <zhroma@ispras.ru>
+
+	* gcc.dg/pr92951-1.c: Rename to ...
+	* gcc.dg/pr92591-1.c: ... this.
+	* gcc.dg/pr92951-2.c: Rename to ...
+	* gcc.dg/pr92591-2.c: ... this.
+
+2019-12-20  Roman Zhuykov  <zhroma@ispras.ru>
+
+	Backport from mainline
+	2019-12-13  Roman Zhuykov  <zhroma@ispras.ru>
+
+	PR rtl-optimization/92591
+	* gcc.dg/pr92951-1.c: New test.
+	* gcc.dg/pr92951-2.c: New test.
+
+2019-12-17  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	Backport from mainline
+	2019-12-16  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	PR target/92950
+	* gcc.target/s390/vector/pr92950.c: New test.
+
+2019-11-29  Harald Anlauf  <anlauf@gmx.de>
+
+	Backport from mainline
+	PR fortran/92629
+	* gfortran.dg/pr92629.f90: New testcase.
+
+2019-11-29 Tobias Burnus  <tobias@codesourcery.com>
+
+	Backport from mainline
+	2019-11-29 Tobias Burnus  <tobias@codesourcery.com>
+
+	PR ipa/84963
+	* gfortran.dg/goacc/pr84963.f90: Use dg-additional-options not
+	dg-options as otherwise -fopenacc is not used.
+
+2019-11-26  Jerry DeLisle  <jvdelisle@gcc.ngu.org>
+
+2019-11-26  Jerry DeLisle  <jvdelisle@gcc.ngu.org>
+
+	Backport from trunk
+	PR fortran/92100
+	gfortran.dg/streamio_18.f90: New test.
+
+2019-11-25  Thomas Koenig  <tkoenig@gcc.gnu.org>
+	Harald Anlauf <anlauf@gmx.de>
+
+	Backport from trunk
+	PR fortran/92569
+	* gfortran.dg/eof_6.f90: New test.
+
 2019-11-21  Jakub Jelinek  <jakub@redhat.com>
 
 	PR tree-optimization/91355
@@ -1071,7 +1147,7 @@
 	Backport fom mainline
 	2019-06-21  Jeff Law  <law@redhat.com>
 
-        PR tree-optimization/90949
+	PR tree-optimization/90949
 	* gcc.c-torture/execute/pr90949.c: New test.
 
 2019-06-21  Thomas Koenig  <tkoenig@gcc.gnu.org>

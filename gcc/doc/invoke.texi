@@ -676,7 +676,7 @@ Objective-C and Objective-C++ Dialects}.
 -mn_flash=@var{size}  -mno-interrupts @gol
 -mmain-is-OS_task -mrelax  -mrmw  -mstrict-X  -mtiny-stack @gol
 -mfract-convert-truncate @gol
--mshort-calls  -nodevicelib @gol
+-mshort-calls -nodevicelib  -nodevicespecs @gol
 -Waddr-space-convert  -Wmisspelled-isr}
 
 @emph{Blackfin Options}
@@ -14747,6 +14747,7 @@ Specify the name of the target processor for which GCC should tune the
 performance of the code.  Permissible values for this option are:
 @samp{generic}, @samp{cortex-a35}, @samp{cortex-a53}, @samp{cortex-a55},
 @samp{cortex-a57}, @samp{cortex-a72}, @samp{cortex-a73}, @samp{cortex-a75},
+@samp{cortex-a76}, @samp{ares}, @samp{neoverse-n1}
 @samp{exynos-m1}, @samp{falkor}, @samp{qdf24xx}, @samp{saphira},
 @samp{xgene1}, @samp{vulcan}, @samp{thunderx},
 @samp{thunderxt88}, @samp{thunderxt88p1}, @samp{thunderxt81},
@@ -16884,6 +16885,13 @@ Allow to use truncation instead of rounding towards zero for fractional fixed-po
 @item -nodevicelib
 @opindex nodevicelib
 Don't link against AVR-LibC's device specific library @code{lib<mcu>.a}.
+
+@item -nodevicespecs
+@opindex nodevicespecs
+Don't add @option{-specs=device-specs/specs-<mcu>} to the compiler driver's
+command line.  The user takes responsibility for supplying the sub-processes
+like compiler proper, assembler and linker with appropriate command line
+options.
 
 @item -Waddr-space-convert
 @opindex Waddr-space-convert

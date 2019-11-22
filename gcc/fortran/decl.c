@@ -838,8 +838,6 @@ done:
 static bool
 merge_array_spec (gfc_array_spec *from, gfc_array_spec *to, bool copy)
 {
-  int i, j;
-
   if ((from->type == AS_ASSUMED_RANK && to->corank)
       || (to->type == AS_ASSUMED_RANK && from->corank))
     {
@@ -854,18 +852,18 @@ merge_array_spec (gfc_array_spec *from, gfc_array_spec *to, bool copy)
       to->cray_pointee = from->cray_pointee;
       to->cp_was_assumed = from->cp_was_assumed;
 
-      for (i = 0; i < to->corank; i++)
+      for (int i = to->corank - 1; i >= 0; i--)
 	{
 	  /* Do not exceed the limits on lower[] and upper[].  gfortran
 	     cleans up elsewhere.  */
-	  j = from->rank + i;
+	  int j = from->rank + i;
 	  if (j >= GFC_MAX_DIMENSIONS)
 	    break;
 
 	  to->lower[j] = to->lower[i];
 	  to->upper[j] = to->upper[i];
 	}
-      for (i = 0; i < from->rank; i++)
+      for (int i = 0; i < from->rank; i++)
 	{
 	  if (copy)
 	    {
@@ -884,23 +882,24 @@ merge_array_spec (gfc_array_spec *from, gfc_array_spec *to, bool copy)
       to->corank = from->corank;
       to->cotype = from->cotype;
 
-      for (i = 0; i < from->corank; i++)
+      for (int i = 0; i < from->corank; i++)
 	{
 	  /* Do not exceed the limits on lower[] and upper[].  gfortran
 	     cleans up elsewhere.  */
-	  j = to->rank + i;
+	  int k = from->rank + i;
+	  int j = to->rank + i;
 	  if (j >= GFC_MAX_DIMENSIONS)
 	    break;
 
 	  if (copy)
 	    {
-	      to->lower[j] = gfc_copy_expr (from->lower[i]);
-	      to->upper[j] = gfc_copy_expr (from->upper[i]);
+	      to->lower[j] = gfc_copy_expr (from->lower[k]);
+	      to->upper[j] = gfc_copy_expr (from->upper[k]);
 	    }
 	  else
 	    {
-	      to->lower[j] = from->lower[i];
-	      to->upper[j] = from->upper[i];
+	      to->lower[j] = from->lower[k];
+	      to->upper[j] = from->upper[k];
 	    }
 	}
     }
@@ -2423,6 +2422,8 @@ variable_decl (int elem)
 	  goto cleanup;
 	}
 
+      gfc_seen_div0 = false;
+      
       /* F2018:C830 (R816) An explicit-shape-spec whose bounds are not
 	 constant expressions shall appear only in a subprogram, derived
 	 type definition, BLOCK construct, or interface body.  */
@@ -2439,7 +2440,12 @@ variable_decl (int elem)
 	  for (int i = 0; i < as->rank; i++)
 	    {
 	      e = gfc_copy_expr (as->lower[i]);
-	      gfc_resolve_expr (e);
+	      if (!gfc_resolve_expr (e) && gfc_seen_div0)
+		{
+		  m = MATCH_ERROR;
+		  goto cleanup;
+		}
+
 	      gfc_simplify_expr (e, 0);
 	      if (e && (e->expr_type != EXPR_CONSTANT))
 		{
@@ -2449,7 +2455,12 @@ variable_decl (int elem)
 	      gfc_free_expr (e);
 
 	      e = gfc_copy_expr (as->upper[i]);
-	      gfc_resolve_expr (e);
+	      if (!gfc_resolve_expr (e)  && gfc_seen_div0)
+		{
+		  m = MATCH_ERROR;
+		  goto cleanup;
+		}
+
 	      gfc_simplify_expr (e, 0);
 	      if (e && (e->expr_type != EXPR_CONSTANT))
 		{
@@ -2475,7 +2486,12 @@ variable_decl (int elem)
 	      if (e->expr_type != EXPR_CONSTANT)
 		{
 		  n = gfc_copy_expr (e);
-		  gfc_simplify_expr (n, 1);
+		  if (!gfc_simplify_expr (n, 1)  && gfc_seen_div0) 
+		    {
+		      m = MATCH_ERROR;
+		      goto cleanup;
+		    }
+
 		  if (n->expr_type == EXPR_CONSTANT)
 		    gfc_replace_expr (e, n);
 		  else
@@ -2485,7 +2501,12 @@ variable_decl (int elem)
 	      if (e->expr_type != EXPR_CONSTANT)
 		{
 		  n = gfc_copy_expr (e);
-		  gfc_simplify_expr (n, 1);
+		  if (!gfc_simplify_expr (n, 1)  && gfc_seen_div0) 
+		    {
+		      m = MATCH_ERROR;
+		      goto cleanup;
+		    }
+		  
 		  if (n->expr_type == EXPR_CONSTANT)
 		    gfc_replace_expr (e, n);
 		  else
@@ -2813,6 +2834,7 @@ variable_decl (int elem)
 
 cleanup:
   /* Free stuff up and return.  */
+  gfc_seen_div0 = false;
   gfc_free_expr (initializer);
   gfc_free_array_spec (as);
 

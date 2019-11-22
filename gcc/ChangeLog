@@ -1,3 +1,109 @@
+2020-01-10  Martin Jambor  <mjambor@suse.cz>
+
+	Backport from mainline
+	2019-12-17  Martin Jambor  <mjambor@suse.cz>
+
+        PR ipa/92971
+        * ipa-cp.c (cgraph_edge_brings_all_agg_vals_for_node): Fix
+          definition of values, release memory on exit.
+
+2020-01-09  Martin Liska  <mliska@suse.cz>
+
+	Backport from mainline
+	2019-12-12  Jan Hubicka  <hubicka@ucw.cz>
+
+	* ipa-prop.c (read_ipcp_transformation_info): Fix undefined ordering
+	of execution of function call parameters.
+
+2020-01-08  Georg-Johann Lay  <avr@gjlay.de>
+
+	Backport from 2020-01-08 trunk r279995.
+
+	Add -nodevicespecs option for avr.
+
+	PR target/93182
+	* config/avr/avr.opt (-nodevicespecs): New driver option.
+	* config/avr/driver-avr.c (avr_devicespecs_file): Only issue
+	"-specs=device-specs/..." if that option is not set.
+	* doc/invoke.texi (AVR Options) <-nodevicespecs>: Document.
+
+2020-01-06  John David Anglin  <danglin@gcc.gnu.org>
+
+	* config/pa/pa.md: Revert change to use ordered_comparison_operator
+	instead of cmpib_comparison_operator in cmpib patterns.
+	* config/pa/predicates.md (cmpib_comparison_operator): Revert removal
+	of cmpib_comparison_operator.  Revise comment.
+
+2020-01-01  John David Anglin  <danglin@gcc.gnu.org>
+
+	PR target/93111
+	* config/pa/pa.md (scc): Use ordered_comparison_operator instead of
+	comparison_operator in B and S integer comparisons.  Likewise, use
+	ordered_comparison_operator instead of cmpib_comparison_operator in
+	cmpib patterns.
+	* config/pa/predicates.md (cmpib_comparison_operator): Remove.
+
+2019-12-28  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline.
+	2019-12-14 Iain Sandoe <iain@sandoe.co.uk>
+
+	* config/darwin.h (DARWIN_EXTRA_SPECS): Add new
+	bundle spec. (DARWIN_BUNDLE1_SPEC): New.
+	(STARTFILE_SPEC): Use darwin bundle spec.
+	* config/rs6000/darwin.h (DARWIN_BUNDLE1_SPEC): New.
+	(DARWIN_DYLIB1_SPEC): Delete duplicate.
+
+2019-12-20  Roman Zhuykov  <zhroma@ispras.ru>
+
+	Backport from mainline
+	2019-12-13  Roman Zhuykov  <zhroma@ispras.ru>
+
+	PR rtl-optimization/92591
+	* modulo-sched.c (ps_add_node_check_conflicts): Improve checking
+	for history > 0 case.
+	* params.def (sms-dfa-history): Limit to 16.
+
+2019-12-19  Georg-Johann Lay  <avr@gjlay.de>
+
+	Backport support for some AVR devices from avrxmega3 family
+	from SVN trunk r279309, r278387, r278389, r278478.
+
+	PR target/92545
+	* config/avr/avr-arch.h (avr_mcu_t) <flash_pm_offset>: New field.
+	* config/avr/avr-devices.c (avr_mcu_types): Adjust initializers.
+	* config/avr/avr-mcus.def (AVR_MCU): Add respective field.
+	* config/avr/gen-avr-mmcu-specs.c (print_mcu)
+	<*cpp, *cpp_mcu, *cpp_avrlibc, *link_pm_base_address>: Emit code
+	for spec definitions.
+	* config/avr/gen-avr-mmcu-texi.c: Rewrite.
+	* doc/avr-mmcu.texi: Regenerate.
+
+2019-12-17  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	Backport from mainline
+	2019-12-16  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	PR target/92950
+	* config/s390/vector.md ("mov<mode>" for V_8): Replace lh, lhy,
+	and lhrl with llc.
+
+2019-12-02  Wilco Dijkstra  <wdijkstr@arm.com>
+
+	* config/aarch64/aarch64-cores.def (ares): Define.
+	(cortex-a76): Likewise.
+	(neoverse-n1): Likewise.
+	* config/aarch64/aarch64-tune.md: Regenerate.
+	* doc/invoke.texi (AArch64 Options): Document ares, cortex-a75 and
+	neoverse-n1.
+
+2019-11-29  David Malcolm  <dmalcolm@redhat.com>
+
+	PR driver/89014
+	* config/aarch64/driver-aarch64.c (host_detect_local_cpu): Fix
+	use-after-free of the result of
+	aarch64_get_extension_string_for_isa_flags.
+
 2019-11-21  Jakub Jelinek  <jakub@redhat.com>
 
 	PR tree-optimization/91355

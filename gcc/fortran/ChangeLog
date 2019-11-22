@@ -1,3 +1,31 @@
+2020-01-10  Tobias Burnus  <tobias@codesourcery.com>
+
+	Backported from mainline
+	2020-01-09  Tobias Burnus  <tobias@codesourcery.com>
+
+	PR fortran/84135
+	* array.c (gfc_set_array_spec): Fix shifting of codimensions
+	when adding a dimension.
+	* decl.c (merge_array_spec): Ditto. Fix using correct codimensions.
+
+2019-12-30  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	Backport from trunk
+	PR fortran/92961
+	* gfortran.h (gfc_seen_div0): Add declaration.
+	* arith.h (gfc_seen_div0): Add definition.
+	(eval_intrinsic): For integer division by zero, set gfc_seen_div0.
+	* decl.c (variable_decl):  If resolution resp. simplification
+	fails for array spec and a division of zero error has been
+	seen, return MATCH_ERROR.
+
+2019-11-29  Harald Anlauf  <anlauf@gmx.de>
+
+	Backport from mainline
+	PR fortran/92629
+	* simplify.c (convert_mpz_to_unsigned): Skip assert for argument
+	range when -fno-range-check is specified.
+
 2019-11-10  Thomas Koenig  <tkoenig@gcc.gnu.org>
 
 	Backport from trunk
