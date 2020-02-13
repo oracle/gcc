@@ -193,6 +193,8 @@ static void set_debug_level (enum debug_info_type type, int extended,
 			     const char *arg, struct gcc_options *opts,
 			     struct gcc_options *opts_set,
 			     location_t loc);
+static void set_ctf_debug_level (const char *arg,
+				 struct gcc_options *opts, location_t loc);
 static void set_fast_math_flags (struct gcc_options *opts, int set);
 static void decode_d_option (const char *arg, struct gcc_options *opts,
 			     location_t loc, diagnostic_context *dc);
@@ -2706,6 +2708,10 @@ common_handle_option (struct gcc_options *opts,
       opts->x_flag_stack_usage_info = value != 0;
       break;
 
+    case OPT_gt:
+      set_ctf_debug_level (arg, opts, loc);
+      break;
+
     case OPT_g:
       set_debug_level (NO_DEBUG, DEFAULT_GDB_EXTENSIONS, arg, opts, opts_set,
                        loc);
@@ -2989,6 +2995,26 @@ set_debug_level (enum debug_info_type type, int extended, const char *arg,
 	error_at (loc, "debug output level %qs is too high", arg);
       else
 	opts->x_debug_info_level = (enum debug_info_levels) argval;
+    }
+}
+
+/* Handle a debug output -gt switch for options OPTS.  */
+static void
+set_ctf_debug_level (const char *arg,
+		     struct gcc_options *opts, location_t loc)
+{
+  /* CTF debug flag without a level defaults to level 2.  */
+  if (*arg == '\0')
+    opts->x_ctf_debug_info_level = CTFINFO_LEVEL_NORMAL;
+  else
+    {
+      int argval = integral_argument (arg);
+      if (argval == -1)
+	error_at (loc, "unrecognized ctf debug output level %qs", arg);
+      else if (argval > CTFINFO_LEVEL_NORMAL)
+	error_at (loc, "ctf debug output level %qs is too high", arg);
+      else
+	opts->x_ctf_debug_info_level = (enum ctf_debug_info_levels) argval;
     }
 }
 
