@@ -105,6 +105,19 @@ enum dwarf_gnat_encodings
 				       Emit GNAT encodings for the rest.  */
 };
 
+/* CTF debug info levels.
+   CTF debug info levels are untied with DWARF debug info levels because CTF
+   may co-exist with DWARF.  */
+enum ctf_debug_info_levels
+{
+  CTFINFO_LEVEL_NONE = 0,     /* Write no CTF debug info.  */
+  CTFINFO_LEVEL_TERSE = 1,    /* Write CTF information to support tracebacks
+				 only.  Not Implemented.  */
+  CTFINFO_LEVEL_NORMAL = 2    /* Write CTF type information for all entities
+				 (functions, data objects, variables etc.)
+				 at file-scope or global-scope only.  */
+};
+
 /* Enumerate Objective-c instance variable visibility settings. */
 
 enum ivar_visibility
