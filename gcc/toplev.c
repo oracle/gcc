@@ -71,6 +71,7 @@ along with GCC; see the file COPYING3.  If not see
 #include "pass_manager.h"
 #include "auto-profile.h"
 #include "dwarf2out.h"
+#include "ctfout.h"
 #include "ipa-reference.h"
 #include "symbol-summary.h"
 #include "tree-vrp.h"
@@ -1371,6 +1372,8 @@ parse_alignment_opts (void)
 static void
 process_options (void)
 {
+  const char *language_string = lang_hooks.name;
+
   /* Just in case lang_hooks.post_options ends up calling a debug_hook.
      This can happen with incorrect pre-processed input. */
   debug_hooks = &do_nothing_debug_hooks;
@@ -1538,6 +1541,17 @@ process_options (void)
 	debug_info_level = DINFO_LEVEL_NONE;
     }
 
+  /* CTF is supported for only C at this time.
+     Compiling with -flto results in frontend language of GNU GIMPLE.  */
+  if (!lang_GNU_C () && !lang_GNU_GIMPLE ()
+      && ctf_debug_info_level > CTFINFO_LEVEL_NONE)
+    {
+      inform (UNKNOWN_LOCATION,
+	      "CTF debug info requested, but not supported for %qs frontend",
+	      language_string);
+      ctf_debug_info_level = CTFINFO_LEVEL_NONE;
+    }
+
   if (flag_dump_final_insns && !flag_syntax_only && !no_backend)
     {
       FILE *final_output = fopen (flag_dump_final_insns, "w");
@@ -1609,6 +1623,9 @@ process_options (void)
       flag_var_tracking = 0;
       flag_var_tracking_uninit = 0;
     }
+
+  if (ctf_debug_info_level > CTFINFO_LEVEL_NONE)
+    ctf_debug_init ();
 
   /* The debug hooks are used to implement -fdump-go-spec because it
      gives a simple and stable API for all the information we need to
@@ -2474,6 +2491,7 @@ toplev::finalize (void)
   cgraph_c_finalize ();
   cgraphunit_c_finalize ();
   dwarf2out_c_finalize ();
+  ctfout_c_finalize ();
   gcse_c_finalize ();
   ipa_cp_c_finalize ();
   ira_costs_c_finalize ();

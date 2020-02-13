@@ -206,6 +206,7 @@ along with GCC; see the file COPYING3.  If not see
 #include "stringpool.h"
 #include "attribs.h"
 #include "ipa-inline.h"
+#include "ctfout.h"
 
 /* Queue of cgraph nodes scheduled to be added into cgraph.  This is a
    secondary queue used during optimization to accommodate passes that
@@ -2997,16 +2998,20 @@ symbol_table::finalize_compilation_unit (void)
 
   if (!seen_error ())
     {
-      /* Emit early debug for reachable functions, and by consequence,
-	 locally scoped symbols.  */
+      /* Emit early debug and CTF debug info for reachable functions, and by
+	 consequence, locally scoped symbols.  */
       struct cgraph_node *cnode;
       FOR_EACH_FUNCTION_WITH_GIMPLE_BODY (cnode)
-	(*debug_hooks->early_global_decl) (cnode->decl);
+	{
+	  (*debug_hooks->early_global_decl) (cnode->decl);
+	  ctf_early_global_decl (cnode->decl);
+	}
 
       /* Clean up anything that needs cleaning up after initial debug
 	 generation.  */
       debuginfo_early_start ();
       (*debug_hooks->early_finish) (main_input_filename);
+      ctf_early_finish (main_input_filename);
       debuginfo_early_stop ();
     }
 
