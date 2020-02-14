@@ -1,6 +1,11 @@
 2020-02-14  Jakub Jelinek  <jakub@redhat.com>
 
 	Backported from mainline
+	2020-01-30  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/93505
+	* gcc.c-torture/compile/pr93505.c: New test.
+
 	2020-01-29  Jakub Jelinek  <jakub@redhat.com>
 
 	PR fortran/93463
@@ -116,136 +121,6 @@
 
 	PR target/92615
 	* gcc.target/i386/pr92615.c: New test.
-
-	2019-11-21  Jakub Jelinek  <jakub@redhat.com>
-
-	PR c++/90842
-	* g++.dg/cpp1y/lambda-generic-90842.C: New test.
-
-2020-02-14  Jakub Jelinek  <jakub@redhat.com>
-
-	Backported from mainline
-	2020-01-09  Jakub Jelinek  <jakub@redhat.com>
-
-	PR inline-asm/93202
-	* gcc.target/riscv/pr93202.c: New test.
-
-2020-02-14  Jakub Jelinek  <jakub@redhat.com>
-
-	Backported from mainline
-	2020-01-02  Jakub Jelinek  <jakub@redhat.com>
-
-	PR ipa/93087
-	* c-c++-common/cold-1.c: New test.
-
-	2019-12-26  Jakub Jelinek  <jakub@redhat.com>
-
-	PR c++/92438
-	* g++.dg/ext/attrib61.C: New test.
-
-	2019-12-20  Jakub Jelinek  <jakub@redhat.com>
-
-	PR c++/92992
-	* g++.dg/cpp0x/nullptr45.C: New test.
-
-	2019-12-19  Jakub Jelinek  <jakub@redhat.com>
-
- 	PR fortran/92977
-	* gfortran.dg/gomp/pr92977.f90: New test.
-
-	2019-12-14  Jakub Jelinek  <jakub@redhat.com>
-
-	PR tree-optimization/92930
-	* gcc.dg/tree-ssa/pr92930.c: New test.
-
-	2019-12-12  Jakub Jelinek  <jakub@redhat.com>
-
-	PR target/92904
-	* gcc.c-torture/execute/pr92904.c: New test.
-
-	2019-12-05  Jakub Jelinek  <jakub@redhat.com>
-
-	PR fortran/92781
-	* gfortran.dg/pr92781.f90: New test.
-
-	2019-12-03  Jakub Jelinek  <jakub@redhat.com>
-
-	PR c++/92732
-	* g++.dg/cpp2a/bitfield3.C: Don't expect narrowing conversion
-	warnings.
-	* g++.dg/cpp2a/bitfield4.C: New test.
-
-	2019-11-29  Jakub Jelinek  <jakub@redhat.com>
-
-	PR c++/60228
-	* g++.dg/gomp/openmp-simd-2.C: Don't expect bodies for
-	DECL_OMP_DECLARE_REDUCTION_P functions.
-
-	2019-11-27  Jakub Jelinek  <jakub@redhat.com>
-
-	PR fortran/91944
-	* gfortran.dg/spread_size_limit_2.f90: New test.
-
-	PR c++/92524
-	* g++.dg/cpp0x/pr92524.C: New test.
-
-	2019-11-26  Jakub Jelinek  <jakub@redhat.com>
-
-	PR c++/92648
-	* g++.dg/cpp0x/gen-attrs-71.C: New test.
-
-	PR c++/61414
-	* g++.dg/cpp0x/enum23.C: Remove xfail.
-	* g++.dg/cpp0x/enum28.C: New test.
-
-	2019-11-23  Jakub Jelinek  <jakub@redhat.com>
-
-	PR target/92615
-	* gcc.target/i386/pr92615.c: New test.
-
-	2019-11-21  Jakub Jelinek  <jakub@redhat.com>
-
-	PR c++/90842
-	* g++.dg/cpp1y/lambda-generic-90842.C: New test.
-
-2020-02-14  Jakub Jelinek  <jakub@redhat.com>
-
-	Backported from mainline
-	2019-11-29  Jakub Jelinek  <jakub@redhat.com>
-
-	PR c++/60228
-	* g++.dg/gomp/openmp-simd-2.C: Don't expect bodies for
-	DECL_OMP_DECLARE_REDUCTION_P functions.
-
-2020-02-14  Jakub Jelinek  <jakub@redhat.com>
-
-	Backported from mainline
-	2019-11-27  Jakub Jelinek  <jakub@redhat.com>
-
-	PR fortran/91944
-	* gfortran.dg/spread_size_limit_2.f90: New test.
-
-	PR c++/92524
-	* g++.dg/cpp0x/pr92524.C: New test.
-
-2020-02-14  Jakub Jelinek  <jakub@redhat.com>
-
-	Backported from mainline
-	2019-11-26  Jakub Jelinek  <jakub@redhat.com>
-
-	PR c++/61414
-	* g++.dg/cpp0x/enum23.C: Remove xfail.
-	* g++.dg/cpp0x/enum28.C: New test.
-
-2020-02-14  Jakub Jelinek  <jakub@redhat.com>
-
-	Backported from mainline
-	2019-11-23  Jakub Jelinek  <jakub@redhat.com>
-
-	PR target/92615
-	* gcc.target/i386/pr92615.c: New test.
-
-2020-02-14  Jakub Jelinek  <jakub@redhat.com>
 
 	2019-11-21  Jakub Jelinek  <jakub@redhat.com>
 
