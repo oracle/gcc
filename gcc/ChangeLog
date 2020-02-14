@@ -1,6 +1,71 @@
 2020-02-14  Jakub Jelinek  <jakub@redhat.com>
 
 	Backported from mainline
+	2020-01-03  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/93088
+	* loop-iv.c (find_single_def_src): Punt after looking through
+	128 reg copies for regs with single definitions.  Move definitions
+	to first uses.
+
+	2020-01-02  Jakub Jelinek  <jakub@redhat.com>
+
+	PR ipa/93087
+	* predict.c (compute_function_frequency): Don't call
+	warn_function_cold on functions that already have cold attribute.
+
+	2019-12-14  Jakub Jelinek  <jakub@redhat.com>
+
+	PR ipa/92357
+	* ipa-fnsummary.c (ipa_fn_summary_write): Use
+	lto_symtab_encoder_iterator with lsei_start_function_in_partition and
+	lsei_next_function_in_partition instead of walking all cgraph nodes
+	in encoder.
+
+	PR tree-optimization/92930
+	* ipa-pure-const.c (special_builtin_state): Don't handle
+	BUILT_IN_APPLY.
+
+	2019-12-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/92904
+	* config/i386/i386.c (ix86_gimplify_va_arg): If need_intregs and
+	not need_temp, decrease alignment of the read because the GPR save
+	area only guarantees 8-byte alignment.
+
+	2019-12-11  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/92723
+	* tree-vect-patterns.c (vect_recog_rotate_pattern): If dt is not
+	vect_internal_def, use oprnd1 as is, without trying to cast it.
+	Formatting fix.
+
+	2019-11-27  Jakub Jelinek  <jakub@redhat.com>
+
+	PR debug/92664
+	* dwarf2out.c (lookup_filename): Use "<stdin>" instead of "".
+
+	2019-11-23  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/92615
+	* config/i386/i386.c (ix86_md_asm_adjust): If dest_mode is
+	GET_MODE (dest), is not QImode, using ZERO_EXTEND and dest is not
+	register_operand, force x into register before storing it into dest.
+	Formatting fix.
+
+2020-02-14  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from mainline
+	2020-01-09  Jakub Jelinek  <jakub@redhat.com>
+
+	PR inline-asm/93202
+	* config/riscv/riscv.c (riscv_print_operand_reloc): Use
+	output_operand_lossage instead of gcc_unreachable.
+	* doc/md.texi (riscv f constraint): Fix typo.
+
+2020-02-14  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from mainline
 	2020-01-02  Jakub Jelinek  <jakub@redhat.com>
 
 	PR ipa/93087
