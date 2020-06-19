@@ -1196,8 +1196,14 @@ gen_ctf_type (ctf_container_ref ctfc, tree type)
   tree gen_type = (TREE_CODE (type) == ARRAY_TYPE)
 		  ? type : TYPE_MAIN_VARIANT (type);
 
-  /* CTF type de-duplication in the compiler.  */
-  if (!ctf_type_exists (ctfc, gen_type, &type_id))
+  /* CTF type de-duplication in the compiler.
+   
+     Note that the de-duplication of pointer types shall be done in
+     gen_ctf_pointer_type and not here.  This is because the pointed
+     type should be checked first, in case it is a sou that has been
+     completed.  */
+  if (POINTER_TYPE_P (type)
+      || !ctf_type_exists (ctfc, gen_type, &type_id))
     {
       /* Encountering a CTF type for the first time.  Add the CTF type.  */
 

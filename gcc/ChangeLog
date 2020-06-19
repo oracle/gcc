@@ -657,6 +657,10 @@
 	PR target/97327
 	* config/arm/arm.c (fp_bitlist): Add isa_bit_mve_float to FP bits array.
 
+2020-06-19  Jose E. Marchesi  <jose.marchesi@oracle.com>
+
+	* ctfout.c (gen_ctf_type): Fix deduplication of pointer types.
+
 2020-10-16  Christophe Lyon  <christophe.lyon@linaro.org>
 
 	Backported from master:

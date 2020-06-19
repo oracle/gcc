@@ -1038,6 +1038,11 @@
 	PR target/97327
 	* gcc.target/arm/mve/intrinsics/pr97327.c: New test.
 
+2020-06-19  Jose E. Marchesi  <jose.marchesi@oracle.com>
+
+	* gcc.dg/debug/ctf/ctf-struct-pointer-1.c: New test.
+	* gcc.dg/debug/ctf/ctf-struct-pointer-2.c: Likewise.
+
 2020-10-16  Christophe Lyon  <christophe.lyon@linaro.org>
 
 	Backported from master:
