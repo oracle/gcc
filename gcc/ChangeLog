@@ -1,3 +1,7 @@
+2020-06-19  Jose E. Marchesi  <jose.marchesi@oracle.com>
+
+	* ctfout.c (gen_ctf_type): Fix deduplication of pointer types.
+
 2020-02-11  Michael Meissner  <meissner@linux.ibm.com>
 
 	* config/rs6000/predicates.md (cint34_operand): Rename the
