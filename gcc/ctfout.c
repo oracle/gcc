@@ -1924,8 +1924,11 @@ ctf_decl (tree decl)
       break;
 
     case TYPE_DECL:
-      /* Do not emit CTF for types unless they are needed by entities (vars,
-	 functions) at global level.  */
+      /* Exclude generating CTF for types not at file scope.  */
+      if (DECL_CONTEXT (decl) == NULL_TREE
+	  || TREE_CODE (DECL_CONTEXT (decl)) == TRANSLATION_UNIT_DECL)
+	gen_ctf_type (tu_ctfc, TREE_TYPE (decl));
+
       break;
 
     default:
