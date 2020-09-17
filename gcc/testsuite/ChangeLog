@@ -459,8 +459,6 @@
 	Backport from master.
 	2020-04-02  Fritz Reese  <foreese@gcc.gnu.org>
 
-2020-04-02  Fritz Reese  <foreese@gcc.gnu.org>
-
 	PR fortran/85982
 	* gfortran.dg/dec_structure_28.f90: New test.
 
@@ -698,6 +696,9 @@
 	Backported from mainline
 	2020-02-13  Jakub Jelinek  <jakub@redhat.com>
 
+	PR c/93576
+	* gcc.dg/pr93576.c: New test.
+
 	PR target/93696
 	* gcc.target/i386/pr93696-1.c: New test.
 	* gcc.target/i386/pr93696-2.c: New test.
@@ -821,6 +822,11 @@
 
 	PR target/92904
 	* gcc.c-torture/execute/pr92904.c: New test.
+
+	2019-12-11  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/92723
+	* gcc.dg/vect/pr92723.c: New test.
 
 	2019-12-05  Jakub Jelinek  <jakub@redhat.com>
 
@@ -1006,8 +1012,6 @@
 	PR ipa/84963
 	* gfortran.dg/goacc/pr84963.f90: Use dg-additional-options not
 	dg-options as otherwise -fopenacc is not used.
-
-2019-11-26  Jerry DeLisle  <jvdelisle@gcc.ngu.org>
 
 2019-11-26  Jerry DeLisle  <jvdelisle@gcc.ngu.org>
 
