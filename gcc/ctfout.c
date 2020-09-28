@@ -1394,7 +1394,7 @@ bool
 ctf_dtd_preprocess_cb (ctf_dtdef_ref const & ARG_UNUSED (key),
 		       ctf_dtdef_ref * slot, void * arg)
 {
-  uint32_t kind, vlen;
+  uint32_t kind;
   tree func_decl;
 
   ctf_dtdef_ref ctftype = (ctf_dtdef_ref) *slot;
@@ -1419,11 +1419,6 @@ ctf_dtd_preprocess_cb (ctf_dtdef_ref const & ARG_UNUSED (key),
 	{
 	  arg_ctfc->ctfc_gfuncs_list[dtd_arg->dtd_global_func_idx] = ctftype;
 	  dtd_arg->dtd_global_func_idx++;
-	  vlen = CTF_V2_INFO_VLEN (ctftype->dtd_data.ctti_info);
-	  /* Update the function info section size in bytes.  Avoid using
-	     ctf_calc_num_vbytes API, the latter is only meant to convey
-	     the vlen bytes after CTF types in the CTF data types section.  */
-	  arg_ctfc->ctfc_num_funcinfo_bytes += (vlen + 2) * sizeof (uint32_t);
 	}
     }
 
@@ -1624,7 +1619,7 @@ output_ctf_header (ctf_container_ref ctfc)
 
       funcoff = objtoff + ctfc->ctfc_num_global_objts * sizeof (uint32_t);
       /* Object index appears after function info.  */
-      objtidxoff = funcoff + get_ctfc_num_funcinfo_bytes (ctfc);
+      objtidxoff = funcoff + ctfc->ctfc_num_global_funcs * sizeof (uint32_t);
       /* Funxtion index goes next.  */
       funcidxoff = objtidxoff + ctfc->ctfc_num_global_objts * sizeof (uint32_t);
       /* Vars appear after function index.  */
@@ -1687,32 +1682,18 @@ output_ctf_obj_info (ctf_container_ref ctfc)
 static void
 output_ctf_func_info (ctf_container_ref ctfc)
 {
-  unsigned long i, j;
+  unsigned long i;
   ctf_dtdef_ref ctftype;
-  uint32_t vlen;
 
   if (!ctfc->ctfc_num_global_funcs) return;
 
-  /* Compiler spits out the function type, return type, and args of each global
-     function in the CTF funcinfo section.  In no specific order.
-     In an object file, the CTF function index section is used to associate
-     functions to their corresponding names.  */
+  /* The CTF funcinfo section is simply an array of CTF_K_FUNCTION type IDs in
+     the type section.  In an object file, the CTF function index section is
+     used to associate functions to their corresponding names.  */
   for (i = 0; i < ctfc->ctfc_num_global_funcs; i++)
     {
       ctftype = ctfc->ctfc_gfuncs_list[i];
-      vlen = CTF_V2_INFO_VLEN (ctftype->dtd_data.ctti_info);
-
-      /* function type.  */
       dw2_asm_output_data (4, ctftype->dtd_type, "funcinfo_func_type");
-
-      /* return type.  */
-      dw2_asm_output_data (4, ctftype->dtd_data.ctti_type,
-			   "funcinfo_func_return_type");
-
-      /* function args types.  */
-      for (j = 0; j < vlen; j++)
-	dw2_asm_output_data (4, ctftype->dtd_u.dtu_argv[j].farg_type,
-			     "funcinfo_func_args");
     }
 }
 

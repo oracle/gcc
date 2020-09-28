@@ -229,7 +229,6 @@ typedef struct GTY (()) ctf_container
   unsigned long ctfc_num_global_funcs;
   unsigned long ctfc_num_global_objts;
 
-  unsigned long ctfc_num_funcinfo_bytes;
   /* Number of vlen bytes - the variable length portion after ctf_type_t and
      ctf_stype_t in the CTF section.  This is used to calculate the offsets in
      the CTF header.  */
@@ -275,7 +274,6 @@ typedef ctf_container_t * ctf_container_ref;
 #define get_cur_ctf_str_len(ctfc)      ((ctfc)->ctfc_strtable.ctstab_len)
 
 #define get_ctfc_num_vlen_bytes(ctfc)	((ctfc)->ctfc_num_vlen_bytes)
-#define get_ctfc_num_funcinfo_bytes(ctfc) ((ctfc)->ctfc_num_funcinfo_bytes)
 
 void ctf_debug_init (void);
 
