@@ -1,3 +1,7 @@
+2010-06-30  Jakub Jelinek  <jakub@redhat.com>
+
+	* g++.dg/opt/ctor1.C: New test.
+
 2020-10-13  Jakub Jelinek  <jakub@redhat.com>
 
 	PR rtl-optimization/97386
