@@ -1,15 +1,14 @@
 ------------------------------------------------------------------------------
 --                                                                          --
---                 GNAT RUN-TIME LIBRARY (GNARL) COMPONENTS                 --
+--                         GNAT COMPILER COMPONENTS                         --
 --                                                                          --
---                   A D A . E X C E P T I O N S . P O L L                  --
---                (version supporting asynchronous abort test)              --
+--      A D A . N U M E R I C S . A U X _ L I N K E R _ O P T I O N S       --
 --                                                                          --
---                                  B o d y                                 --
+--                                 S p e c                                  --
 --                                                                          --
---          Copyright (C) 1992-2020, Free Software Foundation, Inc.         --
+--                     Copyright (C) 2001-2020, AdaCore                     --
 --                                                                          --
--- GNARL is free software; you can  redistribute it  and/or modify it under --
+-- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
 -- ware  Foundation;  either version 3,  or (at your option) any later ver- --
 -- sion.  GNAT is distributed in the hope that it will be useful, but WITH- --
@@ -25,38 +24,22 @@
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
 -- <http://www.gnu.org/licenses/>.                                          --
 --                                                                          --
--- GNARL was developed by the GNARL team at Florida State University.       --
--- Extensive contributions were provided by Ada Core Technologies, Inc.     --
+-- GNAT was originally developed  by the GNAT team at  New York University. --
+-- Extensive contributions were provided by Ada Core Technologies Inc.      --
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  This version is for targets that do not support per-thread asynchronous
---  signals. On such targets, we require compilation with the -gnatP switch
---  that activates periodic polling. Then in the body of the polling routine
---  we test for asynchronous abort.
+--  This package is used to provide target specific linker_options for
+--  the support of C Library Math functions as required by other
+--  children packages of Ada.Numerics.Aux.
 
---  Windows and HPUX 10 currently use this file
+--  This is a version for default use that links with -lm. An
+--  alternate __nolibm version is to be used where no additional
+--  libraries are required.
 
-pragma Warnings (Off);
---  Allow withing of non-Preelaborated units in Ada 2005 mode where this
---  package will be categorized as Preelaborate. See AI-362 for details.
---  It is safe in the context of the run-time to violate the rules.
+--  This package should not be directly with'ed by an application program
 
-with System.Soft_Links;
-
-pragma Warnings (On);
-
-separate (Ada.Exceptions)
-
-----------
--- Poll --
-----------
-
-procedure Poll is
-begin
-   --  Test for asynchronous abort on each poll
-
-   if System.Soft_Links.Check_Abort_Status.all /= 0 then
-      raise Standard'Abort_Signal;
-   end if;
-end Poll;
+package Ada.Numerics.Aux_Linker_Options is
+   pragma Pure;
+   pragma Linker_Options ("-lm");
+end Ada.Numerics.Aux_Linker_Options;

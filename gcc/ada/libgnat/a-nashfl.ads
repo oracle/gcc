@@ -2,10 +2,10 @@
 --                                                                          --
 --                         GNAT RUN-TIME COMPONENTS                         --
 --                                                                          --
---                     A D A . N U M E R I C S . A U X                      --
+--         A D A . N U M E R I C S . A U X _ S H O R T _ F L O A T          --
 --                                                                          --
 --                                 S p e c                                  --
---                       (C Library Version for x86)                        --
+--                  (Short Float Wrapper in terms of Float)                 --
 --                                                                          --
 --          Copyright (C) 1992-2020, Free Software Foundation, Inc.         --
 --                                                                          --
@@ -30,68 +30,58 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  This version is for the x86 using the 80-bit x86 long double format
+--  This package provides the basic computational interface for the
+--  generic elementary functions. The functions in this unit are
+--  wrappers for those in the Float package.
 
-package Ada.Numerics.Aux is
+with Ada.Numerics.Aux_Float;
+
+package Ada.Numerics.Aux_Short_Float is
    pragma Pure;
 
-   pragma Linker_Options ("-lm");
+   subtype T is Short_Float;
+   package Aux renames Ada.Numerics.Aux_Float;
+   subtype W is Aux.T;
 
-   type Double is new Long_Long_Float;
+   --  Use the Aux implementation.
 
-   --  We import these functions directly from C. Note that we label them
-   --  all as pure functions, because indeed all of them are in fact pure.
+   function Sin (X : T) return T
+   is (T (Aux.Sin (W (X))));
 
-   function Sin (X : Double) return Double;
-   pragma Import (Intrinsic, Sin, "sinl");
-   pragma Pure_Function (Sin);
+   function Cos (X : T) return T
+   is (T (Aux.Cos (W (X))));
 
-   function Cos (X : Double) return Double;
-   pragma Import (Intrinsic, Cos, "cosl");
-   pragma Pure_Function (Cos);
+   function Tan (X : T) return T
+   is (T (Aux.Tan (W (X))));
 
-   function Tan (X : Double) return Double;
-   pragma Import (Intrinsic, Tan, "tanl");
-   pragma Pure_Function (Tan);
+   function Exp (X : T) return T
+   is (T (Aux.Exp (W (X))));
 
-   function Exp (X : Double) return Double;
-   pragma Import (Intrinsic, Exp, "expl");
-   pragma Pure_Function (Exp);
+   function Sqrt (X : T) return T
+   is (T (Aux.Sqrt (W (X))));
 
-   function Sqrt (X : Double) return Double;
-   pragma Import (Intrinsic, Sqrt, "sqrtl");
-   pragma Pure_Function (Sqrt);
+   function Log (X : T) return T
+   is (T (Aux.Log (W (X))));
 
-   function Log (X : Double) return Double;
-   pragma Import (Intrinsic, Log, "logl");
-   pragma Pure_Function (Log);
+   function Acos (X : T) return T
+   is (T (Aux.Acos (W (X))));
 
-   function Acos (X : Double) return Double;
-   pragma Import (Intrinsic, Acos, "acosl");
-   pragma Pure_Function (Acos);
+   function Asin (X : T) return T
+   is (T (Aux.Asin (W (X))));
 
-   function Asin (X : Double) return Double;
-   pragma Import (Intrinsic, Asin, "asinl");
-   pragma Pure_Function (Asin);
+   function Atan (X : T) return T
+   is (T (Aux.Atan (W (X))));
 
-   function Atan (X : Double) return Double;
-   pragma Import (Intrinsic, Atan, "atanl");
-   pragma Pure_Function (Atan);
+   function Sinh (X : T) return T
+   is (T (Aux.Sinh (W (X))));
 
-   function Sinh (X : Double) return Double;
-   pragma Import (Intrinsic, Sinh, "sinhl");
-   pragma Pure_Function (Sinh);
+   function Cosh (X : T) return T
+   is (T (Aux.Cosh (W (X))));
 
-   function Cosh (X : Double) return Double;
-   pragma Import (Intrinsic, Cosh, "coshl");
-   pragma Pure_Function (Cosh);
+   function Tanh (X : T) return T
+   is (T (Aux.Tanh (W (X))));
 
-   function Tanh (X : Double) return Double;
-   pragma Import (Intrinsic, Tanh, "tanhl");
-   pragma Pure_Function (Tanh);
+   function Pow (X, Y : T) return T
+   is (T (Aux.Pow (W (X), W (Y))));
 
-   function Pow (X, Y : Double) return Double;
-   pragma Import (Intrinsic, Pow, "powl");
-   pragma Pure_Function (Pow);
-
-end Ada.Numerics.Aux;
+end Ada.Numerics.Aux_Short_Float;

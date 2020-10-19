@@ -69,7 +69,7 @@ package body Debug is
    --  dC   Output debugging information on check suppression
    --  dD   Delete elaboration checks in inner level routines
    --  dE   Apply elaboration checks to predefined units
-   --  dF
+   --  dF   Alternative display for messages over multiple lines
    --  dG   Generate all warnings including those normally suppressed
    --  dH   Hold (kill) call to gigi
    --  dI   Inhibit internal name numbering in gnatG listing
@@ -147,7 +147,7 @@ package body Debug is
 
    --  d_a  Stop elaboration checks on accept or select statement
    --  d_b
-   --  d_c
+   --  d_c  CUDA compilation : compile for the host
    --  d_d
    --  d_e  Ignore entry calls and requeue statements for elaboration
    --  d_f  Issue info messages related to GNATprove usage
@@ -1032,6 +1032,9 @@ package body Debug is
    --       flag also suppresses the additional messages explaining why a
    --       non-static expression is non-static (see Sem_Eval.Why_Not_Static).
    --       This avoids having to worry about these messages in ACATS testing.
+   --       Finally, this flag is also used for strict legality check, in
+   --       particular it will generate an error instead a warning when
+   --       encountering an unknown pragma.
 
    --  d3   Causes Comperr to dump the contents of the node for which an abort
    --       was detected (normally only the Node_Id of the node is output).

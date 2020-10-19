@@ -2744,13 +2744,9 @@ package body Checks is
       Par : Node_Id;
       S   : Entity_Id;
 
+      Check_Disabled : constant Boolean := (not Predicate_Enabled (Typ))
+        or else not Predicate_Check_In_Scope (N);
    begin
-      if not Predicate_Enabled (Typ)
-        or else not Predicate_Check_In_Scope (N)
-      then
-         return;
-      end if;
-
       S := Current_Scope;
       while Present (S) and then not Is_Subprogram (S) loop
          S := Scope (S);
@@ -2759,7 +2755,9 @@ package body Checks is
       --  If the check appears within the predicate function itself, it means
       --  that the user specified a check whose formal is the predicated
       --  subtype itself, rather than some covering type. This is likely to be
-      --  a common error, and thus deserves a warning.
+      --  a common error, and thus deserves a warning. We want to emit this
+      --  warning even if predicate checking is disabled (in which case the
+      --  warning is still useful even if it is not strictly accurate).
 
       if Present (S) and then S = Predicate_Function (Typ) then
          Error_Msg_NE
@@ -2774,9 +2772,15 @@ package body Checks is
                Parent (N), Typ);
          end if;
 
-         Insert_Action (N,
-           Make_Raise_Storage_Error (Sloc (N),
-             Reason => SE_Infinite_Recursion));
+         if not Check_Disabled then
+            Insert_Action (N,
+              Make_Raise_Storage_Error (Sloc (N),
+                Reason => SE_Infinite_Recursion));
+            return;
+         end if;
+      end if;
+
+      if Check_Disabled then
          return;
       end if;
 
@@ -3586,7 +3590,7 @@ package body Checks is
 
       elsif Is_Scalar_Type (Target_Type) then
          declare
-            Conv_OK  : constant Boolean := Conversion_OK (N);
+            Conv_OK : constant Boolean := Conversion_OK (N);
             --  If the Conversion_OK flag on the type conversion is set and no
             --  floating-point type is involved in the type conversion then
             --  fixed-point values must be read as integral values.
@@ -3642,14 +3646,10 @@ package body Checks is
                             (Entity (High_Bound (Scalar_Range (Enum_T))));
                      end if;
 
-                     if Last_E <= Last_I then
-                        null;
-
-                     else
+                     if Last_E > Last_I then
                         Activate_Overflow_Check (N);
                      end if;
                   end;
-
                else
                   Activate_Overflow_Check (N);
                end if;
@@ -3662,7 +3662,6 @@ package body Checks is
                  and then not GNATprove_Mode
                then
                   Apply_Float_Conversion_Check (Expr, Target_Type);
-
                else
                   --  Conversions involving fixed-point types are expanded
                   --  separately, and do not need a Range_Check flag, except

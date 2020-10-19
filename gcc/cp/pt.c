@@ -1181,7 +1181,7 @@ optimize_specialization_lookup_p (tree tmpl)
 	     not have template information.  The optimized lookup relies
 	     on having ARGS be the template arguments for both the class
 	     and the function template.  */
-	  && !DECL_FRIEND_P (DECL_TEMPLATE_RESULT (tmpl)));
+	  && !DECL_UNIQUE_FRIEND_P (DECL_TEMPLATE_RESULT (tmpl)));
 }
 
 /* Make sure ARGS doesn't use any inappropriate typedefs; we should have
@@ -4230,11 +4230,6 @@ check_for_bare_parameter_packs (tree t, location_t loc /* = UNKNOWN_LOCATION */)
   if (!processing_template_decl || !t || t == error_mark_node)
     return false;
 
-  /* A lambda might use a parameter pack from the containing context.  */
-  if (current_class_type && LAMBDA_TYPE_P (current_class_type)
-      && CLASSTYPE_TEMPLATE_INFO (current_class_type))
-    return false;
-
   if (TREE_CODE (t) == TYPE_DECL)
     t = TREE_TYPE (t);
 
@@ -4243,6 +4238,18 @@ check_for_bare_parameter_packs (tree t, location_t loc /* = UNKNOWN_LOCATION */)
   ppd.type_pack_expansion_p = false;
   cp_walk_tree (&t, &find_parameter_packs_r, &ppd, ppd.visited);
   delete ppd.visited;
+
+  /* It's OK for a lambda to have an unexpanded parameter pack from the
+     containing context, but do complain about unexpanded capture packs.  */
+  if (current_class_type && LAMBDA_TYPE_P (current_class_type)
+      && CLASSTYPE_TEMPLATE_INFO (current_class_type))
+    for (; parameter_packs;
+	 parameter_packs = TREE_CHAIN (parameter_packs))
+      {
+	tree pack = TREE_VALUE (parameter_packs);
+	if (is_capture_proxy (pack))
+	  break;
+      }
 
   if (parameter_packs)
     {
@@ -5701,7 +5708,7 @@ push_template_decl (tree decl, bool is_friend)
   /* No surprising friend functions.  */
   gcc_checking_assert (is_friend
 		       || !(TREE_CODE (decl) == FUNCTION_DECL
-			    && DECL_FRIEND_P (decl)));
+			    && DECL_UNIQUE_FRIEND_P (decl)));
 
   if (is_friend)
     /* For a friend, we want the context of the friend, not
@@ -5870,7 +5877,8 @@ push_template_decl (tree decl, bool is_friend)
       || TREE_CODE (ctx) == FUNCTION_DECL
       || (CLASS_TYPE_P (ctx) && TYPE_BEING_DEFINED (ctx))
       || (TREE_CODE (decl) == TYPE_DECL && LAMBDA_TYPE_P (TREE_TYPE (decl)))
-      || (is_friend && !DECL_TEMPLATE_INFO (decl)))
+      || (is_friend && !(DECL_LANG_SPECIFIC (decl)
+			 && DECL_TEMPLATE_INFO (decl))))
     {
       if (DECL_LANG_SPECIFIC (decl)
 	  && DECL_TEMPLATE_INFO (decl)
@@ -6022,10 +6030,6 @@ push_template_decl (tree decl, bool is_friend)
       if (!ctx
 	  && !(is_friend && template_class_depth (current_class_type) > 0))
 	{
-	  /* Hide template friend classes that haven't been declared yet.  */
-	  if (is_friend && TREE_CODE (decl) == TYPE_DECL)
-	    DECL_FRIEND_P (tmpl) = 1;
-
 	  tmpl = pushdecl_namespace_level (tmpl, /*hiding=*/is_friend);
 	  if (tmpl == error_mark_node)
 	    return error_mark_node;
@@ -13960,7 +13964,7 @@ tsubst_function_decl (tree t, tree args, tsubst_flags_t complain,
     if (!lambda_fntype)
       set_constraints (r, ci);
 
-  if (DECL_FRIEND_P (t) && DECL_FRIEND_CONTEXT (t))
+  if (DECL_FRIEND_CONTEXT (t))
     SET_DECL_FRIEND_CONTEXT (r,
 			     tsubst (DECL_FRIEND_CONTEXT (t),
 				     args, complain, in_decl));
@@ -27049,7 +27053,7 @@ type_dependent_expression_p (tree expression)
       && !(DECL_CLASS_SCOPE_P (expression)
 	   && dependent_type_p (DECL_CONTEXT (expression)))
       && !(DECL_LANG_SPECIFIC (expression)
-	   && DECL_FRIEND_P (expression)
+	   && DECL_UNIQUE_FRIEND_P (expression)
 	   && (!DECL_FRIEND_CONTEXT (expression)
 	       || dependent_type_p (DECL_FRIEND_CONTEXT (expression))))
       && !DECL_LOCAL_DECL_P (expression))

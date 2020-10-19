@@ -2,9 +2,10 @@
 --                                                                          --
 --                         GNAT RUN-TIME COMPONENTS                         --
 --                                                                          --
---                     A D A . N U M E R I C S . A U X                      --
+--     A D A . N U M E R I C S . A U X . L O N G _ L O N G _ F L O A T      --
 --                                                                          --
---                                 B o d y                                  --
+--                                 S p e c                                  --
+--                  (C Math Library Version, Long Long Float)               --
 --                                                                          --
 --          Copyright (C) 1992-2020, Free Software Foundation, Inc.         --
 --                                                                          --
@@ -29,4 +30,58 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-pragma No_Body;
+--  This package provides the basic computational interface for the generic
+--  elementary functions. The C library version interfaces with the routines
+--  in the C mathematical library, and is thus quite portable.
+
+with Ada.Numerics.Aux_Linker_Options;
+pragma Warnings (Off, Ada.Numerics.Aux_Linker_Options);
+
+package Ada.Numerics.Aux_Long_Long_Float is
+   pragma Pure;
+
+   subtype T is Long_Long_Float;
+
+   --  We import these functions directly from C. Note that we label them
+   --  all as pure functions, because indeed all of them are in fact pure.
+
+   function Sin (X : T) return T with
+     Import, Convention => Intrinsic, External_Name => "sinl";
+
+   function Cos (X : T) return T with
+     Import, Convention => Intrinsic, External_Name => "cosl";
+
+   function Tan (X : T) return T with
+     Import, Convention => Intrinsic, External_Name => "tanl";
+
+   function Exp (X : T) return T with
+     Import, Convention => Intrinsic, External_Name => "expl";
+
+   function Sqrt (X : T) return T with
+     Import, Convention => Intrinsic, External_Name => "sqrtl";
+
+   function Log (X : T) return T with
+     Import, Convention => Intrinsic, External_Name => "logl";
+
+   function Acos (X : T) return T with
+     Import, Convention => Intrinsic, External_Name => "acosl";
+
+   function Asin (X : T) return T with
+     Import, Convention => Intrinsic, External_Name => "asinl";
+
+   function Atan (X : T) return T with
+     Import, Convention => Intrinsic, External_Name => "atanl";
+
+   function Sinh (X : T) return T with
+     Import, Convention => Intrinsic, External_Name => "sinhl";
+
+   function Cosh (X : T) return T with
+     Import, Convention => Intrinsic, External_Name => "coshl";
+
+   function Tanh (X : T) return T with
+     Import, Convention => Intrinsic, External_Name => "tanhl";
+
+   function Pow (X, Y : T) return T with
+     Import, Convention => Intrinsic, External_Name => "powl";
+
+end Ada.Numerics.Aux_Long_Long_Float;

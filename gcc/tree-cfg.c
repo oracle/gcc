@@ -3489,14 +3489,9 @@ verify_gimple_comparison (tree type, tree op0, tree op1, enum tree_code code)
   /* For comparisons we do not have the operations type as the
      effective type the comparison is carried out in.  Instead
      we require that either the first operand is trivially
-     convertible into the second, or the other way around.
-     Because we special-case pointers to void we allow
-     comparisons of pointers with the same mode as well.  */
+     convertible into the second, or the other way around.  */
   if (!useless_type_conversion_p (op0_type, op1_type)
-      && !useless_type_conversion_p (op1_type, op0_type)
-      && (!POINTER_TYPE_P (op0_type)
-	  || !POINTER_TYPE_P (op1_type)
-	  || TYPE_MODE (op0_type) != TYPE_MODE (op1_type)))
+      && !useless_type_conversion_p (op1_type, op0_type))
     {
       error ("mismatching comparison operand types");
       debug_generic_expr (op0_type);
@@ -6211,8 +6206,44 @@ gimple_split_block_before_cond_jump (basic_block bb)
 /* Return true if basic_block can be duplicated.  */
 
 static bool
-gimple_can_duplicate_bb_p (const_basic_block bb ATTRIBUTE_UNUSED)
+gimple_can_duplicate_bb_p (const_basic_block bb)
 {
+  gimple *last = last_stmt (CONST_CAST_BB (bb));
+
+  /* Do checks that can only fail for the last stmt, to minimize the work in the
+     stmt loop.  */
+  if (last) {
+    /* A transaction is a single entry multiple exit region.  It
+       must be duplicated in its entirety or not at all.  */
+    if (gimple_code (last) == GIMPLE_TRANSACTION)
+      return false;
+
+    /* An IFN_UNIQUE call must be duplicated as part of its group,
+       or not at all.  */
+    if (is_gimple_call (last)
+	&& gimple_call_internal_p (last)
+	&& gimple_call_internal_unique_p (last))
+      return false;
+  }
+
+  for (gimple_stmt_iterator gsi = gsi_start_bb (CONST_CAST_BB (bb));
+       !gsi_end_p (gsi); gsi_next (&gsi))
+    {
+      gimple *g = gsi_stmt (gsi);
+
+      /* An IFN_GOMP_SIMT_ENTER_ALLOC/IFN_GOMP_SIMT_EXIT call must be
+	 duplicated as part of its group, or not at all.
+	 The IFN_GOMP_SIMT_VOTE_ANY and IFN_GOMP_SIMT_XCHG_* are part of such a
+	 group, so the same holds there.  */
+      if (is_gimple_call (g)
+	  && (gimple_call_internal_p (g, IFN_GOMP_SIMT_ENTER_ALLOC)
+	      || gimple_call_internal_p (g, IFN_GOMP_SIMT_EXIT)
+	      || gimple_call_internal_p (g, IFN_GOMP_SIMT_VOTE_ANY)
+	      || gimple_call_internal_p (g, IFN_GOMP_SIMT_XCHG_BFLY)
+	      || gimple_call_internal_p (g, IFN_GOMP_SIMT_XCHG_IDX)))
+	return false;
+    }
+
   return true;
 }
 

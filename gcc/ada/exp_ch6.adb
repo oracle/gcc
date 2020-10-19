@@ -2366,9 +2366,7 @@ package body Exp_Ch6 is
 
             elsif Nkind (Actual) = N_Type_Conversion
               and then
-                (Is_Numeric_Type (E_Formal)
-                  or else Is_Access_Type (E_Formal)
-                  or else Is_Enumeration_Type (E_Formal)
+                (Is_Elementary_Type (E_Formal)
                   or else Is_Bit_Packed_Array (Etype (Formal))
                   or else Is_Bit_Packed_Array (Etype (Expression (Actual)))
 
@@ -2682,22 +2680,22 @@ package body Exp_Ch6 is
                                 | N_Function_Call
                                 | N_Procedure_Call_Statement);
 
-      --  Check that this is not the call in the body of the wrapper.
+      --  Check that this is not the call in the body of the wrapper
 
       if Must_Rewrite_Indirect_Call
         and then (not Is_Overloadable (Current_Scope)
              or else not Is_Access_Subprogram_Wrapper (Current_Scope))
       then
          declare
-            Loc : constant Source_Ptr := Sloc (N);
-            Wrapper : constant Entity_Id :=
+            Loc      : constant Source_Ptr := Sloc (N);
+            Wrapper  : constant Entity_Id :=
               Access_Subprogram_Wrapper (Etype (Name (N)));
             Ptr      : constant Node_Id   := Prefix (Name (N));
             Ptr_Type : constant Entity_Id := Etype (Ptr);
             Typ      : constant Entity_Id := Etype (N);
 
             New_N    : Node_Id;
-            Parms    : List_Id   := Parameter_Associations (N);
+            Parms    : List_Id := Parameter_Associations (N);
             Ptr_Act  : Node_Id;
 
          begin
@@ -2735,7 +2733,7 @@ package body Exp_Ch6 is
 
             if Nkind (N) = N_Procedure_Call_Statement then
                New_N := Make_Procedure_Call_Statement (Loc,
-                  Name  => New_Occurrence_Of (Wrapper, Loc),
+                  Name => New_Occurrence_Of (Wrapper, Loc),
                   Parameter_Associations => Parms);
             else
                New_N := Make_Function_Call (Loc,
@@ -2927,7 +2925,7 @@ package body Exp_Ch6 is
             if Has_Invariants (Curr_Typ)
               and then Present (Invariant_Procedure (Curr_Typ))
             then
-               --  Verify the invariate of the current type. Generate:
+               --  Verify the invariant of the current type. Generate:
 
                --    <Curr_Typ>Invariant (Curr_Typ (Arg));
 
@@ -2945,7 +2943,12 @@ package body Exp_Ch6 is
             Par_Typ := Base_Type (Etype (Curr_Typ));
          end loop;
 
-         if not Is_Empty_List (Inv_Checks) then
+         --  If the node is a function call the generated tests have been
+         --  already handled in Insert_Post_Call_Actions.
+
+         if not Is_Empty_List (Inv_Checks)
+           and then Nkind (Call_Node) = N_Procedure_Call_Statement
+         then
             Insert_Actions_After (Call_Node, Inv_Checks);
          end if;
       end Add_View_Conversion_Invariants;
@@ -2971,9 +2974,7 @@ package body Exp_Ch6 is
          function May_Fold (N : Node_Id) return Traverse_Result is
          begin
             case Nkind (N) is
-               when N_Binary_Op
-                  | N_Unary_Op
-               =>
+               when N_Op =>
                   return OK;
 
                when N_Expanded_Name
@@ -3217,7 +3218,7 @@ package body Exp_Ch6 is
          then
             declare
                Actual : Node_Id;
-               Formal : Node_Id;
+               Formal : Entity_Id;
 
             begin
                Actual := First (Parameter_Associations (Call_Node));
@@ -3261,7 +3262,7 @@ package body Exp_Ch6 is
       Actual        : Node_Id;
       Formal        : Entity_Id;
       Orig_Subp     : Entity_Id := Empty;
-      Param_Count   : Natural := 0;
+      Param_Count   : Positive;
       Parent_Formal : Entity_Id;
       Parent_Subp   : Entity_Id;
       Prev_Ult      : Node_Id;
@@ -3405,8 +3406,7 @@ package body Exp_Ch6 is
          end;
       end if;
 
-      --  if this is a call to a predicate function, try to constant
-      --  fold it.
+      --  If this is a call to a predicate function, try to constant fold it
 
       if Nkind (Call_Node) = N_Function_Call
         and then Is_Entity_Name (Name (Call_Node))
@@ -4516,7 +4516,7 @@ package body Exp_Ch6 is
       end if;
 
       --  Ada 2005 (AI-251): If some formal is a class-wide interface, expand
-      --  it to point to the correct secondary virtual table
+      --  it to point to the correct secondary virtual table.
 
       if Nkind (Call_Node) in N_Subprogram_Call
         and then CW_Interface_Formals_Present
@@ -4932,7 +4932,7 @@ package body Exp_Ch6 is
          --  A call to a null procedure is replaced by a null statement, but we
          --  are not allowed to ignore possible side effects of the call, so we
          --  make sure that actuals are evaluated.
-         --  We also suppress this optimization for GNATCoverage.
+         --  We also suppress this optimization for GNATcoverage.
 
          elsif Is_Null_Procedure (Subp)
            and then not Opt.Suppress_Control_Flow_Optimizations
@@ -6389,9 +6389,6 @@ package body Exp_Ch6 is
    -- Expand_N_Subprogram_Body --
    ------------------------------
 
-   --  Add poll call if ATC polling is enabled, unless the body will be inlined
-   --  by the back-end.
-
    --  Add dummy push/pop label nodes at start and end to clear any local
    --  exception indications if local-exception-to-goto optimization is active.
 
@@ -6599,25 +6596,6 @@ package body Exp_Ch6 is
               Make_Pop_Program_Error_Label     (LL),
               Make_Pop_Storage_Error_Label     (LL)));
          end;
-      end if;
-
-      --  Need poll on entry to subprogram if polling enabled. We only do this
-      --  for non-empty subprograms, since it does not seem necessary to poll
-      --  for a dummy null subprogram.
-
-      if Is_Non_Empty_List (L) then
-
-         --  Do not add a polling call if the subprogram is to be inlined by
-         --  the back-end, to avoid repeated calls with multiple inlinings.
-
-         if Is_Inlined (Spec_Id)
-           and then Front_End_Inlining
-           and then Optimization_Level > 1
-         then
-            null;
-         else
-            Generate_Poll_Call (First (L));
-         end if;
       end if;
 
       --  Initialize any scalar OUT args if Initialize/Normalize_Scalars
@@ -7318,6 +7296,13 @@ package body Exp_Ch6 is
       Exp : Node_Id := Expression (N);
       pragma Assert (Present (Exp));
 
+      Exp_Is_Function_Call : constant Boolean :=
+        Nkind (Exp) = N_Function_Call
+          or else (Nkind (Exp) = N_Explicit_Dereference
+                   and then Is_Entity_Name (Prefix (Exp))
+                   and then Ekind (Entity (Prefix (Exp))) = E_Constant
+                   and then Is_Related_To_Func_Return (Entity (Prefix (Exp))));
+
       Exp_Typ : constant Entity_Id := Etype (Exp);
       --  The type of the expression (not necessarily the same as R_Type)
 
@@ -7477,10 +7462,9 @@ package body Exp_Ch6 is
       --  Check the result expression of a scalar function against the subtype
       --  of the function by inserting a conversion. This conversion must
       --  eventually be performed for other classes of types, but for now it's
-      --  only done for scalars.
-      --  ???
+      --  only done for scalars ???
 
-      if Is_Scalar_Type (Exp_Typ) then
+      if Is_Scalar_Type (Exp_Typ) and then Exp_Typ /= R_Type then
          Rewrite (Exp, Convert_To (R_Type, Exp));
 
          --  The expression is resolved to ensure that the conversion gets
@@ -7533,7 +7517,7 @@ package body Exp_Ch6 is
             Decl : Node_Id;
             Ent  : Entity_Id;
          begin
-            if Nkind (Exp) /= N_Function_Call
+            if not Exp_Is_Function_Call
               and then Has_Discriminants (Ubt)
               and then not Is_Constrained (Ubt)
               and then not Has_Unchecked_Union (Ubt)
@@ -7556,22 +7540,14 @@ package body Exp_Ch6 is
          Set_Enclosing_Sec_Stack_Return (N);
 
          --  Optimize the case where the result is a function call. In this
-         --  case either the result is already on the secondary stack, or is
-         --  already being returned with the stack pointer depressed and no
-         --  further processing is required except to set the By_Ref flag
-         --  to ensure that gigi does not attempt an extra unnecessary copy.
-         --  (actually not just unnecessary but harmfully wrong in the case
-         --  of a controlled type, where gigi does not know how to do a copy).
-         --  To make up for a gcc 2.8.1 deficiency (???), we perform the copy
-         --  for array types if the constrained status of the target type is
-         --  different from that of the expression.
+         --  case the result is already on the secondary stack and no further
+         --  processing is required except to set the By_Ref flag to ensure
+         --  that gigi does not attempt an extra unnecessary copy. (Actually
+         --  not just unnecessary but wrong in the case of a controlled type,
+         --  where gigi does not know how to do a copy.)
 
          if Requires_Transient_Scope (Exp_Typ)
-           and then
-              (not Is_Array_Type (Exp_Typ)
-                or else Is_Constrained (Exp_Typ) = Is_Constrained (R_Type)
-                or else CW_Or_Has_Controlled_Part (Utyp))
-           and then Nkind (Exp) = N_Function_Call
+           and then Exp_Is_Function_Call
          then
             Set_By_Ref (N);
 
@@ -8417,6 +8393,7 @@ package body Exp_Ch6 is
       --  The only exception is when the function call acts as an actual in a
       --  procedure call. In this case the function call is in a list, but the
       --  post-call actions must be inserted after the procedure call.
+      --  What if the function call is an aggregate component ???
 
       elsif Nkind (Context) = N_Procedure_Call_Statement then
          Insert_Actions_After (Context, Post_Call);
@@ -8906,7 +8883,7 @@ package body Exp_Ch6 is
          --  rather than some outer chain.
 
       begin
-         if Has_Task (Result_Subt) or else Might_Have_Tasks (Result_Subt) then
+         if Might_Have_Tasks (Result_Subt) then
             Actions := New_List;
             Build_Task_Allocate_Block_With_Init_Stmts
               (Actions, Allocator, Init_Stmts => New_List (Assign));
@@ -9561,9 +9538,15 @@ package body Exp_Ch6 is
 
       --  Finally, create an access object initialized to a reference to the
       --  function call. We know this access value cannot be null, so mark the
-      --  entity accordingly to suppress the access check.
+      --  entity accordingly to suppress the access check. We need to suppress
+      --  warnings, because this can be part of the expansion of "for ... of"
+      --  and similar constructs that generate finalization actions. Such
+      --  finalization actions are safe, because they check a count that
+      --  indicates which objects should be finalized, but the back end
+      --  nonetheless warns about uninitialized objects.
 
       Def_Id := Make_Temporary (Loc, 'R', Func_Call);
+      Set_Warnings_Off (Def_Id);
       Set_Etype (Def_Id, Ptr_Typ);
       Set_Is_Known_Non_Null (Def_Id);
 
@@ -9609,7 +9592,7 @@ package body Exp_Ch6 is
          --  which prompted the generation of the transient block. To resolve
          --  this scenario, store the build-in-place call.
 
-         if Scope_Is_Transient and then Node_To_Be_Wrapped = Obj_Decl then
+         if Scope_Is_Transient then
             Set_BIP_Initialization_Call (Obj_Def_Id, Res_Decl);
          end if;
 
@@ -9948,8 +9931,9 @@ package body Exp_Ch6 is
    begin
       return not Global_No_Tasking
         and then not No_Run_Time_Mode
-        and then Is_Class_Wide_Type (Typ)
-        and then Is_Limited_Record (Typ);
+        and then (Has_Task (Typ)
+                    or else (Is_Class_Wide_Type (Typ)
+                               and then Is_Limited_Record (Typ)));
    end Might_Have_Tasks;
 
    ----------------------------

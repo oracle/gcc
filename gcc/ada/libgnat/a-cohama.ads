@@ -36,6 +36,7 @@ with Ada.Iterator_Interfaces;
 private with Ada.Containers.Hash_Tables;
 private with Ada.Finalization;
 private with Ada.Streams;
+private with Ada.Strings.Text_Output;
 
 --  The language-defined generic package Containers.Hashed_Maps provides
 --  private types Map and Cursor, and a set of operations for each type. A map
@@ -100,7 +101,9 @@ is
       Constant_Indexing => Constant_Reference,
       Variable_Indexing => Reference,
       Default_Iterator  => Iterate,
-      Iterator_Element  => Element_Type;
+      Iterator_Element  => Element_Type,
+      Aggregate         => (Empty     => Empty_Map,
+                            Add_Named => Insert);
 
    pragma Preelaborable_Initialization (Map);
 
@@ -423,7 +426,10 @@ private
 
    type Map is new Ada.Finalization.Controlled with record
       HT : HT_Types.Hash_Table_Type;
-   end record;
+   end record with Put_Image => Put_Image;
+
+   procedure Put_Image
+     (S : in out Ada.Strings.Text_Output.Sink'Class; V : Map);
 
    overriding procedure Adjust (Container : in out Map);
 

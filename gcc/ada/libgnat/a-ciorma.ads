@@ -36,6 +36,7 @@ with Ada.Iterator_Interfaces;
 private with Ada.Containers.Red_Black_Trees;
 private with Ada.Finalization;
 private with Ada.Streams;
+private with Ada.Strings.Text_Output;
 
 generic
    type Key_Type (<>) is private;
@@ -57,7 +58,9 @@ is
    with Constant_Indexing => Constant_Reference,
         Variable_Indexing => Reference,
         Default_Iterator  => Iterate,
-        Iterator_Element  => Element_Type;
+        Iterator_Element  => Element_Type,
+        Aggregate         => (Empty     => Empty_Map,
+                              Add_Named => Insert);
 
    pragma Preelaborable_Initialization (Map);
 
@@ -256,7 +259,10 @@ private
 
    type Map is new Ada.Finalization.Controlled with record
       Tree : Tree_Types.Tree_Type;
-   end record;
+   end record with Put_Image => Put_Image;
+
+   procedure Put_Image
+     (S : in out Ada.Strings.Text_Output.Sink'Class; V : Map);
 
    overriding procedure Adjust (Container : in out Map);
 
