@@ -176,10 +176,13 @@ typedef struct ctf_header
 # define CTF_VERSION_1_UPGRADED_3 2
 # define CTF_VERSION_2 3
 
+/* Note: some flags may be valid only in particular format versions.  */
+
 #define CTF_VERSION_3 4
 #define CTF_VERSION CTF_VERSION_3 /* Current version.  */
 
 #define CTF_F_COMPRESS	0x1	/* Data buffer is compressed by libctf.  */
+#define CTF_F_NEWFUNCINFO 0x2	/* New v3 func info section format.  */
 
 typedef struct ctf_lblent
 {

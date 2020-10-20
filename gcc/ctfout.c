@@ -435,7 +435,7 @@ new_ctf_container (unsigned char ctp_flags)
 static void
 init_ctf_containers (void)
 {
-  tu_ctfc = new_ctf_container (0);
+  tu_ctfc = new_ctf_container (CTF_F_NEWFUNCINFO);
 }
 
 /* Delete the CTF container's resources.  */
