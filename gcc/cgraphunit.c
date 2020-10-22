@@ -626,8 +626,10 @@ cgraph_analyze_function (struct cgraph_node *node)
     }
   else if (node->thunk.thunk_p)
     {
-      cgraph_create_edge (node, cgraph_get_node (node->thunk.alias),
-			  NULL, 0, CGRAPH_FREQ_BASE);
+      struct cgraph_node *t = cgraph_get_node (node->thunk.alias);
+      cgraph_create_edge (node, t, NULL, 0,
+			  CGRAPH_FREQ_BASE)->can_throw_external
+	= !TREE_NOTHROW (t->symbol.decl);
     }
   else if (node->dispatcher_function)
     {

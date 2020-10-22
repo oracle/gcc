@@ -753,3 +753,10 @@ patching file libstdc++-v3/testsuite/18_support/exception_ptr/62258.cc
 ------- APPLYING gcc48-rh1369183.patch ---------
 patching file gcc/fortran/interface.c
 patching file gcc/testsuite/gfortran.dg/rh1369183.f90
+[oracle/gcc/el7-u9 e65f530] gcc48-rh1369183.patch
+ 3 files changed, 36 insertions(+)
+ create mode 100644 gcc/testsuite/gfortran.dg/rh1369183.f90
+42 gcc48-pr68184.patch -p0
+------- APPLYING gcc48-pr68184.patch ---------
+patching file gcc/cgraphunit.c
+patching file gcc/testsuite/g++.dg/torture/pr68184.C
