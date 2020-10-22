@@ -1332,3 +1332,19 @@ patching file gcc/testsuite/lib/target-supports.exp
 ------- APPLYING gcc48-rh1469697-10.patch ---------
 patching file gcc/config/i386/i386.c
 patching file gcc/testsuite/lib/target-supports.exp
+[oracle/gcc/el7-u9 8c9c685] gcc48-rh1469697-10.patch
+ 3 files changed, 22 insertions(+), 1 deletion(-)
+1312 gcc48-rh1469697-11.patch -p1
+------- APPLYING gcc48-rh1469697-11.patch ---------
+patching file gcc/config/rs6000/rs6000-protos.h
+patching file gcc/config/rs6000/rs6000.c
+Hunk #1 succeeded at 22338 (offset 18 lines).
+Hunk #2 succeeded at 22563 (offset 18 lines).
+Hunk #3 succeeded at 22599 (offset 18 lines).
+Hunk #4 succeeded at 22623 (offset 18 lines).
+Hunk #5 succeeded at 22710 (offset 18 lines).
+Hunk #6 succeeded at 22724 (offset 18 lines).
+Hunk #7 succeeded at 22766 (offset 18 lines).
+Hunk #8 succeeded at 24134 (offset 18 lines).
+patching file gcc/config/rs6000/rs6000.md
+patching file gcc/testsuite/lib/target-supports.exp
