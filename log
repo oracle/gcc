@@ -190,3 +190,8 @@ patching file gcc/testsuite/gcc.dg/20051128-1.c
 patching file libjava/Makefile.am
 patching file libjava/Makefile.in
 Hunk #1 succeeded at 1116 (offset 6 lines).
+[oracle/gcc/el7-u9 e1df953] gcc48-rh330771.patch
+ 3 files changed, 10 insertions(+), 2 deletions(-)
+5 gcc48-i386-libgomp.patch -p0
+------- APPLYING gcc48-i386-libgomp.patch ---------
+patching file libgomp/configure.tgt
