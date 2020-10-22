@@ -1373,3 +1373,16 @@ patching file gcc/config/aarch64/aarch64.md
 ------- APPLYING gcc48-rh1469697-15.patch ---------
 patching file gcc/config/aarch64/aarch64.md
 patching file gcc/testsuite/gcc.target/aarch64/subsp.c
+[oracle/gcc/el7-u9 c554dbc] gcc48-rh1469697-15.patch
+ 3 files changed, 37 insertions(+), 12 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.target/aarch64/subsp.c
+1317 gcc48-rh1469697-16.patch -p1
+------- APPLYING gcc48-rh1469697-16.patch ---------
+patching file gcc/config/aarch64/.aarch64.c.rej.swp
+patching file gcc/config/aarch64/aarch64.c
+patching file gcc/config/aarch64/aarch64.md
+patching file gcc/testsuite/gcc.target/aarch64/stack-check-12.c
+patching file gcc/testsuite/gcc.target/aarch64/stack-check-13.c
+patching file gcc/testsuite/gcc.target/aarch64/stack-check-14.c
+patching file gcc/testsuite/gcc.target/aarch64/stack-check-15.c
+patching file gcc/testsuite/lib/target-supports.exp
