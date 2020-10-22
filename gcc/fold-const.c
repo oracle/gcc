@@ -12289,8 +12289,8 @@ fold_binary_loc (location_t loc,
       /* Convert -A / -B to A / B when the type is signed and overflow is
 	 undefined.  */
       if ((!INTEGRAL_TYPE_P (type) || TYPE_OVERFLOW_UNDEFINED (type))
-	  && TREE_CODE (arg0) == NEGATE_EXPR
-	  && negate_expr_p (arg1))
+	  && TREE_CODE (op0) == NEGATE_EXPR
+	  && negate_expr_p (op1))
 	{
 	  if (INTEGRAL_TYPE_P (type))
 	    fold_overflow_warning (("assuming signed overflow does not occur "

@@ -945,3 +945,11 @@ patching file gcc/testsuite/gcc.c-torture/execute/pr78378.c
 patching file gcc/gimplify.c
 Hunk #1 succeeded at 4568 (offset 275 lines).
 patching file gcc/testsuite/g++.dg/torture/pr80129.C
+[oracle/gcc/el7-u9 b1a1e0d] gcc48-pr80129.patch
+ 3 files changed, 30 insertions(+)
+ create mode 100644 gcc/testsuite/g++.dg/torture/pr80129.C
+63 gcc48-pr80362.patch -p0
+------- APPLYING gcc48-pr80362.patch ---------
+patching file gcc/fold-const.c
+Hunk #1 succeeded at 12289 (offset 349 lines).
+patching file gcc/testsuite/gcc.dg/torture/pr80362.c
