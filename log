@@ -1067,3 +1067,11 @@ Hunk #1 succeeded at 2649 (offset 67 lines).
 ------- APPLYING gcc48-pr68814.patch ---------
 patching file gcc/rtlanal.c
 Hunk #1 succeeded at 1195 (offset -339 lines).
+[oracle/gcc/el7-u9 02d8c63] gcc48-pr68814.patch
+ 2 files changed, 8 insertions(+), 1 deletion(-)
+78 gcc48-pr63567-1.patch -p0
+------- APPLYING gcc48-pr63567-1.patch ---------
+patching file gcc/c/c-typeck.c
+Hunk #1 succeeded at 6223 (offset -460 lines).
+patching file gcc/testsuite/gcc.dg/pr63567-1.c
+patching file gcc/testsuite/gcc.dg/pr63567-2.c
