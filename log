@@ -962,3 +962,11 @@ patching file gcc/real.c
 Hunk #1 succeeded at 945 (offset -5 lines).
 patching file gcc/testsuite/gcc.c-torture/execute/pr80692.c
 patching file gcc/testsuite/gcc.c-torture/execute/pr80692.x
+[oracle/gcc/el7-u9 a7f53b4] gcc48-pr80692.patch
+ 4 files changed, 30 insertions(+), 3 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.c-torture/execute/pr80692.c
+ create mode 100644 gcc/testsuite/gcc.c-torture/execute/pr80692.x
+65 gcc48-pr82274.patch -p0
+------- APPLYING gcc48-pr82274.patch ---------
+patching file libgcc/libgcc2.c
+patching file gcc/testsuite/gcc.dg/pr82274-1.c
