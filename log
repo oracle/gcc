@@ -392,3 +392,8 @@ patching file gcc/common/config/aarch64/aarch64-common.c
 21 gcc48-aarch64-unwind-opt.patch -p0
 ------- APPLYING gcc48-aarch64-unwind-opt.patch ---------
 patching file gcc/config/aarch64/aarch64.c
+[oracle/gcc/el7-u9 5b64683] gcc48-aarch64-unwind-opt.patch
+ 2 files changed, 81 insertions(+), 90 deletions(-)
+22 gcc48-rh1243366.patch -p0
+------- APPLYING gcc48-rh1243366.patch ---------
+patching file libstdc++-v3/include/std/streambuf
