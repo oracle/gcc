@@ -1410,3 +1410,8 @@ patching file gcc/testsuite/gcc.dg/pr82788.c
 1320 gcc48-rh1469697-19.patch -p1
 ------- APPLYING gcc48-rh1469697-19.patch ---------
 patching file gcc/config/rs6000/rs6000.md
+[oracle/gcc/el7-u9 e5ad642] gcc48-rh1469697-19.patch
+ 2 files changed, 11 insertions(+), 4 deletions(-)
+1321 gcc48-rh1469697-20.patch -p1
+------- APPLYING gcc48-rh1469697-20.patch ---------
+patching file gcc/explow.c
