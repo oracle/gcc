@@ -767,3 +767,13 @@ patching file gcc/testsuite/g++.dg/torture/pr68184.C
 ------- APPLYING gcc48-pr79439.patch ---------
 patching file gcc/config/rs6000/predicates.md
 patching file gcc/testsuite/gcc.target/powerpc/pr79439.c
+[oracle/gcc/el7-u9 5fd394b] gcc48-pr79439.patch
+ 3 files changed, 38 insertions(+), 2 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.target/powerpc/pr79439.c
+44 gcc48-pr66731.patch -p0
+------- APPLYING gcc48-pr66731.patch ---------
+patching file gcc/config/aarch64/aarch64.md
+patching file gcc/testsuite/gcc.target/aarch64/fnmul-1.c
+patching file gcc/testsuite/gcc.target/aarch64/fnmul-2.c
+patching file gcc/testsuite/gcc.target/aarch64/fnmul-3.c
+patching file gcc/testsuite/gcc.target/aarch64/fnmul-4.c

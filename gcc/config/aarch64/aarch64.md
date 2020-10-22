@@ -3101,6 +3101,17 @@
         (mult:GPF
 		 (neg:GPF (match_operand:GPF 1 "register_operand" "w"))
 		 (match_operand:GPF 2 "register_operand" "w")))]
+  "TARGET_FLOAT && !flag_rounding_math"
+  "fnmul\\t%<s>0, %<s>1, %<s>2"
+  [(set_attr "v8type" "fmul")
+   (set_attr "mode" "<MODE>")]
+)
+
+(define_insn "*fnmul<mode>3"
+  [(set (match_operand:GPF 0 "register_operand" "=w")
+        (neg:GPF (mult:GPF
+		 (match_operand:GPF 1 "register_operand" "w")
+		 (match_operand:GPF 2 "register_operand" "w"))))]
   "TARGET_FLOAT"
   "fnmul\\t%<s>0, %<s>1, %<s>2"
   [(set_attr "v8type" "fmul")
