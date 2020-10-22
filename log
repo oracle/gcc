@@ -833,3 +833,10 @@ patching file gcc/testsuite/gcc.target/powerpc/ssp-2.c
 50 gcc48-rh1402585.patch -p0
 ------- APPLYING gcc48-rh1402585.patch ---------
 patching file gcc/reload.c
+[oracle/gcc/el7-u9 bb882d1] gcc48-rh1402585.patch
+ 2 files changed, 11 insertions(+), 4 deletions(-)
+51 gcc48-pr70549.patch -p0
+------- APPLYING gcc48-pr70549.patch ---------
+patching file gcc/config/aarch64/aarch64.c
+Hunk #1 succeeded at 3848 (offset 2 lines).
+patching file gcc/testsuite/g++.dg/opt/pr70549.C

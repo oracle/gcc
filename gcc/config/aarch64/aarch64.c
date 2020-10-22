@@ -3848,8 +3848,13 @@ aarch64_secondary_reload (bool in_p ATTRIBUTE_UNUSED, rtx x,
       && GET_MODE_SIZE (mode) == 16 && MEM_P (x))
     return FP_REGS;
 
+  if (rclass == CORE_REGS
+      && (mode == SFmode || mode == DFmode)
+      && CONSTANT_P (x))
+    return FP_REGS;
+
   if (rclass == FP_REGS && (mode == TImode || mode == TFmode) && CONSTANT_P(x))
-      return CORE_REGS;
+    return CORE_REGS;
 
   return NO_REGS;
 }
