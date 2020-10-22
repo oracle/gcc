@@ -1415,3 +1415,12 @@ patching file gcc/config/rs6000/rs6000.md
 1321 gcc48-rh1469697-20.patch -p1
 ------- APPLYING gcc48-rh1469697-20.patch ---------
 patching file gcc/explow.c
+[oracle/gcc/el7-u9 801e0f1] gcc48-rh1469697-20.patch
+ 2 files changed, 17 insertions(+), 2 deletions(-)
+1322 gcc48-rh1469697-21.patch -p1
+------- APPLYING gcc48-rh1469697-21.patch ---------
+patching file gcc/explow.c
+Hunk #1 succeeded at 1921 (offset -76 lines).
+Hunk #2 succeeded at 1954 (offset -76 lines).
+patching file gcc/testsuite/gcc.target/i386/stack-check-18.c
+patching file gcc/testsuite/gcc.target/i386/stack-check-19.c
