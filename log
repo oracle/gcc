@@ -726,3 +726,10 @@ patching file libgomp/openacc.f90
 37 gcc48-pr63293.patch -p0
 ------- APPLYING gcc48-pr63293.patch ---------
 patching file gcc/config/aarch64/aarch64.c
+[oracle/gcc/el7-u9 8cc8aa4] gcc48-pr63293.patch
+ 2 files changed, 43 insertions(+)
+38 gcc48-pr72863.patch -p0
+------- APPLYING gcc48-pr72863.patch ---------
+patching file gcc/config/rs6000/vsx.md
+Hunk #1 succeeded at 715 (offset -1 lines).
+patching file gcc/testsuite/gcc.target/powerpc/pr72863.c
