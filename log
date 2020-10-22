@@ -1688,3 +1688,17 @@ patching file gcc/testsuite/gcc.target/i386/ret-thunk-13.c
 patching file gcc/testsuite/gcc.target/i386/ret-thunk-14.c
 patching file gcc/testsuite/gcc.target/i386/ret-thunk-15.c
 patching file gcc/testsuite/gcc.target/i386/ret-thunk-9.c
+[oracle/gcc/el7-u9 1338ad2] gcc48-rh1535655-4.patch
+ 38 files changed, 168 insertions(+), 38 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.target/i386/indirect-thunk-register-1.c
+ create mode 100644 gcc/testsuite/gcc.target/i386/indirect-thunk-register-2.c
+ create mode 100644 gcc/testsuite/gcc.target/i386/indirect-thunk-register-3.c
+1406 gcc48-rh1535655-5.patch -p1
+------- APPLYING gcc48-rh1535655-5.patch ---------
+patching file gcc/config/i386/i386.c
+Hunk #1 succeeded at 14563 (offset 66 lines).
+Hunk #2 succeeded at 14573 (offset 66 lines).
+Hunk #3 succeeded at 14609 (offset 66 lines).
+Hunk #4 succeeded at 14770 (offset 66 lines).
+Hunk #5 succeeded at 14995 (offset 66 lines).
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-register-4.c
