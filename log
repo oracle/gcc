@@ -1303,3 +1303,10 @@ patching file gcc/config/i386/i386.c
 patching file gcc/reg-notes.def
 patching file gcc/sched-deps.c
 patching file gcc/testsuite/gcc.target/i386/stack-check-11.c
+[oracle/gcc/el7-u9 25c3d91] gcc48-rh1469697-7.patch
+ 6 files changed, 51 insertions(+), 4 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.target/i386/stack-check-11.c
+1309 gcc48-rh1469697-8.patch -p1
+------- APPLYING gcc48-rh1469697-8.patch ---------
+patching file gcc/explow.c
+patching file gcc/testsuite/gcc.target/i386/stack-check-11.c
