@@ -977,3 +977,11 @@ patching file gcc/testsuite/gcc.dg/pr82274-1.c
 ------- APPLYING gcc48-pr78416.patch ---------
 patching file gcc/expmed.c
 patching file gcc/testsuite/gcc.dg/torture/pr78416.c
+[oracle/gcc/el7-u9 fa7de3c] gcc48-pr78416.patch
+ 3 files changed, 54 insertions(+), 6 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.dg/torture/pr78416.c
+67 gcc48-rh1546728.patch -p0
+------- APPLYING gcc48-rh1546728.patch ---------
+patching file gcc/optabs.c
+Hunk #1 succeeded at 1615 (offset 7 lines).
+patching file gcc/testsuite/gcc.target/powerpc/vec-shift.c
