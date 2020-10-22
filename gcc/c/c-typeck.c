@@ -7753,11 +7753,14 @@ output_init_element (tree value, tree origtype, bool strict_string, tree type,
     value = array_to_pointer_conversion (input_location, value);
 
   if (TREE_CODE (value) == COMPOUND_LITERAL_EXPR
-      && require_constant_value && !flag_isoc99 && pending)
+      && require_constant_value && pending)
     {
       /* As an extension, allow initializing objects with static storage
 	 duration with compound literals (which are then treated just as
 	 the brace enclosed list they contain).  */
+      if (flag_isoc99)
+	pedwarn_init (input_location, OPT_Wpedantic, "initializer element is not "
+		      "constant");
       tree decl = COMPOUND_LITERAL_EXPR_DECL (value);
       value = DECL_INITIAL (decl);
     }

@@ -1075,3 +1075,13 @@ patching file gcc/c/c-typeck.c
 Hunk #1 succeeded at 6223 (offset -460 lines).
 patching file gcc/testsuite/gcc.dg/pr63567-1.c
 patching file gcc/testsuite/gcc.dg/pr63567-2.c
+[oracle/gcc/el7-u9 5f533d8] gcc48-pr63567-1.patch
+ 4 files changed, 31 insertions(+), 1 deletion(-)
+ create mode 100644 gcc/testsuite/gcc.dg/pr63567-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/pr63567-2.c
+79 gcc48-pr63567-2.patch -p0
+------- APPLYING gcc48-pr63567-2.patch ---------
+patching file gcc/c/c-typeck.c
+Hunk #1 succeeded at 7753 (offset -498 lines).
+patching file gcc/testsuite/gcc.dg/pr63567-3.c
+patching file gcc/testsuite/gcc.dg/pr63567-4.c
