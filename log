@@ -1214,3 +1214,10 @@ patching file cloog-0.18.0/configure
 Hunk #1 succeeded at 6386 (offset 3 lines).
 Hunk #2 succeeded at 6404 (offset 5078 lines).
 Hunk #3 succeeded at 6426 (offset 5078 lines).
+[oracle/gcc/el7-u9 28b1fdd] cloog-0.18.0-ppc64le-config.patch
+ 1 file changed, 11 insertions(+)
+1302 gcc48-rh1469697-1.patch -p1
+------- APPLYING gcc48-rh1469697-1.patch ---------
+patching file gcc/ggc-page.c
+patching file gcc/hwint.h
+patching file gcc/system.h
