@@ -467,6 +467,10 @@ struct lang_hooks
      gimplification.  */
   bool deep_unsharing;
 
+  /* Return year of the source language standard version if the FE supports
+     multiple versions of the standard.  */
+  int (*source_language) (void);
+
   /* Whenever you add entries here, make sure you adjust langhooks-def.h
      and langhooks.c accordingly.  */
 };

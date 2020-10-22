@@ -34,6 +34,12 @@ along with GCC; see the file COPYING3.  If not see
 
 enum c_language_kind c_language = clk_c;
 
+static int
+c_source_language (void)
+{
+  return flag_isoc99 ? 1999 : 1989;
+}
+
 /* Lang hooks common to C and ObjC are declared in c-objc-common.h;
    consequently, there should be very few hooks below.  */
 
@@ -43,6 +49,8 @@ enum c_language_kind c_language = clk_c;
 #define LANG_HOOKS_INIT c_objc_common_init
 #undef LANG_HOOKS_INIT_TS
 #define LANG_HOOKS_INIT_TS c_common_init_ts
+#undef LANG_HOOKS_SOURCE_LANGUAGE
+#define LANG_HOOKS_SOURCE_LANGUAGE c_source_language
 
 /* Each front end provides its own lang hook initializer.  */
 struct lang_hooks lang_hooks = LANG_HOOKS_INITIALIZER;

@@ -240,3 +240,17 @@ Hunk #1 succeeded at 106 (offset -1 lines).
 Hunk #2 succeeded at 1908 (offset -3 lines).
 patching file gcc/graphite.c
 Hunk #1 succeeded at 70 (offset -2 lines).
+[oracle/gcc/el7-u9 26ce522] gcc48-cloog-dl2.patch
+ 3 files changed, 43 insertions(+), 2 deletions(-)
+11 gcc48-pr38757.patch -p0
+------- APPLYING gcc48-pr38757.patch ---------
+patching file gcc/langhooks.h
+patching file gcc/langhooks-def.h
+Hunk #1 succeeded at 117 (offset -1 lines).
+Hunk #2 succeeded at 303 (offset -1 lines).
+patching file gcc/c/c-lang.c
+Hunk #1 succeeded at 34 (offset -2 lines).
+Hunk #2 succeeded at 49 (offset -2 lines).
+patching file gcc/dwarf2out.c
+Hunk #1 succeeded at 16129 (offset 20 lines).
+Hunk #2 succeeded at 18948 (offset 24 lines).

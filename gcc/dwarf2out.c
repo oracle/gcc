@@ -16129,9 +16129,18 @@ add_bit_size_attribute (dw_die_ref die, tree decl)
 static inline void
 add_prototyped_attribute (dw_die_ref die, tree func_type)
 {
-  if (get_AT_unsigned (comp_unit_die (), DW_AT_language) == DW_LANG_C89
-      && prototype_p (func_type))
-    add_AT_flag (die, DW_AT_prototyped, 1);
+  switch (get_AT_unsigned (comp_unit_die (), DW_AT_language))
+    {
+    case DW_LANG_C:
+    case DW_LANG_C89:
+    case DW_LANG_C99:
+    case DW_LANG_ObjC:
+      if (prototype_p (func_type))
+	add_AT_flag (die, DW_AT_prototyped, 1);
+      break;
+    default:
+      break;
+    }
 }
 
 /* Add an 'abstract_origin' attribute below a given DIE.  The DIE is found
@@ -18939,6 +18948,10 @@ gen_compile_unit_die (const char *filename)
 	  if (strcmp (language_string, "GNU Go") == 0)
 	    language = DW_LANG_Go;
 	}
+      else if (strcmp (language_string, "GNU C") == 0
+	       && lang_hooks.source_language
+	       && lang_hooks.source_language () >= 1999)
+	language = DW_LANG_C99;
     }
   /* Use a degraded Fortran setting in strict DWARF2 so is_fortran works.  */
   else if (strcmp (language_string, "GNU Fortran") == 0)
