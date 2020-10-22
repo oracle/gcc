@@ -438,3 +438,11 @@ patching file gcc/testsuite/gcc.target/i386/pr68680.c
 patching file gcc/dwarf2out.c
 Hunk #1 succeeded at 18074 (offset 23 lines).
 Hunk #2 succeeded at 20874 (offset 27 lines).
+[oracle/gcc/el7-u9 447d5d9] gcc48-rh1312436.patch
+ 2 files changed, 41 insertions(+), 16 deletions(-)
+28 gcc48-pr53477.patch -p0
+------- APPLYING gcc48-pr53477.patch ---------
+patching file libstdc++-v3/python/libstdcxx/v6/printers.py
+Hunk #1 succeeded at 791 (offset 5 lines).
+Hunk #2 succeeded at 851 (offset 5 lines).
+patching file libstdc++-v3/testsuite/libstdc++-prettyprinters/cxx11.cc
