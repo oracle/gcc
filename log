@@ -812,3 +812,17 @@ patching file gcc/testsuite/gcc.dg/tls/pr78796.c
 patching file gcc/c/c-decl.c
 Hunk #1 succeeded at 7398 (offset -803 lines).
 patching file gcc/testsuite/gcc.dg/debug/dwarf2/enum-loc1.c
+[oracle/gcc/el7-u9 6390e04] gcc48-pr79969.patch
+ 3 files changed, 31 insertions(+)
+ create mode 100644 gcc/testsuite/gcc.dg/debug/dwarf2/enum-loc1.c
+49 gcc48-pr78875.patch -p0
+------- APPLYING gcc48-pr78875.patch ---------
+patching file gcc/config/rs6000/rs6000.opt
+patching file gcc/config/rs6000/rs6000.c
+patching file gcc/config/rs6000/rs6000.md
+patching file gcc/config/rs6000/rs6000-opts.h
+Hunk #1 succeeded at 146 (offset -8 lines).
+patching file gcc/doc/invoke.texi
+Hunk #2 succeeded at 18299 (offset 2 lines).
+patching file gcc/testsuite/gcc.target/powerpc/ssp-1.c
+patching file gcc/testsuite/gcc.target/powerpc/ssp-2.c
