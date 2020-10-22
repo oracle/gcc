@@ -334,3 +334,22 @@ patching file gcc/toplev.c
 Hunk #1 succeeded at 1215 (offset -14 lines).
 patching file gcc/doc/invoke.texi
 Hunk #1 succeeded at 2976 (offset -70 lines).
+[oracle/gcc/el7-u9 b11e924] gcc48-color-auto.patch
+ 4 files changed, 18 insertions(+), 7 deletions(-)
+16 gcc48-pr28865.patch -p0
+------- APPLYING gcc48-pr28865.patch ---------
+patching file gcc/varasm.c
+Hunk #1 succeeded at 4544 (offset 70 lines).
+Hunk #2 succeeded at 4562 (offset 70 lines).
+Hunk #3 succeeded at 4634 (offset 70 lines).
+Hunk #4 succeeded at 4646 (offset 70 lines).
+Hunk #5 succeeded at 4684 (offset 70 lines).
+Hunk #6 succeeded at 4719 (offset 70 lines).
+Hunk #7 succeeded at 4730 (offset 70 lines).
+Hunk #8 succeeded at 4831 (offset 70 lines).
+Hunk #9 succeeded at 4880 (offset 70 lines).
+Hunk #10 succeeded at 4918 (offset 70 lines).
+patching file gcc/output.h
+Hunk #1 succeeded at 290 (offset -4 lines).
+patching file gcc/testsuite/gcc.c-torture/execute/pr28865.c
+patching file gcc/testsuite/gcc.c-torture/compile/pr28865.c
