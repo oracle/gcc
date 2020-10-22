@@ -1153,3 +1153,8 @@ patching file fastjar-0.97/jartool.c
 1002 fastjar-0.97-len1.patch -p0
 ------- APPLYING fastjar-0.97-len1.patch ---------
 patching file fastjar-0.97/jartool.c
+[oracle/gcc/el7-u9 9b17ec8] fastjar-0.97-len1.patch
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+1003 fastjar-0.97-filename0.patch -p0
+------- APPLYING fastjar-0.97-filename0.patch ---------
+patching file fastjar-0.97/jartool.c
