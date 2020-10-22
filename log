@@ -929,3 +929,11 @@ patching file gcc/testsuite/g++.dg/cpp0x/mutable1.C
 patching file gcc/c/c-decl.c
 Hunk #1 succeeded at 4938 (offset -471 lines).
 patching file gcc/testsuite/gcc.c-torture/execute/pr77767.c
+[oracle/gcc/el7-u9 6ea4126] gcc48-pr77767.patch
+ 3 files changed, 36 insertions(+), 2 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.c-torture/execute/pr77767.c
+61 gcc48-pr78378.patch -p0
+------- APPLYING gcc48-pr78378.patch ---------
+patching file gcc/combine.c
+Hunk #1 succeeded at 7063 (offset -279 lines).
+patching file gcc/testsuite/gcc.c-torture/execute/pr78378.c

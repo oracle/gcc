@@ -7063,6 +7063,7 @@ make_extraction (enum machine_mode mode, rtx inner, HOST_WIDE_INT pos,
   if (tmode != BLKmode
       && ((pos_rtx == 0 && (pos % BITS_PER_WORD) == 0
 	   && !MEM_P (inner)
+	   && (pos == 0 || REG_P (inner))
 	   && (inner_mode == tmode
 	       || !REG_P (inner)
 	       || TRULY_NOOP_TRUNCATION_MODES_P (tmode, inner_mode)
