@@ -1148,3 +1148,8 @@ patching file gcc/ira-lives.c
 1001 fastjar-0.97-segfault.patch -p0
 ------- APPLYING fastjar-0.97-segfault.patch ---------
 patching file fastjar-0.97/jartool.c
+[oracle/gcc/el7-u9 54fa050] fastjar-0.97-segfault.patch
+ 2 files changed, 9 insertions(+), 4 deletions(-)
+1002 fastjar-0.97-len1.patch -p0
+------- APPLYING fastjar-0.97-len1.patch ---------
+patching file fastjar-0.97/jartool.c
