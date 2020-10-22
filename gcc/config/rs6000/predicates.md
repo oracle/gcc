@@ -1086,8 +1086,8 @@
 			 && ((DEFAULT_ABI != ABI_AIX
 			      && DEFAULT_ABI != ABI_ELFv2)
 			     || !SYMBOL_REF_EXTERNAL_P (op)))
-		        || (op == XEXP (DECL_RTL (current_function_decl),
-						  0)))")))
+		        || (op == XEXP (DECL_RTL (current_function_decl), 0)
+			    && !decl_replaceable_p (current_function_decl)))")))
 
 ;; Return 1 if this operand is a valid input for a move insn.
 (define_predicate "input_operand"
