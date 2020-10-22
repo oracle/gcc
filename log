@@ -639,3 +639,10 @@ patching file libsanitizer/asan/asan_rtl.cc
 33 gcc48-pr65142.patch -p0
 ------- APPLYING gcc48-pr65142.patch ---------
 patching file libstdc++-v3/src/c++11/random.cc
+[oracle/gcc/el7-u9 2288a68] gcc48-pr65142.patch
+ 2 files changed, 9 insertions(+), 2 deletions(-)
+34 gcc48-pr52714.patch -p0
+------- APPLYING gcc48-pr52714.patch ---------
+patching file gcc/combine.c
+patching file gcc/testsuite/gcc.c-torture/compile/pr52714.c
+patching file gcc/testsuite/gcc.c-torture/compile/20160615-1.c
