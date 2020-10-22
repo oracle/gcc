@@ -1129,3 +1129,11 @@ Hunk #7 succeeded at 1631 (offset 4 lines).
 84 gcc48-rh1740539.patch -p0
 ------- APPLYING gcc48-rh1740539.patch ---------
 patching file gcc/fold-const.c
+[oracle/gcc/el7-u9 120a1c5] gcc48-rh1740539.patch
+ 2 files changed, 11 insertions(+), 1 deletion(-)
+85 gcc48-pr92950.patch -p0
+------- APPLYING gcc48-pr92950.patch ---------
+patching file gcc/config/s390/vector.md
+Hunk #1 succeeded at 178 (offset -111 lines).
+Hunk #2 succeeded at 198 (offset -111 lines).
+patching file gcc/testsuite/gcc.target/s390/vector/pr92950.c
