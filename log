@@ -895,3 +895,13 @@ patching file libstdc++-v3/include/bits/istream.tcc
 patching file libstdc++-v3/include/std/istream
 patching file libstdc++-v3/testsuite/27_io/basic_fstream/53984.cc
 patching file libstdc++-v3/testsuite/27_io/basic_istream/sentry/char/53984.cc
+[oracle/gcc/el7-u9 319ee66] gcc48-rh1469384.patch
+ 6 files changed, 153 insertions(+), 29 deletions(-)
+ create mode 100644 libstdc++-v3/testsuite/27_io/basic_fstream/53984.cc
+ create mode 100644 libstdc++-v3/testsuite/27_io/basic_istream/sentry/char/53984.cc
+57 gcc48-rh1491395.patch -p0
+------- APPLYING gcc48-rh1491395.patch ---------
+patching file libitm/method-gl.cc
+patching file libitm/method-ml.cc
+Hunk #1 succeeded at 487 (offset -26 lines).
+patching file libitm/testsuite/libitm.c/priv-1.c
