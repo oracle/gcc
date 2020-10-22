@@ -1007,3 +1007,11 @@ Hunk #1 succeeded at 170 (offset 12 lines).
 patching file gcc/config/s390/s390-protos.h
 Hunk #1 succeeded at 58 (offset 6 lines).
 patching file gcc/testsuite/gcc.target/s390/nodatarel-1.c
+[oracle/gcc/el7-u9 380a743] gcc48-rh1555397.patch
+ 7 files changed, 159 insertions(+), 12 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.target/s390/nodatarel-1.c
+69 gcc48-pr81395.patch -p0
+------- APPLYING gcc48-pr81395.patch ---------
+patching file libstdc++-v3/include/bits/fstream.tcc
+Hunk #1 succeeded at 613 (offset -86 lines).
+patching file libstdc++-v3/testsuite/27_io/basic_filebuf/sgetn/char/81395.cc
