@@ -795,3 +795,12 @@ patching file libstdc++-v3/testsuite/26_numerics/valarray/69116.cc
 patching file gcc/gimplify.c
 patching file gcc/testsuite/c-c++-common/pr72747-1.c
 patching file gcc/testsuite/c-c++-common/pr72747-2.c
+[oracle/gcc/el7-u9 d4480f0] gcc48-pr72747.patch
+ 4 files changed, 53 insertions(+), 12 deletions(-)
+ create mode 100644 gcc/testsuite/c-c++-common/pr72747-1.c
+ create mode 100644 gcc/testsuite/c-c++-common/pr72747-2.c
+47 gcc48-pr78796.patch -p0
+------- APPLYING gcc48-pr78796.patch ---------
+patching file gcc/config/aarch64/aarch64.c
+Hunk #1 succeeded at 4988 (offset 2 lines).
+patching file gcc/testsuite/gcc.dg/tls/pr78796.c

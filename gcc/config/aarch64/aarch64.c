@@ -4988,6 +4988,9 @@ aarch64_classify_symbol (rtx x,
   switch (aarch64_cmodel)
     {
     case AARCH64_CMODEL_LARGE:
+      if (aarch64_tls_symbol_p (x))
+	return aarch64_classify_tls_symbol (x);
+
       return SYMBOL_FORCE_TO_MEM;
 
     case AARCH64_CMODEL_TINY:
