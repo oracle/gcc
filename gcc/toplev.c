@@ -106,6 +106,8 @@ static bool no_backend;
 /* Length of line when printing switch values.  */
 #define MAX_LINE 75
 
+const char **toplev_main_argv;
+
 /* Decoded options, and number of such options.  */
 struct cl_decoded_option *save_decoded_options;
 unsigned int save_decoded_options_count;
@@ -1905,6 +1907,8 @@ toplev_main (int argc, char **argv)
   stack_limit_increase (64 * 1024 * 1024);
 
   expandargv (&argc, &argv);
+
+  toplev_main_argv = CONST_CAST2 (const char **, char **, argv);
 
   /* Initialization of GCC's environment, and diagnostics.  */
   general_init (argv[0]);

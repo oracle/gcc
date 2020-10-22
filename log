@@ -231,3 +231,12 @@ Hunk #2 succeeded at 291 (offset -1 lines).
 patching file gcc/graphite-clast-to-gimple.c
 Hunk #1 succeeded at 915 (offset 5 lines).
 Hunk #2 succeeded at 923 (offset 5 lines).
+[oracle/gcc/el7-u9 1677c27] gcc48-cloog-dl.patch
+ 5 files changed, 427 insertions(+), 4 deletions(-)
+10 gcc48-cloog-dl2.patch -p0
+------- APPLYING gcc48-cloog-dl2.patch ---------
+patching file gcc/toplev.c
+Hunk #1 succeeded at 106 (offset -1 lines).
+Hunk #2 succeeded at 1908 (offset -3 lines).
+patching file gcc/graphite.c
+Hunk #1 succeeded at 70 (offset -2 lines).
