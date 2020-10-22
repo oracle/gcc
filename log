@@ -1348,3 +1348,10 @@ Hunk #7 succeeded at 22766 (offset 18 lines).
 Hunk #8 succeeded at 24134 (offset 18 lines).
 patching file gcc/config/rs6000/rs6000.md
 patching file gcc/testsuite/lib/target-supports.exp
+[oracle/gcc/el7-u9 54a11f0] gcc48-rh1469697-11.patch
+ 5 files changed, 390 insertions(+), 43 deletions(-)
+1313 gcc48-rh1469697-12.patch -p1
+------- APPLYING gcc48-rh1469697-12.patch ---------
+patching file gcc/testsuite/gcc.dg/stack-check-5.c
+patching file gcc/testsuite/gcc.dg/stack-check-6.c
+patching file gcc/testsuite/gcc.dg/stack-check-6a.c
