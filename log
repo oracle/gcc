@@ -1137,3 +1137,9 @@ patching file gcc/config/s390/vector.md
 Hunk #1 succeeded at 178 (offset -111 lines).
 Hunk #2 succeeded at 198 (offset -111 lines).
 patching file gcc/testsuite/gcc.target/s390/vector/pr92950.c
+[oracle/gcc/el7-u9 02af9ed] gcc48-pr92950.patch
+ 3 files changed, 38 insertions(+), 7 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/pr92950.c
+1000 gcc48-pr93272.patch -p0
+------- APPLYING gcc48-pr93272.patch ---------
+patching file gcc/ira-lives.c
