@@ -161,7 +161,7 @@ in the following sections.
 -pipe  -pass-exit-codes  @gol
 -x @var{language}  -v  -###  --help@r{[}=@var{class}@r{[},@dots{}@r{]]}  --target-help  @gol
 --version -wrapper @@@var{file} -fplugin=@var{file} -fplugin-arg-@var{name}=@var{arg}  @gol
--fdump-ada-spec@r{[}-slim@r{]} -fada-spec-parent=@var{unit} -fdump-go-spec=@var{file}}
+-fdump-ada-spec@r{[}-slim@r{]} -fada-spec-parent=@var{unit} -fdump-go-spec=@var{file} -findependent-func-asm}
 
 @item C Language Options
 @xref{C Dialect Options,,Options Controlling C Dialect}.
@@ -1494,6 +1494,13 @@ useful way to start writing a Go interface to code written in some
 other language.
 
 @include @value{srcdir}/../libiberty/at-file.texi
+
+@item -findependent-func-asm
+@opindex findependent-func-asm
+This option tells the assembly code generation pipeline to try harder
+to produce output for each function that is independent of one
+another.  This is done without changing optimization levels or any
+semantics.
 @end table
 
 @node Invoking G++

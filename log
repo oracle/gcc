@@ -1850,3 +1850,13 @@ patching file gcc/testsuite/gcc.target/i386/ret-thunk-13.c
 patching file gcc/testsuite/gcc.target/i386/ret-thunk-14.c
 patching file gcc/testsuite/gcc.target/i386/ret-thunk-15.c
 patching file gcc/testsuite/gcc.target/i386/ret-thunk-9.c
+[oracle/gcc/el7-u9 f4c5256] gcc48-rh1537828-9.patch
+ 34 files changed, 106 insertions(+), 91 deletions(-)
+1502 gcc48-ora27987827.patch -p0
+------- APPLYING gcc48-ora27987827.patch ---------
+patching file gcc/cgraphclones.c
+patching file gcc/common.opt
+Hunk #1 succeeded at 1286 (offset 4 lines).
+patching file gcc/doc/invoke.texi
+Hunk #2 succeeded at 1494 (offset 10 lines).
+patching file gcc/testsuite/gcc.dg/independent-cloneids-1.c

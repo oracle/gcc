@@ -1286,6 +1286,10 @@ fif-conversion2
 Common Report Var(flag_if_conversion2) Optimization
 Perform conversion of conditional jumps to conditional execution
 
+findependent-func-asm
+Common Report Var(flag_stable_asm_output) Optimization Init(0)
+Try to make each function's assembly as independent as possible from one another.
+
 fstack-reuse=
 Common Joined RejectNegative Enum(stack_reuse_level) Var(flag_stack_reuse) Init(SR_ALL)
 -fstack-reuse=[all|named_vars|none] Set stack reuse level for local variables.
