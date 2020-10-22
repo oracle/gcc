@@ -958,6 +958,35 @@ s390_expand_builtin (tree exp, rtx target, rtx subtarget ATTRIBUTE_UNUSED,
 }
 
 
+/* Masks per jump target register indicating which thunk need to be
+   generated.  */
+static GTY(()) int indirect_branch_prez10thunk_mask = 0;
+static GTY(()) int indirect_branch_z10thunk_mask = 0;
+
+#define INDIRECT_BRANCH_NUM_OPTIONS 4
+
+enum s390_indirect_branch_option
+  {
+    s390_opt_indirect_branch_jump = 0,
+    s390_opt_indirect_branch_call,
+    s390_opt_function_return_reg,
+    s390_opt_function_return_mem
+  };
+
+static GTY(()) int indirect_branch_table_label_no[INDIRECT_BRANCH_NUM_OPTIONS] = { 0 };
+const char *indirect_branch_table_label[INDIRECT_BRANCH_NUM_OPTIONS] = \
+  { "LJUMP", "LCALL", "LRETREG", "LRETMEM" };
+const char *indirect_branch_table_name[INDIRECT_BRANCH_NUM_OPTIONS] =	\
+  { ".s390_indirect_jump", ".s390_indirect_call",
+    ".s390_return_reg", ".s390_return_mem" };
+
+bool
+s390_return_addr_from_memory ()
+{
+  return (cfun_frame_layout.first_save_gpr <= RETURN_REGNUM
+	  && cfun_frame_layout.last_save_gpr >= RETURN_REGNUM);
+}
+
 static const int s390_hotpatch_hw_max = 1000000;
 static int s390_hotpatch_hw_before_label = 0;
 static int s390_hotpatch_hw_after_label = 0;
@@ -2685,6 +2714,34 @@ s390_option_override (void)
     error ("z/Architecture mode not supported on %s", s390_arch_string);
   if (TARGET_64BIT && !TARGET_ZARCH)
     error ("64-bit ABI not supported in ESA/390 mode");
+
+  if (s390_indirect_branch != indirect_branch_keep)
+    {
+      if (!global_options_set.x_s390_indirect_branch_call)
+	s390_indirect_branch_call = s390_indirect_branch;
+
+      if (!global_options_set.x_s390_indirect_branch_jump)
+	s390_indirect_branch_jump = s390_indirect_branch;
+    }
+
+  if (s390_function_return != indirect_branch_keep)
+    {
+      if (!global_options_set.x_s390_function_return_reg)
+	s390_function_return_reg = s390_function_return;
+
+      if (!global_options_set.x_s390_function_return_mem)
+	s390_function_return_mem = s390_function_return;
+    }
+
+  if (!TARGET_CPU_ZARCH)
+    {
+      if (s390_indirect_branch_call != indirect_branch_keep
+	  || s390_indirect_branch_jump != indirect_branch_keep)
+	error ("-mindirect-branch* options require -march=z900 or higher");
+      if (s390_function_return_reg != indirect_branch_keep
+	  || s390_function_return_mem != indirect_branch_keep)
+	error ("-mfunction-return* options require -march=z900 or higher");
+    }
 
   /* Use hardware DFP if available and not explicitly disabled by
      user. E.g. with -m31 -march=z10 -mzarch   */
@@ -10906,7 +10963,6 @@ s390_emit_epilogue (bool sibcall)
   rtx frame_pointer, return_reg, cfa_restores = NULL_RTX;
   int area_bottom, area_top, offset = 0;
   int next_offset;
-  rtvec p;
   int i;
 
   if (TARGET_TPF_PROFILING)
@@ -11056,8 +11112,14 @@ s390_emit_epilogue (bool sibcall)
 		  && cfun_frame_layout.last_restore_gpr > RETURN_REGNUM))
 	    {
 	      int return_regnum = find_unused_clobbered_reg();
-	      if (!return_regnum)
-		return_regnum = 4;
+	      if (!return_regnum
+		  || (TARGET_INDIRECT_BRANCH_NOBP_RET_OPTION
+		      && !TARGET_CPU_Z10
+		      && return_regnum == INDIRECT_BRANCH_THUNK_REGNUM))
+		{
+		  gcc_assert (INDIRECT_BRANCH_THUNK_REGNUM != 4);
+		  return_regnum = 4;
+		}
 	      return_reg = gen_rtx_REG (Pmode, return_regnum);
 
 	      addr = plus_constant (Pmode, frame_pointer,
@@ -11087,16 +11149,7 @@ s390_emit_epilogue (bool sibcall)
     }
 
   if (! sibcall)
-    {
-
-      /* Return to caller.  */
-
-      p = rtvec_alloc (2);
-
-      RTVEC_ELT (p, 0) = ret_rtx;
-      RTVEC_ELT (p, 1) = gen_rtx_USE (VOIDmode, return_reg);
-      emit_jump_insn (gen_rtx_PARALLEL (VOIDmode, p));
-    }
+    emit_jump_insn (gen_return_use (return_reg));
 }
 
 
@@ -12404,6 +12457,84 @@ s390_output_mi_thunk (FILE *file, tree thunk ATTRIBUTE_UNUSED,
   final_end_function ();
 }
 
+/* Output either an indirect jump or a an indirect call
+   (RETURN_ADDR_REGNO != INVALID_REGNUM) with target register REGNO
+   using a branch trampoline disabling branch target prediction.  */
+
+void
+s390_indirect_branch_via_thunk (unsigned int regno,
+				unsigned int return_addr_regno,
+				rtx comparison_operator,
+				enum s390_indirect_branch_type type)
+{
+  enum s390_indirect_branch_option option;
+
+  if (type == s390_indirect_branch_type_return)
+    {
+      if (s390_function_return_reg != indirect_branch_keep
+	  && !s390_return_addr_from_memory ())
+	option = s390_opt_function_return_reg;
+
+      if (s390_function_return_mem != indirect_branch_keep
+	  && s390_return_addr_from_memory ())
+	option = s390_opt_function_return_mem;
+    }
+  else if (type == s390_indirect_branch_type_jump)
+    option = s390_opt_indirect_branch_jump;
+  else if (type == s390_indirect_branch_type_call)
+    option = s390_opt_indirect_branch_call;
+  else
+    gcc_unreachable ();
+
+  if (TARGET_INDIRECT_BRANCH_TABLE)
+    {
+      char label[32];
+
+      ASM_GENERATE_INTERNAL_LABEL (label,
+				   indirect_branch_table_label[option],
+				   indirect_branch_table_label_no[option]++);
+      ASM_OUTPUT_LABEL (asm_out_file, label);
+    }
+
+  if (return_addr_regno != INVALID_REGNUM)
+    {
+      gcc_assert (comparison_operator == NULL_RTX);
+      fprintf (asm_out_file, " \tbrasl\t%%r%d,", return_addr_regno);
+    }
+  else
+    {
+      fputs (" \tjg", asm_out_file);
+      if (comparison_operator != NULL_RTX)
+	print_operand (asm_out_file, comparison_operator, 'C');
+
+      fputs ("\t", asm_out_file);
+    }
+
+  if (TARGET_CPU_Z10)
+    fprintf (asm_out_file,
+	     TARGET_INDIRECT_BRANCH_THUNK_NAME_EXRL "\n",
+	     regno);
+  else
+    fprintf (asm_out_file,
+	     TARGET_INDIRECT_BRANCH_THUNK_NAME_EX "\n",
+	     INDIRECT_BRANCH_THUNK_REGNUM, regno);
+
+  if ((option == s390_opt_indirect_branch_jump
+       && s390_indirect_branch_jump == indirect_branch_thunk)
+      || (option == s390_opt_indirect_branch_call
+	  && s390_indirect_branch_call == indirect_branch_thunk)
+      || (option == s390_opt_function_return_reg
+	  && s390_function_return_reg == indirect_branch_thunk)
+      || (option == s390_opt_function_return_mem
+	  && s390_function_return_mem == indirect_branch_thunk))
+    {
+      if (TARGET_CPU_Z10)
+	indirect_branch_z10thunk_mask |= (1 << regno);
+      else
+	indirect_branch_prez10thunk_mask |= (1 << regno);
+    }
+}
+
 static bool
 s390_valid_pointer_mode (enum machine_mode mode)
 {
@@ -12509,6 +12640,14 @@ s390_function_ok_for_sibcall (tree decl, tree exp)
   if (!TARGET_64BIT && flag_pic && decl && !targetm.binds_local_p (decl))
     return false;
 
+  /* The thunks for indirect branches require r1 if no exrl is
+     available.  r1 might not be available when doing a sibling
+     call.  */
+  if (TARGET_INDIRECT_BRANCH_NOBP_CALL
+      && !TARGET_CPU_Z10
+      && !decl)
+    return false;
+
   /* Register 6 on s390 is available as an argument register but unfortunately
      "caller saved". This makes functions needing this register for arguments
      not suitable for sibcalls.  */
@@ -12542,9 +12681,13 @@ s390_emit_call (rtx addr_location, rtx tls_call, rtx result_reg,
 {
   bool plt_call = false;
   rtx insn;
-  rtx call;
-  rtx clobber;
-  rtvec vec;
+  rtx vec[4] = { NULL_RTX };
+  int elts = 0;
+  rtx *call = &vec[0];
+  rtx *clobber_ret_reg = &vec[1];
+  rtx *use = &vec[2];
+  rtx *clobber_thunk_reg = &vec[3];
+  int i;
 
   /* Direct function calls need special treatment.  */
   if (GET_CODE (addr_location) == SYMBOL_REF)
@@ -12553,7 +12696,7 @@ s390_emit_call (rtx addr_location, rtx tls_call, rtx result_reg,
          replace the symbol itself with the PLT stub.  */
       if (flag_pic && !SYMBOL_REF_LOCAL_P (addr_location))
         {
-	  if (retaddr_reg != NULL_RTX)
+	  if (TARGET_64BIT || retaddr_reg != NULL_RTX)
 	    {
 	      addr_location = gen_rtx_UNSPEC (Pmode,
 					      gen_rtvec (1, addr_location),
@@ -12596,26 +12739,57 @@ s390_emit_call (rtx addr_location, rtx tls_call, rtx result_reg,
       addr_location = gen_rtx_REG (Pmode, SIBCALL_REGNUM);
     }
 
+  if (TARGET_INDIRECT_BRANCH_NOBP_CALL
+      && GET_CODE (addr_location) != SYMBOL_REF
+      && !plt_call)
+    {
+      /* Indirect branch thunks require the target to be a single GPR.  */
+      addr_location = force_reg (Pmode, addr_location);
+
+      /* Without exrl the indirect branch thunks need an additional
+	 register for larl;ex */
+      if (!TARGET_CPU_Z10)
+	{
+	  *clobber_thunk_reg = gen_rtx_REG (Pmode, INDIRECT_BRANCH_THUNK_REGNUM);
+	  *clobber_thunk_reg = gen_rtx_CLOBBER (VOIDmode, *clobber_thunk_reg);
+	}
+    }
+
   addr_location = gen_rtx_MEM (QImode, addr_location);
-  call = gen_rtx_CALL (VOIDmode, addr_location, const0_rtx);
+  *call = gen_rtx_CALL (VOIDmode, addr_location, const0_rtx);
 
   if (result_reg != NULL_RTX)
-    call = gen_rtx_SET (VOIDmode, result_reg, call);
+    *call = gen_rtx_SET (VOIDmode, result_reg, *call);
 
   if (retaddr_reg != NULL_RTX)
     {
-      clobber = gen_rtx_CLOBBER (VOIDmode, retaddr_reg);
+      *clobber_ret_reg = gen_rtx_CLOBBER (VOIDmode, retaddr_reg);
 
       if (tls_call != NULL_RTX)
-	vec = gen_rtvec (3, call, clobber,
-			 gen_rtx_USE (VOIDmode, tls_call));
-      else
-	vec = gen_rtvec (2, call, clobber);
-
-      call = gen_rtx_PARALLEL (VOIDmode, vec);
+	*use = gen_rtx_USE (VOIDmode, tls_call);
     }
 
-  insn = emit_call_insn (call);
+  for (i = 0; i < 4; i++)
+    if (vec[i] != NULL_RTX)
+      elts++;
+
+  if (elts > 1)
+    {
+      rtvec v;
+      int e = 0;
+
+      v = rtvec_alloc (elts);
+      for (i = 0; i < 4; i++)
+	if (vec[i] != NULL_RTX)
+	  {
+	    RTVEC_ELT (v, e) = vec[i];
+	    e++;
+	  }
+
+      *call = gen_rtx_PARALLEL (VOIDmode, v);
+    }
+
+  insn = emit_call_insn (*call);
 
   /* 31-bit PLT stubs and tls calls use the GOT register implicitly.  */
   if ((!TARGET_64BIT && plt_call) || tls_call != NULL_RTX)
@@ -13852,6 +14026,190 @@ s390_asm_file_end (void)
   file_end_indicate_exec_stack ();
 }
 
+#ifdef HAVE_GAS_HIDDEN
+# define USE_HIDDEN_LINKONCE 1
+#else
+# define USE_HIDDEN_LINKONCE 0
+#endif
+
+/* Output an indirect branch trampoline for target register REGNO.  */
+
+static void
+s390_output_indirect_thunk_function (unsigned int regno, bool z10_p)
+{
+  tree decl;
+  char thunk_label[32];
+
+  int i;
+
+  if (z10_p)
+    sprintf (thunk_label, TARGET_INDIRECT_BRANCH_THUNK_NAME_EXRL, regno);
+  else
+    sprintf (thunk_label, TARGET_INDIRECT_BRANCH_THUNK_NAME_EX,
+	     INDIRECT_BRANCH_THUNK_REGNUM, regno);
+
+  decl = build_decl (BUILTINS_LOCATION, FUNCTION_DECL,
+		     get_identifier (thunk_label),
+		     build_function_type_list (void_type_node, NULL_TREE));
+  DECL_RESULT (decl) = build_decl (BUILTINS_LOCATION, RESULT_DECL,
+				   NULL_TREE, void_type_node);
+  TREE_PUBLIC (decl) = 1;
+  TREE_STATIC (decl) = 1;
+  DECL_IGNORED_P (decl) = 1;
+
+  if (USE_HIDDEN_LINKONCE)
+    {
+      DECL_COMDAT_GROUP (decl) = DECL_ASSEMBLER_NAME (decl);
+
+      targetm.asm_out.unique_section (decl, 0);
+      switch_to_section (get_named_section (decl, NULL, 0));
+
+      targetm.asm_out.globalize_label (asm_out_file, thunk_label);
+      fputs ("\t.hidden\t", asm_out_file);
+      assemble_name (asm_out_file, thunk_label);
+      putc ('\n', asm_out_file);
+      ASM_DECLARE_FUNCTION_NAME (asm_out_file, thunk_label, decl);
+    }
+  else
+    {
+      switch_to_section (text_section);
+      ASM_OUTPUT_LABEL (asm_out_file, thunk_label);
+    }
+
+  DECL_INITIAL (decl) = make_node (BLOCK);
+  current_function_decl = decl;
+  allocate_struct_function (decl, false);
+  init_function_start (decl);
+  cfun->is_thunk = true;
+  first_function_block_is_cold = false;
+  final_start_function (emit_barrier (), asm_out_file, 1);
+
+  /* This makes CFI at least usable for indirect jumps.
+
+     jumps: stopping in the thunk: backtrace will point to the thunk
+     target is if it was interrupted by a signal
+
+     calls: Instead of caller->thunk the backtrace will be
+     caller->callee->thunk   */
+  if (flag_asynchronous_unwind_tables)
+    {
+      fputs ("\t.cfi_signal_frame\n", asm_out_file);
+      fprintf (asm_out_file, "\t.cfi_return_column %d\n", regno);
+      for (i = 0; i < FPR15_REGNUM; i++)
+	fprintf (asm_out_file, "\t.cfi_same_value %s\n", reg_names[i]);
+    }
+
+  if (z10_p)
+    {
+      /* exrl  0,1f  */
+
+      /* We generate a thunk for z10 compiled code although z10 is
+	 currently not enabled.  Tell the assembler to accept the
+	 instruction.  */
+      if (!TARGET_CPU_Z10)
+	{
+	  fputs ("\t.machine push\n", asm_out_file);
+	  fputs ("\t.machine z10\n", asm_out_file);
+	}
+      /* We use exrl even if -mzarch hasn't been specified on the
+	 command line so we have to tell the assembler to accept
+	 it.  */
+      if (!TARGET_ZARCH)
+	fputs ("\t.machinemode zarch\n", asm_out_file);
+
+      fputs ("\texrl\t0,1f\n", asm_out_file);
+
+      if (!TARGET_ZARCH)
+	fputs ("\t.machinemode esa\n", asm_out_file);
+
+      if (!TARGET_CPU_Z10)
+	fputs ("\t.machine pop\n", asm_out_file);
+    }
+  else if (TARGET_CPU_ZARCH)
+    {
+      /* larl %r1,1f  */
+      fprintf (asm_out_file, "\tlarl\t%%r%d,1f\n",
+	       INDIRECT_BRANCH_THUNK_REGNUM);
+
+      /* ex 0,0(%r1)  */
+      fprintf (asm_out_file, "\tex\t0,0(%%r%d)\n",
+	       INDIRECT_BRANCH_THUNK_REGNUM);
+    }
+  else
+    gcc_unreachable ();
+
+  /* 0:    j 0b  */
+  fputs ("0:\tj\t0b\n", asm_out_file);
+
+  /* 1:    br <regno>  */
+  fprintf (asm_out_file, "1:\tbr\t%%r%d\n", regno);
+
+  final_end_function ();
+  init_insn_lengths ();
+  free_after_compilation (cfun);
+  set_cfun (NULL);
+  current_function_decl = NULL;
+}
+
+/* Implement the asm.code_end target hook.  */
+
+static void
+s390_code_end (void)
+{
+  int i;
+
+  for (i = 1; i < 16; i++)
+    {
+      if (indirect_branch_z10thunk_mask & (1 << i))
+	s390_output_indirect_thunk_function (i, true);
+
+      if (indirect_branch_prez10thunk_mask & (1 << i))
+	s390_output_indirect_thunk_function (i, false);
+    }
+
+  if (TARGET_INDIRECT_BRANCH_TABLE)
+    {
+      int o;
+      int i;
+
+      for (o = 0; o < INDIRECT_BRANCH_NUM_OPTIONS; o++)
+	{
+	  if (indirect_branch_table_label_no[o] == 0)
+	    continue;
+
+	  switch_to_section (get_section (indirect_branch_table_name[o],
+					  0,
+					  NULL_TREE));
+	  for (i = 0; i < indirect_branch_table_label_no[o]; i++)
+	    {
+	      char label_start[32];
+
+	      ASM_GENERATE_INTERNAL_LABEL (label_start,
+					   indirect_branch_table_label[o], i);
+
+	      fputs ("\t.long\t", asm_out_file);
+	      assemble_name_raw (asm_out_file, label_start);
+	      fputs ("-.\n", asm_out_file);
+	    }
+	  switch_to_section (current_function_section ());
+	}
+    }
+}
+
+/* Implement the TARGET_CASE_VALUES_THRESHOLD target hook.  */
+
+unsigned int
+s390_case_values_threshold (void)
+{
+  /* Disabling branch prediction for indirect jumps makes jump table
+     much more expensive.  */
+  if (TARGET_INDIRECT_BRANCH_NOBP_JUMP)
+    return 20;
+
+  return default_case_values_threshold ();
+}
+
+
 /* Initialize GCC target structure.  */
 
 #undef  TARGET_ASM_ALIGNED_HI_OP
@@ -14047,6 +14405,12 @@ s390_asm_file_end (void)
 
 #undef TARGET_ASM_FILE_END
 #define TARGET_ASM_FILE_END s390_asm_file_end
+
+#undef TARGET_ASM_CODE_END
+#define TARGET_ASM_CODE_END s390_code_end
+
+#undef TARGET_CASE_VALUES_THRESHOLD
+#define TARGET_CASE_VALUES_THRESHOLD s390_case_values_threshold
 
 struct gcc_target targetm = TARGET_INITIALIZER;
 

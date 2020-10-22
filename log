@@ -1720,3 +1720,52 @@ patching file gcc/testsuite/gcc.target/i386/ret-thunk-18.c
 patching file gcc/testsuite/gcc.target/i386/ret-thunk-19.c
 patching file gcc/testsuite/gcc.target/i386/ret-thunk-20.c
 patching file gcc/testsuite/gcc.target/i386/ret-thunk-21.c
+[oracle/gcc/el7-u9 d03f90c] gcc48-rh1535655-6.patch
+ 14 files changed, 143 insertions(+)
+ create mode 100644 gcc/testsuite/gcc.target/i386/indirect-thunk-10.c
+ create mode 100644 gcc/testsuite/gcc.target/i386/indirect-thunk-8.c
+ create mode 100644 gcc/testsuite/gcc.target/i386/indirect-thunk-9.c
+ create mode 100644 gcc/testsuite/gcc.target/i386/indirect-thunk-attr-10.c
+ create mode 100644 gcc/testsuite/gcc.target/i386/indirect-thunk-attr-11.c
+ create mode 100644 gcc/testsuite/gcc.target/i386/indirect-thunk-attr-9.c
+ create mode 100644 gcc/testsuite/gcc.target/i386/ret-thunk-17.c
+ create mode 100644 gcc/testsuite/gcc.target/i386/ret-thunk-18.c
+ create mode 100644 gcc/testsuite/gcc.target/i386/ret-thunk-19.c
+ create mode 100644 gcc/testsuite/gcc.target/i386/ret-thunk-20.c
+ create mode 100644 gcc/testsuite/gcc.target/i386/ret-thunk-21.c
+1408 gcc48-rh1552021.patch -p0
+------- APPLYING gcc48-rh1552021.patch ---------
+patching file gcc/config/s390/s390.c
+Hunk #2 succeeded at 2715 (offset 17 lines).
+Hunk #3 succeeded at 10963 (offset 33 lines).
+Hunk #4 succeeded at 11112 (offset 33 lines).
+Hunk #5 succeeded at 11149 (offset 33 lines).
+Hunk #6 succeeded at 12457 (offset 33 lines).
+Hunk #7 succeeded at 12640 (offset 33 lines).
+Hunk #8 succeeded at 12681 (offset 33 lines).
+Hunk #9 succeeded at 12696 (offset 33 lines).
+Hunk #10 succeeded at 12739 (offset 33 lines).
+Hunk #11 succeeded at 14026 (offset 33 lines).
+Hunk #12 succeeded at 14406 (offset 33 lines).
+patching file gcc/config/s390/s390.h
+Hunk #1 succeeded at 1010 (offset 4 lines).
+patching file gcc/config/s390/s390.md
+patching file gcc/config/s390/s390.opt
+Hunk #1 succeeded at 179 (offset 4 lines).
+patching file gcc/config/s390/s390-opts.h
+patching file gcc/config/s390/s390-protos.h
+Hunk #2 succeeded at 126 (offset 1 line).
+patching file gcc/testsuite/gcc.target/s390/nobp-function-pointer-nothunk.c
+patching file gcc/testsuite/gcc.target/s390/nobp-function-pointer-z10.c
+patching file gcc/testsuite/gcc.target/s390/nobp-function-pointer-z900.c
+patching file gcc/testsuite/gcc.target/s390/nobp-indirect-jump-nothunk.c
+patching file gcc/testsuite/gcc.target/s390/nobp-indirect-jump-z10.c
+patching file gcc/testsuite/gcc.target/s390/nobp-indirect-jump-z900.c
+patching file gcc/testsuite/gcc.target/s390/nobp-return-mem-nothunk.c
+patching file gcc/testsuite/gcc.target/s390/nobp-return-mem-z10.c
+patching file gcc/testsuite/gcc.target/s390/nobp-return-mem-z900.c
+patching file gcc/testsuite/gcc.target/s390/nobp-return-reg-nothunk.c
+patching file gcc/testsuite/gcc.target/s390/nobp-return-reg-z10.c
+patching file gcc/testsuite/gcc.target/s390/nobp-return-reg-z900.c
+patching file gcc/testsuite/gcc.target/s390/nobp-table-jump-z10.c
+patching file gcc/testsuite/gcc.target/s390/nobp-table-jump-z900.c

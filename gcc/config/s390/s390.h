@@ -1010,4 +1010,37 @@ extern const int processor_flags_table[];
     s390_register_target_pragmas ();		\
   } while (0)
 
+
+#define TARGET_INDIRECT_BRANCH_NOBP_RET_OPTION			\
+  (s390_function_return_reg != indirect_branch_keep		\
+   || s390_function_return_mem != indirect_branch_keep)
+
+#define TARGET_INDIRECT_BRANCH_NOBP_RET					\
+  ((s390_function_return_reg != indirect_branch_keep			\
+    && !s390_return_addr_from_memory ())				\
+   || (s390_function_return_mem != indirect_branch_keep			\
+       && s390_return_addr_from_memory ()))
+
+#define TARGET_INDIRECT_BRANCH_NOBP_JUMP		\
+  (s390_indirect_branch_jump != indirect_branch_keep)
+
+#define TARGET_INDIRECT_BRANCH_NOBP_JUMP_THUNK				\
+  (s390_indirect_branch_jump == indirect_branch_thunk			\
+   || s390_indirect_branch_jump == indirect_branch_thunk_extern)
+
+#define TARGET_INDIRECT_BRANCH_NOBP_JUMP_INLINE_THUNK		\
+  (s390_indirect_branch_jump == indirect_branch_thunk_inline)
+
+#define TARGET_INDIRECT_BRANCH_NOBP_CALL		\
+  (s390_indirect_branch_call != indirect_branch_keep)
+
+#ifndef TARGET_DEFAULT_INDIRECT_BRANCH_TABLE
+#define TARGET_DEFAULT_INDIRECT_BRANCH_TABLE 0
+#endif
+
+#define TARGET_INDIRECT_BRANCH_THUNK_NAME_EXRL "__s390_indirect_jump_r%d"
+#define TARGET_INDIRECT_BRANCH_THUNK_NAME_EX   "__s390_indirect_jump_r%duse_r%d"
+
+#define TARGET_INDIRECT_BRANCH_TABLE s390_indirect_branch_table
+
 #endif /* S390_H */
