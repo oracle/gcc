@@ -446,3 +446,9 @@ patching file libstdc++-v3/python/libstdcxx/v6/printers.py
 Hunk #1 succeeded at 791 (offset 5 lines).
 Hunk #2 succeeded at 851 (offset 5 lines).
 patching file libstdc++-v3/testsuite/libstdc++-prettyprinters/cxx11.cc
+[oracle/gcc/el7-u9 dab9f9a] gcc48-pr53477.patch
+ 3 files changed, 53 insertions(+), 1 deletion(-)
+29 gcc48-rh1296211.patch -p0
+------- APPLYING gcc48-rh1296211.patch ---------
+patching file gcc/config/rs6000/sysv4.h
+Hunk #1 succeeded at 573 (offset -1 lines).

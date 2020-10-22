@@ -573,7 +573,6 @@ ENDIAN_SELECT(" -mbig", " -mlittle", DEFAULT_ASM_ENDIAN)
 %{R*} \
 %(link_shlib) \
 %{!T*: %(link_start) } \
-%(link_target) \
 %(link_os)"
 
 /* Shared libraries are not default.  */
