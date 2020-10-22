@@ -1507,3 +1507,8 @@ patching file gcc/testsuite/gcc.target/i386/stack-check-11.c
 patching file gcc/testsuite/gcc.target/i386/stack-check-17.c
 patching file gcc/testsuite/gcc.target/i386/stack-check-18.c
 patching file gcc/testsuite/gcc.target/i386/stack-check-19.c
+[oracle/gcc/el7-u9 c52538d] gcc48-rh1537828-10.patch
+ 8 files changed, 21 insertions(+), 5 deletions(-)
+1402 gcc48-rh1535655-1.patch -p1
+------- APPLYING gcc48-rh1535655-1.patch ---------
+patching file gcc/config/i386/i386.h
