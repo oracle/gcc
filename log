@@ -699,3 +699,30 @@ patching file libgomp/taskloop.c
 patching file libgomp/priority_queue.h
 patching file libgomp/priority_queue.c
 patching file libgomp/openacc.f90
+[oracle/gcc/el7-u9 aca492d] gcc48-libgomp-20160715.patch
+ 41 files changed, 8818 insertions(+), 500 deletions(-)
+ create mode 100644 libgomp/config/linux/doacross.h
+ create mode 100644 libgomp/config/posix/doacross.h
+ create mode 100644 libgomp/gomp-constants.h
+ create mode 100644 libgomp/libgomp-plugin.c
+ create mode 100644 libgomp/libgomp-plugin.h
+ create mode 100644 libgomp/oacc-async.c
+ create mode 100644 libgomp/oacc-cuda.c
+ create mode 100644 libgomp/oacc-host.c
+ create mode 100644 libgomp/oacc-init.c
+ create mode 100644 libgomp/oacc-int.h
+ create mode 100644 libgomp/oacc-mem.c
+ create mode 100644 libgomp/oacc-parallel.c
+ create mode 100644 libgomp/oacc-plugin.c
+ create mode 100644 libgomp/oacc-plugin.h
+ create mode 100644 libgomp/openacc.f90
+ create mode 100644 libgomp/openacc.h
+ create mode 100644 libgomp/openacc_lib.h
+ create mode 100644 libgomp/priority_queue.c
+ create mode 100644 libgomp/priority_queue.h
+ create mode 100644 libgomp/splay-tree.c
+ create mode 100644 libgomp/splay-tree.h
+ create mode 100644 libgomp/taskloop.c
+37 gcc48-pr63293.patch -p0
+------- APPLYING gcc48-pr63293.patch ---------
+patching file gcc/config/aarch64/aarch64.c

@@ -1989,6 +1989,9 @@ aarch64_expand_epilogue (bool for_sibcall)
   rtx insn;
   rtx cfa_reg;
   rtx cfi_ops = NULL;
+  /* We need to add memory barrier to prevent read from deallocated stack.  */
+  bool need_barrier_p = (get_frame_size () != 0
+			 || cfun->machine->saved_varargs_size);
 
   aarch64_layout_frame ();
   original_frame_size = get_frame_size () + cfun->machine->saved_varargs_size;
@@ -2030,6 +2033,9 @@ aarch64_expand_epilogue (bool for_sibcall)
   if (frame_pointer_needed
       && (crtl->outgoing_args_size || cfun->calls_alloca))
     {
+      if (cfun->calls_alloca)
+	emit_insn (gen_stack_tie (stack_pointer_rtx, stack_pointer_rtx));
+
       insn = emit_insn (gen_add3_insn (stack_pointer_rtx,
 				       hard_frame_pointer_rtx,
 				       GEN_INT (- fp_offset)));
@@ -2048,6 +2054,9 @@ aarch64_expand_epilogue (bool for_sibcall)
   /* Restore the frame pointer and lr if the frame pointer is needed.  */
   if (offset > 0)
     {
+      if (need_barrier_p && (!frame_pointer_needed || !fp_offset))
+	emit_insn (gen_stack_tie (stack_pointer_rtx, stack_pointer_rtx));
+
       if (frame_pointer_needed)
 	{
 	  rtx mem_fp, mem_lr;
@@ -2066,6 +2075,10 @@ aarch64_expand_epilogue (bool for_sibcall)
 						     fp_offset
 						     + UNITS_PER_WORD));
 	      emit_insn (gen_load_pairdi (reg_fp, mem_fp, reg_lr, mem_lr));
+
+	      if (need_barrier_p)
+		emit_insn (gen_stack_tie (stack_pointer_rtx,
+					  stack_pointer_rtx));
 
 	      insn = emit_insn (gen_add2_insn (stack_pointer_rtx,
 					       GEN_INT (offset)));
@@ -2128,6 +2141,9 @@ aarch64_expand_epilogue (bool for_sibcall)
 
   if (frame_size > -1)
     {
+      if (need_barrier_p)
+	emit_insn (gen_stack_tie (stack_pointer_rtx, stack_pointer_rtx));
+
       if (frame_size >= 0x1000000)
 	{
 	  rtx op0 = gen_rtx_REG (Pmode, IP0_REGNUM);
