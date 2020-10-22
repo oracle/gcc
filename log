@@ -397,3 +397,14 @@ patching file gcc/config/aarch64/aarch64.c
 22 gcc48-rh1243366.patch -p0
 ------- APPLYING gcc48-rh1243366.patch ---------
 patching file libstdc++-v3/include/std/streambuf
+[oracle/gcc/el7-u9 0b92fdf] gcc48-rh1243366.patch
+ 2 files changed, 17 insertions(+), 2 deletions(-)
+23 gcc48-rh1180633.patch -p0
+------- APPLYING gcc48-rh1180633.patch ---------
+patching file libitm/beginend.cc
+patching file libitm/config/linux/rwlock.h
+patching file libitm/config/posix/rwlock.h
+patching file libitm/config/posix/rwlock.cc
+patching file libitm/libitm_i.h
+patching file libitm/method-serial.cc
+patching file libitm/query.cc
