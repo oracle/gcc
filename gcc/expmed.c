@@ -3844,7 +3844,15 @@ expand_divmod (int rem_flag, enum tree_code code, enum machine_mode mode,
       if (unsignedp)
 	ext_op1 &= GET_MODE_MASK (mode);
       op1_is_pow2 = ((EXACT_POWER_OF_2_OR_ZERO_P (ext_op1)
-		     || (! unsignedp && EXACT_POWER_OF_2_OR_ZERO_P (-ext_op1))));
+		      /* If mode is wider than HWI and op1 has msb set,
+			 then it has there extra implicit 1 bits above it.  */
+		      && (GET_MODE_PRECISION (mode) <= HOST_BITS_PER_WIDE_INT
+			  || INTVAL (op1) >= 0))
+		     || (! unsignedp
+			 && EXACT_POWER_OF_2_OR_ZERO_P (-ext_op1)
+			 && (GET_MODE_PRECISION (mode)
+			     <= HOST_BITS_PER_WIDE_INT
+			     || INTVAL (op1) < 0)));
     }
 
   /*
@@ -3987,8 +3995,17 @@ expand_divmod (int rem_flag, enum tree_code code, enum machine_mode mode,
       op1_is_constant = CONST_INT_P (op1);
       op1_is_pow2 = (op1_is_constant
 		     && ((EXACT_POWER_OF_2_OR_ZERO_P (INTVAL (op1))
-			  || (! unsignedp
-			      && EXACT_POWER_OF_2_OR_ZERO_P (-UINTVAL (op1))))));
+			  /* If mode is wider than HWI and op1 has msb set,
+			     then it has there extra implicit 1 bits above
+			     it.  */
+			  && (GET_MODE_PRECISION (compute_mode)
+			      <= HOST_BITS_PER_WIDE_INT
+			      || INTVAL (op1) >= 0))
+			 || (! unsignedp
+			     && EXACT_POWER_OF_2_OR_ZERO_P (-UINTVAL (op1))
+			     && (GET_MODE_PRECISION (compute_mode)
+				 <= HOST_BITS_PER_WIDE_INT
+				 || INTVAL (op1) < 0))));
     }
 
   /* If one of the operands is a volatile MEM, copy it into a register.  */
@@ -4031,7 +4048,8 @@ expand_divmod (int rem_flag, enum tree_code code, enum machine_mode mode,
 		unsigned HOST_WIDE_INT d = (INTVAL (op1)
 					    & GET_MODE_MASK (compute_mode));
 
-		if (EXACT_POWER_OF_2_OR_ZERO_P (d))
+		if (EXACT_POWER_OF_2_OR_ZERO_P (d)
+		    && (INTVAL (op1) >= 0 || size <= HOST_BITS_PER_WIDE_INT))
 		  {
 		    pre_shift = floor_log2 (d);
 		    if (rem_flag)
@@ -4179,6 +4197,7 @@ expand_divmod (int rem_flag, enum tree_code code, enum machine_mode mode,
 		      goto fail1;
 		  }
 		else if (EXACT_POWER_OF_2_OR_ZERO_P (d)
+			 && (size <= HOST_BITS_PER_WIDE_INT || d >= 0)
 			 && (rem_flag
 			     ? smod_pow2_cheap (speed, compute_mode)
 			     : sdiv_pow2_cheap (speed, compute_mode))
@@ -4192,7 +4211,9 @@ expand_divmod (int rem_flag, enum tree_code code, enum machine_mode mode,
 						compute_mode)
 				 != CODE_FOR_nothing)))
 		  ;
-		else if (EXACT_POWER_OF_2_OR_ZERO_P (abs_d))
+		else if (EXACT_POWER_OF_2_OR_ZERO_P (abs_d)
+			 && (size <= HOST_BITS_PER_WIDE_INT
+			     || abs_d != (unsigned HOST_WIDE_INT) d))
 		  {
 		    if (rem_flag)
 		      {
@@ -4504,7 +4525,10 @@ expand_divmod (int rem_flag, enum tree_code code, enum machine_mode mode,
       case CEIL_MOD_EXPR:
 	if (unsignedp)
 	  {
-	    if (op1_is_constant && EXACT_POWER_OF_2_OR_ZERO_P (INTVAL (op1)))
+	    if (op1_is_constant
+		&& EXACT_POWER_OF_2_OR_ZERO_P (INTVAL (op1))
+		&& (size <= HOST_BITS_PER_WIDE_INT
+		    || INTVAL (op1) >= 0))
 	      {
 		rtx t1, t2, t3;
 		unsigned HOST_WIDE_INT d = INTVAL (op1);

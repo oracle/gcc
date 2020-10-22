@@ -970,3 +970,10 @@ patching file gcc/testsuite/gcc.c-torture/execute/pr80692.x
 ------- APPLYING gcc48-pr82274.patch ---------
 patching file libgcc/libgcc2.c
 patching file gcc/testsuite/gcc.dg/pr82274-1.c
+[oracle/gcc/el7-u9 feefcc5] gcc48-pr82274.patch
+ 3 files changed, 26 insertions(+), 1 deletion(-)
+ create mode 100644 gcc/testsuite/gcc.dg/pr82274-1.c
+66 gcc48-pr78416.patch -p0
+------- APPLYING gcc48-pr78416.patch ---------
+patching file gcc/expmed.c
+patching file gcc/testsuite/gcc.dg/torture/pr78416.c
