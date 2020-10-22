@@ -1789,3 +1789,16 @@ patching file gcc/testsuite/gcc.target/s390/nobp-table-jump-z900.c
 ------- APPLYING gcc48-rh1537828-6.patch ---------
 patching file gcc/config/s390/s390.c
 patching file gcc/testsuite/gcc.target/s390/nobp-no-dwarf2-cfi.c
+[oracle/gcc/el7-u9 ae91c2c] gcc48-rh1537828-6.patch
+ 3 files changed, 40 insertions(+), 1 deletion(-)
+ create mode 100644 gcc/testsuite/gcc.target/s390/nobp-no-dwarf2-cfi.c
+1410 gcc48-rh1537828-7.patch -p1
+------- APPLYING gcc48-rh1537828-7.patch ---------
+patching file gcc/config/i386/i386-protos.h
+patching file gcc/config/i386/i386.c
+patching file gcc/config/i386/i386.md
+patching file gcc/testsuite/gcc.target/i386/ret-thunk-22.c
+patching file gcc/testsuite/gcc.target/i386/ret-thunk-23.c
+patching file gcc/testsuite/gcc.target/i386/ret-thunk-24.c
+patching file gcc/testsuite/gcc.target/i386/ret-thunk-25.c
+patching file gcc/testsuite/gcc.target/i386/ret-thunk-26.c
