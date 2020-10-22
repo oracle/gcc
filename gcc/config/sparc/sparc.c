@@ -5431,7 +5431,7 @@ sparc_expand_prologue (void)
     current_function_static_stack_size = size;
 
   if (flag_stack_check == STATIC_BUILTIN_STACK_CHECK && size)
-    sparc_emit_probe_stack_range (STACK_CHECK_PROTECT, size);
+    sparc_emit_probe_stack_range (get_stack_check_protect (), size);
 
   if (size == 0)
     ; /* do nothing.  */
@@ -5533,7 +5533,7 @@ sparc_flat_expand_prologue (void)
     current_function_static_stack_size = size;
 
   if (flag_stack_check == STATIC_BUILTIN_STACK_CHECK && size)
-    sparc_emit_probe_stack_range (STACK_CHECK_PROTECT, size);
+    sparc_emit_probe_stack_range (get_stack_check_protect (), size);
 
   if (sparc_save_local_in_regs_p)
     emit_save_or_restore_local_in_regs (stack_pointer_rtx, SPARC_STACK_BIAS,

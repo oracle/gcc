@@ -1232,3 +1232,26 @@ patching file gcc/params.def
 patching file gcc/testsuite/gcc.dg/stack-check-2.c
 patching file gcc/testsuite/lib/target-supports.exp
 patching file gcc/toplev.c
+[oracle/gcc/el7-u9 ad6e411] gcc48-rh1469697-2.patch
+ 8 files changed, 254 insertions(+), 4 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.dg/stack-check-2.c
+1304 gcc48-rh1469697-3.patch -p1
+------- APPLYING gcc48-rh1469697-3.patch ---------
+patching file gcc/config/alpha/alpha.c
+patching file gcc/config/i386/i386.c
+patching file gcc/config/ia64/ia64.c
+patching file gcc/config/mips/mips.c
+patching file gcc/config/rs6000/rs6000.c
+Hunk #1 succeeded at 23232 (offset 18 lines).
+patching file gcc/config/sparc/sparc.c
+patching file gcc/doc/tm.texi
+patching file gcc/doc/tm.texi.in
+patching file gcc/explow.c
+patching file gcc/rtl.h
+patching file gcc/target.def
+Hunk #1 succeeded at 2592 (offset 12 lines).
+patching file gcc/targhooks.c
+Hunk #1 succeeded at 1566 (offset 9 lines).
+patching file gcc/targhooks.h
+Hunk #1 succeeded at 196 (offset 1 line).
+patching file gcc/testsuite/gcc.dg/stack-check-3.c
