@@ -72,18 +72,40 @@ libsubdir := $(libdir)/gcc/$(target_noncanonical)/$(version)$(MULTISUBDIR)
 ADA_RTS_DIR=$(GCC_DIR)/ada/rts$(subst /,_,$(MULTISUBDIR))
 ADA_RTS_SUBDIR=./rts$(subst /,_,$(MULTISUBDIR))
 
+DEFAULTMULTIFLAGS :=
+ifeq ($(MULTISUBDIR),)
+targ:=$(subst -, ,$(target))
+arch:=$(word 1,$(targ))
+ifeq ($(words $(targ)),2)
+osys:=$(word 2,$(targ))
+else
+osys:=$(word 3,$(targ))
+endif
+ifeq ($(strip $(filter-out i%86 x86_64 powerpc% ppc% s390% sparc% linux%, $(arch) $(osys))),)
+ifeq ($(shell $(CC) $(CFLAGS) -print-multi-os-directory),../lib64)
+DEFAULTMULTIFLAGS := -m64
+else
+ifeq ($(strip $(filter-out s390%, $(arch))),)
+DEFAULTMULTIFLAGS := -m31
+else
+DEFAULTMULTIFLAGS := -m32
+endif
+endif
+endif
+endif
+
 # exeext should not be used because it's the *host* exeext.  We're building
 # a *target* library, aren't we?!?  Likewise for CC.  Still, provide bogus
 # definitions just in case something slips through the safety net provided
 # by recursive make invocations in gcc/ada/Makefile.in
 LIBADA_FLAGS_TO_PASS = \
         "MAKEOVERRIDES=" \
-        "LDFLAGS=$(LDFLAGS)" \
+        "LDFLAGS=$(LDFLAGS) $(DEFAULTMULTIFLAGS)" \
         "LN_S=$(LN_S)" \
         "SHELL=$(SHELL)" \
-        "GNATLIBFLAGS=$(GNATLIBFLAGS) $(MULTIFLAGS)" \
-        "GNATLIBCFLAGS=$(GNATLIBCFLAGS) $(MULTIFLAGS)" \
-        "GNATLIBCFLAGS_FOR_C=$(GNATLIBCFLAGS_FOR_C) $(MULTIFLAGS)" \
+        "GNATLIBFLAGS=$(GNATLIBFLAGS) $(MULTIFLAGS) $(DEFAULTMULTIFLAGS)" \
+        "GNATLIBCFLAGS=$(GNATLIBCFLAGS) $(MULTIFLAGS) $(DEFAULTMULTIFLAGS)" \
+        "GNATLIBCFLAGS_FOR_C=$(GNATLIBCFLAGS_FOR_C) $(MULTIFLAGS) $(DEFAULTMULTIFLAGS)" \
         "PICFLAG_FOR_TARGET=$(PICFLAG)" \
         "THREAD_KIND=$(THREAD_KIND)" \
         "TRACE=$(TRACE)" \
@@ -94,7 +116,7 @@ LIBADA_FLAGS_TO_PASS = \
         "exeext=.exeext.should.not.be.used " \
 	'CC=the.host.compiler.should.not.be.needed' \
 	"GCC_FOR_TARGET=$(CC)" \
-        "CFLAGS=$(CFLAGS)"
+        "CFLAGS=$(CFLAGS) $(DEFAULTMULTIFLAGS)"
 
 # Rules to build gnatlib.
 .PHONY: gnatlib gnatlib-plain gnatlib-sjlj gnatlib-zcx gnatlib-shared osconstool

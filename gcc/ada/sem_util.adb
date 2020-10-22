@@ -6348,7 +6348,7 @@ package body Sem_Util is
             Exp           : Node_Id;
             Assn          : Node_Id;
             Choice        : Node_Id;
-            Comp_Type     : Entity_Id;
+            Comp_Type     : Entity_Id := Empty;
             Is_Array_Aggr : Boolean;
 
          begin

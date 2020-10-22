@@ -752,7 +752,8 @@ if USE_LIBGCJ_BC
 ## later.
 	@echo Installing dummy lib libgcj_bc.so.1.0.0; \
 	rm $(DESTDIR)$(toolexeclibdir)/libgcj_bc.so; \
-	mv $(DESTDIR)$(toolexeclibdir)/libgcj_bc.so.1.0.0 $(DESTDIR)$(toolexeclibdir)/libgcj_bc.so; \
+	$(INSTALL) $(INSTALL_STRIP_FLAG) $(here)/.libs/libgcj_bc.so $(DESTDIR)$(toolexeclibdir)/libgcj_bc.so; \
+	rm $(DESTDIR)$(toolexeclibdir)/libgcj_bc.so.1.0.0; \
 	$(libgcj_bc_dummy_LINK) -xc /dev/null -Wl,-soname,libgcj_bc.so.1 \
 	-o $(DESTDIR)$(toolexeclibdir)/libgcj_bc.so.1.0.0 -lgcj || exit; \
 	rm $(DESTDIR)$(toolexeclibdir)/libgcj_bc.so.1; \

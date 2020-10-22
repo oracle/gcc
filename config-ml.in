@@ -503,6 +503,8 @@ multi-do:
 				ADAFLAGS="$(ADAFLAGS) $${flags}" \
 				prefix="$(prefix)" \
 				exec_prefix="$(exec_prefix)" \
+				mandir="$(mandir)" \
+				infodir="$(infodir)" \
 				GCJFLAGS="$(GCJFLAGS) $${flags}" \
 				GOCFLAGS="$(GOCFLAGS) $${flags}" \
 				CXXFLAGS="$(CXXFLAGS) $${flags}" \
