@@ -27,6 +27,8 @@
 
 #include "libgomp.h"
 #include "libgomp_f.h"
+#include "oacc-int.h"
+#include "gomp-constants.h"
 #include <ctype.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -56,7 +58,7 @@ struct gomp_task_icv gomp_global_icv = {
   .nthreads_var = 1,
   .thread_limit_var = UINT_MAX,
   .run_sched_var = GFS_DYNAMIC,
-  .run_sched_modifier = 1,
+  .run_sched_chunk_size = 1,
   .default_device_var = 0,
   .dyn_var = false,
   .nest_var = false,
@@ -66,6 +68,7 @@ struct gomp_task_icv gomp_global_icv = {
 
 unsigned long gomp_max_active_levels_var = INT_MAX;
 bool gomp_cancel_var = false;
+int gomp_max_task_priority_var = 0;
 #ifndef HAVE_SYNC_BUILTINS
 gomp_mutex_t gomp_managed_threads_lock;
 #endif
@@ -76,6 +79,9 @@ char *gomp_bind_var_list;
 unsigned long gomp_bind_var_list_len;
 void **gomp_places_list;
 unsigned long gomp_places_list_len;
+int gomp_debug_var;
+char *goacc_device_type;
+int goacc_device_num;
 
 /* Parse the OMP_SCHEDULE environment variable.  */
 
@@ -118,7 +124,7 @@ parse_schedule (void)
     ++env;
   if (*env == '\0')
     {
-      gomp_global_icv.run_sched_modifier
+      gomp_global_icv.run_sched_chunk_size
 	= gomp_global_icv.run_sched_var != GFS_STATIC;
       return;
     }
@@ -144,7 +150,7 @@ parse_schedule (void)
 
   if (value == 0 && gomp_global_icv.run_sched_var != GFS_STATIC)
     value = 1;
-  gomp_global_icv.run_sched_modifier = value;
+  gomp_global_icv.run_sched_chunk_size = value;
   return;
 
  unknown:
@@ -1011,6 +1017,16 @@ parse_affinity (bool ignore)
   return false;
 }
 
+static void
+parse_acc_device_type (void)
+{
+  const char *env = getenv ("ACC_DEVICE_TYPE");
+
+  if (env && *env != '\0')
+    goacc_device_type = strdup (env);
+  else
+    goacc_device_type = NULL;
+}
 
 static void
 handle_omp_display_env (unsigned long stacksize, int wait_policy)
@@ -1054,7 +1070,7 @@ handle_omp_display_env (unsigned long stacksize, int wait_policy)
 
   fputs ("\nOPENMP DISPLAY ENVIRONMENT BEGIN\n", stderr);
 
-  fputs ("  _OPENMP = '201307'\n", stderr);
+  fputs ("  _OPENMP = '201511'\n", stderr);
   fprintf (stderr, "  OMP_DYNAMIC = '%s'\n",
 	   gomp_global_icv.dyn_var ? "TRUE" : "FALSE");
   fprintf (stderr, "  OMP_NESTED = '%s'\n",
@@ -1142,6 +1158,8 @@ handle_omp_display_env (unsigned long stacksize, int wait_policy)
 	   gomp_cancel_var ? "TRUE" : "FALSE");
   fprintf (stderr, "  OMP_DEFAULT_DEVICE = '%d'\n",
 	   gomp_global_icv.default_device_var);
+  fprintf (stderr, "  OMP_MAX_TASK_PRIORITY = '%d'\n",
+	   gomp_max_task_priority_var);
 
   if (verbose)
     {
@@ -1174,6 +1192,7 @@ initialize_env (void)
   parse_boolean ("OMP_NESTED", &gomp_global_icv.nest_var);
   parse_boolean ("OMP_CANCELLATION", &gomp_cancel_var);
   parse_int ("OMP_DEFAULT_DEVICE", &gomp_global_icv.default_device_var, true);
+  parse_int ("OMP_MAX_TASK_PRIORITY", &gomp_max_task_priority_var, true);
   parse_unsigned_long ("OMP_MAX_ACTIVE_LEVELS", &gomp_max_active_levels_var,
 		       true);
   if (parse_unsigned_long ("OMP_THREAD_LIMIT", &thread_limit_var, false))
@@ -1181,6 +1200,7 @@ initialize_env (void)
       gomp_global_icv.thread_limit_var
 	= thread_limit_var > INT_MAX ? UINT_MAX : thread_limit_var;
     }
+  parse_int ("GOMP_DEBUG", &gomp_debug_var, true);
 #ifndef HAVE_SYNC_BUILTINS
   gomp_mutex_init (&gomp_managed_threads_lock);
 #endif
@@ -1271,6 +1291,15 @@ initialize_env (void)
     }
 
   handle_omp_display_env (stacksize, wait_policy);
+
+  /* OpenACC.  */
+
+  if (!parse_int ("ACC_DEVICE_NUM", &goacc_device_num, true))
+    goacc_device_num = 0;
+
+  parse_acc_device_type ();
+
+  goacc_runtime_initialize ();
 }
 
 
@@ -1312,21 +1341,21 @@ omp_get_nested (void)
 }
 
 void
-omp_set_schedule (omp_sched_t kind, int modifier)
+omp_set_schedule (omp_sched_t kind, int chunk_size)
 {
   struct gomp_task_icv *icv = gomp_icv (true);
   switch (kind)
     {
     case omp_sched_static:
-      if (modifier < 1)
-	modifier = 0;
-      icv->run_sched_modifier = modifier;
+      if (chunk_size < 1)
+	chunk_size = 0;
+      icv->run_sched_chunk_size = chunk_size;
       break;
     case omp_sched_dynamic:
     case omp_sched_guided:
-      if (modifier < 1)
-	modifier = 1;
-      icv->run_sched_modifier = modifier;
+      if (chunk_size < 1)
+	chunk_size = 1;
+      icv->run_sched_chunk_size = chunk_size;
       break;
     case omp_sched_auto:
       break;
@@ -1337,11 +1366,11 @@ omp_set_schedule (omp_sched_t kind, int modifier)
 }
 
 void
-omp_get_schedule (omp_sched_t *kind, int *modifier)
+omp_get_schedule (omp_sched_t *kind, int *chunk_size)
 {
   struct gomp_task_icv *icv = gomp_icv (false);
   *kind = icv->run_sched_var;
-  *modifier = icv->run_sched_modifier;
+  *chunk_size = icv->run_sched_chunk_size;
 }
 
 int
@@ -1375,6 +1404,12 @@ int
 omp_get_cancellation (void)
 {
   return gomp_cancel_var;
+}
+
+int
+omp_get_max_task_priority (void)
+{
+  return gomp_max_task_priority_var;
 }
 
 omp_proc_bind_t
@@ -1425,6 +1460,59 @@ omp_is_initial_device (void)
   return 1;
 }
 
+int
+omp_get_initial_device (void)
+{
+  return GOMP_DEVICE_HOST_FALLBACK;
+}
+
+int
+omp_get_num_places (void)
+{
+  return gomp_places_list_len;
+}
+
+int
+omp_get_place_num (void)
+{
+  if (gomp_places_list == NULL)
+    return -1;
+
+  struct gomp_thread *thr = gomp_thread ();
+  if (thr->place == 0)
+    gomp_init_affinity ();
+
+  return (int) thr->place - 1;
+}
+
+int
+omp_get_partition_num_places (void)
+{
+  if (gomp_places_list == NULL)
+    return 0;
+
+  struct gomp_thread *thr = gomp_thread ();
+  if (thr->place == 0)
+    gomp_init_affinity ();
+
+  return thr->ts.place_partition_len;
+}
+
+void
+omp_get_partition_place_nums (int *place_nums)
+{
+  if (gomp_places_list == NULL)
+    return;
+
+  struct gomp_thread *thr = gomp_thread ();
+  if (thr->place == 0)
+    gomp_init_affinity ();
+
+  unsigned int i;
+  for (i = 0; i < thr->ts.place_partition_len; i++)
+    *place_nums++ = thr->ts.place_partition_off + i;
+}
+
 ialias (omp_set_dynamic)
 ialias (omp_set_nested)
 ialias (omp_set_num_threads)
@@ -1444,3 +1532,9 @@ ialias (omp_get_num_devices)
 ialias (omp_get_num_teams)
 ialias (omp_get_team_num)
 ialias (omp_is_initial_device)
+ialias (omp_get_initial_device)
+ialias (omp_get_max_task_priority)
+ialias (omp_get_num_places)
+ialias (omp_get_place_num)
+ialias (omp_get_partition_num_places)
+ialias (omp_get_partition_place_nums)

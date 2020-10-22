@@ -654,3 +654,48 @@ patching file gcc/testsuite/gcc.c-torture/compile/20160615-1.c
 ------- APPLYING gcc48-rh1344807.patch ---------
 patching file gcc/cp/call.c
 patching file gcc/testsuite/g++.dg/cpp0x/ref-qual17.C
+[oracle/gcc/el7-u9 781544c] gcc48-rh1344807.patch
+ 3 files changed, 23 insertions(+), 1 deletion(-)
+ create mode 100644 gcc/testsuite/g++.dg/cpp0x/ref-qual17.C
+36 gcc48-libgomp-20160715.patch -p0
+------- APPLYING gcc48-libgomp-20160715.patch ---------
+patching file libgomp/config/linux/wait.h
+patching file libgomp/config/linux/affinity.c
+patching file libgomp/config/linux/mutex.c
+patching file libgomp/config/posix/affinity.c
+patching file libgomp/loop_ull.c
+patching file libgomp/team.c
+patching file libgomp/target.c
+patching file libgomp/fortran.c
+patching file libgomp/libgomp.map
+patching file libgomp/ordered.c
+patching file libgomp/loop.c
+patching file libgomp/error.c
+patching file libgomp/Makefile.am
+patching file libgomp/Makefile.in
+patching file libgomp/task.c
+patching file libgomp/libgomp_g.h
+patching file libgomp/libgomp.h
+patching file libgomp/env.c
+patching file libgomp/openacc.h
+patching file libgomp/config/linux/doacross.h
+patching file libgomp/config/posix/doacross.h
+patching file libgomp/splay-tree.c
+patching file libgomp/libgomp-plugin.c
+patching file libgomp/libgomp-plugin.h
+patching file libgomp/oacc-async.c
+patching file libgomp/splay-tree.h
+patching file libgomp/oacc-plugin.c
+patching file libgomp/oacc-init.c
+patching file libgomp/oacc-int.h
+patching file libgomp/oacc-host.c
+patching file libgomp/oacc-parallel.c
+patching file libgomp/oacc-cuda.c
+patching file libgomp/openacc_lib.h
+patching file libgomp/gomp-constants.h
+patching file libgomp/oacc-mem.c
+patching file libgomp/oacc-plugin.h
+patching file libgomp/taskloop.c
+patching file libgomp/priority_queue.h
+patching file libgomp/priority_queue.c
+patching file libgomp/openacc.f90
