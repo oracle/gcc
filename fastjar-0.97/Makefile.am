@@ -39,7 +39,7 @@ EXTRA_DIST = \
 	texi2pod.pl
 
 TEXI2POD = perl $(srcdir)/texi2pod.pl
-POD2MAN = pod2man --center="GNU" --release=@VERSION@
+POD2MAN = pod2man --center="GNU" --release=@VERSION@ --date=$(shell sed -n '1s/ .*//p' <$(srcdir)/ChangeLog)
 
 .pod.1:
 	-($(POD2MAN) --section=1 $< > $(@).T$$$$ && \

@@ -1169,3 +1169,9 @@ Hunk #3 succeeded at 1779 (offset 1 line).
 Hunk #4 succeeded at 1796 (offset 1 line).
 Hunk #5 succeeded at 1808 (offset 1 line).
 Hunk #6 succeeded at 1892 (offset 1 line).
+[oracle/gcc/el7-u9 51a100e] fastjar-CVE-2010-0831.patch
+ 2 files changed, 36 insertions(+), 9 deletions(-)
+1005 fastjar-man.patch -p0
+------- APPLYING fastjar-man.patch ---------
+patching file fastjar-0.97/Makefile.am
+patching file fastjar-0.97/Makefile.in
