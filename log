@@ -1023,3 +1023,9 @@ patching file libstdc++-v3/testsuite/27_io/basic_filebuf/sgetn/char/81395.cc
 patching file gcc/testsuite/gcc.target/powerpc/pr72717.c
 patching file gcc/config/rs6000/rs6000.c
 Hunk #1 succeeded at 5657 (offset -1010 lines).
+[oracle/gcc/el7-u9 0888113] gcc48-pr72717.patch
+ 3 files changed, 54 insertions(+), 10 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.target/powerpc/pr72717.c
+71 gcc48-pr66840.patch -p0
+------- APPLYING gcc48-pr66840.patch ---------
+patching file gcc/config/rs6000/t-rs6000
