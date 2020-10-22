@@ -915,3 +915,9 @@ Hunk #1 succeeded at 32422 (offset -7111 lines).
 Hunk #2 succeeded at 32429 (offset -7111 lines).
 Hunk #3 succeeded at 32474 (offset -7111 lines).
 Hunk #4 succeeded at 32481 (offset -7111 lines).
+[oracle/gcc/el7-u9 77e0d75] gcc48-rh1482762.patch
+ 2 files changed, 18 insertions(+), 6 deletions(-)
+59 gcc48-pr77375.patch -p0
+------- APPLYING gcc48-pr77375.patch ---------
+patching file gcc/cp/class.c
+patching file gcc/testsuite/g++.dg/cpp0x/mutable1.C
