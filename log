@@ -855,3 +855,11 @@ patching file gcc/config/rs6000/rs6000.c
 Hunk #1 succeeded at 20356 (offset 93 lines).
 Hunk #2 succeeded at 20373 (offset 93 lines).
 patching file gcc/testsuite/gcc.dg/pr69644.c
+[oracle/gcc/el7-u9 7aa95a1] gcc48-pr69644.patch
+ 3 files changed, 24 insertions(+), 4 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.dg/pr69644.c
+54 gcc48-rh1487434.patch -p0
+------- APPLYING gcc48-rh1487434.patch ---------
+patching file gcc/config/rs6000/rs6000.c
+Hunk #1 succeeded at 28780 (offset -2559 lines).
+Hunk #2 succeeded at 28789 (offset -2559 lines).
