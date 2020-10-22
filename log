@@ -1769,3 +1769,23 @@ patching file gcc/testsuite/gcc.target/s390/nobp-return-reg-z10.c
 patching file gcc/testsuite/gcc.target/s390/nobp-return-reg-z900.c
 patching file gcc/testsuite/gcc.target/s390/nobp-table-jump-z10.c
 patching file gcc/testsuite/gcc.target/s390/nobp-table-jump-z900.c
+[oracle/gcc/el7-u9 8bb5b9e] gcc48-rh1552021.patch
+ 21 files changed, 1631 insertions(+), 55 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.target/s390/nobp-function-pointer-nothunk.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/nobp-function-pointer-z10.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/nobp-function-pointer-z900.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/nobp-indirect-jump-nothunk.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/nobp-indirect-jump-z10.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/nobp-indirect-jump-z900.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/nobp-return-mem-nothunk.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/nobp-return-mem-z10.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/nobp-return-mem-z900.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/nobp-return-reg-nothunk.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/nobp-return-reg-z10.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/nobp-return-reg-z900.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/nobp-table-jump-z10.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/nobp-table-jump-z900.c
+1409 gcc48-rh1537828-6.patch -p0
+------- APPLYING gcc48-rh1537828-6.patch ---------
+patching file gcc/config/s390/s390.c
+patching file gcc/testsuite/gcc.target/s390/nobp-no-dwarf2-cfi.c
