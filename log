@@ -1404,3 +1404,9 @@ patching file gcc/testsuite/gcc.target/i386/stack-check-12.c
 ------- APPLYING gcc48-rh1469697-18.patch ---------
 patching file gcc/config/i386/i386.c
 patching file gcc/testsuite/gcc.dg/pr82788.c
+[oracle/gcc/el7-u9 9ecb629] gcc48-rh1469697-18.patch
+ 3 files changed, 42 insertions(+), 20 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.dg/pr82788.c
+1320 gcc48-rh1469697-19.patch -p1
+------- APPLYING gcc48-rh1469697-19.patch ---------
+patching file gcc/config/rs6000/rs6000.md
