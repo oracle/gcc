@@ -1181,3 +1181,11 @@ patching file fastjar-0.97/Makefile.in
 ------- APPLYING fastjar-0.97-aarch64-config.patch ---------
 patching file fastjar-0.97/config.guess
 patching file fastjar-0.97/config.sub
+[oracle/gcc/el7-u9 0b5d860] fastjar-0.97-aarch64-config.patch
+ 3 files changed, 455 insertions(+), 321 deletions(-)
+1100 fastjar-0.97-ppc64le-config.patch -p0
+------- APPLYING fastjar-0.97-ppc64le-config.patch ---------
+patching file fastjar-0.97/m4/libtool.m4
+patching file fastjar-0.97/config.sub
+patching file fastjar-0.97/config.guess
+patching file fastjar-0.97/configure
