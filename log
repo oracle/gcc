@@ -1143,3 +1143,8 @@ patching file gcc/testsuite/gcc.target/s390/vector/pr92950.c
 1000 gcc48-pr93272.patch -p0
 ------- APPLYING gcc48-pr93272.patch ---------
 patching file gcc/ira-lives.c
+[oracle/gcc/el7-u9 b89b108] gcc48-pr93272.patch
+ 2 files changed, 54 insertions(+)
+1001 fastjar-0.97-segfault.patch -p0
+------- APPLYING fastjar-0.97-segfault.patch ---------
+patching file fastjar-0.97/jartool.c

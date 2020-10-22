@@ -820,6 +820,10 @@ int make_manifest(int jfd, const char *mf_name, int updating)
   int mod_time; /* file modification time */
   struct zipentry *ze;
 
+  current_time = time(NULL);
+  if(current_time == (time_t)-1)
+    exit_on_error("time");
+
   mod_time = unix2dostime(&current_time);  
   
   /* If we are creating a new manifest, create a META-INF directory entry */
@@ -828,10 +832,6 @@ int make_manifest(int jfd, const char *mf_name, int updating)
 
     memset((file_header + 12), '\0', 16); /*clear mod time, crc, size fields*/
   
-    current_time = time(NULL);
-    if(current_time == (time_t)-1)
-      exit_on_error("time");
-
     PACK_UB2(file_header, LOC_EXTRA, 0);
     PACK_UB2(file_header, LOC_COMP, 0);
     PACK_UB2(file_header, LOC_FNLEN, nlen);
