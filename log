@@ -573,3 +573,64 @@ patching file gcc/testsuite/gcc.target/s390/zvector/vec-splat-1.c
 patching file gcc/testsuite/gcc.target/s390/zvector/vec-splat-2.c
 patching file gcc/testsuite/gcc.target/s390/zvector/vec-test-mask-1.c
 patching file gcc/testsuite/lib/target-supports.exp
+[oracle/gcc/el7-u9 774e83d] gcc48-s390-z13.patch
+ 86 files changed, 13729 insertions(+), 698 deletions(-)
+ create mode 100644 gcc/config/s390/2964.md
+ create mode 100644 gcc/config/s390/s390-builtin-types.def
+ create mode 100644 gcc/config/s390/s390-builtins.def
+ create mode 100644 gcc/config/s390/s390-builtins.h
+ create mode 100644 gcc/config/s390/s390-c.c
+ create mode 100644 gcc/config/s390/t-s390
+ create mode 100644 gcc/config/s390/vecintrin.h
+ create mode 100644 gcc/config/s390/vector.md
+ create mode 100644 gcc/config/s390/vx-builtins.md
+ create mode 100644 gcc/testsuite/gcc.target/s390/htm-builtins-z13-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/int128-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/stpcpy-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-abi-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-abi-2.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-abi-3.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-abi-4.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-abi-align-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-abi-attr-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-abi-attr-2.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-abi-attr-3.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-abi-attr-4.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-abi-attr-5.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-abi-attr-6.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-abi-single-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-abi-single-2.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-abi-struct-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-abi-vararg-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-abi-vararg-2.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-clobber-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-cmp-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-cmp-2.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-dbl-math-compile-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-genbytemask-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-genbytemask-2.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-genmask-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-genmask-2.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-init-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-int-math-compile-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-scalar-cmp-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-shift-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-sub-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-vcond-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/vector/vec-vrepi-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/zvector/vec-dbl-math-compile-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/zvector/vec-elem-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/zvector/vec-genbytemask-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/zvector/vec-genmask-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/zvector/vec-lcbb-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/zvector/vec-load_bndry-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/zvector/vec-overloading-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/zvector/vec-overloading-2.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/zvector/vec-overloading-3.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/zvector/vec-overloading-4.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/zvector/vec-splat-1.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/zvector/vec-splat-2.c
+ create mode 100644 gcc/testsuite/gcc.target/s390/zvector/vec-test-mask-1.c
+32 gcc48-rh1312850.patch -p0
+------- APPLYING gcc48-rh1312850.patch ---------
+patching file libsanitizer/asan/asan_rtl.cc
