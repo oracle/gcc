@@ -656,6 +656,11 @@ want_inline_self_recursive_call_p (struct cgraph_edge *edge,
       reason = "--param max-inline-recursive-depth exceeded.";
       want_inline = false;
     }
+  else if (never_executed_edge_p (edge))
+    {
+      reason = "edge is never executed.";
+      want_inline = false;
+    }
 
   if (outer_node->global.inlined_to)
     caller_freq = outer_node->callers->frequency;
@@ -1596,6 +1601,14 @@ inline_small_functions (void)
 	      if (where->symbol.decl == callee->symbol.decl)
 		outer_node = where, depth++;
 	      where = where->callers->caller;
+	    }
+	  if (never_executed_edge_p (edge)
+	      && inline_summary (edge->callee)->num_calls > 30)
+	    {
+	      if (dump_file)
+	        fprintf (dump_file, "Never executed edge\n");
+	      edge->inline_failed = CIF_NEVER_EXECUTED;
+	      continue;
 	    }
 	  if (outer_node
 	      && !want_inline_self_recursive_call_p (edge, outer_node,

@@ -1029,3 +1029,11 @@ Hunk #1 succeeded at 5657 (offset -1010 lines).
 71 gcc48-pr66840.patch -p0
 ------- APPLYING gcc48-pr66840.patch ---------
 patching file gcc/config/rs6000/t-rs6000
+[oracle/gcc/el7-u9 cc321db] gcc48-pr66840.patch
+ 2 files changed, 7 insertions(+)
+72 gcc48-rh1546372.patch -p0
+------- APPLYING gcc48-rh1546372.patch ---------
+patching file gcc/cif-code.def
+patching file gcc/ipa-inline-analysis.c
+patching file gcc/ipa-inline.c
+patching file gcc/ipa-inline.h
