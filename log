@@ -1802,3 +1802,14 @@ patching file gcc/testsuite/gcc.target/i386/ret-thunk-23.c
 patching file gcc/testsuite/gcc.target/i386/ret-thunk-24.c
 patching file gcc/testsuite/gcc.target/i386/ret-thunk-25.c
 patching file gcc/testsuite/gcc.target/i386/ret-thunk-26.c
+[oracle/gcc/el7-u9 253c7f3] gcc48-rh1537828-7.patch
+ 9 files changed, 221 insertions(+), 20 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.target/i386/ret-thunk-22.c
+ create mode 100644 gcc/testsuite/gcc.target/i386/ret-thunk-23.c
+ create mode 100644 gcc/testsuite/gcc.target/i386/ret-thunk-24.c
+ create mode 100644 gcc/testsuite/gcc.target/i386/ret-thunk-25.c
+ create mode 100644 gcc/testsuite/gcc.target/i386/ret-thunk-26.c
+1411 gcc48-rh1537828-8.patch -p1
+------- APPLYING gcc48-rh1537828-8.patch ---------
+patching file gcc/config/i386/i386.c
+patching file gcc/testsuite/gcc.target/i386/ret-thunk-9.c
