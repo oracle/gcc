@@ -209,3 +209,11 @@ Hunk #2 succeeded at 1042 (offset -8 lines).
 ------- APPLYING gcc48-libgomp-omp_h-multilib.patch ---------
 patching file libgomp/omp.h.in
 Hunk #1 succeeded at 39 (offset -3 lines).
+[oracle/gcc/el7-u9 cc3e637] gcc48-libgomp-omp_h-multilib.patch
+ 2 files changed, 8 insertions(+), 2 deletions(-)
+8 gcc48-libtool-no-rpath.patch -p0
+------- APPLYING gcc48-libtool-no-rpath.patch ---------
+patching file ltmain.sh
+Hunk #1 succeeded at 7103 (offset 1709 lines).
+Hunk #2 succeeded at 7799 (offset 1727 lines).
+Hunk #3 succeeded at 7851 (offset 1729 lines).
