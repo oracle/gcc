@@ -1175,3 +1175,9 @@ Hunk #6 succeeded at 1892 (offset 1 line).
 ------- APPLYING fastjar-man.patch ---------
 patching file fastjar-0.97/Makefile.am
 patching file fastjar-0.97/Makefile.in
+[oracle/gcc/el7-u9 18e59de] fastjar-man.patch
+ 3 files changed, 8 insertions(+), 2 deletions(-)
+1006 fastjar-0.97-aarch64-config.patch -p0
+------- APPLYING fastjar-0.97-aarch64-config.patch ---------
+patching file fastjar-0.97/config.guess
+patching file fastjar-0.97/config.sub
