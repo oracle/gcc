@@ -261,3 +261,15 @@ Hunk #2 succeeded at 18948 (offset 24 lines).
 patching file libstdc++-v3/doc/html/index.html
 Hunk #1 succeeded at 4 (offset -1 lines).
 patching file libstdc++-v3/doc/html/api.html
+[oracle/gcc/el7-u9 6ae644a] gcc48-libstdc++-docs.patch
+ 3 files changed, 13 insertions(+), 1 deletion(-)
+13 gcc48-no-add-needed.patch -p0
+------- APPLYING gcc48-no-add-needed.patch ---------
+patching file gcc/config/alpha/elf.h
+Hunk #1 succeeded at 168 (offset 3 lines).
+patching file gcc/config/ia64/linux.h
+Hunk #1 succeeded at 76 (offset -1 lines).
+patching file gcc/config/gnu-user.h
+Hunk #1 succeeded at 81 (offset -1 lines).
+patching file gcc/config/rs6000/sysv4.h
+Hunk #1 succeeded at 778 (offset -42 lines).
