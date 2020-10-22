@@ -1265,3 +1265,9 @@ patching file gcc/config/ia64/ia64.c
 patching file gcc/config/mips/mips.c
 patching file gcc/config/sparc/sparc.c
 patching file gcc/config/spu/spu.c
+[oracle/gcc/el7-u9 71d0869] gcc48-rh1469697-4.patch
+ 6 files changed, 30 insertions(+), 11 deletions(-)
+1306 gcc48-rh1469697-5.patch -p1
+------- APPLYING gcc48-rh1469697-5.patch ---------
+patching file gcc/function.c
+patching file gcc/function.h

@@ -712,6 +712,16 @@ extern void instantiate_decl_rtl (rtx x);
    and create duplicate blocks.  */
 extern void reorder_blocks (void);
 
+enum stack_clash_probes {
+  NO_PROBE_NO_FRAME,
+  NO_PROBE_SMALL_FRAME,
+  PROBE_INLINE,
+  PROBE_LOOP
+};
+
+extern void dump_stack_clash_frame_info (enum stack_clash_probes, bool);
+
+
 /* Set BLOCK_NUMBER for all the blocks in FN.  */
 extern void number_blocks (tree);
 
