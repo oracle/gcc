@@ -1452,9 +1452,9 @@ enum reg_class
    No space will be pushed onto the stack for each call; instead, the
    function prologue should increase the stack frame size by this amount.  
    
-   64-bit MS ABI seem to require 16 byte alignment everywhere except for
-   function prologue and apilogue.  This is not possible without
-   ACCUMULATE_OUTGOING_ARGS.  */
+   With the 64-bit MS ABI, we can generate correct code with or without
+   accumulated args, but because of OUTGOING_REG_PARM_STACK_SPACE the code
+   generated without accumulated args is terrible. */
 
 #define ACCUMULATE_OUTGOING_ARGS \
   (TARGET_ACCUMULATE_OUTGOING_ARGS || TARGET_64BIT_MS_ABI)
