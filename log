@@ -320,3 +320,17 @@ patching file gcc/testsuite/gcc.target/i386/pr56564-4.c
 patching file gcc/testsuite/gcc.dg/vect/costmodel/i386/costmodel-vect-31.c
 patching file gcc/testsuite/gcc.dg/vect/costmodel/x86_64/costmodel-vect-31.c
 patching file gcc/testsuite/gcc.dg/tree-ssa/loop-19.c
+[oracle/gcc/el7-u9 db313a2] gcc48-pr56564.patch
+ 24 files changed, 306 insertions(+), 42 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.target/i386/pr56564-1.c
+ create mode 100644 gcc/testsuite/gcc.target/i386/pr56564-2.c
+ create mode 100644 gcc/testsuite/gcc.target/i386/pr56564-3.c
+ create mode 100644 gcc/testsuite/gcc.target/i386/pr56564-4.c
+15 gcc48-color-auto.patch -p0
+------- APPLYING gcc48-color-auto.patch ---------
+patching file gcc/common.opt
+Hunk #1 succeeded at 1028 (offset -9 lines).
+patching file gcc/toplev.c
+Hunk #1 succeeded at 1215 (offset -14 lines).
+patching file gcc/doc/invoke.texi
+Hunk #1 succeeded at 2976 (offset -70 lines).

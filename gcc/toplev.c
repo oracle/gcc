@@ -1215,10 +1215,8 @@ process_options (void)
 
   maximum_field_alignment = initial_max_fld_align * BITS_PER_UNIT;
 
-  /* Default to -fdiagnostics-color=auto if GCC_COLORS is in the environment,
-     otherwise default to -fdiagnostics-color=never.  */
-  if (!global_options_set.x_flag_diagnostics_show_color
-      && getenv ("GCC_COLORS"))
+  /* Default to -fdiagnostics-color=auto.  */
+  if (!global_options_set.x_flag_diagnostics_show_color)
     pp_show_color (global_dc->printer)
       = colorize_init (DIAGNOSTICS_COLOR_AUTO);
 
