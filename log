@@ -1488,3 +1488,10 @@ Hunk #6 succeeded at 10148 (offset -342 lines).
 Hunk #7 succeeded at 10204 (offset -342 lines).
 Hunk #8 succeeded at 10359 (offset -342 lines).
 patching file gcc/testsuite/gcc.target/i386/pr84128.c
+[oracle/gcc/el7-u9 3843cc5] gcc48-rh1537828-4.patch
+ 3 files changed, 92 insertions(+), 15 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.target/i386/pr84128.c
+1329 gcc48-rh1537828-5.patch -p1
+------- APPLYING gcc48-rh1537828-5.patch ---------
+patching file gcc/explow.c
+patching file gcc/testsuite/gcc.target/arm/pr85173.c
