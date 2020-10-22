@@ -1512,3 +1512,44 @@ patching file gcc/testsuite/gcc.target/i386/stack-check-19.c
 1402 gcc48-rh1535655-1.patch -p1
 ------- APPLYING gcc48-rh1535655-1.patch ---------
 patching file gcc/config/i386/i386.h
+[oracle/gcc/el7-u9 5271a49] gcc48-rh1535655-1.patch
+ 2 files changed, 11 insertions(+)
+1403 gcc48-rh1535655-2.patch -p1
+------- APPLYING gcc48-rh1535655-2.patch ---------
+patching file gcc/config/i386/i386-opts.h
+patching file gcc/config/i386/i386-protos.h
+patching file gcc/config/i386/i386.c
+Hunk #7 succeeded at 24390 (offset 66 lines).
+Hunk #8 succeeded at 24646 (offset 66 lines).
+Hunk #9 succeeded at 24693 (offset 66 lines).
+Hunk #10 succeeded at 36006 (offset 66 lines).
+Hunk #11 succeeded at 36015 (offset 66 lines).
+Hunk #12 succeeded at 39556 (offset 66 lines).
+patching file gcc/config/i386/i386.h
+patching file gcc/config/i386/i386.md
+patching file gcc/config/i386/i386.opt
+patching file gcc/doc/extend.texi
+patching file gcc/doc/invoke.texi
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-1.c
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-2.c
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-3.c
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-4.c
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-7.c
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-attr-1.c
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-attr-2.c
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-attr-3.c
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-attr-4.c
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-attr-5.c
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-attr-6.c
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-attr-7.c
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-attr-8.c
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-extern-1.c
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-extern-2.c
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-extern-3.c
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-extern-4.c
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-extern-7.c
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-inline-1.c
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-inline-2.c
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-inline-3.c
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-inline-4.c
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-inline-7.c
