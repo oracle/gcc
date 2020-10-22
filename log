@@ -905,3 +905,13 @@ patching file libitm/method-gl.cc
 patching file libitm/method-ml.cc
 Hunk #1 succeeded at 487 (offset -26 lines).
 patching file libitm/testsuite/libitm.c/priv-1.c
+[oracle/gcc/el7-u9 5dcfde2] gcc48-rh1491395.patch
+ 4 files changed, 153 insertions(+), 5 deletions(-)
+ create mode 100644 libitm/testsuite/libitm.c/priv-1.c
+58 gcc48-rh1482762.patch -p0
+------- APPLYING gcc48-rh1482762.patch ---------
+patching file gcc/config/i386/i386.c
+Hunk #1 succeeded at 32422 (offset -7111 lines).
+Hunk #2 succeeded at 32429 (offset -7111 lines).
+Hunk #3 succeeded at 32474 (offset -7111 lines).
+Hunk #4 succeeded at 32481 (offset -7111 lines).
