@@ -921,3 +921,11 @@ Hunk #4 succeeded at 32481 (offset -7111 lines).
 ------- APPLYING gcc48-pr77375.patch ---------
 patching file gcc/cp/class.c
 patching file gcc/testsuite/g++.dg/cpp0x/mutable1.C
+[oracle/gcc/el7-u9 a416c7c] gcc48-pr77375.patch
+ 3 files changed, 20 insertions(+)
+ create mode 100644 gcc/testsuite/g++.dg/cpp0x/mutable1.C
+60 gcc48-pr77767.patch -p0
+------- APPLYING gcc48-pr77767.patch ---------
+patching file gcc/c/c-decl.c
+Hunk #1 succeeded at 4938 (offset -471 lines).
+patching file gcc/testsuite/gcc.c-torture/execute/pr77767.c
