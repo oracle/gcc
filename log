@@ -739,3 +739,10 @@ patching file gcc/testsuite/gcc.target/powerpc/pr72863.c
 39 gcc48-pr78064.patch -p0
 ------- APPLYING gcc48-pr78064.patch ---------
 patching file libgcc/unwind-c.c
+[oracle/gcc/el7-u9 7620999] gcc48-pr78064.patch
+ 2 files changed, 7 insertions(+)
+40 gcc48-pr62258.patch -p0
+------- APPLYING gcc48-pr62258.patch ---------
+patching file libstdc++-v3/libsupc++/eh_ptr.cc
+Hunk #1 succeeded at 217 (offset -28 lines).
+patching file libstdc++-v3/testsuite/18_support/exception_ptr/62258.cc
