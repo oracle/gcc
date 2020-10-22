@@ -387,3 +387,8 @@ patching file gcc/ada/types.h
 20 gcc48-aarch64-async-unw-tables.patch -p0
 ------- APPLYING gcc48-aarch64-async-unw-tables.patch ---------
 patching file gcc/common/config/aarch64/aarch64-common.c
+[oracle/gcc/el7-u9 0791f11] gcc48-aarch64-async-unw-tables.patch
+ 2 files changed, 18 insertions(+)
+21 gcc48-aarch64-unwind-opt.patch -p0
+------- APPLYING gcc48-aarch64-unwind-opt.patch ---------
+patching file gcc/config/aarch64/aarch64.c
