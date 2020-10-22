@@ -733,3 +733,9 @@ patching file gcc/config/aarch64/aarch64.c
 patching file gcc/config/rs6000/vsx.md
 Hunk #1 succeeded at 715 (offset -1 lines).
 patching file gcc/testsuite/gcc.target/powerpc/pr72863.c
+[oracle/gcc/el7-u9 56597d5] gcc48-pr72863.patch
+ 3 files changed, 50 insertions(+), 2 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.target/powerpc/pr72863.c
+39 gcc48-pr78064.patch -p0
+------- APPLYING gcc48-pr78064.patch ---------
+patching file libgcc/unwind-c.c
