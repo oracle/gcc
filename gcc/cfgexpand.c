@@ -316,6 +316,15 @@ stack_var_conflict_p (size_t x, size_t y)
   struct stack_var *b = &stack_vars[y];
   if (x == y)
     return false;
+  /* GCC 4.8 does not calculate the control flow for setjmp correctly
+     (BZ 56982).  This might lead to merging stack variable slots
+     which in fact are live at the same time.  The following check
+     considers all variables being live across setjmp invocations
+     (these must be marked volatile) to conflict with all other stack
+     variables.  */
+  if (cfun->calls_setjmp
+      && (TREE_THIS_VOLATILE (a->decl) || TREE_THIS_VOLATILE (b->decl)))
+    return true;
   /* Partitions containing an SSA name result from gimple registers
      with things like unsupported modes.  They are top-level and
      hence conflict with everything else.  */

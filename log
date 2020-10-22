@@ -1037,3 +1037,8 @@ patching file gcc/cif-code.def
 patching file gcc/ipa-inline-analysis.c
 patching file gcc/ipa-inline.c
 patching file gcc/ipa-inline.h
+[oracle/gcc/el7-u9 3205e60] gcc48-rh1546372.patch
+ 5 files changed, 44 insertions(+), 4 deletions(-)
+73 gcc48-rh1655148.patch -p1
+------- APPLYING gcc48-rh1655148.patch ---------
+patching file gcc/cfgexpand.c
