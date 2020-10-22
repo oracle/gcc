@@ -777,3 +777,13 @@ patching file gcc/testsuite/gcc.target/aarch64/fnmul-1.c
 patching file gcc/testsuite/gcc.target/aarch64/fnmul-2.c
 patching file gcc/testsuite/gcc.target/aarch64/fnmul-3.c
 patching file gcc/testsuite/gcc.target/aarch64/fnmul-4.c
+[oracle/gcc/el7-u9 77b6fe0] gcc48-pr66731.patch
+ 6 files changed, 87 insertions(+)
+ create mode 100644 gcc/testsuite/gcc.target/aarch64/fnmul-1.c
+ create mode 100644 gcc/testsuite/gcc.target/aarch64/fnmul-2.c
+ create mode 100644 gcc/testsuite/gcc.target/aarch64/fnmul-3.c
+ create mode 100644 gcc/testsuite/gcc.target/aarch64/fnmul-4.c
+45 gcc48-pr69116.patch -p0
+------- APPLYING gcc48-pr69116.patch ---------
+patching file libstdc++-v3/include/bits/valarray_before.h
+patching file libstdc++-v3/testsuite/26_numerics/valarray/69116.cc
