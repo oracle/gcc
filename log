@@ -840,3 +840,10 @@ patching file gcc/reload.c
 patching file gcc/config/aarch64/aarch64.c
 Hunk #1 succeeded at 3848 (offset 2 lines).
 patching file gcc/testsuite/g++.dg/opt/pr70549.C
+[oracle/gcc/el7-u9 906e51e] gcc48-pr70549.patch
+ 3 files changed, 46 insertions(+), 1 deletion(-)
+ create mode 100644 gcc/testsuite/g++.dg/opt/pr70549.C
+52 gcc48-rh1457969.patch -p0
+------- APPLYING gcc48-rh1457969.patch ---------
+patching file gcc/config/rs6000/rs6000.c
+Hunk #1 succeeded at 24165 (offset 967 lines).
