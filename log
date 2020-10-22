@@ -1093,3 +1093,10 @@ patching file gcc/testsuite/gcc.dg/pr63567-4.c
 ------- APPLYING gcc48-rh1614326.patch ---------
 patching file gcc/config/rs6000/rs6000.h
 Hunk #1 succeeded at 1950 (offset -108 lines).
+[oracle/gcc/el7-u9 ea563df] gcc48-rh1614326.patch
+ 2 files changed, 12 insertions(+), 1 deletion(-)
+81 gcc48-pr60784.patch -p0
+------- APPLYING gcc48-pr60784.patch ---------
+patching file gcc/c/c-typeck.c
+Hunk #1 succeeded at 6807 (offset -463 lines).
+patching file gcc/testsuite/gcc.dg/pr60784.c
