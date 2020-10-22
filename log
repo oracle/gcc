@@ -1271,3 +1271,18 @@ patching file gcc/config/spu/spu.c
 ------- APPLYING gcc48-rh1469697-5.patch ---------
 patching file gcc/function.c
 patching file gcc/function.h
+[oracle/gcc/el7-u9 a178e05] gcc48-rh1469697-5.patch
+ 3 files changed, 68 insertions(+)
+1307 gcc48-rh1469697-6.patch -p1
+------- APPLYING gcc48-rh1469697-6.patch ---------
+patching file gcc/config/i386/i386.c
+patching file gcc/testsuite/gcc.dg/stack-check-10.c
+patching file gcc/testsuite/gcc.dg/stack-check-3.c
+patching file gcc/testsuite/gcc.dg/stack-check-4.c
+patching file gcc/testsuite/gcc.dg/stack-check-5.c
+patching file gcc/testsuite/gcc.dg/stack-check-6.c
+patching file gcc/testsuite/gcc.dg/stack-check-6a.c
+patching file gcc/testsuite/gcc.dg/stack-check-7.c
+patching file gcc/testsuite/gcc.dg/stack-check-8.c
+patching file gcc/testsuite/gcc.dg/stack-check-9.c
+patching file gcc/testsuite/lib/target-supports.exp
