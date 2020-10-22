@@ -203,3 +203,9 @@ patching file gcc/config.gcc
 patching file libgcc/config.host
 Hunk #1 succeeded at 994 (offset -8 lines).
 Hunk #2 succeeded at 1042 (offset -8 lines).
+[oracle/gcc/el7-u9 c654bbc] gcc48-sparc-config-detection.patch
+ 3 files changed, 12 insertions(+), 4 deletions(-)
+7 gcc48-libgomp-omp_h-multilib.patch -p0
+------- APPLYING gcc48-libgomp-omp_h-multilib.patch ---------
+patching file libgomp/omp.h.in
+Hunk #1 succeeded at 39 (offset -3 lines).
