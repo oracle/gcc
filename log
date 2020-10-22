@@ -953,3 +953,12 @@ patching file gcc/testsuite/g++.dg/torture/pr80129.C
 patching file gcc/fold-const.c
 Hunk #1 succeeded at 12289 (offset 349 lines).
 patching file gcc/testsuite/gcc.dg/torture/pr80362.c
+[oracle/gcc/el7-u9 cc0be2d] gcc48-pr80362.patch
+ 3 files changed, 21 insertions(+), 2 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.dg/torture/pr80362.c
+64 gcc48-pr80692.patch -p0
+------- APPLYING gcc48-pr80692.patch ---------
+patching file gcc/real.c
+Hunk #1 succeeded at 945 (offset -5 lines).
+patching file gcc/testsuite/gcc.c-torture/execute/pr80692.c
+patching file gcc/testsuite/gcc.c-torture/execute/pr80692.x
