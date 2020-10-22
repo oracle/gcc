@@ -9864,10 +9864,14 @@ release_scratch_register_on_entry (struct scratch_reg *sr)
    This differs from the next routine in that it tries hard to prevent
    attacks that jump the stack guard.  Thus it is never allowed to allocate
    more than PROBE_INTERVAL bytes of stack space without a suitable
-   probe.  */
+   probe.
+
+   INT_REGISTERS_SAVED is true if integer registers have already been
+   pushed on the stack.  */
 
 static void
-ix86_adjust_stack_and_probe_stack_clash (const HOST_WIDE_INT size)
+ix86_adjust_stack_and_probe_stack_clash (const HOST_WIDE_INT size,
+					 const bool int_registers_saved)
 {
   struct machine_function *m = cfun->machine;
   struct ix86_frame frame;
@@ -9976,6 +9980,12 @@ ix86_adjust_stack_and_probe_stack_clash (const HOST_WIDE_INT size)
     }
   else
     {
+      /* We expect the GP registers to be saved when probes are used
+	 as the probing sequences might need a scratch register and
+	 the routine to allocate one assumes the integer registers
+	 have already been saved.  */
+      gcc_assert (int_registers_saved);
+
       struct scratch_reg sr;
       get_scratch_register_on_entry (&sr);
 
@@ -10034,10 +10044,14 @@ ix86_adjust_stack_and_probe_stack_clash (const HOST_WIDE_INT size)
   emit_insn (gen_blockage ());
 }
 
-/* Emit code to adjust the stack pointer by SIZE bytes while probing it.  */
+/* Emit code to adjust the stack pointer by SIZE bytes while probing it.
+
+   INT_REGISTERS_SAVED is true if integer registers have already been
+   pushed on the stack.  */
 
 static void
-ix86_adjust_stack_and_probe (const HOST_WIDE_INT size)
+ix86_adjust_stack_and_probe (const HOST_WIDE_INT size,
+			     const bool int_registers_saved)
 {
   /* We skip the probe for the first interval + a small dope of 4 words and
      probe that many bytes past the specified size to maintain a protection
@@ -10098,6 +10112,12 @@ ix86_adjust_stack_and_probe (const HOST_WIDE_INT size)
      equality test for the loop condition.  */
   else
     {
+      /* We expect the GP registers to be saved when probes are used
+	 as the probing sequences might need a scratch register and
+	 the routine to allocate one assumes the integer registers
+	 have already been saved.  */
+      gcc_assert (int_registers_saved);
+
       HOST_WIDE_INT rounded_size;
       struct scratch_reg sr;
 
@@ -10222,10 +10242,14 @@ output_adjust_stack_and_probe (rtx reg)
 }
 
 /* Emit code to probe a range of stack addresses from FIRST to FIRST+SIZE,
-   inclusive.  These are offsets from the current stack pointer.  */
+   inclusive.  These are offsets from the current stack pointer.
+
+   INT_REGISTERS_SAVED is true if integer registers have already been
+   pushed on the stack.  */
 
 static void
-ix86_emit_probe_stack_range (HOST_WIDE_INT first, HOST_WIDE_INT size)
+ix86_emit_probe_stack_range (HOST_WIDE_INT first, HOST_WIDE_INT size,
+			     const bool int_registers_saved)
 {
   /* See if we have a constant small number of probes to generate.  If so,
      that's the easy case.  The run-time loop is made up of 7 insns in the
@@ -10253,6 +10277,12 @@ ix86_emit_probe_stack_range (HOST_WIDE_INT first, HOST_WIDE_INT size)
      equality test for the loop condition.  */
   else
     {
+      /* We expect the GP registers to be saved when probes are used
+	 as the probing sequences might need a scratch register and
+	 the routine to allocate one assumes the integer registers
+	 have already been saved.  */
+      gcc_assert (int_registers_saved);
+
       HOST_WIDE_INT rounded_size, last;
       struct scratch_reg sr;
 
@@ -10730,20 +10760,15 @@ ix86_expand_prologue (void)
       && (flag_stack_check == STATIC_BUILTIN_STACK_CHECK
 	  || flag_stack_clash_protection))
     {
-      /* We expect the GP registers to be saved when probes are used
-	 as the probing sequences might need a scratch register and
-	 the routine to allocate one assumes the integer registers
-	 have already been saved.  */
-      gcc_assert (int_registers_saved);
-
       if (flag_stack_clash_protection)
 	{
-	  ix86_adjust_stack_and_probe_stack_clash (allocate);
+	  ix86_adjust_stack_and_probe_stack_clash (allocate,
+						   int_registers_saved);
 	  allocate = 0;
 	}
       else if (STACK_CHECK_MOVING_SP)
 	{
-	  ix86_adjust_stack_and_probe (allocate);
+	  ix86_adjust_stack_and_probe (allocate, int_registers_saved);
 	  allocate = 0;
 	}
       else
@@ -10754,9 +10779,11 @@ ix86_expand_prologue (void)
 	    size = 0x80000000 - get_stack_check_protect () - 1;
 
 	  if (TARGET_STACK_PROBE)
-	    ix86_emit_probe_stack_range (0, size + get_stack_check_protect ());
+	    ix86_emit_probe_stack_range (0, size + get_stack_check_protect (),
+					 int_registers_saved);
 	  else
-	    ix86_emit_probe_stack_range (get_stack_check_protect (), size);
+	    ix86_emit_probe_stack_range (get_stack_check_protect (), size,
+					 int_registers_saved);
 	}
     }
 
