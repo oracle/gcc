@@ -1221,3 +1221,14 @@ Hunk #3 succeeded at 6426 (offset 5078 lines).
 patching file gcc/ggc-page.c
 patching file gcc/hwint.h
 patching file gcc/system.h
+[oracle/gcc/el7-u9 60c72a1] gcc48-rh1469697-1.patch
+ 4 files changed, 15 insertions(+), 4 deletions(-)
+1303 gcc48-rh1469697-2.patch -p1
+------- APPLYING gcc48-rh1469697-2.patch ---------
+patching file gcc/common.opt
+patching file gcc/doc/invoke.texi
+patching file gcc/flag-types.h
+patching file gcc/params.def
+patching file gcc/testsuite/gcc.dg/stack-check-2.c
+patching file gcc/testsuite/lib/target-supports.exp
+patching file gcc/toplev.c
