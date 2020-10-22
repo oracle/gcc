@@ -24,6 +24,7 @@
 
 #include <signal.h>
 #include <sys/ucontext.h>
+#include "config/aarch64/aarch64-unwind.h"
 
 #define MD_FALLBACK_FRAME_STATE_FOR aarch64_fallback_frame_state
 

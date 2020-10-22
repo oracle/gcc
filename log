@@ -1108,3 +1108,18 @@ patching file gcc/testsuite/gcc.dg/pr60784.c
 patching file gcc/cp/pt.c
 Hunk #1 succeeded at 7574 (offset 13 lines).
 patching file gcc/testsuite/g++.dg/cpp0x/alias-decl-36.C
+[oracle/gcc/el7-u9 18c1e9eb] gcc48-pr53658.patch
+ 3 files changed, 15 insertions(+), 1 deletion(-)
+ create mode 100644 gcc/testsuite/g++.dg/cpp0x/alias-decl-36.C
+83 gcc48-aarch64-pauth.patch -p0
+------- APPLYING gcc48-aarch64-pauth.patch ---------
+patching file libgcc/config.host
+patching file libgcc/config/aarch64/aarch64-unwind.h
+patching file libgcc/config/aarch64/linux-unwind.h
+patching file libgcc/unwind-dw2.c
+Hunk #1 succeeded at 140 (offset 4 lines).
+Hunk #3 succeeded at 1203 (offset 4 lines).
+Hunk #4 succeeded at 1525 (offset 4 lines).
+Hunk #5 succeeded at 1567 (offset 4 lines).
+Hunk #6 succeeded at 1606 (offset 4 lines).
+Hunk #7 succeeded at 1631 (offset 4 lines).
