@@ -5430,7 +5430,9 @@ sparc_expand_prologue (void)
   if (flag_stack_usage_info)
     current_function_static_stack_size = size;
 
-  if (flag_stack_check == STATIC_BUILTIN_STACK_CHECK && size)
+  if ((flag_stack_check == STATIC_BUILTIN_STACK_CHECK
+       || flag_stack_clash_protection)
+      && size)
     sparc_emit_probe_stack_range (get_stack_check_protect (), size);
 
   if (size == 0)
@@ -5532,7 +5534,9 @@ sparc_flat_expand_prologue (void)
   if (flag_stack_usage_info)
     current_function_static_stack_size = size;
 
-  if (flag_stack_check == STATIC_BUILTIN_STACK_CHECK && size)
+  if ((flag_stack_check == STATIC_BUILTIN_STACK_CHECK
+       || flag_stack_clash_protection)
+      && size)
     sparc_emit_probe_stack_range (get_stack_check_protect (), size);
 
   if (sparc_save_local_in_regs_p)

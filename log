@@ -1255,3 +1255,13 @@ Hunk #1 succeeded at 1566 (offset 9 lines).
 patching file gcc/targhooks.h
 Hunk #1 succeeded at 196 (offset 1 line).
 patching file gcc/testsuite/gcc.dg/stack-check-3.c
+[oracle/gcc/el7-u9 070097e] gcc48-rh1469697-3.patch
+ 15 files changed, 392 insertions(+), 10 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.dg/stack-check-3.c
+1305 gcc48-rh1469697-4.patch -p1
+------- APPLYING gcc48-rh1469697-4.patch ---------
+patching file gcc/config/alpha/alpha.c
+patching file gcc/config/ia64/ia64.c
+patching file gcc/config/mips/mips.c
+patching file gcc/config/sparc/sparc.c
+patching file gcc/config/spu/spu.c
