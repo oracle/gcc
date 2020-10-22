@@ -863,3 +863,24 @@ patching file gcc/testsuite/gcc.dg/pr69644.c
 patching file gcc/config/rs6000/rs6000.c
 Hunk #1 succeeded at 28780 (offset -2559 lines).
 Hunk #2 succeeded at 28789 (offset -2559 lines).
+[oracle/gcc/el7-u9 f518bb5] gcc48-rh1487434.patch
+ 2 files changed, 20 insertions(+), 2 deletions(-)
+55 gcc48-rh1468546.patch -p0
+------- APPLYING gcc48-rh1468546.patch ---------
+patching file gcc/doc/tm.texi
+Hunk #1 succeeded at 4948 (offset -5 lines).
+patching file gcc/doc/tm.texi.in
+Hunk #1 succeeded at 4879 (offset 916 lines).
+patching file gcc/final.c
+Hunk #1 succeeded at 4185 (offset -56 lines).
+patching file gcc/target.def
+Hunk #1 succeeded at 1559 (offset -1099 lines).
+patching file gcc/targhooks.c
+Hunk #1 succeeded at 1433 (offset -14 lines).
+patching file gcc/targhooks.h
+patching file gcc/config/rs6000/rs6000.c
+Hunk #1 succeeded at 24172 (offset -261 lines).
+patching file gcc/config/rs6000/linux64.h
+patching file gcc/config/rs6000/rs6000.c
+Hunk #1 succeeded at 24192 (offset -2045 lines).
+patching file gcc/testsuite/gcc.target/powerpc/pr63354.c
