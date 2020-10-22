@@ -216,3 +216,7 @@ REG_NOTE (ARGS_SIZE)
    that the return value of a call can be used to reinitialize a
    pseudo reg.  */
 REG_NOTE (RETURNED)
+
+/* Indicates the instruction is a stack check probe that should not
+   be combined with other stack adjustments.  */
+REG_NOTE (STACK_CHECK)

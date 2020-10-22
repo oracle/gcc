@@ -1286,3 +1286,20 @@ patching file gcc/testsuite/gcc.dg/stack-check-7.c
 patching file gcc/testsuite/gcc.dg/stack-check-8.c
 patching file gcc/testsuite/gcc.dg/stack-check-9.c
 patching file gcc/testsuite/lib/target-supports.exp
+[oracle/gcc/el7-u9 b255a6b] gcc48-rh1469697-6.patch
+ 12 files changed, 2598 insertions(+), 5 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.dg/stack-check-10.c
+ create mode 100644 gcc/testsuite/gcc.dg/stack-check-4.c
+ create mode 100644 gcc/testsuite/gcc.dg/stack-check-5.c
+ create mode 100644 gcc/testsuite/gcc.dg/stack-check-6.c
+ create mode 100644 gcc/testsuite/gcc.dg/stack-check-6a.c
+ create mode 100644 gcc/testsuite/gcc.dg/stack-check-7.c
+ create mode 100644 gcc/testsuite/gcc.dg/stack-check-8.c
+ create mode 100644 gcc/testsuite/gcc.dg/stack-check-9.c
+1308 gcc48-rh1469697-7.patch -p1
+------- APPLYING gcc48-rh1469697-7.patch ---------
+patching file gcc/combine-stack-adj.c
+patching file gcc/config/i386/i386.c
+patching file gcc/reg-notes.def
+patching file gcc/sched-deps.c
+patching file gcc/testsuite/gcc.target/i386/stack-check-11.c
