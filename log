@@ -1326,3 +1326,9 @@ Hunk #8 succeeded at 10777 (offset 33 lines).
 Hunk #9 succeeded at 10830 (offset 33 lines).
 patching file gcc/testsuite/gcc.dg/stack-check-5.c
 patching file gcc/testsuite/lib/target-supports.exp
+[oracle/gcc/el7-u9 b94aa49] gcc48-rh1469697-9.patch
+ 4 files changed, 257 insertions(+), 28 deletions(-)
+1311 gcc48-rh1469697-10.patch -p1
+------- APPLYING gcc48-rh1469697-10.patch ---------
+patching file gcc/config/i386/i386.c
+patching file gcc/testsuite/lib/target-supports.exp
