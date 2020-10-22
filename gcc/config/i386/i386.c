@@ -9839,7 +9839,17 @@ release_scratch_register_on_entry (struct scratch_reg *sr)
     }
 }
 
-#define PROBE_INTERVAL (1 << STACK_CHECK_PROBE_INTERVAL_EXP)
+/* Return the probing interval for -fstack-clash-protection.  */
+
+static HOST_WIDE_INT
+get_probe_interval (void)
+{
+  if (flag_stack_clash_protection)
+    return (HOST_WIDE_INT_1U
+	    << PARAM_VALUE (PARAM_STACK_CLASH_PROTECTION_PROBE_INTERVAL));
+  else
+    return (HOST_WIDE_INT_1U << STACK_CHECK_PROBE_INTERVAL_EXP);
+}
 
 /* Emit code to adjust the stack pointer by SIZE bytes while probing it.
 
@@ -9911,8 +9921,7 @@ ix86_adjust_stack_and_probe_stack_clash (const HOST_WIDE_INT size)
   /* We're allocating a large enough stack frame that we need to
      emit probes.  Either emit them inline or in a loop depending
      on the size.  */
-  HOST_WIDE_INT probe_interval
-    = 1 << PARAM_VALUE (PARAM_STACK_CLASH_PROTECTION_PROBE_INTERVAL);
+  HOST_WIDE_INT probe_interval = get_probe_interval ();
   if (size <= 4 * probe_interval)
     {
       HOST_WIDE_INT i;
@@ -9921,7 +9930,7 @@ ix86_adjust_stack_and_probe_stack_clash (const HOST_WIDE_INT size)
 	  /* Allocate PROBE_INTERVAL bytes.  */
 	  rtx insn
 	    = pro_epilogue_adjust_stack (stack_pointer_rtx, stack_pointer_rtx,
-					 GEN_INT (-PROBE_INTERVAL), -1,
+					 GEN_INT (-probe_interval), -1,
 					 m->fs.cfa_reg == stack_pointer_rtx);
 	  add_reg_note (insn, REG_STACK_CHECK, const0_rtx);
 
@@ -10014,7 +10023,7 @@ ix86_adjust_stack_and_probe (const HOST_WIDE_INT size)
      that's the easy case.  The run-time loop is made up of 11 insns in the
      generic case while the compile-time loop is made up of 3+2*(n-1) insns
      for n # of intervals.  */
-  if (size <= 5 * PROBE_INTERVAL)
+  if (size <= 5 * get_probe_interval ())
     {
       HOST_WIDE_INT i, adjust;
       bool first_probe = true;
@@ -10023,15 +10032,15 @@ ix86_adjust_stack_and_probe (const HOST_WIDE_INT size)
 	 values of N from 1 until it exceeds SIZE.  If only one probe is
 	 needed, this will not generate any code.  Then adjust and probe
 	 to PROBE_INTERVAL + SIZE.  */
-      for (i = PROBE_INTERVAL; i < size; i += PROBE_INTERVAL)
+      for (i = get_probe_interval (); i < size; i += get_probe_interval ())
 	{
 	  if (first_probe)
 	    {
-	      adjust = 2 * PROBE_INTERVAL + dope;
+	      adjust = 2 * get_probe_interval () + dope;
 	      first_probe = false;
 	    }
 	  else
-	    adjust = PROBE_INTERVAL;
+	    adjust = get_probe_interval ();
 
 	  emit_insn (gen_rtx_SET (VOIDmode, stack_pointer_rtx,
 				  plus_constant (Pmode, stack_pointer_rtx,
@@ -10040,9 +10049,9 @@ ix86_adjust_stack_and_probe (const HOST_WIDE_INT size)
 	}
 
       if (first_probe)
-	adjust = size + PROBE_INTERVAL + dope;
+	adjust = size + get_probe_interval () + dope;
       else
-        adjust = size + PROBE_INTERVAL - i;
+        adjust = size + get_probe_interval () - i;
 
       emit_insn (gen_rtx_SET (VOIDmode, stack_pointer_rtx,
 			      plus_constant (Pmode, stack_pointer_rtx,
@@ -10052,7 +10061,8 @@ ix86_adjust_stack_and_probe (const HOST_WIDE_INT size)
       /* Adjust back to account for the additional first interval.  */
       last = emit_insn (gen_rtx_SET (VOIDmode, stack_pointer_rtx,
 				     plus_constant (Pmode, stack_pointer_rtx,
-						    PROBE_INTERVAL + dope)));
+						    (get_probe_interval ()
+						     + dope))));
     }
 
   /* Otherwise, do the same as above, but in a loop.  Note that we must be
@@ -10070,7 +10080,7 @@ ix86_adjust_stack_and_probe (const HOST_WIDE_INT size)
 
       /* Step 1: round SIZE to the previous multiple of the interval.  */
 
-      rounded_size = size & -PROBE_INTERVAL;
+      rounded_size = size & get_probe_interval ();
 
 
       /* Step 2: compute initial and final value of the loop counter.  */
@@ -10078,7 +10088,7 @@ ix86_adjust_stack_and_probe (const HOST_WIDE_INT size)
       /* SP = SP_0 + PROBE_INTERVAL.  */
       emit_insn (gen_rtx_SET (VOIDmode, stack_pointer_rtx,
 			      plus_constant (Pmode, stack_pointer_rtx,
-					     - (PROBE_INTERVAL + dope))));
+					     - (get_probe_interval () + dope))));
 
       /* LAST_ADDR = SP_0 + PROBE_INTERVAL + ROUNDED_SIZE.  */
       emit_move_insn (sr.reg, GEN_INT (-rounded_size));
@@ -10115,7 +10125,8 @@ ix86_adjust_stack_and_probe (const HOST_WIDE_INT size)
       /* Adjust back to account for the additional first interval.  */
       last = emit_insn (gen_rtx_SET (VOIDmode, stack_pointer_rtx,
 				     plus_constant (Pmode, stack_pointer_rtx,
-						    PROBE_INTERVAL + dope)));
+						    (get_probe_interval ()
+						     + dope))));
 
       release_scratch_register_on_entry (&sr);
     }
@@ -10134,7 +10145,7 @@ ix86_adjust_stack_and_probe (const HOST_WIDE_INT size)
       XVECEXP (expr, 0, 1)
 	= gen_rtx_SET (VOIDmode, stack_pointer_rtx,
 		       plus_constant (Pmode, stack_pointer_rtx,
-				      PROBE_INTERVAL + dope + size));
+				      get_probe_interval () + dope + size));
       add_reg_note (last, REG_FRAME_RELATED_EXPR, expr);
       RTX_FRAME_RELATED_P (last) = 1;
 
@@ -10168,7 +10179,7 @@ output_adjust_stack_and_probe (rtx reg)
   fputc ('\n', asm_out_file);
 
   /* SP = SP + PROBE_INTERVAL.  */
-  xops[1] = GEN_INT (PROBE_INTERVAL);
+  xops[1] = GEN_INT (get_probe_interval ());
   output_asm_insn ("sub%z0\t{%1, %0|%0, %1}", xops);
 
   /* Probe at SP.  */
@@ -10194,14 +10205,14 @@ ix86_emit_probe_stack_range (HOST_WIDE_INT first, HOST_WIDE_INT size)
      that's the easy case.  The run-time loop is made up of 7 insns in the
      generic case while the compile-time loop is made up of n insns for n #
      of intervals.  */
-  if (size <= 7 * PROBE_INTERVAL)
+  if (size <= 7 * get_probe_interval ())
     {
       HOST_WIDE_INT i;
 
       /* Probe at FIRST + N * PROBE_INTERVAL for values of N from 1 until
 	 it exceeds SIZE.  If only one probe is needed, this will not
 	 generate any code.  Then probe at FIRST + SIZE.  */
-      for (i = PROBE_INTERVAL; i < size; i += PROBE_INTERVAL)
+      for (i = get_probe_interval (); i < size; i += get_probe_interval ())
 	emit_stack_probe (plus_constant (Pmode, stack_pointer_rtx,
 					 -(first + i)));
 
@@ -10224,7 +10235,7 @@ ix86_emit_probe_stack_range (HOST_WIDE_INT first, HOST_WIDE_INT size)
 
       /* Step 1: round SIZE to the previous multiple of the interval.  */
 
-      rounded_size = size & -PROBE_INTERVAL;
+      rounded_size = size & -get_probe_interval ();
 
 
       /* Step 2: compute initial and final value of the loop counter.  */
@@ -10291,7 +10302,7 @@ output_probe_stack_range (rtx reg, rtx end)
   fputc ('\n', asm_out_file);
 
   /* TEST_ADDR = TEST_ADDR + PROBE_INTERVAL.  */
-  xops[1] = GEN_INT (PROBE_INTERVAL);
+  xops[1] = GEN_INT (get_probe_interval ());
   output_asm_insn ("sub%z0\t{%1, %0|%0, %1}", xops);
 
   /* Probe at TEST_ADDR.  */

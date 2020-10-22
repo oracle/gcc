@@ -1397,3 +1397,10 @@ patching file gcc/testsuite/lib/target-supports.exp
 ------- APPLYING gcc48-rh1469697-17.patch ---------
 patching file gcc/config/i386/i386.c
 patching file gcc/testsuite/gcc.target/i386/stack-check-12.c
+[oracle/gcc/el7-u9 cc490e3] gcc48-rh1469697-17.patch
+ 3 files changed, 39 insertions(+), 2 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.target/i386/stack-check-12.c
+1319 gcc48-rh1469697-18.patch -p1
+------- APPLYING gcc48-rh1469697-18.patch ---------
+patching file gcc/config/i386/i386.c
+patching file gcc/testsuite/gcc.dg/pr82788.c
