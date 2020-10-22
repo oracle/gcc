@@ -382,3 +382,8 @@ patching file gcc/config/host-linux.c
 patching file gcc/ada/gcc-interface/Makefile.in
 patching file gcc/ada/init.c
 patching file gcc/ada/types.h
+[oracle/gcc/el7-u9 8324937] gcc48-aarch64-ada.patch
+ 4 files changed, 51 insertions(+), 5 deletions(-)
+20 gcc48-aarch64-async-unw-tables.patch -p0
+------- APPLYING gcc48-aarch64-async-unw-tables.patch ---------
+patching file gcc/common/config/aarch64/aarch64-common.c

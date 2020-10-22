@@ -39,6 +39,9 @@
 #undef	TARGET_OPTION_OPTIMIZATION_TABLE
 #define TARGET_OPTION_OPTIMIZATION_TABLE aarch_option_optimization_table
 
+#undef TARGET_OPTION_INIT_STRUCT
+#define TARGET_OPTION_INIT_STRUCT aarch64_option_init_struct
+
 /* Set default optimization options.  */
 static const struct default_options aarch_option_optimization_table[] =
   {
@@ -46,6 +49,16 @@ static const struct default_options aarch_option_optimization_table[] =
     { OPT_LEVELS_1_PLUS, OPT_fsection_anchors, NULL, 1 },
     { OPT_LEVELS_NONE, 0, NULL, 0 }
   };
+
+/* Implement TARGET_OPTION_INIT_STRUCT.  */
+
+static void
+aarch64_option_init_struct (struct gcc_options *opts)
+{
+  /* By default, always emit DWARF-2 unwind info.  This allows debugging
+     without maintaining a stack frame back-chain.  */
+  opts->x_flag_asynchronous_unwind_tables = 1;
+}
 
 /* Implement TARGET_HANDLE_OPTION.
    This function handles the target specific options for CPU/target selection.
