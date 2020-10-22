@@ -1109,8 +1109,7 @@ go_crypto_dsa_files = \
 go_crypto_ecdsa_files = \
 	go/crypto/ecdsa/ecdsa.go
 go_crypto_elliptic_files = \
-	go/crypto/elliptic/elliptic.go \
-	go/crypto/elliptic/p224.go
+	go/crypto/elliptic/elliptic.go
 go_crypto_hmac_files = \
 	go/crypto/hmac/hmac.go
 go_crypto_md5_files = \

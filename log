@@ -353,3 +353,17 @@ patching file gcc/output.h
 Hunk #1 succeeded at 290 (offset -4 lines).
 patching file gcc/testsuite/gcc.c-torture/execute/pr28865.c
 patching file gcc/testsuite/gcc.c-torture/compile/pr28865.c
+[oracle/gcc/el7-u9 39243b5] gcc48-pr28865.patch
+ 5 files changed, 77 insertions(+), 18 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.c-torture/compile/pr28865.c
+ create mode 100644 gcc/testsuite/gcc.c-torture/execute/pr28865.c
+17 gcc48-libgo-p224.patch -p0
+------- APPLYING gcc48-libgo-p224.patch ---------
+patching file libgo/Makefile.am
+patching file libgo/Makefile.in
+patching file libgo/go/crypto/elliptic/elliptic.go
+patching file libgo/go/crypto/elliptic/elliptic_test.go
+patching file libgo/go/crypto/ecdsa/ecdsa_test.go
+patching file libgo/go/crypto/x509/x509.go
+patching file libgo/go/crypto/elliptic/p224.go
+patching file libgo/go/crypto/elliptic/p224_test.go
