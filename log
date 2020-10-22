@@ -804,3 +804,11 @@ patching file gcc/testsuite/c-c++-common/pr72747-2.c
 patching file gcc/config/aarch64/aarch64.c
 Hunk #1 succeeded at 4988 (offset 2 lines).
 patching file gcc/testsuite/gcc.dg/tls/pr78796.c
+[oracle/gcc/el7-u9 94743b4] gcc48-pr78796.patch
+ 3 files changed, 44 insertions(+)
+ create mode 100644 gcc/testsuite/gcc.dg/tls/pr78796.c
+48 gcc48-pr79969.patch -p0
+------- APPLYING gcc48-pr79969.patch ---------
+patching file gcc/c/c-decl.c
+Hunk #1 succeeded at 7398 (offset -803 lines).
+patching file gcc/testsuite/gcc.dg/debug/dwarf2/enum-loc1.c
