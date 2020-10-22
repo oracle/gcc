@@ -1355,3 +1355,8 @@ patching file gcc/testsuite/lib/target-supports.exp
 patching file gcc/testsuite/gcc.dg/stack-check-5.c
 patching file gcc/testsuite/gcc.dg/stack-check-6.c
 patching file gcc/testsuite/gcc.dg/stack-check-6a.c
+[oracle/gcc/el7-u9 a225696] gcc48-rh1469697-12.patch
+ 4 files changed, 11 insertions(+)
+1314 gcc48-rh1469697-13.patch -p1
+------- APPLYING gcc48-rh1469697-13.patch ---------
+patching file gcc/config/i386/i386.c
