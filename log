@@ -273,3 +273,50 @@ patching file gcc/config/gnu-user.h
 Hunk #1 succeeded at 81 (offset -1 lines).
 patching file gcc/config/rs6000/sysv4.h
 Hunk #1 succeeded at 778 (offset -42 lines).
+[oracle/gcc/el7-u9 fc46588] gcc48-no-add-needed.patch
+ 5 files changed, 16 insertions(+), 4 deletions(-)
+14 gcc48-pr56564.patch -p0
+------- APPLYING gcc48-pr56564.patch ---------
+patching file gcc/doc/tm.texi.in
+Hunk #1 succeeded at 1061 (offset -1 lines).
+patching file gcc/doc/tm.texi
+Hunk #1 succeeded at 1077 (offset -1 lines).
+patching file gcc/varasm.c
+Hunk #1 succeeded at 961 (offset -5 lines).
+Hunk #2 succeeded at 1051 (offset -5 lines).
+Hunk #3 succeeded at 1103 (offset -5 lines).
+Hunk #4 succeeded at 1841 (offset -5 lines).
+Hunk #5 succeeded at 1858 (offset -5 lines).
+Hunk #6 succeeded at 1891 (offset -5 lines).
+Hunk #7 succeeded at 1914 (offset -5 lines).
+Hunk #8 succeeded at 1944 (offset -5 lines).
+Hunk #9 succeeded at 1968 (offset -5 lines).
+Hunk #10 succeeded at 2068 (offset -5 lines).
+Hunk #11 succeeded at 2099 (offset -5 lines).
+Hunk #12 succeeded at 6798 (offset 17 lines).
+Hunk #13 succeeded at 6819 (offset 17 lines).
+Hunk #14 succeeded at 7064 (offset 23 lines).
+patching file gcc/config/s390/s390.h
+Hunk #1 succeeded at 227 (offset 6 lines).
+patching file gcc/config/i386/i386.h
+Hunk #1 succeeded at 808 (offset -51 lines).
+patching file gcc/config/i386/i386-protos.h
+patching file gcc/config/i386/i386.c
+Hunk #1 succeeded at 25336 (offset 44 lines).
+Hunk #2 succeeded at 25354 (offset 44 lines).
+patching file gcc/config/c6x/c6x.h
+patching file gcc/config/mmix/mmix.h
+patching file gcc/config/mmix/mmix.c
+patching file gcc/testsuite/gcc.target/i386/memcpy-1.c
+patching file gcc/testsuite/gcc.target/i386/vect-sizes-1.c
+patching file gcc/testsuite/gcc.target/i386/avx256-unaligned-load-4.c
+patching file gcc/testsuite/gcc.target/i386/avx256-unaligned-store-1.c
+patching file gcc/testsuite/gcc.target/i386/avx256-unaligned-store-3.c
+patching file gcc/testsuite/gcc.target/i386/avx256-unaligned-store-4.c
+patching file gcc/testsuite/gcc.target/i386/pr56564-1.c
+patching file gcc/testsuite/gcc.target/i386/pr56564-2.c
+patching file gcc/testsuite/gcc.target/i386/pr56564-3.c
+patching file gcc/testsuite/gcc.target/i386/pr56564-4.c
+patching file gcc/testsuite/gcc.dg/vect/costmodel/i386/costmodel-vect-31.c
+patching file gcc/testsuite/gcc.dg/vect/costmodel/x86_64/costmodel-vect-31.c
+patching file gcc/testsuite/gcc.dg/tree-ssa/loop-19.c
