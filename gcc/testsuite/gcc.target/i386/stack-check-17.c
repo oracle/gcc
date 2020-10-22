@@ -29,9 +29,11 @@ f3 (void)
    into either a stack slot or callee saved register.  The former
    would be rather dumb.  So assume it does not happen.
 
-   So search for two/four pushes for the callee register saves/argument
-   pushes and no pops (since the function has no reachable epilogue).  */
-/* { dg-final { scan-assembler-times "push\[ql\]" 2 { target { ! ia32 } } } }  */
-/* { dg-final { scan-assembler-times "push\[ql\]" 4 { target { ia32 } } } }  */
+   So search for two pushes for the callee register saves pushes
+   and no pops (since the function has no reachable epilogue). 
+
+   This is slightly different than upstream because the code we
+   generate for argument setup is slightly different.  */
+/* { dg-final { scan-assembler-times "push\[ql\]" 2 } }  */
 /* { dg-final { scan-assembler-not "pop" } } */
 

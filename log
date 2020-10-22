@@ -1433,3 +1433,11 @@ patching file gcc/testsuite/gcc.target/i386/stack-check-19.c
 patching file gcc/config/i386/i386.c
 patching file gcc/testsuite/gcc.target/i386/stack-check-12.c
 patching file gcc/testsuite/gcc.target/i386/stack-check-17.c
+[oracle/gcc/el7-u9 1ac9e63] gcc48-rh1469697-22.patch
+ 4 files changed, 71 insertions(+), 8 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.target/i386/stack-check-17.c
+1324 gcc48-rh1469697-23.patch -p1
+------- APPLYING gcc48-rh1469697-23.patch ---------
+patching file gcc/testsuite/gcc.target/i386/stack-check-17.c
+patching file gcc/testsuite/gcc.target/i386/stack-check-18.c
+patching file gcc/testsuite/gcc.target/i386/stack-check-19.c
