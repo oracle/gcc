@@ -2478,7 +2478,7 @@ sparc-*-rtems*)
 	tm_file="${tm_file} dbxelf.h elfos.h sparc/sysv4.h sparc/sp-elf.h sparc/rtemself.h rtems.h newlib-stdint.h"
 	tmake_file="sparc/t-sparc sparc/t-rtems t-rtems"
 	;;
-sparc-*-linux*)
+sparc-*-linux* | sparcv9-*-linux*)
 	tm_file="${tm_file} dbxelf.h elfos.h sparc/sysv4.h gnu-user.h linux.h glibc-stdint.h sparc/tso.h"
 	extra_options="${extra_options} sparc/long-double-switch.opt"
 	case ${target} in
@@ -2532,7 +2532,7 @@ sparc64-*-rtems*)
 	extra_options="${extra_options}"
 	tmake_file="${tmake_file} sparc/t-sparc sparc/t-rtems-64 t-rtems"
 	;;
-sparc64-*-linux*)
+sparc64*-*-linux*)
 	tm_file="sparc/biarch64.h ${tm_file} dbxelf.h elfos.h sparc/sysv4.h gnu-user.h linux.h glibc-stdint.h sparc/default-64.h sparc/linux64.h sparc/tso.h"
 	extra_options="${extra_options} sparc/long-double-switch.opt"
 	tmake_file="${tmake_file} sparc/t-sparc sparc/t-linux64"

@@ -195,3 +195,11 @@ Hunk #1 succeeded at 1116 (offset 6 lines).
 5 gcc48-i386-libgomp.patch -p0
 ------- APPLYING gcc48-i386-libgomp.patch ---------
 patching file libgomp/configure.tgt
+[oracle/gcc/el7-u9 dd03a4e] gcc48-i386-libgomp.patch
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+6 gcc48-sparc-config-detection.patch -p0
+------- APPLYING gcc48-sparc-config-detection.patch ---------
+patching file gcc/config.gcc
+patching file libgcc/config.host
+Hunk #1 succeeded at 994 (offset -8 lines).
+Hunk #2 succeeded at 1042 (offset -8 lines).
