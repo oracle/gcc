@@ -985,3 +985,25 @@ patching file gcc/testsuite/gcc.dg/torture/pr78416.c
 patching file gcc/optabs.c
 Hunk #1 succeeded at 1615 (offset 7 lines).
 patching file gcc/testsuite/gcc.target/powerpc/vec-shift.c
+[oracle/gcc/el7-u9 243a0b0] gcc48-rh1546728.patch
+ 3 files changed, 37 insertions(+)
+ create mode 100644 gcc/testsuite/gcc.target/powerpc/vec-shift.c
+68 gcc48-rh1555397.patch -p0
+------- APPLYING gcc48-rh1555397.patch ---------
+patching file gcc/config/s390/predicates.md
+Hunk #1 succeeded at 126 (offset 10 lines).
+Hunk #2 succeeded at 151 (offset 10 lines).
+patching file gcc/config/s390/s390.c
+Hunk #1 succeeded at 1076 (offset 585 lines).
+Hunk #2 succeeded at 2825 (offset 945 lines).
+Hunk #3 succeeded at 4607 (offset 1030 lines).
+Hunk #4 succeeded at 4664 (offset 1030 lines).
+Hunk #5 succeeded at 10331 (offset 1746 lines).
+Hunk #6 succeeded at 10342 (offset 1746 lines).
+patching file gcc/config/s390/s390.h
+Hunk #1 succeeded at 870 (offset 56 lines).
+patching file gcc/config/s390/s390.opt
+Hunk #1 succeeded at 170 (offset 12 lines).
+patching file gcc/config/s390/s390-protos.h
+Hunk #1 succeeded at 58 (offset 6 lines).
+patching file gcc/testsuite/gcc.target/s390/nodatarel-1.c
