@@ -1731,7 +1731,17 @@ int extract_jar(int fd, const char **files, int file_num){
       struct stat sbuf;
       int depth = 0;
 
-      tmp_buff = malloc(sizeof(char) * strlen((const char *)filename));
+      if(*filename == '/'){
+	fprintf(stderr, "Absolute path names are not allowed.\n");
+	exit(EXIT_FAILURE);
+      }
+
+      tmp_buff = malloc(strlen((const char *)filename));
+
+      if(tmp_buff == NULL) {
+	fprintf(stderr, "Out of memory.\n");
+	exit(EXIT_FAILURE);
+      }
 
       for(;;){
         const ub1 *idx = (const unsigned char *)strchr((const char *)start, '/');
@@ -1739,25 +1749,28 @@ int extract_jar(int fd, const char **files, int file_num){
         if(idx == NULL)
           break;
         else if(idx == start){
+	  tmp_buff[idx - filename] = '/';
           start++;
           continue;
         }
-        start = idx + 1;
 
-        strncpy(tmp_buff, (const char *)filename, (idx - filename));
-        tmp_buff[(idx - filename)] = '\0';
+	memcpy(tmp_buff + (start - filename), (const char *)start, (idx - start));
+	tmp_buff[idx - filename] = '\0';
 
 #ifdef DEBUG    
         printf("checking the existance of %s\n", tmp_buff);
 #endif
-	if(strcmp(tmp_buff, "..") == 0){
+	if(idx - start == 2 && memcmp(start, "..", 2) == 0){
 	  --depth;
 	  if (depth < 0){
 	    fprintf(stderr, "Traversal to parent directories during unpacking!\n");
 	    exit(EXIT_FAILURE);
 	  }
-	} else if (strcmp(tmp_buff, ".") != 0)
+	} else if (idx - start != 1 || *start != '.')
 	  ++depth;
+
+        start = idx + 1;
+
         if(stat(tmp_buff, &sbuf) < 0){
           if(errno != ENOENT)
             exit_on_error("stat");
@@ -1766,6 +1779,7 @@ int extract_jar(int fd, const char **files, int file_num){
 #ifdef DEBUG    
           printf("Directory exists\n");
 #endif
+	  tmp_buff[idx - filename] = '/';
           continue;
         }else {
           fprintf(stderr, "Hmmm.. %s exists but isn't a directory!\n",
@@ -1782,10 +1796,11 @@ int extract_jar(int fd, const char **files, int file_num){
         if(verbose && handle)
           printf("%10s: %s/\n", "created", tmp_buff);
 
+	tmp_buff[idx - filename] = '/';
       }
 
       /* only a directory */
-      if(strlen((const char *)start) == 0)
+      if(*start == '\0')
         dir = TRUE;
 
 #ifdef DEBUG    
@@ -1793,7 +1808,7 @@ int extract_jar(int fd, const char **files, int file_num){
 #endif
 
       /* If the entry was just a directory, don't write to file, etc */
-      if(strlen((const char *)start) == 0)
+      if(*start == '\0')
         f_fd = -1;
 
       free(tmp_buff);
@@ -1877,7 +1892,8 @@ int extract_jar(int fd, const char **files, int file_num){
       exit(EXIT_FAILURE);
     }
 
-    close(f_fd);
+    if (f_fd != -1)
+      close(f_fd);
 
     if(verbose && dir == FALSE && handle)
       printf("%10s: %s\n",

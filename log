@@ -1158,3 +1158,14 @@ patching file fastjar-0.97/jartool.c
 1003 fastjar-0.97-filename0.patch -p0
 ------- APPLYING fastjar-0.97-filename0.patch ---------
 patching file fastjar-0.97/jartool.c
+[oracle/gcc/el7-u9 08b3cc0] fastjar-0.97-filename0.patch
+ 2 files changed, 6 insertions(+)
+1004 fastjar-CVE-2010-0831.patch -p0
+------- APPLYING fastjar-CVE-2010-0831.patch ---------
+patching file fastjar-0.97/jartool.c
+Hunk #1 succeeded at 1731 (offset 1 line).
+Hunk #2 succeeded at 1749 (offset 1 line).
+Hunk #3 succeeded at 1779 (offset 1 line).
+Hunk #4 succeeded at 1796 (offset 1 line).
+Hunk #5 succeeded at 1808 (offset 1 line).
+Hunk #6 succeeded at 1892 (offset 1 line).
