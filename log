@@ -1310,3 +1310,19 @@ patching file gcc/testsuite/gcc.target/i386/stack-check-11.c
 ------- APPLYING gcc48-rh1469697-8.patch ---------
 patching file gcc/explow.c
 patching file gcc/testsuite/gcc.target/i386/stack-check-11.c
+[oracle/gcc/el7-u9 b982f50] gcc48-rh1469697-8.patch
+ 3 files changed, 20 insertions(+), 10 deletions(-)
+1310 gcc48-rh1469697-9.patch -p1
+------- APPLYING gcc48-rh1469697-9.patch ---------
+patching file gcc/config/s390/s390.c
+Hunk #1 succeeded at 10383 (offset 33 lines).
+Hunk #2 succeeded at 10602 (offset 33 lines).
+Hunk #3 succeeded at 10624 (offset 33 lines).
+Hunk #4 succeeded at 10648 (offset 33 lines).
+Hunk #5 succeeded at 10663 (offset 33 lines).
+Hunk #6 succeeded at 10687 (offset 33 lines).
+Hunk #7 succeeded at 10708 (offset 33 lines).
+Hunk #8 succeeded at 10777 (offset 33 lines).
+Hunk #9 succeeded at 10830 (offset 33 lines).
+patching file gcc/testsuite/gcc.dg/stack-check-5.c
+patching file gcc/testsuite/lib/target-supports.exp
