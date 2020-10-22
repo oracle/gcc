@@ -1448,3 +1448,13 @@ patching file gcc/testsuite/gcc.target/i386/stack-check-19.c
 patching file gcc/config/rs6000/rs6000.md
 Hunk #1 succeeded at 11908 (offset 2125 lines).
 Hunk #2 succeeded at 11921 (offset 2125 lines).
+[oracle/gcc/el7-u9 0f237fe] gcc48-rh1537828-1.patch
+ 2 files changed, 11 insertions(+), 6 deletions(-)
+1326 gcc48-rh1537828-2.patch -p1
+------- APPLYING gcc48-rh1537828-2.patch ---------
+patching file gcc/config/i386/i386.c
+Hunk #1 succeeded at 9029 (offset -342 lines).
+Hunk #2 succeeded at 9215 (offset -342 lines).
+Hunk #3 succeeded at 9859 (offset -342 lines).
+Hunk #4 succeeded at 10730 (offset -342 lines).
+patching file gcc/testsuite/gcc.target/i386/pr83994.c
