@@ -826,3 +826,10 @@ patching file gcc/doc/invoke.texi
 Hunk #2 succeeded at 18299 (offset 2 lines).
 patching file gcc/testsuite/gcc.target/powerpc/ssp-1.c
 patching file gcc/testsuite/gcc.target/powerpc/ssp-2.c
+[oracle/gcc/el7-u9 36c274c] gcc48-pr78875.patch
+ 8 files changed, 157 insertions(+), 21 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.target/powerpc/ssp-1.c
+ create mode 100644 gcc/testsuite/gcc.target/powerpc/ssp-2.c
+50 gcc48-rh1402585.patch -p0
+------- APPLYING gcc48-rh1402585.patch ---------
+patching file gcc/reload.c
