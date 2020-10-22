@@ -1495,3 +1495,15 @@ patching file gcc/testsuite/gcc.target/i386/pr84128.c
 ------- APPLYING gcc48-rh1537828-5.patch ---------
 patching file gcc/explow.c
 patching file gcc/testsuite/gcc.target/arm/pr85173.c
+[oracle/gcc/el7-u9 72ce3c9] gcc48-rh1537828-5.patch
+ 3 files changed, 35 insertions(+), 1 deletion(-)
+ create mode 100644 gcc/testsuite/gcc.target/arm/pr85173.c
+1401 gcc48-rh1537828-10.patch -p1
+------- APPLYING gcc48-rh1537828-10.patch ---------
+patching file gcc/testsuite/gcc.dg/stack-check-5.c
+patching file gcc/testsuite/gcc.dg/stack-check-6.c
+patching file gcc/testsuite/gcc.dg/stack-check-6a.c
+patching file gcc/testsuite/gcc.target/i386/stack-check-11.c
+patching file gcc/testsuite/gcc.target/i386/stack-check-17.c
+patching file gcc/testsuite/gcc.target/i386/stack-check-18.c
+patching file gcc/testsuite/gcc.target/i386/stack-check-19.c
