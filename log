@@ -646,3 +646,11 @@ patching file libstdc++-v3/src/c++11/random.cc
 patching file gcc/combine.c
 patching file gcc/testsuite/gcc.c-torture/compile/pr52714.c
 patching file gcc/testsuite/gcc.c-torture/compile/20160615-1.c
+[oracle/gcc/el7-u9 9c73340] gcc48-pr52714.patch
+ 4 files changed, 48 insertions(+)
+ create mode 100644 gcc/testsuite/gcc.c-torture/compile/20160615-1.c
+ create mode 100644 gcc/testsuite/gcc.c-torture/compile/pr52714.c
+35 gcc48-rh1344807.patch -p0
+------- APPLYING gcc48-rh1344807.patch ---------
+patching file gcc/cp/call.c
+patching file gcc/testsuite/g++.dg/cpp0x/ref-qual17.C
