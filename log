@@ -1100,3 +1100,11 @@ Hunk #1 succeeded at 1950 (offset -108 lines).
 patching file gcc/c/c-typeck.c
 Hunk #1 succeeded at 6807 (offset -463 lines).
 patching file gcc/testsuite/gcc.dg/pr60784.c
+[oracle/gcc/el7-u9 7ade544] gcc48-pr60784.patch
+ 3 files changed, 35 insertions(+)
+ create mode 100644 gcc/testsuite/gcc.dg/pr60784.c
+82 gcc48-pr53658.patch -p0
+------- APPLYING gcc48-pr53658.patch ---------
+patching file gcc/cp/pt.c
+Hunk #1 succeeded at 7574 (offset 13 lines).
+patching file gcc/testsuite/g++.dg/cpp0x/alias-decl-36.C
