@@ -1,0 +1,18 @@
+TODOs for FastJar
+-----------------
+
+* add pb_read_fully function.
+
+* add doxygen documentation.
+
+* turn on-stack arrays into dynamically allocated ones.
+
+* indexing should also work with several jars.
+
+* add pscan, rats, flawfinder & splint support to distcheck.
+
+* add many more gcc warnings to build.
+
+* add autotest based testsuite for cxtui operations & the CVE issue.
+
+* eventually: use autogen for option parsing? use glib? use zzlib? use libjar from firefox?

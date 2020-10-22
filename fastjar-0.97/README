@@ -1,0 +1,95 @@
+FastJar 0.97
+=============================
+
+FastJar is an attempt at creating a feature-for-feature copy of Sun's JDK's
+'jar' command.  Sun's jar (or Blackdown's for that matter) is written entirely
+in Java which makes it dog slow.  Since FastJar is written in C, it can create
+the same .jar file as Sun's tool in a fraction of the time.  
+
+History
+=======
+
+FastJar was written by Brian Burns, toast@users.sourceforge.net. It was merged
+into gcc, and eventually merged out of gcc in 2006. 
+
+This code is hosted on Savannah at http://savannah.nongnu.org/projects/fastjar/. 
+Brian's original project is hosted on SourceForge, at http://fastjar.sf.net/.
+
+Motivation
+==========
+
+"The reason I wrote fastjar is that building .jar files is a regular process
+of the build where I work.  The way we have it setup, you have to re-create
+the .jar file everytime you want to test it out, which is about every 5 minutes
+when I'm busy coding.  The .jar file wasn't -that- big, but it did take about
+30 seconds to be made, and watching all the garbage collection messages was
+pretty irritating as well.  I probably wasted a half-hour a day watching
+Sun's jar tool chug along.  By writing the program in C, I spend much less time
+banging my head against the monitor waiting for the build to finish.  Yay!"
+
+Requirements
+============
+
+FastJar has been tested on Solaris and Linux 2.2.x systems and nothing else. 
+It should compile/run without any problems on either system, provided you have
+zlib installed.  
+
+Platforms
+=========
+
+i586-pc-minw32
+--------------
+In order to build FastJar without a Cygwin DLL dependency from Cygwin's
+shell, please set the flags
+
+	CFLAGS=-mno-cygwin 
+	CPPFLAGS=-mno-cygwin 
+	CXXFLAGS=-mno-cygwin
+
+when calling the configure script.
+
+Bug Reports
+===========
+
+Please submit bug reports to the fastjar bugtracker at 
+http://savannah.nongnu.org/bugs/?group=fastjar.
+
+Compression will slow things down quite a bit.  A 10MB jar file takes about
+1 second on my machine without compression, and 9 seconds with it.  If you
+want fastjar to be fast, use the -0 (zero, not O) flag to turn off compression.
+
+Supported flags:
+--------------------------
+-c     | create a new archive
+-v     | verbose output
+-f     | specify archive file name
+-m     | specify existing manifest file
+-M     | don't create manifest
+-0     | store only
+-C     | change to dir
+-t     | list contents
+-u     | update exisiting archive
+-x     | extract contents
+@FILE  | treat contents of FILE as additonal options
+
+Unsupported flags:
+----------------------------
+-J     | Pass an option to a JVM
+
+If you use the "unsupported" flags, nothing bad will happen, but then again
+nothing will happen at all.  
+
+
+Unsupported features (in this release):
+---------------------------------------------
+  * full manifest support (?)
+
+Order or features for the future:
+--------------------------------------------
+  * full manifest support
+  * filtering
+  * dependency checking
+
+
+===========================================================================
+http://savannah.nongnu.org/projects/fastjar/
