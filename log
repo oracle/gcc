@@ -1042,3 +1042,9 @@ patching file gcc/ipa-inline.h
 73 gcc48-rh1655148.patch -p1
 ------- APPLYING gcc48-rh1655148.patch ---------
 patching file gcc/cfgexpand.c
+[oracle/gcc/el7-u9 8b19a46] gcc48-rh1655148.patch
+ 2 files changed, 14 insertions(+)
+74 gcc48-pr63442.patch -p0
+------- APPLYING gcc48-pr63442.patch ---------
+patching file gcc/optabs.c
+Hunk #1 succeeded at 4235 (offset -59 lines).
