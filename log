@@ -423,3 +423,10 @@ patching file gcc/config/rs6000/htm.md
 patching file gcc/config/rs6000/rs6000-c.c
 Hunk #1 succeeded at 351 (offset -21 lines).
 patching file gcc/testsuite/gcc.target/powerpc/htm-tabort-no-r0.c
+[oracle/gcc/el7-u9 2254884] gcc48-pr67281.patch
+ 5 files changed, 208 insertions(+), 25 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.target/powerpc/htm-tabort-no-r0.c
+26 gcc48-pr68680.patch -p0
+------- APPLYING gcc48-pr68680.patch ---------
+patching file gcc/calls.c
+patching file gcc/testsuite/gcc.target/i386/pr68680.c

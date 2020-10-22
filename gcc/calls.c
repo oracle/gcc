@@ -564,6 +564,17 @@ special_function_p (const_tree fndecl, int flags)
 	flags |= ECF_NORETURN;
     }
 
+  if (DECL_BUILT_IN_CLASS (fndecl) == BUILT_IN_NORMAL)
+    switch (DECL_FUNCTION_CODE (fndecl))
+      {
+      case BUILT_IN_ALLOCA:
+      case BUILT_IN_ALLOCA_WITH_ALIGN:
+	flags |= ECF_MAY_BE_ALLOCA;
+	break;
+      default:
+	break;
+      }
+
   return flags;
 }
 
