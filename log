@@ -746,3 +746,10 @@ patching file libgcc/unwind-c.c
 patching file libstdc++-v3/libsupc++/eh_ptr.cc
 Hunk #1 succeeded at 217 (offset -28 lines).
 patching file libstdc++-v3/testsuite/18_support/exception_ptr/62258.cc
+[oracle/gcc/el7-u9 8273ddd] gcc48-pr62258.patch
+ 3 files changed, 71 insertions(+)
+ create mode 100644 libstdc++-v3/testsuite/18_support/exception_ptr/62258.cc
+41 gcc48-rh1369183.patch -p0
+------- APPLYING gcc48-rh1369183.patch ---------
+patching file gcc/fortran/interface.c
+patching file gcc/testsuite/gfortran.dg/rh1369183.f90

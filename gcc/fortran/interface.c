@@ -418,6 +418,13 @@ gfc_compare_derived_types (gfc_symbol *derived1, gfc_symbol *derived2)
       && !(derived1->attr.is_bind_c && derived2->attr.is_bind_c))
     return 0;
 
+  /* Protect against null components.  */
+  if (derived1->attr.zero_comp != derived2->attr.zero_comp)
+    return 0;
+
+  if (derived1->attr.zero_comp)
+    return 1;
+
   dt1 = derived1->components;
   dt2 = derived2->components;
 
