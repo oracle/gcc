@@ -1702,3 +1702,21 @@ Hunk #3 succeeded at 14609 (offset 66 lines).
 Hunk #4 succeeded at 14770 (offset 66 lines).
 Hunk #5 succeeded at 14995 (offset 66 lines).
 patching file gcc/testsuite/gcc.target/i386/indirect-thunk-register-4.c
+[oracle/gcc/el7-u9 eade9a3] gcc48-rh1535655-5.patch
+ 3 files changed, 39 insertions(+), 1 deletion(-)
+ create mode 100644 gcc/testsuite/gcc.target/i386/indirect-thunk-register-4.c
+1407 gcc48-rh1535655-6.patch -p1
+------- APPLYING gcc48-rh1535655-6.patch ---------
+patching file gcc/config/i386/i386.c
+patching file gcc/doc/invoke.texi
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-10.c
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-8.c
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-9.c
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-attr-10.c
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-attr-11.c
+patching file gcc/testsuite/gcc.target/i386/indirect-thunk-attr-9.c
+patching file gcc/testsuite/gcc.target/i386/ret-thunk-17.c
+patching file gcc/testsuite/gcc.target/i386/ret-thunk-18.c
+patching file gcc/testsuite/gcc.target/i386/ret-thunk-19.c
+patching file gcc/testsuite/gcc.target/i386/ret-thunk-20.c
+patching file gcc/testsuite/gcc.target/i386/ret-thunk-21.c
