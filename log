@@ -254,3 +254,10 @@ Hunk #2 succeeded at 49 (offset -2 lines).
 patching file gcc/dwarf2out.c
 Hunk #1 succeeded at 16129 (offset 20 lines).
 Hunk #2 succeeded at 18948 (offset 24 lines).
+[oracle/gcc/el7-u9 2527278] gcc48-pr38757.patch
+ 5 files changed, 45 insertions(+), 4 deletions(-)
+12 gcc48-libstdc++-docs.patch -p0
+------- APPLYING gcc48-libstdc++-docs.patch ---------
+patching file libstdc++-v3/doc/html/index.html
+Hunk #1 succeeded at 4 (offset -1 lines).
+patching file libstdc++-v3/doc/html/api.html
