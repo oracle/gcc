@@ -12461,6 +12461,7 @@ fold_binary_loc (location_t loc,
 
       /* Turn (a OP c1) OP c2 into a OP (c1+c2).  */
       if (TREE_CODE (op0) == code && host_integerp (arg1, false)
+	  && TREE_CODE (type) != VECTOR_TYPE
 	  && TREE_INT_CST_LOW (arg1) < TYPE_PRECISION (type)
 	  && host_integerp (TREE_OPERAND (arg0, 1), false)
 	  && TREE_INT_CST_LOW (TREE_OPERAND (arg0, 1)) < TYPE_PRECISION (type))
@@ -12491,6 +12492,7 @@ fold_binary_loc (location_t loc,
            || (TYPE_UNSIGNED (type)
 	       && code == RSHIFT_EXPR && TREE_CODE (arg0) == LSHIFT_EXPR))
 	  && host_integerp (arg1, false)
+	  && TREE_CODE (type) != VECTOR_TYPE
 	  && TREE_INT_CST_LOW (arg1) < TYPE_PRECISION (type)
 	  && host_integerp (TREE_OPERAND (arg0, 1), false)
 	  && TREE_INT_CST_LOW (TREE_OPERAND (arg0, 1)) < TYPE_PRECISION (type))
@@ -12513,7 +12515,8 @@ fold_binary_loc (location_t loc,
 
       /* Rewrite an LROTATE_EXPR by a constant into an
 	 RROTATE_EXPR by a new constant.  */
-      if (code == LROTATE_EXPR && TREE_CODE (arg1) == INTEGER_CST)
+      if (code == LROTATE_EXPR && TREE_CODE (arg1) == INTEGER_CST
+	  && TREE_CODE (type) != VECTOR_TYPE)
 	{
 	  tree tem = build_int_cst (TREE_TYPE (arg1),
 				    TYPE_PRECISION (type));
@@ -12538,6 +12541,7 @@ fold_binary_loc (location_t loc,
       /* Two consecutive rotates adding up to the precision of the
 	 type can be ignored.  */
       if (code == RROTATE_EXPR && TREE_CODE (arg1) == INTEGER_CST
+	  && TREE_CODE (type) != VECTOR_TYPE
 	  && TREE_CODE (arg0) == RROTATE_EXPR
 	  && TREE_CODE (TREE_OPERAND (arg0, 1)) == INTEGER_CST
 	  && TREE_INT_CST_HIGH (arg1) == 0

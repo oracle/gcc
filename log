@@ -1123,3 +1123,9 @@ Hunk #4 succeeded at 1525 (offset 4 lines).
 Hunk #5 succeeded at 1567 (offset 4 lines).
 Hunk #6 succeeded at 1606 (offset 4 lines).
 Hunk #7 succeeded at 1631 (offset 4 lines).
+[oracle/gcc/el7-u9 36c1c9b] gcc48-aarch64-pauth.patch
+ 5 files changed, 135 insertions(+), 4 deletions(-)
+ create mode 100644 libgcc/config/aarch64/aarch64-unwind.h
+84 gcc48-rh1740539.patch -p0
+------- APPLYING gcc48-rh1740539.patch ---------
+patching file gcc/fold-const.c
