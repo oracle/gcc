@@ -969,6 +969,199 @@ aarch64_function_ok_for_sibcall (tree decl, tree exp ATTRIBUTE_UNUSED)
   return true;
 }
 
+static int
+aarch64_internal_mov_immediate (rtx dest, rtx imm, bool generate,
+				enum machine_mode mode)
+{
+  int i;
+  unsigned HOST_WIDE_INT val, val2, mask;
+  int one_match, zero_match;
+  int num_insns;
+
+  val = INTVAL (imm);
+
+  if (aarch64_move_imm (val, mode))
+    {
+      if (generate)
+	emit_insn (gen_rtx_SET (VOIDmode, dest, imm));
+      return 1;
+    }
+
+  /* Check to see if the low 32 bits are either 0xffffXXXX or 0xXXXXffff
+     (with XXXX non-zero). In that case check to see if the move can be done in
+     a smaller mode.  */
+  val2 = val & 0xffffffff;
+  if (mode == DImode
+      && aarch64_move_imm (val2, SImode)
+      && (((val >> 32) & 0xffff) == 0 || (val >> 48) == 0))
+    {
+      if (generate)
+	emit_insn (gen_rtx_SET (VOIDmode, dest, GEN_INT (val2)));
+
+      /* Check if we have to emit a second instruction by checking to see
+         if any of the upper 32 bits of the original DI mode value is set.  */
+      if (val == val2)
+	return 1;
+
+      i = (val >> 48) ? 48 : 32;
+
+      if (generate)
+	 emit_insn (gen_insv_immdi (dest, GEN_INT (i),
+				    GEN_INT ((val >> i) & 0xffff)));
+
+      return 2;
+    }
+
+  if ((val >> 32) == 0 || mode == SImode)
+    {
+      if (generate)
+	{
+	  emit_insn (gen_rtx_SET (VOIDmode, dest, GEN_INT (val & 0xffff)));
+	  if (mode == SImode)
+	    emit_insn (gen_insv_immsi (dest, GEN_INT (16),
+				       GEN_INT ((val >> 16) & 0xffff)));
+	  else
+	    emit_insn (gen_insv_immdi (dest, GEN_INT (16),
+				       GEN_INT ((val >> 16) & 0xffff)));
+	}
+      return 2;
+    }
+
+  /* Remaining cases are all for DImode.  */
+
+  mask = 0xffff;
+  zero_match = ((val & mask) == 0) + ((val & (mask << 16)) == 0) +
+    ((val & (mask << 32)) == 0) + ((val & (mask << 48)) == 0);
+  one_match = ((~val & mask) == 0) + ((~val & (mask << 16)) == 0) +
+    ((~val & (mask << 32)) == 0) + ((~val & (mask << 48)) == 0);
+
+  if (zero_match != 2 && one_match != 2)
+    {
+      /* Try emitting a bitmask immediate with a movk replacing 16 bits.
+	 For a 64-bit bitmask try whether changing 16 bits to all ones or
+	 zeroes creates a valid bitmask.  To check any repeated bitmask,
+	 try using 16 bits from the other 32-bit half of val.  */
+
+      for (i = 0; i < 64; i += 16, mask <<= 16)
+	{
+	  val2 = val & ~mask;
+	  if (val2 != val && aarch64_bitmask_imm (val2, mode))
+	    break;
+	  val2 = val | mask;
+	  if (val2 != val && aarch64_bitmask_imm (val2, mode))
+	    break;
+	  val2 = val2 & ~mask;
+	  val2 = val2 | (((val2 >> 32) | (val2 << 32)) & mask);
+	  if (val2 != val && aarch64_bitmask_imm (val2, mode))
+	    break;
+	}
+      if (i != 64)
+	{
+	  if (generate)
+	    {
+	      emit_insn (gen_rtx_SET (VOIDmode, dest, GEN_INT (val2)));
+	      emit_insn (gen_insv_immdi (dest, GEN_INT (i),
+					 GEN_INT ((val >> i) & 0xffff)));
+	    }
+	  return 2;
+	}
+    }
+
+  /* Generate 2-4 instructions, skipping 16 bits of all zeroes or ones which
+     are emitted by the initial mov.  If one_match > zero_match, skip set bits,
+     otherwise skip zero bits.  */
+
+  num_insns = 1;
+  mask = 0xffff;
+  val2 = one_match > zero_match ? ~val : val;
+  i = (val2 & mask) != 0 ? 0 : (val2 & (mask << 16)) != 0 ? 16 : 32;
+
+  if (generate)
+    emit_insn (gen_rtx_SET (VOIDmode, dest, GEN_INT (one_match > zero_match
+					   ? (val | ~(mask << i))
+					   : (val & (mask << i)))));
+  for (i += 16; i < 64; i += 16)
+    {
+      if ((val2 & (mask << i)) == 0)
+	continue;
+      if (generate)
+	emit_insn (gen_insv_immdi (dest, GEN_INT (i),
+				   GEN_INT ((val >> i) & 0xffff)));
+      num_insns ++;
+    }
+
+  return num_insns;
+}
+
+/* Add DELTA to REGNUM in mode MODE.  SCRATCHREG can be used to hold a
+   temporary value if necessary.  FRAME_RELATED_P should be true if
+   the RTX_FRAME_RELATED flag should be set and CFA adjustments added
+   to the generated instructions.  If SCRATCHREG is known to hold
+   abs (delta), EMIT_MOVE_IMM can be set to false to avoid emitting the
+   immediate again.
+
+   Since this function may be used to adjust the stack pointer, we must
+   ensure that it cannot cause transient stack deallocation (for example
+   by first incrementing SP and then decrementing when adjusting by a
+   large immediate).  */
+
+static void
+aarch64_add_constant_internal (enum machine_mode mode, int regnum,
+			       int scratchreg, HOST_WIDE_INT delta,
+			       bool frame_related_p, bool emit_move_imm)
+{
+  HOST_WIDE_INT mdelta = abs_hwi (delta);
+  rtx this_rtx = gen_rtx_REG (mode, regnum);
+  rtx insn;
+
+  if (!mdelta)
+    return;
+
+  /* Single instruction adjustment.  */
+  if (aarch64_uimm12_shift (mdelta))
+    {
+      insn = emit_insn (gen_add2_insn (this_rtx, GEN_INT (delta)));
+      RTX_FRAME_RELATED_P (insn) = frame_related_p;
+      return;
+    }
+
+  /* Emit 2 additions/subtractions if the adjustment is less than 24 bits.
+     Only do this if mdelta is not a 16-bit move as adjusting using a move
+     is better.  */
+  if (mdelta < 0x1000000 && !aarch64_move_imm (mdelta, mode))
+    {
+      HOST_WIDE_INT low_off = mdelta & 0xfff;
+
+      low_off = delta < 0 ? -low_off : low_off;
+      insn = emit_insn (gen_add2_insn (this_rtx, GEN_INT (low_off)));
+      RTX_FRAME_RELATED_P (insn) = frame_related_p;
+      insn = emit_insn (gen_add2_insn (this_rtx, GEN_INT (delta - low_off)));
+      RTX_FRAME_RELATED_P (insn) = frame_related_p;
+      return;
+    }
+
+  /* Emit a move immediate if required and an addition/subtraction.  */
+  rtx scratch_rtx = gen_rtx_REG (mode, scratchreg);
+  if (emit_move_imm)
+    aarch64_internal_mov_immediate (scratch_rtx, GEN_INT (mdelta), true, mode);
+  insn = emit_insn (delta < 0 ? gen_sub2_insn (this_rtx, scratch_rtx)
+			      : gen_add2_insn (this_rtx, scratch_rtx));
+  if (frame_related_p)
+    {
+      RTX_FRAME_RELATED_P (insn) = frame_related_p;
+      rtx adj = plus_constant (mode, this_rtx, delta);
+      add_reg_note (insn , REG_CFA_ADJUST_CFA,
+		    gen_rtx_SET (VOIDmode, this_rtx, adj));
+    }
+}
+
+static inline void
+aarch64_sub_sp (int scratchreg, HOST_WIDE_INT delta, bool frame_related_p)
+{
+  aarch64_add_constant_internal (Pmode, SP_REGNUM, scratchreg, -delta,
+				 frame_related_p, true);
+}
+
 /* Implement TARGET_PASS_BY_REFERENCE.  */
 
 static bool
@@ -1474,6 +1667,47 @@ static enum machine_mode
 aarch64_libgcc_cmp_return_mode (void)
 {
   return SImode;
+}
+
+#define PROBE_INTERVAL (1 << STACK_CHECK_PROBE_INTERVAL_EXP)
+
+/* We use the 12-bit shifted immediate arithmetic instructions so values
+   must be multiple of (1 << 12), i.e. 4096.  */
+#define ARITH_FACTOR 4096
+
+/* Probe a range of stack addresses from REG1 to REG2 inclusive.  These are
+   absolute addresses.  */
+
+const char *
+aarch64_output_probe_stack_range (rtx reg1, rtx reg2)
+{
+  static int labelno = 0;
+  char loop_lab[32];
+  rtx xops[2];
+
+  ASM_GENERATE_INTERNAL_LABEL (loop_lab, "LPSRL", labelno++);
+
+  /* Loop.  */
+  ASM_OUTPUT_INTERNAL_LABEL (asm_out_file, loop_lab);
+
+  /* TEST_ADDR = TEST_ADDR + PROBE_INTERVAL.  */
+  xops[0] = reg1;
+  xops[1] = GEN_INT (PROBE_INTERVAL);
+  output_asm_insn ("sub\t%0, %0, %1", xops);
+
+  /* Probe at TEST_ADDR.  */
+  output_asm_insn ("str\txzr, [%0]", xops);
+
+  /* Test if TEST_ADDR == LAST_ADDR.  */
+  xops[1] = reg2;
+  output_asm_insn ("cmp\t%0, %1", xops);
+
+  /* Branch.  */
+  fputs ("\tb.ne\t", asm_out_file);
+  assemble_name_raw (asm_out_file, loop_lab);
+  fputc ('\n', asm_out_file);
+
+  return "";
 }
 
 static bool

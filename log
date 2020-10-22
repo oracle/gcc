@@ -1360,3 +1360,10 @@ patching file gcc/testsuite/gcc.dg/stack-check-6a.c
 1314 gcc48-rh1469697-13.patch -p1
 ------- APPLYING gcc48-rh1469697-13.patch ---------
 patching file gcc/config/i386/i386.c
+[oracle/gcc/el7-u9 6ae8d37] gcc48-rh1469697-13.patch
+ 2 files changed, 11 insertions(+), 2 deletions(-)
+1315 gcc48-rh1469697-14.patch -p1
+------- APPLYING gcc48-rh1469697-14.patch ---------
+patching file gcc/config/aarch64/aarch64-protos.h
+patching file gcc/config/aarch64/aarch64.c
+patching file gcc/config/aarch64/aarch64.md
