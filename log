@@ -413,3 +413,13 @@ patching file libitm/query.cc
 24 gcc48-rh1278872.patch -p0
 ------- APPLYING gcc48-rh1278872.patch ---------
 patching file gcc/dwarf2out.c
+[oracle/gcc/el7-u9 2518c80] gcc48-rh1278872.patch
+ 2 files changed, 35 insertions(+), 16 deletions(-)
+25 gcc48-pr67281.patch -p0
+------- APPLYING gcc48-pr67281.patch ---------
+patching file gcc/doc/extend.texi
+Hunk #1 succeeded at 14573 (offset -1519 lines).
+patching file gcc/config/rs6000/htm.md
+patching file gcc/config/rs6000/rs6000-c.c
+Hunk #1 succeeded at 351 (offset -21 lines).
+patching file gcc/testsuite/gcc.target/powerpc/htm-tabort-no-r0.c
