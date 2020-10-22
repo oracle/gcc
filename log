@@ -367,3 +367,11 @@ patching file libgo/go/crypto/ecdsa/ecdsa_test.go
 patching file libgo/go/crypto/x509/x509.go
 patching file libgo/go/crypto/elliptic/p224.go
 patching file libgo/go/crypto/elliptic/p224_test.go
+[oracle/gcc/el7-u9 306cb86] gcc48-libgo-p224.patch
+ 9 files changed, 63 insertions(+), 1231 deletions(-)
+ rewrite libgo/go/crypto/elliptic/elliptic_test.go (92%)
+ rewrite libgo/go/crypto/elliptic/p224.go (100%)
+ rewrite libgo/go/crypto/elliptic/p224_test.go (100%)
+18 gcc48-pr60010.patch -p0
+------- APPLYING gcc48-pr60010.patch ---------
+patching file gcc/config/host-linux.c
