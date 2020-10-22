@@ -1015,3 +1015,11 @@ patching file gcc/testsuite/gcc.target/s390/nodatarel-1.c
 patching file libstdc++-v3/include/bits/fstream.tcc
 Hunk #1 succeeded at 613 (offset -86 lines).
 patching file libstdc++-v3/testsuite/27_io/basic_filebuf/sgetn/char/81395.cc
+[oracle/gcc/el7-u9 0855d3c] gcc48-pr81395.patch
+ 3 files changed, 55 insertions(+), 1 deletion(-)
+ create mode 100644 libstdc++-v3/testsuite/27_io/basic_filebuf/sgetn/char/81395.cc
+70 gcc48-pr72717.patch -p0
+------- APPLYING gcc48-pr72717.patch ---------
+patching file gcc/testsuite/gcc.target/powerpc/pr72717.c
+patching file gcc/config/rs6000/rs6000.c
+Hunk #1 succeeded at 5657 (offset -1010 lines).
