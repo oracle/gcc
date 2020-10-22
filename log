@@ -175,3 +175,10 @@ Hunk #1 succeeded at 141 (offset 59 lines).
 patching file libjava/configure
 Hunk #1 succeeded at 1621 (offset 600 lines).
 Hunk #2 succeeded at 3381 (offset 1406 lines).
+[oracle/gcc/el7-u9 110a778] gcc48-java-nomulti.patch
+ 3 files changed, 30 insertions(+)
+3 gcc48-ppc32-retaddr.patch -p0
+------- APPLYING gcc48-ppc32-retaddr.patch ---------
+patching file gcc/config/rs6000/rs6000.c
+Hunk #1 succeeded at 21859 (offset 436 lines).
+patching file gcc/testsuite/gcc.dg/20051128-1.c

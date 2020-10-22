@@ -21859,18 +21859,22 @@ rs6000_return_addr (int count, rtx frame)
   if (count != 0
       || ((DEFAULT_ABI == ABI_V4 || DEFAULT_ABI == ABI_DARWIN) && flag_pic))
     {
+      rtx x;
       cfun->machine->ra_needs_full_frame = 1;
 
-      return
-	gen_rtx_MEM
-	  (Pmode,
-	   memory_address
-	   (Pmode,
-	    plus_constant (Pmode,
-			   copy_to_reg
-			   (gen_rtx_MEM (Pmode,
-					 memory_address (Pmode, frame))),
-			   RETURN_ADDRESS_OFFSET)));
+      if (count == 0)
+	{
+	  gcc_assert (frame == frame_pointer_rtx);
+	  x = arg_pointer_rtx;
+	}
+      else
+	{
+	  x = memory_address (Pmode, frame);
+	  x = copy_to_reg (gen_rtx_MEM (Pmode, x));
+	}
+
+      x = plus_constant (Pmode, x, RETURN_ADDRESS_OFFSET);
+      return gen_rtx_MEM (Pmode, memory_address (Pmode, x));
     }
 
   cfun->machine->ra_need_lr = 1;
