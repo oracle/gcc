@@ -430,3 +430,11 @@ patching file gcc/testsuite/gcc.target/powerpc/htm-tabort-no-r0.c
 ------- APPLYING gcc48-pr68680.patch ---------
 patching file gcc/calls.c
 patching file gcc/testsuite/gcc.target/i386/pr68680.c
+[oracle/gcc/el7-u9 47a0c33] gcc48-pr68680.patch
+ 3 files changed, 33 insertions(+)
+ create mode 100644 gcc/testsuite/gcc.target/i386/pr68680.c
+27 gcc48-rh1312436.patch -p0
+------- APPLYING gcc48-rh1312436.patch ---------
+patching file gcc/dwarf2out.c
+Hunk #1 succeeded at 18074 (offset 23 lines).
+Hunk #2 succeeded at 20874 (offset 27 lines).
