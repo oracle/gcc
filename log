@@ -1053,3 +1053,10 @@ Hunk #1 succeeded at 4235 (offset -59 lines).
 75 gcc48-rh1659698.patch -p0
 ------- APPLYING gcc48-rh1659698.patch ---------
 patching file libitm/config/powerpc/target.h
+[oracle/gcc/el7-u9 c009e8d] gcc48-rh1659698.patch
+ 2 files changed, 19 insertions(+), 1 deletion(-)
+76 gcc48-pr69891.patch -p0
+------- APPLYING gcc48-pr69891.patch ---------
+patching file gcc/testsuite/gcc.target/i386/pr69891.c
+patching file gcc/dse.c
+Hunk #1 succeeded at 2649 (offset 67 lines).
