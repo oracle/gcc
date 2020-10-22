@@ -408,3 +408,8 @@ patching file libitm/config/posix/rwlock.cc
 patching file libitm/libitm_i.h
 patching file libitm/method-serial.cc
 patching file libitm/query.cc
+[oracle/gcc/el7-u9 25ad09c2] gcc48-rh1180633.patch
+ 8 files changed, 120 insertions(+), 41 deletions(-)
+24 gcc48-rh1278872.patch -p0
+------- APPLYING gcc48-rh1278872.patch ---------
+patching file gcc/dwarf2out.c
