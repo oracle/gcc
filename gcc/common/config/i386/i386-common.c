@@ -98,6 +98,7 @@ along with GCC; see the file COPYING3.  If not see
 #define OPTION_MASK_ISA_RDRND_SET OPTION_MASK_ISA_RDRND
 #define OPTION_MASK_ISA_F16C_SET \
   (OPTION_MASK_ISA_F16C | OPTION_MASK_ISA_AVX_SET)
+#define OPTION_MASK_ISA_PKU_SET OPTION_MASK_ISA_PKU
 
 /* Define a set of ISAs which aren't available when a given ISA is
    disabled.  MMX and SSE ISAs are handled separately.  */
@@ -164,6 +165,7 @@ along with GCC; see the file COPYING3.  If not see
 #define OPTION_MASK_ISA_FSGSBASE_UNSET OPTION_MASK_ISA_FSGSBASE
 #define OPTION_MASK_ISA_RDRND_UNSET OPTION_MASK_ISA_RDRND
 #define OPTION_MASK_ISA_F16C_UNSET OPTION_MASK_ISA_F16C
+#define OPTION_MASK_ISA_PKU_UNSET OPTION_MASK_ISA_PKU
 
 /* Implement TARGET_HANDLE_OPTION.  */
 
@@ -656,6 +658,19 @@ ix86_handle_option (struct gcc_options *opts,
 	{
 	  opts->x_ix86_isa_flags &= ~OPTION_MASK_ISA_ADX_UNSET;
 	  opts->x_ix86_isa_flags_explicit |= OPTION_MASK_ISA_ADX_UNSET;
+	}
+      return true;
+
+    case OPT_mpku:
+      if (value)
+	{
+	  opts->x_ix86_isa_flags |= OPTION_MASK_ISA_PKU_SET;
+	  opts->x_ix86_isa_flags_explicit |= OPTION_MASK_ISA_PKU_SET;
+	}
+      else
+	{
+	  opts->x_ix86_isa_flags &= ~OPTION_MASK_ISA_PKU_UNSET;
+	  opts->x_ix86_isa_flags_explicit |= OPTION_MASK_ISA_PKU_UNSET;
 	}
       return true;
 

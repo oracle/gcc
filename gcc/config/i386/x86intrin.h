@@ -119,4 +119,8 @@
 
 #include <adxintrin.h>
 
+#ifdef __PKU__
+#include <pkuintrin.h>
+#endif
+
 #endif /* _X86INTRIN_H_INCLUDED */

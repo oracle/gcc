@@ -452,3 +452,32 @@ patching file libstdc++-v3/testsuite/libstdc++-prettyprinters/cxx11.cc
 ------- APPLYING gcc48-rh1296211.patch ---------
 patching file gcc/config/rs6000/sysv4.h
 Hunk #1 succeeded at 573 (offset -1 lines).
+[oracle/gcc/el7-u9 9720585] gcc48-rh1296211.patch
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+30 gcc48-rh1304449.patch -p0
+------- APPLYING gcc48-rh1304449.patch ---------
+patching file gcc/config.gcc
+patching file gcc/common/config/i386/i386-common.c
+patching file gcc/config/i386/i386.h
+patching file gcc/config/i386/i386.md
+patching file gcc/config/i386/pkuintrin.h
+patching file gcc/config/i386/cpuid.h
+patching file gcc/config/i386/x86intrin.h
+patching file gcc/config/i386/i386-c.c
+patching file gcc/config/i386/i386.opt
+patching file gcc/config/i386/driver-i386.c
+patching file gcc/config/i386/i386.c
+Hunk #5 succeeded at 27052 (offset 4 lines).
+Hunk #6 succeeded at 27371 (offset 4 lines).
+patching file gcc/doc/extend.texi
+patching file gcc/doc/invoke.texi
+Hunk #2 succeeded at 14325 (offset -1 lines).
+Hunk #3 succeeded at 14337 (offset -1 lines).
+patching file gcc/testsuite/gcc.target/i386/sse-12.c
+patching file gcc/testsuite/gcc.target/i386/sse-13.c
+patching file gcc/testsuite/gcc.target/i386/sse-22.c
+patching file gcc/testsuite/gcc.target/i386/sse-23.c
+patching file gcc/testsuite/gcc.target/i386/rdpku-1.c
+patching file gcc/testsuite/gcc.target/i386/wrpku-1.c
+patching file gcc/testsuite/g++.dg/other/i386-2.C
+patching file gcc/testsuite/g++.dg/other/i386-3.C

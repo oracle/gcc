@@ -408,6 +408,7 @@ const char *host_detect_local_cpu (int argc, const char **argv)
   unsigned int has_rdrnd = 0, has_f16c = 0, has_fsgsbase = 0;
   unsigned int has_rdseed = 0, has_prfchw = 0, has_adx = 0;
   unsigned int has_osxsave = 0, has_fxsr = 0, has_xsave = 0, has_xsaveopt = 0;
+  unsigned int has_pku = 0;
 
   bool arch;
 
@@ -479,6 +480,8 @@ const char *host_detect_local_cpu (int argc, const char **argv)
       has_fsgsbase = ebx & bit_FSGSBASE;
       has_rdseed = ebx & bit_RDSEED;
       has_adx = ebx & bit_ADX;
+
+      has_pku = ecx & bit_OSPKE;
     }
 
   if (max_level >= 13)
@@ -855,12 +858,13 @@ const char *host_detect_local_cpu (int argc, const char **argv)
       const char *fxsr = has_fxsr ? " -mfxsr" : " -mno-fxsr";
       const char *xsave = has_xsave ? " -mxsave" : " -mno-xsave";
       const char *xsaveopt = has_xsaveopt ? " -mxsaveopt" : " -mno-xsaveopt";
+      const char *pku = has_pku ? " -mpku" : " -mno-pku";
 
       options = concat (options, cx16, sahf, movbe, ase, pclmul,
 			popcnt, abm, lwp, fma, fma4, xop, bmi, bmi2,
 			tbm, avx, avx2, sse4_2, sse4_1, lzcnt, rtm,
 			hle, rdrnd, f16c, fsgsbase, rdseed, prfchw, adx,
-			fxsr, xsave, xsaveopt, NULL);
+			fxsr, xsave, xsaveopt, pku, NULL);
     }
 
 done:

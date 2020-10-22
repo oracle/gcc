@@ -74,6 +74,10 @@
 #define bit_RDSEED	(1 << 18)
 #define bit_ADX	(1 << 19)
 
+/* %ecx */
+#define bit_PKU	(1 << 3)
+#define bit_OSPKE	(1 << 4)
+ 
 /* Extended State Enumeration Sub-leaf (%eax == 13, %ecx == 1) */
 #define bit_XSAVEOPT	(1 << 0)
 
