@@ -164,3 +164,14 @@ patching file libjava/Makefile.am
 Hunk #1 succeeded at 752 (offset 42 lines).
 patching file libjava/Makefile.in
 Hunk #1 succeeded at 12415 (offset -250 lines).
+[oracle/gcc/el7-u9 8fd52b2] gcc48-hack.patch
+ 7 files changed, 330 insertions(+), 8 deletions(-)
+ create mode 100644 gengcc.sh
+ create mode 100644 log
+2 gcc48-java-nomulti.patch -p0
+------- APPLYING gcc48-java-nomulti.patch ---------
+patching file libjava/configure.ac
+Hunk #1 succeeded at 141 (offset 59 lines).
+patching file libjava/configure
+Hunk #1 succeeded at 1621 (offset 600 lines).
+Hunk #2 succeeded at 3381 (offset 1406 lines).

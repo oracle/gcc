@@ -141,6 +141,13 @@ AC_ARG_ENABLE(java-maintainer-mode,
 	[allow rebuilding of .class and .h files]))
 AM_CONDITIONAL(JAVA_MAINTAINER_MODE, test "$enable_java_maintainer_mode" = yes)
 
+AC_ARG_ENABLE(libjava-multilib,
+	AS_HELP_STRING([--enable-libjava-multilib], [build libjava as multilib]))
+if test "$enable_libjava_multilib" = no; then
+  multilib=no
+  ac_configure_args="$ac_configure_args --disable-multilib"
+fi
+
 # It may not be safe to run linking tests in AC_PROG_CC/AC_PROG_CXX.
 GCC_NO_EXECUTABLES
 
