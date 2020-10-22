@@ -1060,3 +1060,10 @@ patching file libitm/config/powerpc/target.h
 patching file gcc/testsuite/gcc.target/i386/pr69891.c
 patching file gcc/dse.c
 Hunk #1 succeeded at 2649 (offset 67 lines).
+[oracle/gcc/el7-u9 4288964] gcc48-pr69891.patch
+ 3 files changed, 39 insertions(+)
+ create mode 100644 gcc/testsuite/gcc.target/i386/pr69891.c
+77 gcc48-pr68814.patch -p0
+------- APPLYING gcc48-pr68814.patch ---------
+patching file gcc/rtlanal.c
+Hunk #1 succeeded at 1195 (offset -339 lines).
