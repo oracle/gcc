@@ -129,10 +129,23 @@ lto_write_options (void)
   obstack_grow (&temporary_obstack, "\0", 1);
   args = XOBFINISH (&temporary_obstack, char *);
   lto_output_data_stream (&stream, args, strlen (args) + 1);
-
   lto_write_stream (&stream);
-  lto_end_section ();
-
   obstack_free (&temporary_obstack, NULL);
+
+  const char *collect_as_options = getenv ("COLLECT_AS_OPTIONS");
+  if (collect_as_options)
+    {
+      obstack_init (&temporary_obstack);
+      memset (&stream, 0, sizeof (stream));
+      append_to_collect_gcc_options (&temporary_obstack, &first_p,
+                                    collect_as_options);
+      obstack_grow (&temporary_obstack, "\0", 1);
+      args = XOBFINISH (&temporary_obstack, char *);
+      lto_output_data_stream (&stream, args, strlen (args) + 1);
+      lto_write_stream (&stream);
+      obstack_free (&temporary_obstack, NULL);
+    }
+
+  lto_end_section ();
   free (section_name);
 }

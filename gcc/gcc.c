@@ -4577,6 +4577,35 @@ do_specs_vec (vec<char_p> vec)
     }
 }
 
+/* Store switches specified for as with -Wa in COLLECT_AS_OPTIONS
+   and place that in the environment.  */
+static void
+putenv_COLLECT_AS_OPTIONS (vec<char_p> vec)
+{
+  unsigned ix;
+  char *opt;
+  int len = vec.length ();
+
+  if (!len)
+     return;
+
+  obstack_init (&collect_obstack);
+  obstack_grow (&collect_obstack, "COLLECT_AS_OPTIONS=",
+		sizeof ("COLLECT_AS_OPTIONS=") - 1);
+  obstack_grow (&collect_obstack, "-Wa,", strlen ("-Wa,"));
+
+  FOR_EACH_VEC_ELT (vec, ix, opt)
+  {
+      obstack_grow (&collect_obstack, opt, strlen (opt));
+      --len;
+      if (len)
+	obstack_grow (&collect_obstack, ",", strlen (","));
+  }
+
+  obstack_grow (&collect_obstack, "\0", 1);
+  xputenv (XOBFINISH (&collect_obstack, char *));
+}
+
 /* Process the sub-spec SPEC as a portion of a larger spec.
    This is like processing a whole spec except that we do
    not initialize at the beginning and we do not supply a
@@ -6848,6 +6877,8 @@ main (int argc, char **argv)
   /* Now that we have the switches and the specs, set
      the subdirectory based on the options.  */
   set_multilib_dir ();
+
+  putenv_COLLECT_AS_OPTIONS (assembler_options);
 
   /* Set up to remember the pathname of gcc and any options
      needed for collect.  We use argv[0] instead of progname because

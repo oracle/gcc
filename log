@@ -1860,3 +1860,11 @@ Hunk #1 succeeded at 1286 (offset 4 lines).
 patching file gcc/doc/invoke.texi
 Hunk #2 succeeded at 1494 (offset 10 lines).
 patching file gcc/testsuite/gcc.dg/independent-cloneids-1.c
+[oracle/gcc/el7-u9 865c3f6] gcc48-ora27987827.patch
+ 5 files changed, 117 insertions(+), 2 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.dg/independent-cloneids-1.c
+1503 gcc48-Fix-Wa-with-flto.patch -p1
+------- APPLYING gcc48-Fix-Wa-with-flto.patch ---------
+patching file gcc/gcc.c
+patching file gcc/lto-opts.c
+patching file gcc/lto-wrapper.c

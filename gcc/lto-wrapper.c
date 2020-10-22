@@ -399,6 +399,10 @@ merge_and_complain (struct cl_decoded_option **decoded_options,
 	case OPT_SPECIAL_input_file:
 	  break;
 
+	case OPT_Wa_:
+	  append_option (decoded_options, decoded_options_count, foption);
+	  break;
+
 	default:
 	  if (!(cl_options[foption->opt_index].flags & CL_TARGET))
 	    break;
@@ -430,6 +434,38 @@ merge_and_complain (struct cl_decoded_option **decoded_options,
 	    fatal ("Option %s not used consistently in all LTO input files",
 		   foption->orig_option_with_args_text);
 	  break;
+	}
+    }
+}
+
+/* Append options OPTS from -Wa, options to ARGV_OBSTACK.  */
+
+static void
+append_compiler_wa_options (obstack *argv_obstack,
+			    struct cl_decoded_option *opts,
+			    unsigned int count)
+{
+  static const char *collect_as;
+  for (unsigned int j = 1; j < count; ++j)
+    {
+      struct cl_decoded_option *option = &opts[j];
+      if (j == 1)
+	collect_as = NULL;
+      const char *args_text = option->orig_option_with_args_text;
+      switch (option->opt_index)
+	{
+	case OPT_Wa_:
+	  break;
+	default:
+	  continue;
+	}
+      /* We expect all the -Wa, options to be same.  */
+      if (collect_as && strcmp (collect_as, args_text) != 0)
+	fatal_error ("-Wa, options does not match");
+      if (!collect_as)
+	{
+	  obstack_ptr_grow (argv_obstack, args_text);
+	  collect_as = args_text;
 	}
     }
 }
@@ -587,6 +623,9 @@ run_gcc (unsigned argc, char *argv[])
       for (i = 0; i < option->canonical_option_num_elements; ++i)
 	obstack_ptr_grow (&argv_obstack, option->canonical_option[i]);
     }
+
+  append_compiler_wa_options (&argv_obstack, fdecoded_options,
+			      fdecoded_options_count);
 
   /* Append linker driver arguments.  Compiler options from the linker
      driver arguments will override / merge with those from the compiler.  */
