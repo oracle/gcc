@@ -1386,3 +1386,14 @@ patching file gcc/testsuite/gcc.target/aarch64/stack-check-13.c
 patching file gcc/testsuite/gcc.target/aarch64/stack-check-14.c
 patching file gcc/testsuite/gcc.target/aarch64/stack-check-15.c
 patching file gcc/testsuite/lib/target-supports.exp
+[oracle/gcc/el7-u9 3688ba0] gcc48-rh1469697-16.patch
+ 9 files changed, 337 insertions(+), 13 deletions(-)
+ create mode 100644 gcc/config/aarch64/.aarch64.c.rej.swp
+ create mode 100644 gcc/testsuite/gcc.target/aarch64/stack-check-12.c
+ create mode 100644 gcc/testsuite/gcc.target/aarch64/stack-check-13.c
+ create mode 100644 gcc/testsuite/gcc.target/aarch64/stack-check-14.c
+ create mode 100644 gcc/testsuite/gcc.target/aarch64/stack-check-15.c
+1318 gcc48-rh1469697-17.patch -p1
+------- APPLYING gcc48-rh1469697-17.patch ---------
+patching file gcc/config/i386/i386.c
+patching file gcc/testsuite/gcc.target/i386/stack-check-12.c
