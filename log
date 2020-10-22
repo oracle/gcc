@@ -634,3 +634,8 @@ patching file gcc/testsuite/lib/target-supports.exp
 32 gcc48-rh1312850.patch -p0
 ------- APPLYING gcc48-rh1312850.patch ---------
 patching file libsanitizer/asan/asan_rtl.cc
+[oracle/gcc/el7-u9 357ac02] gcc48-rh1312850.patch
+ 2 files changed, 65 insertions(+), 2 deletions(-)
+33 gcc48-pr65142.patch -p0
+------- APPLYING gcc48-pr65142.patch ---------
+patching file libstdc++-v3/src/c++11/random.cc
