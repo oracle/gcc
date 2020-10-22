@@ -1424,3 +1424,12 @@ Hunk #1 succeeded at 1921 (offset -76 lines).
 Hunk #2 succeeded at 1954 (offset -76 lines).
 patching file gcc/testsuite/gcc.target/i386/stack-check-18.c
 patching file gcc/testsuite/gcc.target/i386/stack-check-19.c
+[oracle/gcc/el7-u9 b639051] gcc48-rh1469697-21.patch
+ 4 files changed, 86 insertions(+), 17 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.target/i386/stack-check-18.c
+ create mode 100644 gcc/testsuite/gcc.target/i386/stack-check-19.c
+1323 gcc48-rh1469697-22.patch -p1
+------- APPLYING gcc48-rh1469697-22.patch ---------
+patching file gcc/config/i386/i386.c
+patching file gcc/testsuite/gcc.target/i386/stack-check-12.c
+patching file gcc/testsuite/gcc.target/i386/stack-check-17.c
