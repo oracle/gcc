@@ -217,3 +217,17 @@ patching file ltmain.sh
 Hunk #1 succeeded at 7103 (offset 1709 lines).
 Hunk #2 succeeded at 7799 (offset 1727 lines).
 Hunk #3 succeeded at 7851 (offset 1729 lines).
+[oracle/gcc/el7-u9 e6ac065] gcc48-libtool-no-rpath.patch
+ 2 files changed, 11 insertions(+)
+9 gcc48-cloog-dl.patch -p0
+------- APPLYING gcc48-cloog-dl.patch ---------
+patching file gcc/Makefile.in
+Hunk #1 succeeded at 1021 (offset -1 lines).
+Hunk #2 succeeded at 3446 (offset 4 lines).
+patching file gcc/graphite-poly.h
+patching file gcc/graphite.c
+Hunk #1 succeeded at 65 (offset -1 lines).
+Hunk #2 succeeded at 291 (offset -1 lines).
+patching file gcc/graphite-clast-to-gimple.c
+Hunk #1 succeeded at 915 (offset 5 lines).
+Hunk #2 succeeded at 923 (offset 5 lines).

@@ -65,6 +65,34 @@ along with GCC; see the file COPYING3.  If not see
 
 CloogState *cloog_state;
 
+__typeof (cloog_pointers__) cloog_pointers__;
+
+static bool
+init_cloog_pointers (void)
+{
+  void *h;
+
+  if (cloog_pointers__.inited)
+    return cloog_pointers__.h != NULL;
+  h = dlopen ("libcloog-isl.so.4", RTLD_LAZY);
+  cloog_pointers__.h = h;
+  if (h == NULL)
+    return false;
+#define DYNSYM(x) \
+  do \
+    { \
+      union { __typeof (cloog_pointers__.p_##x) p; void *q; } u; \
+      u.q = dlsym (h, #x); \
+      if (u.q == NULL) \
+	return false; \
+      cloog_pointers__.p_##x = u.p; \
+    } \
+  while (0)
+  DYNSYMS
+#undef DYNSYM
+  return true;
+}
+
 /* Print global statistics to FILE.  */
 
 static void
@@ -262,6 +290,15 @@ graphite_transform_loops (void)
      once. No need to run again.  */
   if (parallelized_function_p (cfun->decl))
     return;
+
+  if (number_of_loops () <= 1)
+    return;
+
+  if (!init_cloog_pointers ())
+    {
+      sorry ("Graphite loop optimizations cannot be used");
+      return;
+    }
 
   ctx = isl_ctx_alloc ();
   isl_options_set_on_error(ctx, ISL_ON_ERROR_ABORT);

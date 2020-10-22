@@ -915,7 +915,7 @@ compute_bounds_for_loop (struct clast_for *loop, mpz_t low, mpz_t up)
    from STMT_FOR.  */
 
 static tree
-type_for_clast_for (struct clast_for *stmt_for, ivs_params_p ip)
+type_for_clast_for (struct clast_for *stmt_fora, ivs_params_p ip)
 {
   mpz_t bound_one, bound_two;
   tree lb_type, ub_type;
@@ -923,8 +923,8 @@ type_for_clast_for (struct clast_for *stmt_for, ivs_params_p ip)
   mpz_init (bound_one);
   mpz_init (bound_two);
 
-  lb_type = type_for_clast_expr (stmt_for->LB, ip, bound_one, bound_two);
-  ub_type = type_for_clast_expr (stmt_for->UB, ip, bound_one, bound_two);
+  lb_type = type_for_clast_expr (stmt_fora->LB, ip, bound_one, bound_two);
+  ub_type = type_for_clast_expr (stmt_fora->UB, ip, bound_one, bound_two);
 
   mpz_clear (bound_one);
   mpz_clear (bound_two);
