@@ -1367,3 +1367,9 @@ patching file gcc/config/i386/i386.c
 patching file gcc/config/aarch64/aarch64-protos.h
 patching file gcc/config/aarch64/aarch64.c
 patching file gcc/config/aarch64/aarch64.md
+[oracle/gcc/el7-u9 8313d23] gcc48-rh1469697-14.patch
+ 4 files changed, 255 insertions(+)
+1316 gcc48-rh1469697-15.patch -p1
+------- APPLYING gcc48-rh1469697-15.patch ---------
+patching file gcc/config/aarch64/aarch64.md
+patching file gcc/testsuite/gcc.target/aarch64/subsp.c
