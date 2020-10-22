@@ -1195,3 +1195,11 @@ patching file fastjar-0.97/configure
 ------- APPLYING isl-0.11.1-aarch64-config.patch ---------
 patching file isl-0.11.1/config.guess
 patching file isl-0.11.1/config.sub
+[oracle/gcc/el7-u9 d87b470] isl-0.11.1-aarch64-config.patch
+ 3 files changed, 86 insertions(+), 45 deletions(-)
+1200 isl-0.11.1-ppc64le-config.patch -p0
+------- APPLYING isl-0.11.1-ppc64le-config.patch ---------
+patching file isl-0.11.1/configure
+patching file isl-0.11.1/config.sub
+patching file isl-0.11.1/config.guess
+patching file isl-0.11.1/m4/libtool.m4
