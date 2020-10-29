@@ -2271,6 +2271,14 @@ execute_all_ipa_transforms (bool do_not_collect)
     return;
   node = cgraph_node::get (current_function_decl);
 
+  cgraph_node *next_clone;
+  for (cgraph_node *n = node->clones; n; n = next_clone)
+    {
+      next_clone = n->next_sibling_clone;
+      if (n->decl != node->decl)
+	n->materialize_clone ();
+    }
+
   if (node->ipa_transforms_to_apply.exists ())
     {
       unsigned int i;
@@ -2558,7 +2566,8 @@ execute_one_pass (opt_pass *pass)
     {
       struct cgraph_node *node;
       FOR_EACH_FUNCTION_WITH_GIMPLE_BODY (node)
-	node->ipa_transforms_to_apply.safe_push ((ipa_opt_pass_d *)pass);
+	if (!node->inlined_to)
+	  node->ipa_transforms_to_apply.safe_push ((ipa_opt_pass_d *)pass);
     }
   else if (dump_file)
     do_per_function (execute_function_dump, pass);
@@ -2722,7 +2731,8 @@ ipa_write_summaries (void)
     {
       struct cgraph_node *node = order[i];
 
-      if (node->definition && node->need_lto_streaming)
+      if ((node->definition || node->declare_variant_alt)
+	  && node->need_lto_streaming)
 	{
 	  if (gimple_has_body_p (node->decl))
 	    lto_prepare_function_for_streaming (node);

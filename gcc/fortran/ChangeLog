@@ -1,3 +1,61 @@
+2020-10-27  Harald Anlauf  <anlauf@gmx.de>
+
+	* resolve.c (gfc_impure_variable): A dummy argument with the VALUE
+	attribute may be redefined without making a procedure impure.
+
+2020-10-27  Richard Biener  <rguenther@suse.de>
+
+	* trans-array.c (gfc_get_descriptor_field): New helper.
+	(gfc_conv_descriptor_data_get): Use it - drop strange
+	REFERENCE_TYPE handling and make sure we don't trigger it.
+	(gfc_conv_descriptor_data_addr): Use gfc_get_descriptor_field.
+	(gfc_conv_descriptor_data_set): Likewise.
+	(gfc_conv_descriptor_offset): Likewise.
+	(gfc_conv_descriptor_dtype): Likewise.
+	(gfc_conv_descriptor_span): Likewise.
+	(gfc_get_descriptor_dimension): Likewise.
+	(gfc_conv_descriptor_token): Likewise.
+	(gfc_conv_descriptor_subfield): New helper.
+	(gfc_conv_descriptor_stride): Use it.
+	(gfc_conv_descriptor_lbound): Likewise.
+	(gfc_conv_descriptor_ubound): Likewise.
+
+2020-10-25  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	PR fortran/97454
+	* gfortran.h (gfc_symbol): Add pass_as_value flag.
+	(gfc_copy_formal_args_intr): Add optional argument
+	copy_type.
+	(gfc_get_intrinsic_function_symbol): Add prototype.
+	(gfc_find_intrinsic_symbol): Add prototype.
+	* intrinsic.c (gfc_get_intrinsic_function_symbol): New function.
+	(gfc_find_intrinsic_symbol): New function.
+	* symbol.c (gfc_copy_formal_args_intr): Add argument. Handle case
+	where the type needs to be copied from the actual argument.
+	* trans-intrinsic.c (remove_empty_actual_arguments): New function.
+	(specific_intrinsic_symbol): New function.
+	(gfc_conv_intrinsic_funcall): Use it.
+	(strip_kind_from_actual): Adjust so that the expression pointer
+	is set to NULL.
+	(gfc_conv_intrinsic_minmaxloc): Likewise.
+	(gfc_conv_intrinsic_minmaxval): Adjust removal of dim.
+	* trans-types.c (gfc_sym_type): If sym->pass_as_value is set, do
+	not pass by reference.
+
+2020-10-22  Tobias Burnus  <tobias@codesourcery.com>
+
+	* gfortran.h (enum gfc_omp_memorder): Add.
+	(gfc_omp_clauses): Use it.
+	* openmp.c (gfc_match_omp_flush): Match memorder clauses.
+	* trans-openmp.c (gfc_trans_omp_flush): Handle them.
+	(gfc_trans_omp_directive): Update call.
+
+2020-10-21  Tobias Burnus  <tobias@codesourcery.com>
+
+	PR fortran/45516
+	* class.c: Add _deallocate to the vtable documentation
+	comment.
+
 2020-10-16  Harald Anlauf  <anlauf@gmx.de>
 
 	PR fortran/95979

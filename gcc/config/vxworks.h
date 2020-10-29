@@ -90,7 +90,7 @@ along with GCC; see the file COPYING3.  If not see
 #define VXWORKS_SYSCALL_LIBS_RTP
 
 #if TARGET_VXWORKS7
-#define VXWORKS_NET_LIBS_RTP "-lnet"
+#define VXWORKS_NET_LIBS_RTP "-l%:if-exists-then-else(%:getenv(VSB_DIR /usr/h/public/rtnetStackLib.h) rtnet net)"
 #else
 #define VXWORKS_NET_LIBS_RTP "-lnet -ldsi"
 #endif
@@ -264,6 +264,18 @@ extern void vxworks_asm_out_destructor (rtx symbol, int priority);
         }								\
     }									\
   while (0)
+
+/* For specific CPU macro definitions expected by the system headers,
+   different versions of VxWorks expect different forms of macros,
+   such as "_VX_CPU=..." on Vx7 and some variants of Vx6, or "CPU=..."
+   on all Vx6 and earlier.  Setup a common prefix macro here, that
+   arch specific ports can reuse.  */
+
+#if TARGET_VXWORKS7
+#define VX_CPU_PREFIX "_VX_"
+#else
+#define VX_CPU_PREFIX ""
+#endif
 
 #define VXWORKS_KIND VXWORKS_KIND_NORMAL
 

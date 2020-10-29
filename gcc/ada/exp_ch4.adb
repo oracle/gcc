@@ -31,7 +31,6 @@ with Elists;   use Elists;
 with Errout;   use Errout;
 with Exp_Aggr; use Exp_Aggr;
 with Exp_Atag; use Exp_Atag;
-with Exp_Ch2;  use Exp_Ch2;
 with Exp_Ch3;  use Exp_Ch3;
 with Exp_Ch6;  use Exp_Ch6;
 with Exp_Ch7;  use Exp_Ch7;
@@ -824,6 +823,37 @@ package body Exp_Ch4 is
 
       Apply_Predicate_Check (Exp, T);
 
+      --  Check that any anonymous access discriminants are suitable
+      --  for use in an allocator.
+
+      --  Note: This check is performed here instead of during analysis so that
+      --  we can check against the fully resolved etype of Exp.
+
+      if Is_Entity_Name (Exp)
+        and then Has_Anonymous_Access_Discriminant (Etype (Exp))
+        and then Static_Accessibility_Level (Exp, Object_Decl_Level)
+                   > Static_Accessibility_Level (N, Object_Decl_Level)
+      then
+         --  A dynamic check and a warning are generated when we are within
+         --  an instance.
+
+         if In_Instance then
+            Insert_Action (N,
+              Make_Raise_Program_Error (Loc,
+                Reason => PE_Accessibility_Check_Failed));
+
+            Error_Msg_N ("anonymous access discriminant is too deep for use"
+                         & " in allocator<<", N);
+            Error_Msg_N ("\Program_Error [<<", N);
+
+         --  Otherwise, make the error static
+
+         else
+            Error_Msg_N ("anonymous access discriminant is too deep for use"
+                          & " in allocator", N);
+         end if;
+      end if;
+
       if Do_Range_Check (Exp) then
          Generate_Range_Check (Exp, T, CE_Range_Check_Failed);
       end if;
@@ -849,35 +879,6 @@ package body Exp_Ch4 is
          Rewrite (N, New_Copy (Exp));
          Set_Etype (N, PtrT);
          return;
-      end if;
-
-      --  In the case of an Ada 2012 allocator whose initial value comes from a
-      --  function call, pass "the accessibility level determined by the point
-      --  of call" (AI05-0234) to the function. Conceptually, this belongs in
-      --  Expand_Call but it couldn't be done there (because the Etype of the
-      --  allocator wasn't set then) so we generate the parameter here. See
-      --  the Boolean variable Defer in (a block within) Expand_Call.
-
-      if Ada_Version >= Ada_2012 and then Nkind (Exp) = N_Function_Call then
-         declare
-            Subp : Entity_Id;
-
-         begin
-            if Nkind (Name (Exp)) = N_Explicit_Dereference then
-               Subp := Designated_Type (Etype (Prefix (Name (Exp))));
-            else
-               Subp := Entity (Name (Exp));
-            end if;
-
-            Subp := Ultimate_Alias (Subp);
-
-            if Present (Extra_Accessibility_Of_Result (Subp)) then
-               Add_Extra_Actual_To_Call
-                 (Subprogram_Call => Exp,
-                  Extra_Formal    => Extra_Accessibility_Of_Result (Subp),
-                  Extra_Actual    => Dynamic_Accessibility_Level (PtrT));
-            end if;
-         end;
       end if;
 
       Aggr_In_Place := Is_Delayed_Aggregate (Exp);
@@ -1385,7 +1386,7 @@ package body Exp_Ch4 is
          --    (left'address, right'address, left'length, right'length) <op> 0
 
          --  x = U for unsigned, S for signed
-         --  n = 8,16,32,64 for component size
+         --  n = 8,16,32,64,128 for component size
          --  Add _Unaligned if length < 4 and component size is 8.
          --  <op> is the standard comparison operator
 
@@ -1422,11 +1423,18 @@ package body Exp_Ch4 is
                Comp := RE_Compare_Array_S32;
             end if;
 
-         else pragma Assert (Component_Size (Typ1) = 64);
+         elsif Component_Size (Typ1) = 64 then
             if Is_Unsigned_Type (Ctyp) then
                Comp := RE_Compare_Array_U64;
             else
                Comp := RE_Compare_Array_S64;
+            end if;
+
+         else pragma Assert (Component_Size (Typ1) = 128);
+            if Is_Unsigned_Type (Ctyp) then
+               Comp := RE_Compare_Array_U128;
+            else
+               Comp := RE_Compare_Array_S128;
             end if;
          end if;
 
@@ -6860,37 +6868,28 @@ package body Exp_Ch4 is
                   --  Apply an accessibility check if the access object has an
                   --  associated access level and when the level of the type is
                   --  less deep than the level of the access parameter. This
-                  --  only occur for access parameters and stand-alone objects
-                  --  of an anonymous access type.
+                  --  can only occur for access parameters and stand-alone
+                  --  objects of an anonymous access type.
 
                   else
-                     if Present (Expr_Entity)
-                       and then
-                         Present
-                           (Effective_Extra_Accessibility (Expr_Entity))
-                       and then UI_Gt (Object_Access_Level (Lop),
-                                       Type_Access_Level (Rtyp))
-                     then
-                        Param_Level :=
-                          New_Occurrence_Of
-                            (Effective_Extra_Accessibility (Expr_Entity), Loc);
+                     Param_Level := Accessibility_Level
+                                      (Expr_Entity, Dynamic_Level);
 
-                        Type_Level :=
-                          Make_Integer_Literal (Loc, Type_Access_Level (Rtyp));
+                     Type_Level :=
+                       Make_Integer_Literal (Loc, Type_Access_Level (Rtyp));
 
-                        --  Return True only if the accessibility level of the
-                        --  expression entity is not deeper than the level of
-                        --  the tested access type.
+                     --  Return True only if the accessibility level of the
+                     --  expression entity is not deeper than the level of
+                     --  the tested access type.
 
-                        Rewrite (N,
-                          Make_And_Then (Loc,
-                            Left_Opnd  => Relocate_Node (N),
-                            Right_Opnd => Make_Op_Le (Loc,
-                                            Left_Opnd  => Param_Level,
-                                            Right_Opnd => Type_Level)));
+                     Rewrite (N,
+                       Make_And_Then (Loc,
+                         Left_Opnd  => Relocate_Node (N),
+                         Right_Opnd => Make_Op_Le (Loc,
+                                         Left_Opnd  => Param_Level,
+                                         Right_Opnd => Type_Level)));
 
-                        Analyze_And_Resolve (N);
-                     end if;
+                     Analyze_And_Resolve (N);
 
                      --  If the designated type is tagged, do tagged membership
                      --  operation.
@@ -8338,12 +8337,12 @@ package body Exp_Ch4 is
          --  Where the component type is elementary we can use a block bit
          --  comparison (if supported on the target) exception in the case
          --  of floating-point (negative zero issues require element by
-         --  element comparison), and atomic/VFA types (where we must be sure
+         --  element comparison), and full access types (where we must be sure
          --  to load elements independently) and possibly unaligned arrays.
 
          elsif Is_Elementary_Type (Component_Type (Typl))
            and then not Is_Floating_Point_Type (Component_Type (Typl))
-           and then not Is_Atomic_Or_VFA (Component_Type (Typl))
+           and then not Is_Full_Access (Component_Type (Typl))
            and then not Is_Possibly_Unaligned_Object (Lhs)
            and then not Is_Possibly_Unaligned_Slice (Lhs)
            and then not Is_Possibly_Unaligned_Object (Rhs)
@@ -8992,15 +8991,18 @@ package body Exp_Ch4 is
                     Make_Integer_Literal (Loc, Modulus (Rtyp)),
                     Exp))));
 
-         --  Binary modular case, in this case, we call one of two routines,
+         --  Binary modular case, in this case, we call one of three routines,
          --  either the unsigned integer case, or the unsigned long long
-         --  integer case, with a final "and" operation to do the required mod.
+         --  integer case, or the unsigned long long long integer case, with a
+         --  final "and" operation to do the required mod.
 
          else
-            if UI_To_Int (Esize (Rtyp)) <= Standard_Integer_Size then
+            if Esize (Rtyp) <= Standard_Integer_Size then
                Ent := RTE (RE_Exp_Unsigned);
-            else
+            elsif Esize (Rtyp) <= Standard_Long_Long_Integer_Size then
                Ent := RTE (RE_Exp_Long_Long_Unsigned);
+            else
+               Ent := RTE (RE_Exp_Long_Long_Long_Unsigned);
             end if;
 
             Rewrite (N,
@@ -9022,36 +9024,43 @@ package body Exp_Ch4 is
          Analyze_And_Resolve (N, Typ);
          return;
 
-      --  Signed integer cases, done using either Integer or Long_Long_Integer.
-      --  It is not worth having routines for Short_[Short_]Integer, since for
-      --  most machines it would not help, and it would generate more code that
-      --  might need certification when a certified run time is required.
+      --  Signed integer cases, using either Integer, Long_Long_Integer or
+      --  Long_Long_Long_Integer. It is not worth also having routines for
+      --  Short_[Short_]Integer, since for most machines it would not help,
+      --  and it would generate more code that might need certification when
+      --  a certified run time is required.
 
       --  In the integer cases, we have two routines, one for when overflow
       --  checks are required, and one when they are not required, since there
       --  is a real gain in omitting checks on many machines.
 
-      elsif Rtyp = Base_Type (Standard_Long_Long_Integer)
-        or else (Rtyp = Base_Type (Standard_Long_Integer)
-                  and then
-                    Esize (Standard_Long_Integer) > Esize (Standard_Integer))
-        or else Rtyp = Universal_Integer
-      then
-         Etyp := Standard_Long_Long_Integer;
-
-         if Ovflo then
-            Rent := RE_Exp_Long_Long_Integer;
-         else
-            Rent := RE_Exn_Long_Long_Integer;
-         end if;
-
       elsif Is_Signed_Integer_Type (Rtyp) then
-         Etyp := Standard_Integer;
+         if Esize (Rtyp) <= Standard_Integer_Size then
+            Etyp := Standard_Integer;
 
-         if Ovflo then
-            Rent := RE_Exp_Integer;
+            if Ovflo then
+               Rent := RE_Exp_Integer;
+            else
+               Rent := RE_Exn_Integer;
+            end if;
+
+         elsif Esize (Rtyp) <= Standard_Long_Long_Integer_Size then
+            Etyp := Standard_Long_Long_Integer;
+
+            if Ovflo then
+               Rent := RE_Exp_Long_Long_Integer;
+            else
+               Rent := RE_Exn_Long_Long_Integer;
+            end if;
+
          else
-            Rent := RE_Exn_Integer;
+            Etyp := Standard_Long_Long_Long_Integer;
+
+            if Ovflo then
+               Rent := RE_Exp_Long_Long_Long_Integer;
+            else
+               Rent := RE_Exn_Long_Long_Long_Integer;
+            end if;
          end if;
 
       --  Floating-point cases. We do not need separate routines for the
@@ -12279,8 +12288,8 @@ package body Exp_Ch4 is
            and then Ekind (Operand_Type) = E_Anonymous_Access_Type
            and then Nkind (Operand) = N_Selected_Component
            and then Ekind (Entity (Selector_Name (Operand))) = E_Discriminant
-           and then Object_Access_Level (Operand) >
-                      Type_Access_Level (Target_Type)
+           and then Static_Accessibility_Level (Operand, Zero_On_Dynamic_Level)
+                      > Type_Access_Level (Target_Type)
          then
             Raise_Accessibility_Error;
             goto Done;
@@ -14101,6 +14110,11 @@ package body Exp_Ch4 is
          elsif Is_OK_For_Range (Uint_64) then
             return Uint_64;
 
+         --  If the size of Typ is 128 then check 127
+
+         elsif Tsiz = Uint_128 and then Is_OK_For_Range (Uint_127) then
+            return Uint_127;
+
          else
             return Uint_128;
          end if;
@@ -14220,12 +14234,8 @@ package body Exp_Ch4 is
       --  type instead of the first subtype because operations are done in
       --  the base type, so this avoids the need for useless conversions.
 
-      if Nsiz <= Standard_Integer_Size then
-         Ntyp := Etype (Standard_Integer);
-
-      elsif Nsiz <= Standard_Long_Long_Integer_Size then
-         Ntyp := Etype (Standard_Long_Long_Integer);
-
+      if Nsiz <= System_Max_Integer_Size then
+         Ntyp := Etype (Integer_Type_For (Nsiz, Uns => False));
       else
          return;
       end if;

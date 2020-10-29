@@ -35,18 +35,14 @@ along with GCC; see the file COPYING3.  If not see
 irange &
 irange::operator= (const irange &src)
 {
-  if (legacy_mode_p () != src.legacy_mode_p ())
-    {
-      copy_legacy_range (src);
-      return *this;
-    }
   if (legacy_mode_p ())
     {
-      gcc_checking_assert (src.legacy_mode_p ());
-      m_num_ranges = src.m_num_ranges;
-      m_base[0] = src.m_base[0];
-      m_base[1] = src.m_base[1];
-      m_kind = src.m_kind;
+      copy_to_legacy (src);
+      return *this;
+    }
+  if (src.legacy_mode_p ())
+    {
+      copy_legacy_to_multi_range (src);
       return *this;
     }
 
@@ -81,42 +77,58 @@ irange::maybe_anti_range () const
 	  && upper_bound () == wi::max_value (precision, sign));
 }
 
-// Copy between a legacy and a multi-range, or vice-versa.
-
 void
-irange::copy_legacy_range (const irange &src)
+irange::copy_legacy_to_multi_range (const irange &src)
 {
-  gcc_checking_assert (src.legacy_mode_p () != legacy_mode_p ());
+  gcc_checking_assert (src.legacy_mode_p ());
+  gcc_checking_assert (!legacy_mode_p ());
   if (src.undefined_p ())
     set_undefined ();
   else if (src.varying_p ())
     set_varying (src.type ());
-  else if (src.kind () == VR_ANTI_RANGE)
-    {
-      if (src.legacy_mode_p () && !range_has_numeric_bounds_p (&src))
-	set_varying (src.type ());
-      else
-	set (src.min (), src.max (), VR_ANTI_RANGE);
-    }
-  else if (legacy_mode_p () && src.maybe_anti_range ())
-    {
-      int_range<3> tmp (src);
-      tmp.invert ();
-      set (tmp.min (), wide_int_to_tree (src.type (), tmp.upper_bound (0)),
-	   VR_ANTI_RANGE);
-    }
   else
     {
-      // If copying legacy to int_range, normalize any symbolics.
-      if (src.legacy_mode_p () && !range_has_numeric_bounds_p (&src))
+      if (range_has_numeric_bounds_p (&src))
+	set (src.min (), src.max (), src.kind ());
+      else
 	{
 	  value_range cst (src);
 	  cst.normalize_symbolics ();
+	  gcc_checking_assert (cst.varying_p () || cst.kind () == VR_RANGE);
 	  set (cst.min (), cst.max ());
-	  return;
 	}
-      set (src.min (), src.max ());
     }
+}
+
+// Copy any type of irange into a legacy.
+
+void
+irange::copy_to_legacy (const irange &src)
+{
+  gcc_checking_assert (legacy_mode_p ());
+  // Copy legacy to legacy.
+  if (src.legacy_mode_p ())
+    {
+      m_num_ranges = src.m_num_ranges;
+      m_base[0] = src.m_base[0];
+      m_base[1] = src.m_base[1];
+      m_kind = src.m_kind;
+      return;
+    }
+  // Copy multi-range to legacy.
+  if (src.undefined_p ())
+    set_undefined ();
+  else if (src.varying_p ())
+    set_varying (src.type ());
+  else if (src.maybe_anti_range ())
+    {
+      int_range<3> r (src);
+      r.invert ();
+      // Use tree variants to save on tree -> wi -> tree conversions.
+      set (r.tree_lower_bound (0), r.tree_upper_bound (0), VR_ANTI_RANGE);
+    }
+  else
+    set (src.tree_lower_bound (), src.tree_upper_bound ());
 }
 
 // Swap min/max if they are out of order.  Return TRUE if further
@@ -236,31 +248,11 @@ irange::set (tree min, tree max, value_range_kind kind)
       set_undefined ();
       return;
     }
-  if (kind == VR_RANGE)
-    {
-      /* Convert POLY_INT_CST bounds into worst-case INTEGER_CST bounds.  */
-      if (POLY_INT_CST_P (min))
-	{
-	  tree type_min = vrp_val_min (TREE_TYPE (min));
-	  widest_int lb
-	    = constant_lower_bound_with_limit (wi::to_poly_widest (min),
-					       wi::to_widest (type_min));
-	  min = wide_int_to_tree (TREE_TYPE (min), lb);
-	}
-      if (POLY_INT_CST_P (max))
-	{
-	  tree type_max = vrp_val_max (TREE_TYPE (max));
-	  widest_int ub
-	    = constant_upper_bound_with_limit (wi::to_poly_widest (max),
-					       wi::to_widest (type_max));
-	  max = wide_int_to_tree (TREE_TYPE (max), ub);
-	}
-    }
-  else if (kind != VR_VARYING)
-    {
-     if (POLY_INT_CST_P (min) || POLY_INT_CST_P (max))
-       kind = VR_VARYING;
-    }
+
+  if (kind != VR_VARYING
+      && (POLY_INT_CST_P (min) || POLY_INT_CST_P (max)))
+    kind = VR_VARYING;
+
   if (kind == VR_VARYING)
     {
       set_varying (TREE_TYPE (min));
@@ -1760,19 +1752,30 @@ irange::irange_intersect (const irange &r)
     verify_range ();
 }
 
+// Signed 1-bits are strange.  You can't subtract 1, because you can't
+// represent the number 1.  This works around that for the invert routine.
+
 static wide_int inline
 subtract_one (const wide_int &x, tree type, wi::overflow_type &overflow)
 {
-  // A signed 1-bit bit-field, has a range of [-1,0] so subtracting +1
-  // overflows, since +1 is unrepresentable.  This is why we have an
-  // addition of -1 here.
   if (TYPE_SIGN (type) == SIGNED)
-    return wi::add (x, -1 , SIGNED, &overflow);
+    return wi::add (x, -1, SIGNED, &overflow);
   else
     return wi::sub (x, 1, UNSIGNED, &overflow);
 }
 
-/* Return the inverse of a range.  */
+// The analogous function for adding 1.
+
+static wide_int inline
+add_one (const wide_int &x, tree type, wi::overflow_type &overflow)
+{
+  if (TYPE_SIGN (type) == SIGNED)
+    return wi::sub (x, -1, SIGNED, &overflow);
+  else
+    return wi::add (x, 1, UNSIGNED, &overflow);
+}
+
+// Return the inverse of a range.
 
 void
 irange::invert ()
@@ -1869,7 +1872,7 @@ irange::invert ()
   // set the overflow bit.
   if (type_max != wi::to_wide (orig_range.m_base[i]))
     {
-      tmp = wi::add (wi::to_wide (orig_range.m_base[i]), 1, sign, &ovf);
+      tmp = add_one (wi::to_wide (orig_range.m_base[i]), ttype, ovf);
       m_base[nitems++] = wide_int_to_tree (ttype, tmp);
       m_base[nitems++] = wide_int_to_tree (ttype, type_max);
       if (ovf)

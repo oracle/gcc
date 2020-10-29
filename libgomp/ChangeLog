@@ -1,3 +1,80 @@
+2020-10-28  Jakub Jelinek  <jakub@redhat.com>
+
+	* testsuite/libgomp.c/target-42.c: New test.
+
+2020-10-28  Jakub Jelinek  <jakub@redhat.com>
+	    Tom de Vries  <tdevries@suse.de>
+
+	PR testsuite/81690
+	* testsuite/libgomp.c/usleep.h: New file.
+	* testsuite/libgomp.c/target-32.c: Include usleep.h.
+	(main): Use tgt_usleep instead of usleep.
+	* testsuite/libgomp.c/thread-limit-2.c: Include usleep.h.
+	(main): Use tgt_usleep instead of usleep.
+
+2020-10-28  Jakub Jelinek  <jakub@redhat.com>
+
+	PR lto/96680
+	* testsuite/libgomp.c/declare-variant-1.c: New test.
+
+2020-10-22  Jakub Jelinek  <jakub@redhat.com>
+
+	* testsuite/libgomp.c/target-41.c: New test.
+
+2020-10-22  Jakub Jelinek  <jakub@redhat.com>
+
+	* icv.c (omp_get_initial_device): Remove including corresponding
+	ialias.
+	* icv-device.c (omp_get_initial_device): New function.  Return
+	gomp_get_num_devices ().  Add ialias.
+	* target.c (resolve_device): Don't fail with
+	OMP_TARGET_OFFLOAD=mandatory if device_id is equal to
+	gomp_get_num_devices ().
+	(omp_target_alloc, omp_target_free, omp_target_is_present,
+	omp_target_memcpy, omp_target_memcpy_rect, omp_target_associate_ptr,
+	omp_target_disassociate_ptr, omp_pause_resource): Use
+	gomp_get_num_devices () instead of GOMP_DEVICE_HOST_FALLBACK on the
+	first use in the functions, in uses dominated by the
+	gomp_get_num_devices call use num_devices_openmp instead.
+	* libgomp.texi (omp_get_initial_device): Document.
+	* config/gcn/icv-device.c (omp_get_initial_device): New function.
+	Add ialias.
+	* config/nvptx/icv-device.c (omp_get_initial_device): Likewise.
+	* testsuite/libgomp.c/target-40.c: New test.
+
+2020-10-21  Jakub Jelinek  <jakub@redhat.com>
+
+	* env.c (parse_target_offload): Change new_offload var type to int,
+	preinitialize to -1, remove found var and test new_offload != -1
+	instead of found.
+
+2020-10-20  Jakub Jelinek  <jakub@redhat.com>
+
+	* target.c (gomp_target_init): Inside of the function, use automatic
+	variables corresponding to num_devices, num_devices_openmp and devices
+	global variables and update the globals only at the end of the
+	function.
+
+2020-10-20  Kwok Cheung Yeung  <kcy@codesourcery.com>
+
+	* env.c (gomp_target_offload_var): New.
+	(parse_target_offload): New.
+	(handle_omp_display_env): Print value of OMP_TARGET_OFFLOAD.
+	(initialize_env): Parse OMP_TARGET_OFFLOAD.
+	* libgomp.h (gomp_target_offload_t): New.
+	(gomp_target_offload_var): New.
+	* libgomp.texi (OMP_TARGET_OFFLOAD): New section.
+	* target.c (resolve_device): Generate error if device not found and
+	offloading is mandatory.
+	(gomp_target_fallback): Generate error if offloading is mandatory.
+	(GOMP_target): Add argument in call to gomp_target_fallback.
+	(GOMP_target_ext): Likewise.
+	(gomp_target_data_fallback): Generate error if offloading is mandatory.
+	(GOMP_target_data): Add argument in call to gomp_target_data_fallback.
+	(GOMP_target_data_ext): Likewise.
+	(gomp_target_task_fn): Add argument in call to gomp_target_fallback.
+	(gomp_target_init): Return early if offloading is disabled.
+
 2020-10-15  Kwok Cheung Yeung  <kcy@codesourcery.com>
 
 	* libgomp.texi (omp_get_max_active_levels): Modify description.

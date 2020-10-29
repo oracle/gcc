@@ -950,7 +950,7 @@ compile_offload_image (const char *target, const char *compiler_path,
 
   obstack_ptr_grow (&argv_obstack, NULL);
   argv = XOBFINISH (&argv_obstack, char **);
-  fork_execute (argv[0], argv, true);
+  fork_execute (argv[0], argv, true, "offload_args");
   obstack_free (&argv_obstack, NULL);
 
   free_array_of_ptrs ((void **) paths, n_paths);
@@ -1334,6 +1334,26 @@ jobserver_active_p (void)
     return JS_PREFIX "cannot access %<" JS_NEEDLE "%> file descriptors";
 }
 
+/* Test that a make command is present and working, return true if so.  */
+
+static bool
+make_exists (void)
+{
+  const char *make = "make";
+  char **make_argv = buildargv (getenv ("MAKE"));
+  if (make_argv)
+    make = make_argv[0];
+  const char *make_args[] = {make, "--version", NULL};
+
+  int exit_status = 0;
+  int err = 0;
+  const char *errmsg
+    = pex_one (PEX_SEARCH, make_args[0], CONST_CAST (char **, make_args),
+	       "make", NULL, NULL, &exit_status, &err);
+  freeargv (make_argv);
+  return errmsg == NULL && exit_status == 0 && err == 0;
+}
+
 /* Execute gcc. ARGC is the number of arguments. ARGV contains the arguments. */
 
 static void
@@ -1562,13 +1582,21 @@ run_gcc (unsigned argc, char *argv[])
     {
       const char *jobserver_error = jobserver_active_p ();
       if (jobserver && jobserver_error != NULL)
-	warning (0, jobserver_error);
+	{
+	  warning (0, jobserver_error);
+	  parallel = 0;
+	  jobserver = 0;
+	}
       else if (!jobserver && jobserver_error == NULL)
 	{
 	  parallel = 1;
 	  jobserver = 1;
 	}
     }
+
+  /* We need make working for a parallel execution.  */
+  if (parallel && !make_exists ())
+    parallel = 0;
 
   if (!dumppfx)
     {
@@ -1777,7 +1805,8 @@ cont1:
 
   new_argv = XOBFINISH (&argv_obstack, const char **);
   argv_ptr = &new_argv[new_head_argc];
-  fork_execute (new_argv[0], CONST_CAST (char **, new_argv), true);
+  fork_execute (new_argv[0], CONST_CAST (char **, new_argv), true,
+		"ltrans_args");
 
   /* Copy the early generated debug info from the objects to temporary
      files and append those to the partial link commandline.  */
@@ -1921,8 +1950,12 @@ cont:
 	    }
 	  else
 	    {
+	      char argsuffix[sizeof (DUMPBASE_SUFFIX) + 1];
+	      if (save_temps)
+		snprintf (argsuffix, sizeof (DUMPBASE_SUFFIX),
+			  "ltrans%u.ltrans_args", i);
 	      fork_execute (new_argv[0], CONST_CAST (char **, new_argv),
-			    true);
+			    true, save_temps ? argsuffix : NULL);
 	      maybe_unlink (input_name);
 	    }
 
@@ -1973,7 +2006,7 @@ cont:
 	  new_argv = XOBFINISH (&argv_obstack, const char **);
 
 	  pex = collect_execute (new_argv[0], CONST_CAST (char **, new_argv),
-				 NULL, NULL, PEX_SEARCH, false);
+				 NULL, NULL, PEX_SEARCH, false, NULL);
 	  do_wait (new_argv[0], pex);
 	  freeargv (make_argv);
 	  maybe_unlink (makefile);

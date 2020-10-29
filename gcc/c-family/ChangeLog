@@ -1,3 +1,62 @@
+2020-10-28  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/97573
+	* c-opts.c (c_common_post_options): In C++20, turn on
+	-Wdeprecated-enum-enum-conversion and
+	-Wdeprecated-enum-float-conversion.
+	* c.opt (Wdeprecated-enum-enum-conversion,
+	Wdeprecated-enum-float-conversion): New options.
+	(Wenum-conversion): Allow for C++ too.
+
+2020-10-28  Jakub Jelinek  <jakub@redhat.com>
+
+	* c-pragma.h (enum pragma_omp_clause): Add PRAGMA_OMP_CLAUSE_ALLOCATE.
+	* c-omp.c: Include bitmap.h.
+	(c_omp_split_clauses): Handle OMP_CLAUSE_ALLOCATE.
+
+2020-10-26  Ville Voutilainen  <ville.voutilainen@gmail.com>
+
+	* c-common.c (__is_nothrow_assignable): New.
+	(__is_nothrow_constructible): Likewise.
+	* c-common.h (RID_IS_NOTHROW_ASSIGNABLE): New.
+	(RID_IS_NOTHROW_CONSTRUCTIBLE): Likewise.
+
+2020-10-23  Jan Hubicka  <hubicka@ucw.cz>
+
+	* c-common.c (c_common_finalize_early_debug): Update for new thunk api.
+
+2020-10-23  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/91741
+	* c-common.c (verify_tree): Handle PAREN_SIZEOF_EXPR.
+	(c_common_init_ts): Likewise.
+	* c-common.def (PAREN_SIZEOF_EXPR): New tree code.
+	* c-common.h (maybe_warn_sizeof_array_div): Declare.
+	* c-warn.c (sizeof_pointer_memaccess_warning): Unwrap NOP_EXPRs.
+	(maybe_warn_sizeof_array_div): New function.
+	* c.opt (Wsizeof-array-div): New option.
+
+2020-10-23  Martin Sebor  <msebor@redhat.com>
+
+	PR c/97463
+	* c-warn.c (warn_parm_ptrarray_mismatch): Move null test earlier.
+
+2020-10-22  Martin Liska  <mliska@suse.cz>
+
+	PR c/94722
+	* c-attribs.c (handle_no_stack_protect_function_attribute): New.
+	(handle_stack_protect_attribute): Add error message for a
+	no_stack_protector function.
+
+2020-10-22  Martin Liska  <mliska@suse.cz>
+
+	* c-cppbuiltin.c (c_cpp_builtins): Use the stack_protector enum.
+
+2020-10-22  Jan Hubicka  <hubicka@ucw.cz>
+
+	* c-gimplify.c: Include tree-nested.h
+	(c_genericize): Update for new nested function info.
+
 2020-10-14  Martin Sebor  <msebor@redhat.com>
 
 	PR c/97413

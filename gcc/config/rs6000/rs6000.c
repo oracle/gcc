@@ -4324,7 +4324,9 @@ rs6000_option_override_internal (bool global_init_p)
     }
 
   /* Enable Altivec ABI for AIX -maltivec.  */
-  if (TARGET_XCOFF && (TARGET_ALTIVEC || TARGET_VSX))
+  if (TARGET_XCOFF
+      && (TARGET_ALTIVEC || TARGET_VSX)
+      && !global_options_set.x_rs6000_altivec_abi)
     {
       if (main_target_opt != NULL && !main_target_opt->x_rs6000_altivec_abi)
 	error ("target attribute or pragma changes AltiVec ABI");
@@ -9108,15 +9110,21 @@ rs6000_legitimate_address_p (machine_mode mode, rtx x, bool reg_ok_strict)
   bool reg_offset_p = reg_offset_addressing_ok_p (mode);
   bool quad_offset_p = mode_supports_dq_form (mode);
 
-  /* If this is an unaligned stvx/ldvx type address, discard the outer AND.  */
+  if (TARGET_ELF && RS6000_SYMBOL_REF_TLS_P (x))
+    return 0;
+
+  /* Handle unaligned altivec lvx/stvx type addresses.  */
   if (VECTOR_MEM_ALTIVEC_OR_VSX_P (mode)
       && GET_CODE (x) == AND
       && CONST_INT_P (XEXP (x, 1))
       && INTVAL (XEXP (x, 1)) == -16)
-    x = XEXP (x, 0);
+    {
+      x = XEXP (x, 0);
+      return (legitimate_indirect_address_p (x, reg_ok_strict)
+	      || legitimate_indexed_address_p (x, reg_ok_strict)
+	      || virtual_stack_registers_memory_p (x));
+    }
 
-  if (TARGET_ELF && RS6000_SYMBOL_REF_TLS_P (x))
-    return 0;
   if (legitimate_indirect_address_p (x, reg_ok_strict))
     return 1;
   if (TARGET_UPDATE
@@ -27062,11 +27070,10 @@ rs6000_const_f32_to_i32 (rtx operand)
 void
 rs6000_emit_xxspltidp_v2df (rtx dst, long value)
 {
-  printf("rs6000_emit_xxspltidp_v2df called %ld\n", value);
-  printf("rs6000_emit_xxspltidp_v2df called 0x%lx\n", value);
   if (((value & 0x7F800000) == 0) && ((value & 0x7FFFFF) != 0))
     inform (input_location,
-	    "the result for the xxspltidp instruction is undefined for subnormal input values.\n");
+	    "the result for the xxspltidp instruction "
+	    "is undefined for subnormal input values");
   emit_insn( gen_xxspltidp_v2df_inst (dst, GEN_INT (value)));
 }
 

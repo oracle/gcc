@@ -166,6 +166,7 @@ linkage, and do not throw exceptions.
 * omp_get_cancellation::        Whether cancellation support is enabled
 * omp_get_default_device::      Get the default device for target regions
 * omp_get_dynamic::             Dynamic teams setting
+* omp_get_initial_device::      Device number of host device
 * omp_get_level::               Number of parallel regions
 * omp_get_max_active_levels::   Current maximum number of active regions
 * omp_get_max_task_priority::   Maximum task priority value that can be set
@@ -349,6 +350,33 @@ disabled by default.
 
 @item @emph{Reference}:
 @uref{https://www.openmp.org, OpenMP specification v4.5}, Section 3.2.8.
+@end table
+
+
+
+@node omp_get_initial_device
+@section @code{omp_get_initial_device} -- Return device number of initial device
+@table @asis
+@item @emph{Description}:
+This function returns a device number that represents the host device.
+For OpenMP 5.1, this must be equal to the value returned by the
+@code{omp_get_num_devices} function.
+
+@item @emph{C/C++}
+@multitable @columnfractions .20 .80
+@item @emph{Prototype}: @tab @code{int omp_get_initial_device(void);}
+@end multitable
+
+@item @emph{Fortran}:
+@multitable @columnfractions .20 .80
+@item @emph{Interface}: @tab @code{integer function omp_get_initial_device()}
+@end multitable
+
+@item @emph{See also}:
+@ref{omp_get_num_devices}
+
+@item @emph{Reference}:
+@uref{https://www.openmp.org, OpenMP specification v4.5}, Section 3.2.35.
 @end table
 
 
@@ -1381,6 +1409,7 @@ beginning with @env{GOMP_} are GNU extensions.
 * OMP_PLACES::              Specifies on which CPUs the theads should be placed
 * OMP_STACKSIZE::           Set default thread stack size
 * OMP_SCHEDULE::            How threads are scheduled
+* OMP_TARGET_OFFLOAD::      Controls offloading behaviour
 * OMP_THREAD_LIMIT::        Set the maximum number of threads
 * OMP_WAIT_POLICY::         How waiting threads are handled
 * GOMP_CPU_AFFINITY::       Bind threads to specific CPUs
@@ -1650,6 +1679,30 @@ dynamic scheduling and a chunk size of 1 is used.
 
 @item @emph{Reference}: 
 @uref{https://www.openmp.org, OpenMP specification v4.5}, Sections 2.7.1.1 and 4.1
+@end table
+
+
+
+@node OMP_TARGET_OFFLOAD
+@section @env{OMP_TARGET_OFFLOAD} -- Controls offloading behaviour
+@cindex Environment Variable
+@cindex Implementation specific setting
+@table @asis
+@item @emph{Description}:
+Specifies the behaviour with regard to offloading code to a device.  This
+variable can be set to one of three values - @code{MANDATORY}, @code{DISABLED}
+or @code{DEFAULT}.
+
+If set to @code{MANDATORY}, the program will terminate with an error if
+the offload device is not present or is not supported.  If set to
+@code{DISABLED}, then offloading is disabled and all code will run on the
+host. If set to @code{DEFAULT}, the program will try offloading to the
+device first, then fall back to running code on the host if it cannot.
+
+If undefined, then the program will behave as if @code{DEFAULT} was set.
+
+@item @emph{Reference}:
+@uref{https://www.openmp.org, OpenMP specification v5.0}, Section 6.17
 @end table
 
 

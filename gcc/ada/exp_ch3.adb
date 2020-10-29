@@ -1335,6 +1335,31 @@ package body Exp_Ch3 is
       return Agg;
    end Build_Equivalent_Record_Aggregate;
 
+   ----------------------------
+   -- Init_Proc_Level_Formal --
+   ----------------------------
+
+   function Init_Proc_Level_Formal (Proc : Entity_Id) return Entity_Id is
+      Form : Entity_Id;
+   begin
+      --  Move through the formals of the initialization procedure Proc to find
+      --  the extra accessibility level parameter associated with the object
+      --  being initialized.
+
+      Form := First_Formal (Proc);
+      while Present (Form) loop
+         if Chars (Form) = Name_uInit_Level then
+            return Form;
+         end if;
+
+         Next_Formal (Form);
+      end loop;
+
+      --  No formal was found, return Empty
+
+      return Empty;
+   end Init_Proc_Level_Formal;
+
    -------------------------------
    -- Build_Initialization_Call --
    -------------------------------
@@ -1770,6 +1795,24 @@ package body Exp_Ch3 is
       elsif Present (Constructor_Ref) then
          Append_List_To (Args,
            New_Copy_List (Parameter_Associations (Constructor_Ref)));
+      end if;
+
+      --  Pass the extra accessibility level parameter associated with the
+      --  level of the object being initialized when required.
+
+      --  When no entity is present for Id_Ref it may not have been fully
+      --  analyzed, so allow the default value of standard standard to be
+      --  passed ???
+
+      if Is_Entity_Name (Id_Ref)
+        and then Present (Init_Proc_Level_Formal (Proc))
+      then
+         Append_To (Args,
+           Make_Parameter_Association (Loc,
+             Selector_Name             =>
+               Make_Identifier (Loc, Name_uInit_Level),
+             Explicit_Actual_Parameter =>
+               Accessibility_Level (Id_Ref, Dynamic_Level)));
       end if;
 
       Append_To (Res,
@@ -2511,6 +2554,21 @@ package body Exp_Ch3 is
                   New_Occurrence_Of (Standard_Boolean, Loc),
                 Expression =>
                   New_Occurrence_Of (Standard_True, Loc)));
+         end if;
+
+         --  Create an extra accessibility parameter to capture the level of
+         --  the object being initialized when its type is a limited record.
+
+         if Is_Limited_Record (Rec_Type) then
+            Append_To (Parameters,
+              Make_Parameter_Specification (Loc,
+                Defining_Identifier => Make_Defining_Identifier
+                                         (Loc, Name_uInit_Level),
+                Parameter_Type      =>
+                  New_Occurrence_Of (Standard_Natural, Loc),
+                Expression          =>
+                  Make_Integer_Literal
+                    (Loc, Scope_Depth (Standard_Standard))));
          end if;
 
          Set_Parameter_Specifications (Proc_Spec_Node, Parameters);
@@ -7449,7 +7507,8 @@ package body Exp_Ch3 is
 
             if No (Expr) then
                Level_Expr :=
-                 Make_Integer_Literal (Loc, Scope_Depth (Standard_Standard));
+                 Make_Integer_Literal
+                   (Loc, Scope_Depth (Standard_Standard));
 
             --  When the expression of the object is a function which returns
             --  an anonymous access type the master of the call is the object
@@ -7458,13 +7517,13 @@ package body Exp_Ch3 is
             elsif Nkind (Expr) = N_Function_Call
               and then Ekind (Etype (Name (Expr))) = E_Anonymous_Access_Type
             then
-               Level_Expr := Make_Integer_Literal (Loc,
-                               Object_Access_Level (Def_Id));
+               Level_Expr := Accessibility_Level
+                               (Def_Id, Object_Decl_Level);
 
             --  General case
 
             else
-               Level_Expr := Dynamic_Accessibility_Level (Expr);
+               Level_Expr := Accessibility_Level (Expr, Dynamic_Level);
             end if;
 
             Level_Decl :=
@@ -8143,7 +8202,8 @@ package body Exp_Ch3 is
                   --  It is known that the accessibility level of the access
                   --  type is deeper than that of the pool.
 
-                  if Type_Access_Level (Def_Id) > Object_Access_Level (Pool)
+                  if Type_Access_Level (Def_Id)
+                       > Static_Accessibility_Level (Pool, Object_Decl_Level)
                     and then Is_Class_Wide_Type (Etype (Pool))
                     and then not Accessibility_Checks_Suppressed (Def_Id)
                     and then not Accessibility_Checks_Suppressed (Pool)
@@ -8178,8 +8238,9 @@ package body Exp_Ch3 is
             --  Taft-amendment types, which potentially have controlled
             --  components), expand the list controller object that will store
             --  the dynamically allocated objects. Don't do this transformation
-            --  for expander-generated access types, but do it for types that
-            --  are the full view of types derived from other private types.
+            --  for expander-generated access types, except do it for types
+            --  that are the full view of types derived from other private
+            --  types and for access types used to implement indirect temps.
             --  Also suppress the list controller in the case of a designated
             --  type with convention Java, since this is used when binding to
             --  Java API specs, where there's no equivalent of a finalization
@@ -8188,6 +8249,8 @@ package body Exp_Ch3 is
 
             if not Comes_From_Source (Def_Id)
               and then not Has_Private_Declaration (Def_Id)
+              and then not Old_Attr_Util.Indirect_Temps
+                             .Is_Access_Type_For_Indirect_Temp (Def_Id)
             then
                null;
 
@@ -8562,8 +8625,10 @@ package body Exp_Ch3 is
                Scal_Typ := Name_Unsigned_16;
             elsif Size_To_Use <= 32 then
                Scal_Typ := Name_Unsigned_32;
-            else
+            elsif Size_To_Use <= 64 then
                Scal_Typ := Name_Unsigned_64;
+            else
+               Scal_Typ := Name_Unsigned_128;
             end if;
 
          --  Signed types
@@ -8575,8 +8640,10 @@ package body Exp_Ch3 is
                Scal_Typ := Name_Signed_16;
             elsif Size_To_Use <= 32 then
                Scal_Typ := Name_Signed_32;
-            else
+            elsif Size_To_Use <= 64 then
                Scal_Typ := Name_Signed_64;
+            else
+               Scal_Typ := Name_Signed_128;
             end if;
          end if;
 
@@ -8630,10 +8697,10 @@ package body Exp_Ch3 is
          then
             Expr := Make_Integer_Literal (Loc, 2 ** Size_To_Use - 1);
 
-            --  Resolve as Long_Long_Unsigned, because the largest number
+            --  Resolve as Long_Long_Long_Unsigned, because the largest number
             --  we can generate is out of range of universal integer.
 
-            Analyze_And_Resolve (Expr, Standard_Long_Long_Unsigned);
+            Analyze_And_Resolve (Expr, Standard_Long_Long_Long_Unsigned);
 
          --  Case of signed types
 
@@ -8721,7 +8788,7 @@ package body Exp_Ch3 is
          end if;
 
          --  The maximum size to use is System_Max_Integer_Size bits. This
-         --  will create values of type Long_Long_Unsigned and the range
+         --  will create values of type Long_Long_Long_Unsigned and the range
          --  must fit this type.
 
          if Size_To_Use /= No_Uint
@@ -9468,6 +9535,31 @@ package body Exp_Ch3 is
              (Is_Null_Extension (Etype (Subp))
                and then Etype (Alias (Subp)) /= Etype (Subp))
          then
+            --  If there is a non-overloadable homonym in the current
+            --  scope, the implicit declaration remains invisible.
+            --  We check the current entity with the same name, or its
+            --  homonym in case the derivation takes place after the
+            --  hiding object declaration.
+
+            if Present (Current_Entity (Subp)) then
+               declare
+                  Curr : constant Entity_Id := Current_Entity (Subp);
+                  Prev : constant Entity_Id := Homonym (Curr);
+               begin
+                  if (Comes_From_Source (Curr)
+                    and then Scope (Curr) = Current_Scope
+                    and then not Is_Overloadable (Curr))
+                  or else
+                    (Present (Prev)
+                      and then Comes_From_Source (Prev)
+                      and then Scope (Prev) = Current_Scope
+                      and then not Is_Overloadable (Prev))
+                  then
+                     goto Next_Prim;
+                  end if;
+               end;
+            end if;
+
             Formal_List := No_List;
             Formal := First_Formal (Subp);
 

@@ -29,7 +29,6 @@ with Checks;   use Checks;
 with Einfo;    use Einfo;
 with Elists;   use Elists;
 with Exp_Atag; use Exp_Atag;
-with Exp_Ch2;  use Exp_Ch2;
 with Exp_Ch3;  use Exp_Ch3;
 with Exp_Ch6;  use Exp_Ch6;
 with Exp_Ch9;  use Exp_Ch9;
@@ -136,6 +135,12 @@ package body Exp_Attr is
    --  everywhere. Having such a separate pass would remove much of the
    --  special-case code that shuffles partial and full views in the middle
    --  of semantic analysis and expansion.
+
+   function Default_Streaming_Unavailable (Typ : Entity_Id) return Boolean;
+   --
+   --  In most cases, references to unavailable streaming attributes
+   --  are rejected at compile time. In some obscure cases involving
+   --  generics and formal derived types, the problem is dealt with at runtime.
 
    procedure Expand_Access_To_Protected_Op
      (N    : Node_Id;
@@ -926,6 +931,24 @@ package body Exp_Attr is
          End_Package_Scope (Scop);
       end if;
    end Compile_Stream_Body_In_Scope;
+
+   -----------------------------------
+   -- Default_Streaming_Unavailable --
+   -----------------------------------
+
+   function Default_Streaming_Unavailable (Typ : Entity_Id) return Boolean is
+      Btyp : constant Entity_Id := Implementation_Base_Type (Typ);
+   begin
+      if Is_Immutably_Limited_Type (Btyp)
+        and then not Is_Tagged_Type (Btyp)
+        and then not (Ekind (Btyp) = E_Record_Type
+                      and then Present (Corresponding_Concurrent_Type (Btyp)))
+      then
+         pragma Assert (In_Instance_Body);
+         return True;
+      end if;
+      return False;
+   end Default_Streaming_Unavailable;
 
    -----------------------------------
    -- Expand_Access_To_Protected_Op --
@@ -2334,7 +2357,7 @@ package body Exp_Attr is
               and then Is_Entity_Name (Prefix (Enc_Object))
               and then (Ekind (Btyp) = E_General_Access_Type
                          or else Is_Local_Anonymous_Access (Btyp))
-              and then Ekind (Entity (Prefix (Enc_Object))) in Formal_Kind
+              and then Is_Formal (Entity (Prefix (Enc_Object)))
               and then Ekind (Etype (Entity (Prefix (Enc_Object))))
                          = E_Anonymous_Access_Type
               and then Present (Extra_Accessibility
@@ -3955,6 +3978,18 @@ package body Exp_Attr is
                Analyze_And_Resolve (N, B_Type);
                return;
 
+            --  Limited types
+
+            elsif Default_Streaming_Unavailable (U_Type) then
+               --  Do the same thing here as is done above in the
+               --  case where a No_Streams restriction is active.
+
+               Rewrite (N,
+                 Make_Raise_Program_Error (Sloc (N),
+                   Reason => PE_Stream_Operation_Not_Allowed));
+               Set_Etype (N, B_Type);
+               return;
+
             --  Elementary types
 
             elsif Is_Elementary_Type (U_Type) then
@@ -4586,7 +4621,7 @@ package body Exp_Attr is
          --    b) The integer value is negative. In this case, we know that the
          --    result is modulus + value, where the value might be as small as
          --    -modulus. The trouble is what type do we use to do the subtract.
-         --    No type will do, since modulus can be as big as 2**64, and no
+         --    No type will do, since modulus can be as big as 2**128, and no
          --    integer type accommodates this value. Let's do bit of algebra
 
          --         modulus + value
@@ -4665,6 +4700,8 @@ package body Exp_Attr is
          Subp    : Node_Id;
          Temp    : Entity_Id;
 
+         use Old_Attr_Util.Conditional_Evaluation;
+         use Old_Attr_Util.Indirect_Temps;
       begin
          --  Generating C code we don't need to expand this attribute when
          --  we are analyzing the internally built nested postconditions
@@ -4748,10 +4785,60 @@ package body Exp_Attr is
             Ins_Nod := First (Declarations (Ins_Nod));
          end if;
 
+         if Eligible_For_Conditional_Evaluation (N) then
+            declare
+               Eval_Stmts : constant List_Id := New_List;
+
+               procedure Append_For_Indirect_Temp
+                 (N : Node_Id; Is_Eval_Stmt : Boolean);
+               --  Append either a declaration (which is to be elaborated
+               --  unconditionally) or an evaluation statement (which is
+               --  to be executed conditionally).
+
+               -------------------------------
+               --  Append_For_Indirect_Temp --
+               -------------------------------
+
+               procedure Append_For_Indirect_Temp
+                 (N : Node_Id; Is_Eval_Stmt : Boolean)
+               is
+               begin
+                  if Is_Eval_Stmt then
+                     Append_To (Eval_Stmts, N);
+                  else
+                     Insert_Before_And_Analyze (Ins_Nod, N);
+                  end if;
+               end Append_For_Indirect_Temp;
+
+               procedure Declare_Indirect_Temporary is new
+                 Declare_Indirect_Temp
+                   (Append_Item => Append_For_Indirect_Temp);
+            begin
+               Declare_Indirect_Temporary
+                 (Attr_Prefix => Pref, Indirect_Temp => Temp);
+
+               Insert_Before_And_Analyze (
+                 Ins_Nod,
+                 Make_If_Statement
+                   (Sloc            => Loc,
+                    Condition       => Conditional_Evaluation_Condition  (N),
+                    Then_Statements => Eval_Stmts));
+
+               Rewrite (N, Indirect_Temp_Value
+                             (Temp => Temp,
+                              Typ  => Etype (Pref),
+                              Loc  => Loc));
+
+               if Present (Subp) then
+                  Pop_Scope;
+               end if;
+               return;
+            end;
+
          --  Preserve the tag of the prefix by offering a specific view of the
          --  class-wide version of the prefix.
 
-         if Is_Tagged_Type (Typ) then
+         elsif Is_Tagged_Type (Typ) then
 
             --  Generate:
             --    CW_Temp : constant Typ'Class := Typ'Class (Pref);
@@ -5021,6 +5108,18 @@ package body Exp_Attr is
                            Relocate_Node (Next (First (Exprs)))))))));
 
                Analyze (N);
+               return;
+
+            --  Limited types
+
+            elsif Default_Streaming_Unavailable (U_Type) then
+               --  Do the same thing here as is done above in the
+               --  case where a No_Streams restriction is active.
+
+               Rewrite (N,
+                 Make_Raise_Program_Error (Sloc (N),
+                   Reason => PE_Stream_Operation_Not_Allowed));
+               Set_Etype (N, Standard_Void_Type);
                return;
 
             --  For elementary types, we call the W_xxx routine directly. Note
@@ -5856,6 +5955,18 @@ package body Exp_Attr is
                Analyze (N);
                return;
 
+            --  Limited types
+
+            elsif Default_Streaming_Unavailable (U_Type) then
+               --  Do the same thing here as is done above in the
+               --  case where a No_Streams restriction is active.
+
+               Rewrite (N,
+                 Make_Raise_Program_Error (Sloc (N),
+                   Reason => PE_Stream_Operation_Not_Allowed));
+               Set_Etype (N, B_Type);
+               return;
+
             --  For elementary types, we call the I_xxx routine using the first
             --  parameter and then assign the result into the second parameter.
             --  We set Assignment_OK to deal with the conversion case.
@@ -6037,11 +6148,11 @@ package body Exp_Attr is
       when Attribute_Scaling =>
          Expand_Fpt_Attribute_RI (N);
 
-      -------------------------
-      -- Simple_Storage_Pool --
-      -------------------------
+      ----------------------------------------
+      -- Simple_Storage_Pool & Storage_Pool --
+      ----------------------------------------
 
-      when Attribute_Simple_Storage_Pool =>
+      when Attribute_Simple_Storage_Pool | Attribute_Storage_Pool =>
          Rewrite (N,
            Make_Type_Conversion (Loc,
              Subtype_Mark => New_Occurrence_Of (Etype (N), Loc),
@@ -6176,17 +6287,6 @@ package body Exp_Attr is
 
             Expand_Size_Attribute (N);
          end Size;
-
-      ------------------
-      -- Storage_Pool --
-      ------------------
-
-      when Attribute_Storage_Pool =>
-         Rewrite (N,
-           Make_Type_Conversion (Loc,
-             Subtype_Mark => New_Occurrence_Of (Etype (N), Loc),
-             Expression   => New_Occurrence_Of (Entity (N), Loc)));
-         Analyze_And_Resolve (N, Typ);
 
       ------------------
       -- Storage_Size --
@@ -7476,6 +7576,18 @@ package body Exp_Attr is
                Analyze (N);
                return;
 
+            --  Limited types
+
+            elsif Default_Streaming_Unavailable (U_Type) then
+               --  Do the same thing here as is done above in the
+               --  case where a No_Streams restriction is active.
+
+               Rewrite (N,
+                 Make_Raise_Program_Error (Sloc (N),
+                   Reason => PE_Stream_Operation_Not_Allowed));
+               Set_Etype (N, U_Type);
+               return;
+
             --  For elementary types, we call the W_xxx routine directly
 
             elsif Is_Elementary_Type (U_Type) then
@@ -8052,6 +8164,9 @@ package body Exp_Attr is
          while Present (Comp) loop
             if Nkind (Comp) = N_Range then
                Process_Range_Update (Temp, Comp, Expr, Typ);
+            elsif Nkind (Comp) = N_Subtype_Indication then
+               Process_Range_Update
+                 (Temp, Range_Expression (Constraint (Comp)), Expr, Typ);
             else
                Process_Component_Or_Element_Update (Temp, Comp, Expr, Typ);
             end if;

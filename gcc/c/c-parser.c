@@ -4977,9 +4977,6 @@ c_parser_std_attribute (c_parser *parser, bool for_tm)
 static tree
 c_parser_std_attribute_specifier (c_parser *parser, bool for_tm)
 {
-  bool seen_deprecated = false;
-  bool seen_fallthrough = false;
-  bool seen_maybe_unused = false;
   location_t loc = c_parser_peek_token (parser)->location;
   if (!c_parser_require (parser, CPP_OPEN_SQUARE, "expected %<[%>"))
     return NULL_TREE;
@@ -5005,55 +5002,8 @@ c_parser_std_attribute_specifier (c_parser *parser, bool for_tm)
       tree attribute = c_parser_std_attribute (parser, for_tm);
       if (attribute != error_mark_node)
 	{
-	  bool duplicate = false;
-	  tree name = get_attribute_name (attribute);
-	  tree ns = get_attribute_namespace (attribute);
-	  if (ns == NULL_TREE)
-	    {
-	      /* Some standard attributes may appear at most once in
-		 each attribute list.  Diagnose duplicates and remove
-		 them from the list to avoid subsequent diagnostics
-		 such as the more general one for multiple
-		 "fallthrough" attributes in the same place (including
-		 in separate attribute lists in the same attribute
-		 specifier sequence, which is not a constraint
-		 violation).  */
-	      if (is_attribute_p ("deprecated", name))
-		{
-		  if (seen_deprecated)
-		    {
-		      error ("attribute %<deprecated%> can appear at most "
-			     "once in an attribute-list");
-		      duplicate = true;
-		    }
-		  seen_deprecated = true;
-		}
-	      else if (is_attribute_p ("fallthrough", name))
-		{
-		  if (seen_fallthrough)
-		    {
-		      error ("attribute %<fallthrough%> can appear at most "
-			     "once in an attribute-list");
-		      duplicate = true;
-		    }
-		  seen_fallthrough = true;
-		}
-	      else if (is_attribute_p ("maybe_unused", name))
-		{
-		  if (seen_maybe_unused)
-		    {
-		      error ("attribute %<maybe_unused%> can appear at most "
-			     "once in an attribute-list");
-		      duplicate = true;
-		    }
-		  seen_maybe_unused = true;
-		}
-	    }
-	  if (!duplicate)
-	    {
-	      TREE_CHAIN (attribute) = attributes;
-	      attributes = attribute;
-	    }
+	  TREE_CHAIN (attribute) = attributes;
+	  attributes = attribute;
 	}
       if (c_parser_next_token_is_not (parser, CPP_COMMA))
 	break;
@@ -7876,7 +7826,7 @@ c_parser_binary_expression (c_parser *parser, struct c_expr *after,
     enum tree_code op;
     /* The source location of this operation.  */
     location_t loc;
-    /* The sizeof argument if expr.original_code == SIZEOF_EXPR.  */
+    /* The sizeof argument if expr.original_code == {PAREN_,}SIZEOF_EXPR.  */
     tree sizeof_arg;
   } stack[NUM_PRECS];
   int sp;
@@ -7894,9 +7844,11 @@ c_parser_binary_expression (c_parser *parser, struct c_expr *after,
 	c_inhibit_evaluation_warnings -= (stack[sp - 1].expr.value	      \
 					  == truthvalue_true_node);	      \
 	break;								      \
-      case TRUNC_DIV_EXPR: 						      \
-	if (stack[sp - 1].expr.original_code == SIZEOF_EXPR		      \
-	    && stack[sp].expr.original_code == SIZEOF_EXPR)		      \
+      case TRUNC_DIV_EXPR:						      \
+	if ((stack[sp - 1].expr.original_code == SIZEOF_EXPR		      \
+	     || stack[sp - 1].expr.original_code == PAREN_SIZEOF_EXPR)	      \
+	    && (stack[sp].expr.original_code == SIZEOF_EXPR		      \
+		|| stack[sp].expr.original_code == PAREN_SIZEOF_EXPR))	      \
 	  {								      \
 	    tree type0 = stack[sp - 1].sizeof_arg;			      \
 	    tree type1 = stack[sp].sizeof_arg;				      \
@@ -7910,18 +7862,23 @@ c_parser_binary_expression (c_parser *parser, struct c_expr *after,
 		&& !(TREE_CODE (first_arg) == PARM_DECL			      \
 		     && C_ARRAY_PARAMETER (first_arg)			      \
 		     && warn_sizeof_array_argument))			      \
-	      {								\
-		auto_diagnostic_group d;					\
-		if (warning_at (stack[sp].loc, OPT_Wsizeof_pointer_div, \
-				  "division %<sizeof (%T) / sizeof (%T)%> " \
-				  "does not compute the number of array " \
-				  "elements",				\
-				  type0, type1))			\
-		  if (DECL_P (first_arg))				\
-		    inform (DECL_SOURCE_LOCATION (first_arg),		\
-			      "first %<sizeof%> operand was declared here"); \
-	      }								\
-	  }								\
+	      {								      \
+		auto_diagnostic_group d;				      \
+		if (warning_at (stack[sp].loc, OPT_Wsizeof_pointer_div,	      \
+				  "division %<sizeof (%T) / sizeof (%T)%> "   \
+				  "does not compute the number of array "     \
+				  "elements",				      \
+				  type0, type1))			      \
+		  if (DECL_P (first_arg))				      \
+		    inform (DECL_SOURCE_LOCATION (first_arg),		      \
+			      "first %<sizeof%> operand was declared here");  \
+	      }								      \
+	    else if (TREE_CODE (type0) == ARRAY_TYPE			      \
+		     && !char_type_p (TYPE_MAIN_VARIANT (TREE_TYPE (type0)))  \
+		     && stack[sp].expr.original_code != PAREN_SIZEOF_EXPR)    \
+	      maybe_warn_sizeof_array_div (stack[sp].loc, first_arg, type0,   \
+					   stack[sp].sizeof_arg, type1);      \
+	  }								      \
 	break;								      \
       default:								      \
 	break;								      \
@@ -9177,6 +9134,9 @@ c_parser_postfix_expression (c_parser *parser)
 	  if (expr.original_code != C_MAYBE_CONST_EXPR
 	      && expr.original_code != SIZEOF_EXPR)
 	    expr.original_code = ERROR_MARK;
+	  /* Remember that we saw ( ) around the sizeof.  */
+	  if (expr.original_code == SIZEOF_EXPR)
+	    expr.original_code = PAREN_SIZEOF_EXPR;
 	  /* Don't change EXPR.ORIGINAL_TYPE.  */
 	  location_t loc_close_paren = c_parser_peek_token (parser)->location;
 	  set_c_expr_source_range (&expr, loc_open_paren, loc_close_paren);
@@ -10792,7 +10752,8 @@ c_parser_expr_list (c_parser *parser, bool convert_p, bool fold_p,
   if (locations)
     locations->safe_push (expr.get_location ());
   if (sizeof_arg != NULL
-      && expr.original_code == SIZEOF_EXPR)
+      && (expr.original_code == SIZEOF_EXPR
+	  || expr.original_code == PAREN_SIZEOF_EXPR))
     {
       sizeof_arg[0] = c_last_sizeof_arg;
       sizeof_arg_loc[0] = c_last_sizeof_loc;
@@ -10815,7 +10776,8 @@ c_parser_expr_list (c_parser *parser, bool convert_p, bool fold_p,
 	locations->safe_push (expr.get_location ());
       if (++idx < 3
 	  && sizeof_arg != NULL
-	  && expr.original_code == SIZEOF_EXPR)
+	  && (expr.original_code == SIZEOF_EXPR
+	      || expr.original_code == PAREN_SIZEOF_EXPR))
 	{
 	  sizeof_arg[idx] = c_last_sizeof_arg;
 	  sizeof_arg_loc[idx] = c_last_sizeof_loc;
@@ -12641,6 +12603,8 @@ c_parser_omp_clause_name (c_parser *parser)
 	case 'a':
 	  if (!strcmp ("aligned", p))
 	    result = PRAGMA_OMP_CLAUSE_ALIGNED;
+	  else if (!strcmp ("allocate", p))
+	    result = PRAGMA_OMP_CLAUSE_ALLOCATE;
 	  else if (!strcmp ("async", p))
 	    result = PRAGMA_OACC_CLAUSE_ASYNC;
 	  else if (!strcmp ("attach", p))
@@ -15150,6 +15114,62 @@ c_parser_omp_clause_aligned (c_parser *parser, tree list)
   return nl;
 }
 
+/* OpenMP 5.0:
+   allocate ( variable-list )
+   allocate ( expression : variable-list ) */
+
+static tree
+c_parser_omp_clause_allocate (c_parser *parser, tree list)
+{
+  location_t clause_loc = c_parser_peek_token (parser)->location;
+  tree nl, c;
+  tree allocator = NULL_TREE;
+
+  matching_parens parens;
+  if (!parens.require_open (parser))
+    return list;
+
+  if ((c_parser_next_token_is_not (parser, CPP_NAME)
+       && c_parser_next_token_is_not (parser, CPP_KEYWORD))
+      || (c_parser_peek_2nd_token (parser)->type != CPP_COMMA
+	  && c_parser_peek_2nd_token (parser)->type != CPP_CLOSE_PAREN))
+    {
+      location_t expr_loc = c_parser_peek_token (parser)->location;
+      c_expr expr = c_parser_expr_no_commas (parser, NULL);
+      expr = convert_lvalue_to_rvalue (expr_loc, expr, false, true);
+      allocator = expr.value;
+      allocator = c_fully_fold (allocator, false, NULL);
+      tree orig_type
+	= expr.original_type ? expr.original_type : TREE_TYPE (allocator);
+      orig_type = TYPE_MAIN_VARIANT (orig_type);
+      if (!INTEGRAL_TYPE_P (TREE_TYPE (allocator))
+	  || TREE_CODE (orig_type) != ENUMERAL_TYPE
+	  || TYPE_NAME (orig_type) != get_identifier ("omp_allocator_handle_t"))
+        {
+          error_at (clause_loc, "%<allocate%> clause allocator expression "
+				"has type %qT rather than "
+				"%<omp_allocator_handle_t%>",
+				TREE_TYPE (allocator));
+          allocator = NULL_TREE;
+        }
+      if (!c_parser_require (parser, CPP_COLON, "expected %<:%>"))
+	{
+	  parens.skip_until_found_close (parser);
+	  return list;
+	}
+    }
+
+  nl = c_parser_omp_variable_list (parser, clause_loc,
+				   OMP_CLAUSE_ALLOCATE, list);
+
+  if (allocator)
+    for (c = nl; c != list; c = OMP_CLAUSE_CHAIN (c))
+      OMP_CLAUSE_ALLOCATE_ALLOCATOR (c) = allocator;
+
+  parens.skip_until_found_close (parser);
+  return nl;
+}
+
 /* OpenMP 4.0:
    linear ( variable-list )
    linear ( variable-list : expression )
@@ -16391,6 +16411,10 @@ c_parser_omp_all_clauses (c_parser *parser, omp_clause_mask mask,
 	case PRAGMA_OMP_CLAUSE_ALIGNED:
 	  clauses = c_parser_omp_clause_aligned (parser, clauses);
 	  c_name = "aligned";
+	  break;
+	case PRAGMA_OMP_CLAUSE_ALLOCATE:
+	  clauses = c_parser_omp_clause_allocate (parser, clauses);
+	  c_name = "allocate";
 	  break;
 	case PRAGMA_OMP_CLAUSE_LINEAR: 
 	  clauses = c_parser_omp_clause_linear (parser, clauses); 
@@ -18572,6 +18596,7 @@ c_parser_omp_simd (location_t loc, c_parser *parser,
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_SCHEDULE)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_COLLAPSE)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_NOWAIT)	\
+	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_ALLOCATE)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_ORDER))
 
 static tree
@@ -18863,6 +18888,7 @@ c_parser_omp_sections_scope (location_t sections_loc, c_parser *parser)
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_FIRSTPRIVATE)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_LASTPRIVATE)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_REDUCTION)	\
+	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_ALLOCATE)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_NOWAIT))
 
 static tree
@@ -18917,6 +18943,7 @@ c_parser_omp_sections (location_t loc, c_parser *parser,
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_COPYIN)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_REDUCTION)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_NUM_THREADS)	\
+	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_ALLOCATE)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_PROC_BIND))
 
 static tree
@@ -19058,6 +19085,7 @@ c_parser_omp_parallel (location_t loc, c_parser *parser,
 	( (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_PRIVATE)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_FIRSTPRIVATE)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_COPYPRIVATE)	\
+	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_ALLOCATE)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_NOWAIT))
 
 static tree
@@ -19092,6 +19120,7 @@ c_parser_omp_single (location_t loc, c_parser *parser, bool *if_p)
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_MERGEABLE)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_DEPEND)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_PRIORITY)	\
+	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_ALLOCATE)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_IN_REDUCTION))
 
 static tree
@@ -19162,7 +19191,8 @@ c_parser_omp_taskyield (c_parser *parser)
 */
 
 #define OMP_TASKGROUP_CLAUSE_MASK				\
-	( (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_TASK_REDUCTION))
+	( (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_ALLOCATE)	\
+	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_TASK_REDUCTION))
 
 static tree
 c_parser_omp_taskgroup (location_t loc, c_parser *parser, bool *if_p)
@@ -19263,6 +19293,7 @@ c_parser_omp_cancellation_point (c_parser *parser, enum pragma_context context)
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_FIRSTPRIVATE)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_LASTPRIVATE)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_DIST_SCHEDULE)\
+	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_ALLOCATE)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_COLLAPSE))
 
 static tree
@@ -19352,6 +19383,7 @@ c_parser_omp_distribute (location_t loc, c_parser *parser,
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_REDUCTION)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_NUM_TEAMS)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_THREAD_LIMIT)	\
+	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_ALLOCATE)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_DEFAULT))
 
 static tree
@@ -19739,6 +19771,7 @@ c_parser_omp_target_exit_data (location_t loc, c_parser *parser,
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_NOWAIT)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_PRIVATE)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_FIRSTPRIVATE)	\
+	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_ALLOCATE)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_DEFAULTMAP)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_IS_DEVICE_PTR))
 
@@ -21369,6 +21402,7 @@ c_finish_taskloop_clauses (tree clauses)
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_MERGEABLE)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_NOGROUP)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_PRIORITY)	\
+	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_ALLOCATE)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_REDUCTION)	\
 	| (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_IN_REDUCTION))
 

@@ -32,7 +32,6 @@ with Einfo;    use Einfo;
 with Elists;   use Elists;
 with Errout;   use Errout;
 with Exp_Aggr; use Exp_Aggr;
-with Exp_Ch2;  use Exp_Ch2;
 with Exp_Ch6;  use Exp_Ch6;
 with Exp_Ch7;  use Exp_Ch7;
 with Exp_Ch11; use Exp_Ch11;
@@ -734,12 +733,13 @@ package body Exp_Util is
 
       --  Local variables
 
-      Desig_Typ    : Entity_Id;
-      Expr         : Node_Id;
-      Needs_Fin    : Boolean;
-      Pool_Id      : Entity_Id;
-      Proc_To_Call : Node_Id := Empty;
-      Ptr_Typ      : Entity_Id;
+      Desig_Typ                : Entity_Id;
+      Expr                     : Node_Id;
+      Needs_Fin                : Boolean;
+      Pool_Id                  : Entity_Id;
+      Proc_To_Call             : Node_Id := Empty;
+      Ptr_Typ                  : Entity_Id;
+      Use_Secondary_Stack_Pool : Boolean;
 
    --  Start of processing for Build_Allocate_Deallocate_Proc
 
@@ -804,17 +804,22 @@ package body Exp_Util is
          Desig_Typ := Corresponding_Record_Type (Desig_Typ);
       end if;
 
+      Use_Secondary_Stack_Pool :=
+        Is_RTE (Pool_Id, RE_SS_Pool)
+          or else (Nkind (Expr) = N_Allocator
+                    and then Is_RTE (Storage_Pool (Expr), RE_SS_Pool));
+
       --  Do not process allocations / deallocations without a pool
 
       if No (Pool_Id) then
          return;
 
       --  Do not process allocations on / deallocations from the secondary
-      --  stack.
+      --  stack, except for access types used to implement indirect temps.
 
-      elsif Is_RTE (Pool_Id, RE_SS_Pool)
-        or else (Nkind (Expr) = N_Allocator
-                  and then Is_RTE (Storage_Pool (Expr), RE_SS_Pool))
+      elsif Use_Secondary_Stack_Pool
+        and then not Old_Attr_Util.Indirect_Temps
+                       .Is_Access_Type_For_Indirect_Temp (Ptr_Typ)
       then
          return;
 
@@ -951,7 +956,9 @@ package body Exp_Util is
          Append_To (Actuals, New_Occurrence_Of (Addr_Id, Loc));
          Append_To (Actuals, New_Occurrence_Of (Size_Id, Loc));
 
-         if Is_Allocate or else not Is_Class_Wide_Type (Desig_Typ) then
+         if (Is_Allocate or else not Is_Class_Wide_Type (Desig_Typ))
+           and then not Use_Secondary_Stack_Pool
+         then
             Append_To (Actuals, New_Occurrence_Of (Alig_Id, Loc));
 
          --  For deallocation of class-wide types we obtain the value of
@@ -966,6 +973,9 @@ package body Exp_Util is
             --  ... because 'Alignment applied to class-wide types is expanded
             --  into the code that reads the value of alignment from the TSD
             --  (see Expand_N_Attribute_Reference)
+
+            --  In the Use_Secondary_Stack_Pool case, Alig_Id is not
+            --  passed in and therefore must not be referenced.
 
             Append_To (Actuals,
               Unchecked_Convert_To (RTE (RE_Storage_Offset),
@@ -1116,55 +1126,67 @@ package body Exp_Util is
          --  Create a custom Allocate / Deallocate routine which has identical
          --  profile to that of System.Storage_Pools.
 
-         Insert_Action (N,
-           Make_Subprogram_Body (Loc,
-             Specification              =>
+         declare
+            --  P : Root_Storage_Pool
+            function Pool_Param return Node_Id is (
+              Make_Parameter_Specification (Loc,
+                Defining_Identifier => Make_Temporary (Loc, 'P'),
+                Parameter_Type      =>
+                  New_Occurrence_Of (RTE (RE_Root_Storage_Pool), Loc)));
 
-               --  procedure Pnn
+            --  A : [out] Address
+            function Address_Param return Node_Id is (
+              Make_Parameter_Specification (Loc,
+                Defining_Identifier => Addr_Id,
+                Out_Present         => Is_Allocate,
+                Parameter_Type      =>
+                  New_Occurrence_Of (RTE (RE_Address), Loc)));
 
-               Make_Procedure_Specification (Loc,
-                 Defining_Unit_Name       => Proc_Id,
-                 Parameter_Specifications => New_List (
+            --  S : Storage_Count
+            function Size_Param return Node_Id is (
+              Make_Parameter_Specification (Loc,
+                Defining_Identifier => Size_Id,
+                Parameter_Type      =>
+                  New_Occurrence_Of (RTE (RE_Storage_Count), Loc)));
 
-                  --  P : Root_Storage_Pool
+            --  L : Storage_Count
+            function Alignment_Param return Node_Id is (
+              Make_Parameter_Specification (Loc,
+                Defining_Identifier => Alig_Id,
+                Parameter_Type      =>
+                  New_Occurrence_Of (RTE (RE_Storage_Count), Loc)));
 
-                   Make_Parameter_Specification (Loc,
-                     Defining_Identifier => Make_Temporary (Loc, 'P'),
-                     Parameter_Type      =>
-                       New_Occurrence_Of (RTE (RE_Root_Storage_Pool), Loc)),
+            Formal_Params : List_Id;
+         begin
+            if Use_Secondary_Stack_Pool then
+               --  Gigi expects a different profile in the Secondary_Stack_Pool
+               --  case. There must be no uses of the two missing formals
+               --  (i.e., Pool_Param and Alignment_Param) in this case.
+               Formal_Params := New_List (Address_Param, Size_Param);
+            else
+               Formal_Params := New_List (
+                 Pool_Param, Address_Param, Size_Param, Alignment_Param);
+            end if;
 
-                  --  A : [out] Address
+            Insert_Action (N,
+              Make_Subprogram_Body (Loc,
+                Specification              =>
+                  --  procedure Pnn
+                  Make_Procedure_Specification (Loc,
+                    Defining_Unit_Name       => Proc_Id,
+                    Parameter_Specifications => Formal_Params),
 
-                   Make_Parameter_Specification (Loc,
-                     Defining_Identifier => Addr_Id,
-                     Out_Present         => Is_Allocate,
-                     Parameter_Type      =>
-                       New_Occurrence_Of (RTE (RE_Address), Loc)),
+                Declarations               => No_List,
 
-                  --  S : Storage_Count
-
-                   Make_Parameter_Specification (Loc,
-                     Defining_Identifier => Size_Id,
-                     Parameter_Type      =>
-                       New_Occurrence_Of (RTE (RE_Storage_Count), Loc)),
-
-                  --  L : Storage_Count
-
-                   Make_Parameter_Specification (Loc,
-                     Defining_Identifier => Alig_Id,
-                     Parameter_Type      =>
-                       New_Occurrence_Of (RTE (RE_Storage_Count), Loc)))),
-
-             Declarations               => No_List,
-
-             Handled_Statement_Sequence =>
-               Make_Handled_Sequence_Of_Statements (Loc,
-                 Statements => New_List (
-                   Make_Procedure_Call_Statement (Loc,
-                     Name                   =>
-                       New_Occurrence_Of (Proc_To_Call, Loc),
-                     Parameter_Associations => Actuals)))),
-           Suppress => All_Checks);
+                Handled_Statement_Sequence =>
+                  Make_Handled_Sequence_Of_Statements (Loc,
+                    Statements => New_List (
+                      Make_Procedure_Call_Statement (Loc,
+                        Name                   =>
+                          New_Occurrence_Of (Proc_To_Call, Loc),
+                        Parameter_Associations => Actuals)))),
+              Suppress => All_Checks);
+         end;
 
          --  The newly generated Allocate / Deallocate becomes the default
          --  procedure to call when the back end processes the allocation /
@@ -4593,60 +4615,6 @@ package body Exp_Util is
       end if;
    end Component_May_Be_Bit_Aligned;
 
-   ----------------------------------------
-   -- Containing_Package_With_Ext_Axioms --
-   ----------------------------------------
-
-   function Containing_Package_With_Ext_Axioms
-     (E : Entity_Id) return Entity_Id
-   is
-   begin
-      --  E is the package or generic package which is externally axiomatized
-
-      if Is_Package_Or_Generic_Package (E)
-        and then Has_Annotate_Pragma_For_External_Axiomatization (E)
-      then
-         return E;
-      end if;
-
-      --  If E's scope is axiomatized, E is axiomatized
-
-      if Present (Scope (E)) then
-         declare
-            First_Ax_Parent_Scope : constant Entity_Id :=
-              Containing_Package_With_Ext_Axioms (Scope (E));
-         begin
-            if Present (First_Ax_Parent_Scope) then
-               return First_Ax_Parent_Scope;
-            end if;
-         end;
-      end if;
-
-      --  Otherwise, if E is a package instance, it is axiomatized if the
-      --  corresponding generic package is axiomatized.
-
-      if Ekind (E) = E_Package then
-         declare
-            Par  : constant Node_Id := Parent (E);
-            Decl : Node_Id;
-
-         begin
-            if Nkind (Par) = N_Defining_Program_Unit_Name then
-               Decl := Parent (Par);
-            else
-               Decl := Par;
-            end if;
-
-            if Present (Generic_Parent (Decl)) then
-               return
-                 Containing_Package_With_Ext_Axioms (Generic_Parent (Decl));
-            end if;
-         end;
-      end if;
-
-      return Empty;
-   end Containing_Package_With_Ext_Axioms;
-
    -------------------------------
    -- Convert_To_Actual_Subtype --
    -------------------------------
@@ -6631,122 +6599,6 @@ package body Exp_Util is
       end if;
    end Has_Access_Constraint;
 
-   -----------------------------------------------------
-   -- Has_Annotate_Pragma_For_External_Axiomatization --
-   -----------------------------------------------------
-
-   function Has_Annotate_Pragma_For_External_Axiomatization
-     (E : Entity_Id) return Boolean
-   is
-      function Is_Annotate_Pragma_For_External_Axiomatization
-        (N : Node_Id) return Boolean;
-      --  Returns whether N is
-      --    pragma Annotate (GNATprove, External_Axiomatization);
-
-      ----------------------------------------------------
-      -- Is_Annotate_Pragma_For_External_Axiomatization --
-      ----------------------------------------------------
-
-      --  The general form of pragma Annotate is
-
-      --    pragma Annotate (IDENTIFIER [, IDENTIFIER {, ARG}]);
-      --    ARG ::= NAME | EXPRESSION
-
-      --  The first two arguments are by convention intended to refer to an
-      --  external tool and a tool-specific function. These arguments are
-      --  not analyzed.
-
-      --  The following is used to annotate a package specification which
-      --  GNATprove should treat specially, because the axiomatization of
-      --  this unit is given by the user instead of being automatically
-      --  generated.
-
-      --    pragma Annotate (GNATprove, External_Axiomatization);
-
-      function Is_Annotate_Pragma_For_External_Axiomatization
-        (N : Node_Id) return Boolean
-      is
-         Name_GNATprove               : constant String :=
-                                          "gnatprove";
-         Name_External_Axiomatization : constant String :=
-                                          "external_axiomatization";
-         --  Special names
-
-      begin
-         if Nkind (N) = N_Pragma
-           and then Get_Pragma_Id (N) = Pragma_Annotate
-           and then List_Length (Pragma_Argument_Associations (N)) = 2
-         then
-            declare
-               Arg1 : constant Node_Id :=
-                        First (Pragma_Argument_Associations (N));
-               Arg2 : constant Node_Id := Next (Arg1);
-               Nam1 : Name_Id;
-               Nam2 : Name_Id;
-
-            begin
-               --  Fill in Name_Buffer with Name_GNATprove first, and then with
-               --  Name_External_Axiomatization so that Name_Find returns the
-               --  corresponding name. This takes care of all possible casings.
-
-               Name_Len := 0;
-               Add_Str_To_Name_Buffer (Name_GNATprove);
-               Nam1 := Name_Find;
-
-               Name_Len := 0;
-               Add_Str_To_Name_Buffer (Name_External_Axiomatization);
-               Nam2 := Name_Find;
-
-               return Chars (Get_Pragma_Arg (Arg1)) = Nam1
-                         and then
-                      Chars (Get_Pragma_Arg (Arg2)) = Nam2;
-            end;
-
-         else
-            return False;
-         end if;
-      end Is_Annotate_Pragma_For_External_Axiomatization;
-
-      --  Local variables
-
-      Decl      : Node_Id;
-      Vis_Decls : List_Id;
-      N         : Node_Id;
-
-   --  Start of processing for Has_Annotate_Pragma_For_External_Axiomatization
-
-   begin
-      if Nkind (Parent (E)) = N_Defining_Program_Unit_Name then
-         Decl := Parent (Parent (E));
-      else
-         Decl := Parent (E);
-      end if;
-
-      Vis_Decls := Visible_Declarations (Decl);
-
-      N := First (Vis_Decls);
-      while Present (N) loop
-
-         --  Skip declarations generated by the frontend. Skip all pragmas
-         --  that are not the desired Annotate pragma. Stop the search on
-         --  the first non-pragma source declaration.
-
-         if Comes_From_Source (N) then
-            if Nkind (N) = N_Pragma then
-               if Is_Annotate_Pragma_For_External_Axiomatization (N) then
-                  return True;
-               end if;
-            else
-               return False;
-            end if;
-         end if;
-
-         Next (N);
-      end loop;
-
-      return False;
-   end Has_Annotate_Pragma_For_External_Axiomatization;
-
    --------------------
    -- Homonym_Number --
    --------------------
@@ -7726,6 +7578,15 @@ package body Exp_Util is
             return Standard_Long_Long_Unsigned;
          else
             return Standard_Long_Long_Integer;
+         end if;
+
+      --  This is the canonical 128-bit type
+
+      elsif S <= Standard_Long_Long_Long_Integer_Size then
+         if Uns then
+            return Standard_Long_Long_Long_Unsigned;
+         else
+            return Standard_Long_Long_Long_Integer;
          end if;
 
       else
@@ -9930,6 +9791,24 @@ package body Exp_Util is
               Constraints => List_Constr));
    end Make_Subtype_From_Expr;
 
+   -----------------------------
+   -- Make_Variant_Comparison --
+   -----------------------------
+
+   function Make_Variant_Comparison
+     (Loc      : Source_Ptr;
+      Mode     : Name_Id;
+      Curr_Val : Node_Id;
+      Old_Val  : Node_Id) return Node_Id
+   is
+   begin
+      if Mode = Name_Increases then
+         return Make_Op_Gt (Loc, Curr_Val, Old_Val);
+      else pragma Assert (Mode = Name_Decreases);
+         return Make_Op_Lt (Loc, Curr_Val, Old_Val);
+      end if;
+   end Make_Variant_Comparison;
+
    ---------------
    -- Map_Types --
    ---------------
@@ -11512,7 +11391,26 @@ package body Exp_Util is
             Insert_Action (Exp, E);
          end if;
 
-      --  For expressions that denote names, we can use a renaming scheme.
+      --  If this is a packed array component or a selected component with a
+      --  nonstandard representation, we cannot generate a reference because
+      --  the component may be unaligned, so we must use a renaming and this
+      --  renaming must be handled by the front end, as the back end may balk
+      --  at the nonstandard representation (see Exp_Ch2.Expand_Renaming).
+
+      elsif Nkind (Exp) in N_Indexed_Component | N_Selected_Component
+        and then Has_Non_Standard_Rep (Etype (Prefix (Exp)))
+      then
+         Def_Id := Build_Temporary (Loc, 'R', Exp);
+         Res := New_Occurrence_Of (Def_Id, Loc);
+
+         Insert_Action (Exp,
+           Make_Object_Renaming_Declaration (Loc,
+             Defining_Identifier => Def_Id,
+             Subtype_Mark        => New_Occurrence_Of (Exp_Type, Loc),
+             Name                => Relocate_Node (Exp)));
+
+      --  For an expression that denotes a name, we can use a renaming scheme
+      --  that is handled by the back end, instead of the front end as above.
       --  This is needed for correctness in the case of a volatile object of
       --  a nonvolatile type because the Make_Reference call of the "default"
       --  approach would generate an illegal access value (an access value
@@ -11535,21 +11433,7 @@ package body Exp_Util is
              Subtype_Mark        => New_Occurrence_Of (Exp_Type, Loc),
              Name                => Relocate_Node (Exp)));
 
-         --  If this is a packed reference, or a selected component with
-         --  a nonstandard representation, a reference to the temporary
-         --  will be replaced by a copy of the original expression (see
-         --  Exp_Ch2.Expand_Renaming). Otherwise the temporary must be
-         --  elaborated by gigi, and is of course not to be replaced in-line
-         --  by the expression it renames, which would defeat the purpose of
-         --  removing the side effect.
-
-         if Nkind (Exp) in N_Selected_Component | N_Indexed_Component
-           and then Has_Non_Standard_Rep (Etype (Prefix (Exp)))
-         then
-            null;
-         else
-            Set_Is_Renaming_Of_Object (Def_Id, False);
-         end if;
+         Set_Is_Renaming_Of_Object (Def_Id, False);
 
       --  Avoid generating a variable-sized temporary, by generating the
       --  reference just for the function call. The transformation could be
@@ -13545,6 +13429,13 @@ package body Exp_Util is
             return Standard_Long_Long_Unsigned;
          else
             return Standard_Long_Long_Integer;
+         end if;
+
+      elsif S <= Standard_Long_Long_Long_Integer_Size then
+         if Uns then
+            return Standard_Long_Long_Long_Unsigned;
+         else
+            return Standard_Long_Long_Long_Integer;
          end if;
 
       else

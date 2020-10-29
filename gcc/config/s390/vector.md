@@ -658,6 +658,17 @@
   DONE;
 })
 
+(define_expand "vcond_mask_<mode><mode>"
+  [(set (match_operand:V 0 "register_operand" "")
+	(if_then_else:V
+	 (eq (match_operand:<tointvec> 3 "register_operand" "")
+	     (match_dup 4))
+	 (match_operand:V 2 "register_operand" "")
+	 (match_operand:V 1 "register_operand" "")))]
+  "TARGET_VX"
+  "operands[4] = CONST0_RTX (<tointvec>mode);")
+
+
 ; We only have HW support for byte vectors.  The middle-end is
 ; supposed to lower the mode if required.
 (define_insn "vec_permv16qi"
@@ -1441,7 +1452,29 @@
 ;; Integer compares
 ;;
 
-(define_insn "*vec_cmp<VICMP_HW_OP:code><VI:mode>_nocc"
+(define_expand "vec_cmp<VI_HW:mode><VI_HW:mode>"
+  [(set (match_operand:VI_HW    0 "register_operand" "")
+	(match_operator:VI_HW   1 ""
+	  [(match_operand:VI_HW 2 "register_operand" "")
+	   (match_operand:VI_HW 3 "register_operand" "")]))]
+  "TARGET_VX"
+{
+  s390_expand_vec_compare (operands[0], GET_CODE(operands[1]), operands[2], operands[3]);
+  DONE;
+})
+
+(define_expand "vec_cmpu<VI_HW:mode><VI_HW:mode>"
+  [(set (match_operand:VI_HW    0 "register_operand" "")
+	(match_operator:VI_HW   1 ""
+	  [(match_operand:VI_HW 2 "register_operand" "")
+	   (match_operand:VI_HW 3 "register_operand" "")]))]
+  "TARGET_VX"
+{
+  s390_expand_vec_compare (operands[0], GET_CODE(operands[1]), operands[2], operands[3]);
+  DONE;
+})
+
+(define_insn "*vec_cmp<VICMP_HW_OP:code><VI:mode><VI:mode>_nocc"
   [(set (match_operand:VI                 2 "register_operand" "=v")
 	(VICMP_HW_OP:VI (match_operand:VI 0 "register_operand"  "v")
 			(match_operand:VI 1 "register_operand"  "v")))]
