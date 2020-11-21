@@ -53,6 +53,8 @@ along with GCC; see the file COPYING3.  If not see
 #include "builtins.h"
 #include "tree-cfgcleanup.h"
 #include "options.h"
+#include "symtab-clones.h"
+#include "attr-fnspec.h"
 
 /* Function summary where the parameter infos are actually stored. */
 ipa_node_params_t *ipa_node_params_sum = NULL;
@@ -2363,7 +2365,8 @@ ipa_compute_jump_functions_for_bb (struct ipa_func_body_info *fbi, basic_block b
 	  callee = callee->ultimate_alias_target ();
 	  /* We do not need to bother analyzing calls to unknown functions
 	     unless they may become known during lto/whopr.  */
-	  if (!callee->definition && !flag_lto)
+	  if (!callee->definition && !flag_lto
+	      && !gimple_call_fnspec (cs->call_stmt).known_p ())
 	    continue;
 	}
       ipa_compute_jump_functions_for_edge (fbi, cs);
@@ -4973,7 +4976,11 @@ ipa_read_edge_info (class lto_input_block *ib,
   count /= 2;
   if (!count)
     return;
-  if (prevails && e->possibly_call_in_translation_unit_p ())
+  if (prevails
+      && (e->possibly_call_in_translation_unit_p ()
+	  /* Also stream in jump functions to builtins in hope that they
+	     will get fnspecs.  */
+	  || fndecl_built_in_p (e->callee->decl, BUILT_IN_NORMAL)))
     {
       class ipa_edge_args *args = IPA_EDGE_REF_GET_CREATE (e);
       vec_safe_grow_cleared (args->jump_functions, count, true);
@@ -5419,12 +5426,13 @@ adjust_agg_replacement_values (struct cgraph_node *node,
 			       struct ipa_agg_replacement_value *aggval)
 {
   struct ipa_agg_replacement_value *v;
+  clone_info *cinfo = clone_info::get (node);
 
-  if (!node->clone.param_adjustments)
+  if (!cinfo || !cinfo->param_adjustments)
     return;
 
   auto_vec<int, 16> new_indices;
-  node->clone.param_adjustments->get_updated_indices (&new_indices);
+  cinfo->param_adjustments->get_updated_indices (&new_indices);
   for (v = aggval; v; v = v->next)
     {
       gcc_checking_assert (v->index >= 0);
@@ -5577,9 +5585,10 @@ ipcp_get_parm_bits (tree parm, tree *value, widest_int *mask)
 	return false;
     }
 
-  if (cnode->clone.param_adjustments)
+  clone_info *cinfo = clone_info::get (cnode);
+  if (cinfo && cinfo->param_adjustments)
     {
-      i = cnode->clone.param_adjustments->get_original_index (i);
+      i = cinfo->param_adjustments->get_original_index (i);
       if (i < 0)
 	return false;
     }
@@ -5610,9 +5619,10 @@ ipcp_update_bits (struct cgraph_node *node)
 
   auto_vec<int, 16> new_indices;
   bool need_remapping = false;
-  if (node->clone.param_adjustments)
+  clone_info *cinfo = clone_info::get (node);
+  if (cinfo && cinfo->param_adjustments)
     {
-      node->clone.param_adjustments->get_updated_indices (&new_indices);
+      cinfo->param_adjustments->get_updated_indices (&new_indices);
       need_remapping = true;
     }
   auto_vec <tree, 16> parm_decls;
@@ -5731,9 +5741,10 @@ ipcp_update_vr (struct cgraph_node *node)
 
   auto_vec<int, 16> new_indices;
   bool need_remapping = false;
-  if (node->clone.param_adjustments)
+  clone_info *cinfo = clone_info::get (node);
+  if (cinfo && cinfo->param_adjustments)
     {
-      node->clone.param_adjustments->get_updated_indices (&new_indices);
+      cinfo->param_adjustments->get_updated_indices (&new_indices);
       need_remapping = true;
     }
   auto_vec <tree, 16> parm_decls;

@@ -1972,6 +1972,7 @@ evaluate_stmt (gimple *stmt)
 	      break;
 
 	    case BUILT_IN_ALIGNED_ALLOC:
+	    case BUILT_IN_GOMP_ALLOC:
 	      {
 		tree align = get_constant_value (gimple_call_arg (stmt, 0));
 		if (align
@@ -3583,7 +3584,7 @@ pass_post_ipa_warn::execute (function *fun)
 		continue;
 
 	      tree fndecl = gimple_call_fndecl (stmt);
-	      if (fndecl && DECL_IS_BUILTIN (fndecl))
+	      if (fndecl && DECL_IS_UNDECLARED_BUILTIN (fndecl))
 		inform (loc, "in a call to built-in function %qD",
 			fndecl);
 	      else if (fndecl)

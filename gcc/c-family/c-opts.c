@@ -752,8 +752,6 @@ default_handle_c_option (size_t code ATTRIBUTE_UNUSED,
 bool
 c_common_post_options (const char **pfilename)
 {
-  struct cpp_callbacks *cb;
-
   /* Canonicalize the input and output filenames.  */
   if (in_fnames == NULL)
     {
@@ -947,7 +945,7 @@ c_common_post_options (const char **pfilename)
 
   /* Change flag_abi_version to be the actual current ABI level, for the
      benefit of c_cpp_builtins, and to make comparison simpler.  */
-  const int latest_abi_version = 14;
+  const int latest_abi_version = 15;
   /* Generate compatibility aliases for ABI v11 (7.1) by default.  */
   const int abi_compat_default = 11;
 
@@ -1105,9 +1103,11 @@ c_common_post_options (const char **pfilename)
       input_location = UNKNOWN_LOCATION;
     }
 
-  cb = cpp_get_callbacks (parse_in);
+  struct cpp_callbacks *cb = cpp_get_callbacks (parse_in);
   cb->file_change = cb_file_change;
   cb->dir_change = cb_dir_change;
+  if (lang_hooks.preprocess_options)
+    lang_hooks.preprocess_options (parse_in);
   cpp_post_options (parse_in);
   init_global_opts_from_cpp (&global_options, cpp_get_options (parse_in));
 
@@ -1550,7 +1550,13 @@ push_command_line_include (void)
       cpp_opts->warn_unused_macros = cpp_warn_unused_macros;
       /* Restore the line map back to the main file.  */
       if (!cpp_opts->preprocessed)
-	cpp_change_file (parse_in, LC_RENAME, this_input_filename);
+	{
+	  cpp_change_file (parse_in, LC_RENAME, this_input_filename);
+	  if (lang_hooks.preprocess_main_file)
+	    /* We're starting the main file.  Inform the FE of that.  */
+	    lang_hooks.preprocess_main_file
+	      (parse_in, line_table, LINEMAPS_LAST_ORDINARY_MAP (line_table));
+	}
 
       /* Set this here so the client can change the option if it wishes,
 	 and after stacking the main file so we don't trace the main file.  */
@@ -1560,13 +1566,18 @@ push_command_line_include (void)
 
 /* File change callback.  Has to handle -include files.  */
 static void
-cb_file_change (cpp_reader * ARG_UNUSED (pfile),
-		const line_map_ordinary *new_map)
+cb_file_change (cpp_reader *reader, const line_map_ordinary *new_map)
 {
   if (flag_preprocess_only)
     pp_file_change (new_map);
   else
     fe_file_change (new_map);
+
+  if (new_map && cpp_opts->preprocessed
+      && lang_hooks.preprocess_main_file && MAIN_FILE_P (new_map)
+      && ORDINARY_MAP_STARTING_LINE_NUMBER (new_map))
+    /* We're starting the main file.  Inform the FE of that.  */
+    lang_hooks.preprocess_main_file (reader, line_table, new_map);
 
   if (new_map 
       && (new_map->reason == LC_ENTER || new_map->reason == LC_RENAME))

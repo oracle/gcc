@@ -1310,6 +1310,9 @@ jump_table_cluster::is_beneficial (const vec<cluster *> &,
 vec<cluster *>
 bit_test_cluster::find_bit_tests (vec<cluster *> &clusters)
 {
+  if (!is_enabled ())
+    return clusters.copy ();
+
   unsigned l = clusters.length ();
   auto_vec<min_cluster_item> min;
   min.reserve (l + 1);
@@ -1740,10 +1743,10 @@ switch_decision_tree::analyze_switch_statement ()
 
   reset_out_edges_aux (m_switch);
 
-  /* Find jump table clusters.  */
-  vec<cluster *> output = jump_table_cluster::find_jump_tables (clusters);
+  /* Find bit-test clusters.  */
+  vec<cluster *> output = bit_test_cluster::find_bit_tests (clusters);
 
-  /* Find bit test clusters.  */
+  /* Find jump table clusters.  */
   vec<cluster *> output2;
   auto_vec<cluster *> tmp;
   output2.create (1);
@@ -1756,7 +1759,7 @@ switch_decision_tree::analyze_switch_statement ()
 	{
 	  if (!tmp.is_empty ())
 	    {
-	      vec<cluster *> n = bit_test_cluster::find_bit_tests (tmp);
+	      vec<cluster *> n = jump_table_cluster::find_jump_tables (tmp);
 	      output2.safe_splice (n);
 	      n.release ();
 	      tmp.truncate (0);
@@ -1770,7 +1773,7 @@ switch_decision_tree::analyze_switch_statement ()
   /* We still can have a temporary vector to test.  */
   if (!tmp.is_empty ())
     {
-      vec<cluster *> n = bit_test_cluster::find_bit_tests (tmp);
+      vec<cluster *> n = jump_table_cluster::find_jump_tables (tmp);
       output2.safe_splice (n);
       n.release ();
     }

@@ -1,3 +1,176 @@
+2020-11-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR other/97911
+	* Make-lang.in (fortran.serial): Change from goal to a variable.
+	(.PHONY): Drop fortran.serial and fortran.prev.
+	(f951$(exeext)): Depend on $(fortran.serial) rather than
+	fortran.serial.
+
+2020-11-18  Jakub Jelinek  <jakub@redhat.com>
+
+	* Make-lang.in (fortran.serial): New goal.
+	(.PHONY): Add fortran.serial fortran.prev.
+	(f951$(exeext)): Depend on fortran.prev.  Call LINK_PROGRESS.
+
+2020-11-17  Harald Anlauf  <anlauf@gmx.de>
+
+	* gfortran.texi: Fix description of GFC_RTCHECK_* to match actual
+	code.
+
+2020-11-16  Harald Anlauf  <anlauf@gmx.de>
+
+	* trans-intrinsic.c (gfc_conv_intrinsic_size): Generate runtime
+	checking code for status of argument.
+
+2020-11-13  Gergö Barany  <gergo@codesourcery.com>
+	    Thomas Schwinge  <thomas@codesourcery.com>
+
+	* lang.opt (fopenacc-kernels): Add.
+
+2020-11-12  Jakub Jelinek  <jakub@redhat.com>
+
+	* f95-lang.c (ATTR_ALLOC_WARN_UNUSED_RESULT_SIZE_2_NOTHROW_LIST):
+	Define.
+	(gfc_init_builtin_functions): Add alloc_size and warn_unused_result
+	attributes to __builtin_GOMP_alloc.
+	* types.def (BT_PTRMODE): New primitive type.
+	(BT_FN_VOID_PTR_PTRMODE, BT_FN_PTR_SIZE_SIZE_PTRMODE): New function
+	types.
+
+2020-11-12  Tobias Burnus  <tobias@codesourcery.com>
+
+	PR fortran/97782
+	* trans-openmp.c (gfc_trans_oacc_construct, gfc_trans_omp_parallel_do,
+	gfc_trans_omp_parallel_do_simd, gfc_trans_omp_parallel_sections,
+	gfc_trans_omp_parallel_workshare, gfc_trans_omp_sections
+	gfc_trans_omp_single, gfc_trans_omp_task, gfc_trans_omp_teams
+	gfc_trans_omp_target, gfc_trans_omp_target_data,
+	gfc_trans_omp_workshare): Use code->loc instead of input_location
+	when building the OMP_/OACC_ construct.
+
+2020-11-11  Jakub Jelinek  <jakub@redhat.com>
+
+	PR fortran/97768
+	* misc.c (gfc_typename): Use ex->value.character.length only if
+	ex->expr_type == EXPR_CONSTANT.  If ex->ts.deferred, print : instead
+	of length.  If ex->ts.u.cl && ex->ts.u.cl->length == NULL, print *
+	instead of length.  Otherwise if character length is non-constant,
+	print just CHARACTER or CHARACTER(KIND=N).
+
+2020-11-10  Tobias Burnus  <tobias@codesourcery.com>
+
+	* dump-parse-tree.c (show_omp_clauses): Handle new reduction enums.
+	* gfortran.h (OMP_LIST_REDUCTION_INSCAN, OMP_LIST_REDUCTION_TASK,
+	OMP_LIST_IN_REDUCTION, OMP_LIST_TASK_REDUCTION): Add enums.
+	* openmp.c (enum omp_mask1): Add OMP_CLAUSE_IN_REDUCTION
+	and OMP_CLAUSE_TASK_REDUCTION.
+	(gfc_match_omp_clause_reduction): Extend reduction handling;
+	moved from ...
+	(gfc_match_omp_clauses): ... here. Add calls to it.
+	(OMP_TASK_CLAUSES, OMP_TARGET_CLAUSES, OMP_TASKLOOP_CLAUSES):
+	Add OMP_CLAUSE_IN_REDUCTION.
+	(gfc_match_omp_taskgroup): Add task_reduction matching.
+	(resolve_omp_clauses): Update for new reduction clause changes;
+	remove removed nonmonotonic-schedule restrictions.
+	(gfc_resolve_omp_parallel_blocks): Add new enums to switch.
+	* trans-openmp.c (gfc_omp_clause_default_ctor,
+	gfc_trans_omp_reduction_list, gfc_trans_omp_clauses,
+	gfc_split_omp_clauses): Handle updated reduction clause.
+
+2020-11-10  Tobias Burnus  <tobias@codesourcery.com>
+
+	PR fortran/95847
+	* trans-decl.c (gfc_get_symbol_decl): Do not (re)set the location
+	of an external procedure.
+	(build_entry_thunks, generate_coarray_init, create_main_function,
+	gfc_generate_function_code): Use fndecl's location in BIND_EXPR.
+
+2020-11-09  Tobias Burnus  <tobias@codesourcery.com>
+
+	PR fortran/90111
+	* parse.c (case_decl): Move ST_OACC_ROUTINE and ST_OACC_DECLARE to ...
+	(case_omp_decl): ... here.
+	(verify_st_order): Update comment.
+
+2020-11-06  Thomas Schwinge  <thomas@codesourcery.com>
+
+	* openmp.c (oacc_is_parallel, resolve_oacc_params_in_parallel):
+	Remove.
+	(resolve_oacc_loop_blocks): Don't call the former.
+
+2020-11-06  Tobias Burnus  <tobias@codesourcery.com>
+
+	* openmp.c (gfc_match_oacc_atomic): No longer accept 'update capture'.
+
+2020-11-06  Tobias Burnus  <tobias@codesourcery.com>
+
+	PR fortran/97652
+	* module.c (mio_symbol): Fix symbol name for pdt_type.
+
+2020-11-03  Nathan Sidwell  <nathan@acm.org>
+
+	* cpp.c (gfc_cpp_add_dep): Only add dependency if we're recording
+	them.
+	(gfc_cpp_init): Likewise for target.
+
+2020-11-03  Tobias Burnus  <tobias@codesourcery.com>
+
+	* decl.c (ext_attr_list): Add EXT_ATTR_DEPRECATED.
+	* gfortran.h (ext_attr_id_t): Ditto.
+	* gfortran.texi (GCC$ ATTRIBUTES): Document it.
+	* resolve.c (resolve_variable, resolve_function,
+	resolve_call, resolve_values): Show -Wdeprecated-declarations warning.
+	* trans-decl.c (add_attributes_to_decl): Skip those
+	with no middle_end_name.
+
+2020-11-03  Thomas Schwinge  <thomas@codesourcery.com>
+
+	PR fortran/92793
+	* trans-openmp.c (gfc_trans_omp_clauses): More precise location
+	information for OpenACC 'gang', 'worker', 'vector' clauses with
+	argument.
+
+2020-11-02  Thomas Schwinge  <thomas@codesourcery.com>
+
+	PR fortran/92793
+	* trans.c (gfc_set_backend_locus): Use 'gfc_get_location'.
+	(gfc_restore_backend_locus): Adjust.
+
+2020-11-02  Tobias Burnus  <tobias@codesourcery.com>
+
+	PR fortran/97655
+	* openmp.c (gfc_match_omp_atomic): Fix mem-order handling;
+	reject specifying update + capture together.
+
+2020-10-30  Tobias Burnus  <tobias@codesourcery.com>
+
+	* dump-parse-tree.c (show_omp_clauses): Handle atomic clauses.
+	(show_omp_node): Call it for atomic.
+	* gfortran.h (enum gfc_omp_atomic_op): Add GFC_OMP_ATOMIC_UNSET,
+	remove GFC_OMP_ATOMIC_SEQ_CST and GFC_OMP_ATOMIC_ACQ_REL.
+	(enum gfc_omp_memorder): Replace OMP_MEMORDER_LAST by
+	OMP_MEMORDER_UNSET, add OMP_MEMORDER_SEQ_CST/OMP_MEMORDER_RELAXED.
+	(gfc_omp_clauses): Add capture and atomic_op.
+	(gfc_code): remove omp_atomic.
+	* openmp.c (enum omp_mask1): Add atomic, capture, memorder clauses.
+	(gfc_match_omp_clauses): Match them.
+	(OMP_ATOMIC_CLAUSES): Add.
+	(gfc_match_omp_flush): Update for 'last' to 'unset' change.
+	(gfc_match_omp_oacc_atomic): Removed and placed content ..
+	(gfc_match_omp_atomic): ... here. Update for OpenMP 5 clauses.
+	(gfc_match_oacc_atomic): Match directly here.
+	(resolve_omp_atomic, gfc_resolve_omp_directive): Update.
+	* parse.c (parse_omp_oacc_atomic): Update for struct gfc_code changes.
+	* resolve.c (gfc_resolve_blocks): Update assert.
+	* st.c (gfc_free_statement): Also call for EXEC_O{ACC,MP}_ATOMIC.
+	* trans-openmp.c (gfc_trans_omp_atomic): Update.
+	(gfc_trans_omp_flush): Update for 'last' to 'unset' change.
+
+2020-10-30  Jan Hubicka  <jh@suse.cz>
+
+	* trans-types.c: Include alias.h
+	(gfc_get_array_type_bounds): Set typeless storage.
+
 2020-10-27  Harald Anlauf  <anlauf@gmx.de>
 
 	* resolve.c (gfc_impure_variable): A dummy argument with the VALUE

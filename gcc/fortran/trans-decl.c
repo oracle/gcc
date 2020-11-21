@@ -1427,7 +1427,7 @@ add_attributes_to_decl (symbol_attribute sym_attr, tree list)
   tree attr;
 
   for (id = 0; id < EXT_ATTR_NUM; id++)
-    if (sym_attr.ext_attr & (1 << id))
+    if (sym_attr.ext_attr & (1 << id) && ext_attr_list[id].middle_end_name)
       {
 	attr = build_tree_list (
 		 get_identifier (ext_attr_list[id].middle_end_name),
@@ -1749,7 +1749,6 @@ gfc_get_symbol_decl (gfc_symbol * sym)
 	  || sym->attr.if_source != IFSRC_DECL)
 	{
 	  decl = gfc_get_extern_function_decl (sym);
-	  gfc_set_decl_location (decl, &sym->declared_at);
 	}
       else
 	{
@@ -3021,8 +3020,9 @@ build_entry_thunks (gfc_namespace * ns, bool global)
       poplevel (1, 1);
       BLOCK_SUPERCONTEXT (DECL_INITIAL (thunk_fndecl)) = thunk_fndecl;
       DECL_SAVED_TREE (thunk_fndecl)
-	= build3_v (BIND_EXPR, tmp, DECL_SAVED_TREE (thunk_fndecl),
-		    DECL_INITIAL (thunk_fndecl));
+	= fold_build3_loc (DECL_SOURCE_LOCATION (thunk_fndecl), BIND_EXPR,
+			   void_type_node, tmp, DECL_SAVED_TREE (thunk_fndecl),
+			   DECL_INITIAL (thunk_fndecl));
 
       /* Output the GENERIC tree.  */
       dump_function (TDI_original, thunk_fndecl);
@@ -5786,8 +5786,8 @@ generate_coarray_init (gfc_namespace * ns __attribute((unused)))
   BLOCK_SUPERCONTEXT (DECL_INITIAL (fndecl)) = fndecl;
 
   DECL_SAVED_TREE (fndecl)
-    = build3_v (BIND_EXPR, decl, DECL_SAVED_TREE (fndecl),
-                DECL_INITIAL (fndecl));
+    = fold_build3_loc (DECL_SOURCE_LOCATION (fndecl), BIND_EXPR, void_type_node,
+		       decl, DECL_SAVED_TREE (fndecl), DECL_INITIAL (fndecl));
   dump_function (TDI_original, fndecl);
 
   cfun->function_end_locus = input_location;
@@ -6512,8 +6512,9 @@ create_main_function (tree fndecl)
   BLOCK_SUPERCONTEXT (DECL_INITIAL (ftn_main)) = ftn_main;
 
   DECL_SAVED_TREE (ftn_main)
-    = build3_v (BIND_EXPR, decl, DECL_SAVED_TREE (ftn_main),
-		DECL_INITIAL (ftn_main));
+    = fold_build3_loc (DECL_SOURCE_LOCATION (ftn_main), BIND_EXPR,
+		       void_type_node, decl, DECL_SAVED_TREE (ftn_main),
+		       DECL_INITIAL (ftn_main));
 
   /* Output the GENERIC tree.  */
   dump_function (TDI_original, ftn_main);
@@ -7004,8 +7005,8 @@ gfc_generate_function_code (gfc_namespace * ns)
   BLOCK_SUPERCONTEXT (DECL_INITIAL (fndecl)) = fndecl;
 
   DECL_SAVED_TREE (fndecl)
-    = build3_v (BIND_EXPR, decl, DECL_SAVED_TREE (fndecl),
-		DECL_INITIAL (fndecl));
+    = fold_build3_loc (DECL_SOURCE_LOCATION (fndecl), BIND_EXPR, void_type_node,
+		       decl, DECL_SAVED_TREE (fndecl), DECL_INITIAL (fndecl));
 
   /* Output the GENERIC tree.  */
   dump_function (TDI_original, fndecl);

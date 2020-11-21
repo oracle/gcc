@@ -103,7 +103,7 @@ tree
 gimple_assign_rhs_to_tree (gimple *stmt)
 {
   tree t;
-  switch (get_gimple_rhs_class (gimple_expr_code (stmt)))
+  switch (gimple_assign_rhs_class (stmt))
     {
     case GIMPLE_TERNARY_RHS:
       t = build3 (gimple_assign_rhs_code (stmt),
@@ -366,7 +366,15 @@ align_local_variable (tree decl, bool really_expand)
   unsigned int align;
 
   if (TREE_CODE (decl) == SSA_NAME)
-    align = TYPE_ALIGN (TREE_TYPE (decl));
+    {
+      tree type = TREE_TYPE (decl);
+      machine_mode mode = TYPE_MODE (type);
+
+      align = TYPE_ALIGN (type);
+      if (mode != BLKmode
+	  && align < GET_MODE_ALIGNMENT (mode))
+	align = GET_MODE_ALIGNMENT (mode);
+    }
   else
     {
       align = LOCAL_DECL_ALIGNMENT (decl);
@@ -999,20 +1007,21 @@ expand_one_stack_var_at (tree decl, rtx base, unsigned base_align,
   x = plus_constant (Pmode, base, offset);
   x = gen_rtx_MEM (TREE_CODE (decl) == SSA_NAME
 		   ? TYPE_MODE (TREE_TYPE (decl))
-		   : DECL_MODE (SSAVAR (decl)), x);
+		   : DECL_MODE (decl), x);
+
+  /* Set alignment we actually gave this decl if it isn't an SSA name.
+     If it is we generate stack slots only accidentally so it isn't as
+     important, we'll simply set the alignment directly on the MEM.  */
+
+  if (base == virtual_stack_vars_rtx)
+    offset -= frame_phase;
+  align = known_alignment (offset);
+  align *= BITS_PER_UNIT;
+  if (align == 0 || align > base_align)
+    align = base_align;
 
   if (TREE_CODE (decl) != SSA_NAME)
     {
-      /* Set alignment we actually gave this decl if it isn't an SSA name.
-         If it is we generate stack slots only accidentally so it isn't as
-	 important, we'll simply use the alignment that is already set.  */
-      if (base == virtual_stack_vars_rtx)
-	offset -= frame_phase;
-      align = known_alignment (offset);
-      align *= BITS_PER_UNIT;
-      if (align == 0 || align > base_align)
-	align = base_align;
-
       /* One would think that we could assert that we're not decreasing
 	 alignment here, but (at least) the i386 port does exactly this
 	 via the MINIMUM_ALIGNMENT hook.  */
@@ -1022,6 +1031,8 @@ expand_one_stack_var_at (tree decl, rtx base, unsigned base_align,
     }
 
   set_rtl (decl, x);
+
+  set_mem_align (x, align);
 }
 
 class stack_vars_data
@@ -1327,13 +1338,11 @@ expand_one_stack_var_1 (tree var)
     {
       tree type = TREE_TYPE (var);
       size = tree_to_poly_uint64 (TYPE_SIZE_UNIT (type));
-      byte_align = TYPE_ALIGN_UNIT (type);
     }
   else
-    {
-      size = tree_to_poly_uint64 (DECL_SIZE_UNIT (var));
-      byte_align = align_local_variable (var, true);
-    }
+    size = tree_to_poly_uint64 (DECL_SIZE_UNIT (var));
+
+  byte_align = align_local_variable (var, true);
 
   /* We handle highly aligned variables in expand_stack_vars.  */
   gcc_assert (byte_align * BITS_PER_UNIT <= MAX_SUPPORTED_STACK_ALIGNMENT);
@@ -3362,20 +3371,21 @@ expand_asm_stmt (gasm *stmt)
 			       ARGVEC CONSTRAINTS OPNAMES))
      If there is more than one, put them inside a PARALLEL.  */
 
-  if (nlabels > 0 && nclobbers == 0)
-    {
-      gcc_assert (noutputs == 0);
-      emit_jump_insn (body);
-    }
-  else if (noutputs == 0 && nclobbers == 0)
+  if (noutputs == 0 && nclobbers == 0)
     {
       /* No output operands: put in a raw ASM_OPERANDS rtx.  */
-      emit_insn (body);
+      if (nlabels > 0)
+	emit_jump_insn (body);
+      else
+	emit_insn (body);
     }
   else if (noutputs == 1 && nclobbers == 0)
     {
       ASM_OPERANDS_OUTPUT_CONSTRAINT (body) = constraints[0];
-      emit_insn (gen_rtx_SET (output_rvec[0], body));
+      if (nlabels > 0)
+	emit_jump_insn (gen_rtx_SET (output_rvec[0], body));
+      else 
+	emit_insn (gen_rtx_SET (output_rvec[0], body));
     }
   else
     {
@@ -3452,7 +3462,27 @@ expand_asm_stmt (gasm *stmt)
   if (after_md_seq)
     emit_insn (after_md_seq);
   if (after_rtl_seq)
-    emit_insn (after_rtl_seq);
+    {
+      if (nlabels == 0)
+	emit_insn (after_rtl_seq);
+      else
+	{
+	  edge e;
+	  edge_iterator ei;
+	  
+	  FOR_EACH_EDGE (e, ei, gimple_bb (stmt)->succs)
+	    {
+	      start_sequence ();
+	      for (rtx_insn *curr = after_rtl_seq;
+		   curr != NULL_RTX;
+		   curr = NEXT_INSN (curr))
+		emit_insn (copy_insn (PATTERN (curr)));
+	      rtx_insn *copy = get_insns ();
+	      end_sequence ();
+	      insert_insn_on_edge (copy, e);
+	    }
+	}
+    }
 
   free_temp_slots ();
   crtl->has_asm_statement = 1;
@@ -3732,11 +3762,10 @@ expand_gimple_stmt_1 (gimple *stmt)
 	   of binary assigns must be a gimple reg.  */
 
 	if (TREE_CODE (lhs) != SSA_NAME
-	    || get_gimple_rhs_class (gimple_expr_code (stmt))
-	       == GIMPLE_SINGLE_RHS)
+	    || gimple_assign_rhs_class (assign_stmt) == GIMPLE_SINGLE_RHS)
 	  {
 	    tree rhs = gimple_assign_rhs1 (assign_stmt);
-	    gcc_assert (get_gimple_rhs_class (gimple_expr_code (stmt))
+	    gcc_assert (gimple_assign_rhs_class (assign_stmt)
 			== GIMPLE_SINGLE_RHS);
 	    if (gimple_has_location (stmt) && CAN_HAVE_LOCATION_P (rhs)
 		/* Do not put locations on possibly shared trees.  */
@@ -6403,7 +6432,7 @@ pass_expand::execute (function *fun)
   rtl_profile_for_bb (ENTRY_BLOCK_PTR_FOR_FN (fun));
 
   insn_locations_init ();
-  if (!DECL_IS_BUILTIN (current_function_decl))
+  if (!DECL_IS_UNDECLARED_BUILTIN (current_function_decl))
     {
       /* Eventually, all FEs should explicitly set function_start_locus.  */
       if (LOCATION_LOCUS (fun->function_start_locus) == UNKNOWN_LOCATION)

@@ -165,6 +165,8 @@ get_tree_range (irange &r, tree expr)
   switch (TREE_CODE (expr))
     {
       case INTEGER_CST:
+	if (TREE_OVERFLOW_P (expr))
+	  expr = drop_tree_overflow (expr);
 	r.set (expr, expr);
 	return true;
 
@@ -415,14 +417,23 @@ bool
 gimple_ranger::range_of_range_op (irange &r, gimple *s)
 {
   int_range_max range1, range2;
+  tree lhs = gimple_get_lhs (s);
   tree type = gimple_expr_type (s);
   gcc_checking_assert (irange::supports_type_p (type));
 
   tree op1 = gimple_range_operand1 (s);
   tree op2 = gimple_range_operand2 (s);
 
-  if (range_of_non_trivial_assignment (r, s))
-    return true;
+  if (lhs)
+    {
+      // Register potential dependencies for stale value tracking.
+      m_cache.register_dependency (lhs, op1);
+      m_cache.register_dependency (lhs, op2);
+    }
+
+  if (gimple_code (s) == GIMPLE_ASSIGN
+      && gimple_assign_rhs_code (s) == ADDR_EXPR)
+    return range_of_address (r, s);
 
   if (range_of_expr (range1, op1, s))
     {
@@ -436,48 +447,84 @@ gimple_ranger::range_of_range_op (irange &r, gimple *s)
   return true;
 }
 
-// Calculate the range of a non-trivial assignment.  That is, is one
-// inolving arithmetic on an SSA name (for example, an ADDR_EXPR).
+// Calculate the range of an assignment containing an ADDR_EXPR.
 // Return the range in R.
-//
-// If a range cannot be calculated, return false.
+// If a range cannot be calculated, set it to VARYING and return true.
 
 bool
-gimple_ranger::range_of_non_trivial_assignment (irange &r, gimple *stmt)
+gimple_ranger::range_of_address (irange &r, gimple *stmt)
 {
-  if (gimple_code (stmt) != GIMPLE_ASSIGN)
-    return false;
+  gcc_checking_assert (gimple_code (stmt) == GIMPLE_ASSIGN);
+  gcc_checking_assert (gimple_assign_rhs_code (stmt) == ADDR_EXPR);
 
-  tree base = gimple_range_base_of_assignment (stmt);
-  if (base)
+  bool strict_overflow_p;
+  tree expr = gimple_assign_rhs1 (stmt);
+  poly_int64 bitsize, bitpos;
+  tree offset;
+  machine_mode mode;
+  int unsignedp, reversep, volatilep;
+  tree base = get_inner_reference (TREE_OPERAND (expr, 0), &bitsize,
+				   &bitpos, &offset, &mode, &unsignedp,
+				   &reversep, &volatilep);
+
+
+  if (base != NULL_TREE
+      && TREE_CODE (base) == MEM_REF
+      && TREE_CODE (TREE_OPERAND (base, 0)) == SSA_NAME)
     {
-      if (TREE_CODE (base) == MEM_REF)
+      tree ssa = TREE_OPERAND (base, 0);
+      gcc_checking_assert (irange::supports_type_p (TREE_TYPE (ssa)));
+      range_of_expr (r, ssa, stmt);
+      range_cast (r, TREE_TYPE (gimple_assign_rhs1 (stmt)));
+
+      poly_offset_int off = 0;
+      bool off_cst = false;
+      if (offset == NULL_TREE || TREE_CODE (offset) == INTEGER_CST)
 	{
-	  if (TREE_CODE (TREE_OPERAND (base, 0)) == SSA_NAME)
-	    {
-	      int_range_max range1;
-	      tree ssa = TREE_OPERAND (base, 0);
-	      if (range_of_expr (range1, ssa, stmt))
-		{
-		  tree type = TREE_TYPE (ssa);
-		  range_operator *op = range_op_handler (POINTER_PLUS_EXPR,
-							 type);
-		  int_range<2> offset (TREE_OPERAND (base, 1),
-				       TREE_OPERAND (base, 1));
-		  op->fold_range (r, type, range1, offset);
-		  return true;
-		}
-	    }
-	  return false;
+	  off = mem_ref_offset (base);
+	  if (offset)
+	    off += poly_offset_int::from (wi::to_poly_wide (offset),
+					  SIGNED);
+	  off <<= LOG2_BITS_PER_UNIT;
+	  off += bitpos;
+	  off_cst = true;
 	}
-      if (gimple_assign_rhs_code (stmt) == ADDR_EXPR)
+      /* If &X->a is equal to X, the range of X is the result.  */
+      if (off_cst && known_eq (off, 0))
+	  return true;
+      else if (flag_delete_null_pointer_checks
+	       && !TYPE_OVERFLOW_WRAPS (TREE_TYPE (expr)))
 	{
-	  // Handle "= &a"  and return non-zero.
+	 /* For -fdelete-null-pointer-checks -fno-wrapv-pointer we don't
+	 allow going from non-NULL pointer to NULL.  */
+	   if(!range_includes_zero_p (&r))
+	    return true;
+	}
+      /* If MEM_REF has a "positive" offset, consider it non-NULL
+	 always, for -fdelete-null-pointer-checks also "negative"
+	 ones.  Punt for unknown offsets (e.g. variable ones).  */
+      if (!TYPE_OVERFLOW_WRAPS (TREE_TYPE (expr))
+	  && off_cst
+	  && known_ne (off, 0)
+	  && (flag_delete_null_pointer_checks || known_gt (off, 0)))
+	{
 	  r = range_nonzero (TREE_TYPE (gimple_assign_rhs1 (stmt)));
 	  return true;
 	}
+      r = int_range<2> (TREE_TYPE (gimple_assign_rhs1 (stmt)));
+      return true;
     }
-  return false;
+
+  // Handle "= &a".
+  if (tree_single_nonzero_warnv_p (expr, &strict_overflow_p))
+    {
+      r = range_nonzero (TREE_TYPE (gimple_assign_rhs1 (stmt)));
+      return true;
+    }
+
+  // Otherwise return varying.
+  r = int_range<2> (TREE_TYPE (gimple_assign_rhs1 (stmt)));
+  return true;
 }
 
 // Calculate a range for phi statement S and return it in R.
@@ -500,6 +547,9 @@ gimple_ranger::range_of_phi (irange &r, gphi *phi)
     {
       tree arg = gimple_phi_arg_def (phi, x);
       edge e = gimple_phi_arg_edge (phi, x);
+
+      // Register potential dependencies for stale value tracking.
+      m_cache.register_dependency (phi_def, arg);
 
       range_on_edge (arg_range, e, arg);
       r.union_ (arg_range);
@@ -897,7 +947,7 @@ gimple_ranger::range_of_expr (irange &r, tree expr, gimple *stmt)
   // If there is no statement, just get the global value.
   if (!stmt)
     {
-      if (!m_cache.m_globals.get_global_range (r, expr))
+      if (!m_cache.get_global_range (r, expr))
         r = gimple_range_global (expr);
       return true;
     }
@@ -1009,19 +1059,19 @@ gimple_ranger::range_of_stmt (irange &r, gimple *s, tree name)
   if (!gimple_range_ssa_p (name))
     return false;
 
-  // If this STMT has already been processed, return that value.
-  if (m_cache.m_globals.get_global_range (r, name))
+  // Check if the stmt has already been processed, and is not stale.
+  if (m_cache.get_non_stale_global_range (r, name))
     return true;
 
-  // Avoid infinite recursion by initializing global cache
-  int_range_max tmp = gimple_range_global (name);
-  m_cache.m_globals.set_global_range (name, tmp);
+  // Otherwise calculate a new value.
+  int_range_max tmp;
+  calc_stmt (tmp, s, name);
 
-  calc_stmt (r, s, name);
-
-  if (is_a<gphi *> (s))
-    r.intersect (tmp);
-  m_cache.m_globals.set_global_range (name, r);
+  // Combine the new value with the old value.  This is required because
+  // the way value propagation works, when the IL changes on the fly we
+  // can sometimes get different results.  See PR 97741.
+  r.intersect (tmp);
+  m_cache.set_global_range (name, r);
   return true;
 }
 
@@ -1044,7 +1094,7 @@ gimple_ranger::export_global_ranges ()
       tree name = ssa_name (x);
       if (name && !SSA_NAME_IN_FREE_LIST (name)
 	  && gimple_range_ssa_p (name)
-	  && m_cache.m_globals.get_global_range (r, name)
+	  && m_cache.get_global_range (r, name)
 	  && !r.varying_p())
 	{
 	  // Make sure the new range is a subset of the old range.
@@ -1088,7 +1138,7 @@ gimple_ranger::dump (FILE *f)
       edge e;
       int_range_max range;
       fprintf (f, "\n=========== BB %d ============\n", bb->index);
-      m_cache.m_on_entry.dump (f, bb);
+      m_cache.dump (f, bb);
 
       dump_bb (f, bb, 4, TDF_NONE);
 
@@ -1098,7 +1148,7 @@ gimple_ranger::dump (FILE *f)
 	  tree name = ssa_name (x);
 	  if (gimple_range_ssa_p (name) && SSA_NAME_DEF_STMT (name) &&
 	      gimple_bb (SSA_NAME_DEF_STMT (name)) == bb &&
-	      m_cache.m_globals.get_global_range (range, name))
+	      m_cache.get_global_range (range, name))
 	    {
 	      if (!range.varying_p ())
 	       {
@@ -1150,15 +1200,7 @@ gimple_ranger::dump (FILE *f)
 	}
     }
 
-  m_cache.m_globals.dump (dump_file);
-  fprintf (f, "\n");
-
-  if (dump_flags & TDF_DETAILS)
-    {
-      fprintf (f, "\nDUMPING GORI MAP\n");
-      m_cache.dump (f);
-      fprintf (f, "\n");
-    }
+  m_cache.dump (dump_file, (dump_flags & TDF_DETAILS) != 0);
 }
 
 // If SCEV has any information about phi node NAME, return it as a range in R.

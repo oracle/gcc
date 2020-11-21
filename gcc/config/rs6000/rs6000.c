@@ -3539,6 +3539,20 @@ rs6000_linux64_override_options ()
 }
 #endif
 
+/* Return true if we are using GLIBC, and it supports IEEE 128-bit long double.
+   This support is only in little endian GLIBC 2.32 or newer.  */
+static bool
+glibc_supports_ieee_128bit (void)
+{
+#ifdef OPTION_GLIBC
+  if (OPTION_GLIBC && !BYTES_BIG_ENDIAN
+      && ((TARGET_GLIBC_MAJOR * 1000) + TARGET_GLIBC_MINOR) >= 2032)
+    return true;
+#endif /* OPTION_GLIBC.  */
+
+  return false;
+}
+
 /* Override command line options.
 
    Combine build-specific configuration information with options
@@ -4158,8 +4172,14 @@ rs6000_option_override_internal (bool global_init_p)
 
       if (rs6000_ieeequad != TARGET_IEEEQUAD_DEFAULT && TARGET_LONG_DOUBLE_128)
 	{
+	  /* Determine if the user can change the default long double type at
+	     compilation time.  Only C and C++ support this, and you need GLIBC
+	     2.32 or newer.  Only issue one warning.  */
 	  static bool warned_change_long_double;
-	  if (!warned_change_long_double)
+
+	  if (!warned_change_long_double
+	      && (!glibc_supports_ieee_128bit ()
+		  || (!lang_GNU_C () && !lang_GNU_CXX ())))
 	    {
 	      warned_change_long_double = true;
 	      if (TARGET_IEEEQUAD)
@@ -6502,11 +6522,11 @@ rs6000_expand_vector_init (rtx target, rtx vals)
 {
   machine_mode mode = GET_MODE (target);
   machine_mode inner_mode = GET_MODE_INNER (mode);
-  int n_elts = GET_MODE_NUNITS (mode);
+  unsigned int n_elts = GET_MODE_NUNITS (mode);
   int n_var = 0, one_var = -1;
   bool all_same = true, all_const_zero = true;
   rtx x, mem;
-  int i;
+  unsigned int i;
 
   for (i = 0; i < n_elts; ++i)
     {
@@ -6769,6 +6789,181 @@ rs6000_expand_vector_init (rtx target, rtx vals)
 
       /* Insert variable.  */
       rs6000_expand_vector_set (target, XVECEXP (vals, 0, one_var), one_var);
+      return;
+    }
+
+  if (TARGET_DIRECT_MOVE && (mode == V16QImode || mode == V8HImode))
+    {
+      rtx op[16];
+      /* Force the values into word_mode registers.  */
+      for (i = 0; i < n_elts; i++)
+	{
+	  rtx tmp = force_reg (GET_MODE_INNER (mode), XVECEXP (vals, 0, i));
+	  if (TARGET_POWERPC64)
+	    {
+	      op[i] = gen_reg_rtx (DImode);
+	      emit_insn (gen_zero_extendqidi2 (op[i], tmp));
+	    }
+	  else
+	    {
+	      op[i] = gen_reg_rtx (SImode);
+	      emit_insn (gen_zero_extendqisi2 (op[i], tmp));
+	    }
+	}
+
+      /* Take unsigned char big endianness on 64bit as example for below
+	 construction, the input values are: A, B, C, D, ..., O, P.  */
+
+      if (TARGET_DIRECT_MOVE_128)
+	{
+	  /* Move to VSX register with vec_concat, each has 2 values.
+	     eg: vr1[0] = { xxxxxxxA, xxxxxxxB };
+		 vr1[1] = { xxxxxxxC, xxxxxxxD };
+		 ...
+		 vr1[7] = { xxxxxxxO, xxxxxxxP };  */
+	  rtx vr1[8];
+	  for (i = 0; i < n_elts / 2; i++)
+	    {
+	      vr1[i] = gen_reg_rtx (V2DImode);
+	      emit_insn (gen_vsx_concat_v2di (vr1[i], op[i * 2],
+					      op[i * 2 + 1]));
+	    }
+
+	  /* Pack vectors with 2 values into vectors with 4 values.
+	     eg: vr2[0] = { xxxAxxxB, xxxCxxxD };
+		 vr2[1] = { xxxExxxF, xxxGxxxH };
+		 vr2[1] = { xxxIxxxJ, xxxKxxxL };
+		 vr2[3] = { xxxMxxxN, xxxOxxxP };  */
+	  rtx vr2[4];
+	  for (i = 0; i < n_elts / 4; i++)
+	    {
+	      vr2[i] = gen_reg_rtx (V4SImode);
+	      emit_insn (gen_altivec_vpkudum (vr2[i], vr1[i * 2],
+					      vr1[i * 2 + 1]));
+	    }
+
+	  /* Pack vectors with 4 values into vectors with 8 values.
+	     eg: vr3[0] = { xAxBxCxD, xExFxGxH };
+		 vr3[1] = { xIxJxKxL, xMxNxOxP };  */
+	  rtx vr3[2];
+	  for (i = 0; i < n_elts / 8; i++)
+	    {
+	      vr3[i] = gen_reg_rtx (V8HImode);
+	      emit_insn (gen_altivec_vpkuwum (vr3[i], vr2[i * 2],
+					      vr2[i * 2 + 1]));
+	    }
+
+	  /* If it's V8HImode, it's done and return it. */
+	  if (mode == V8HImode)
+	    {
+	      emit_insn (gen_rtx_SET (target, vr3[0]));
+	      return;
+	    }
+
+	  /* Pack vectors with 8 values into 16 values.  */
+	  rtx res = gen_reg_rtx (V16QImode);
+	  emit_insn (gen_altivec_vpkuhum (res, vr3[0], vr3[1]));
+	  emit_insn (gen_rtx_SET (target, res));
+	}
+      else
+	{
+	  rtx (*merge_v16qi) (rtx, rtx, rtx) = NULL;
+	  rtx (*merge_v8hi) (rtx, rtx, rtx) = NULL;
+	  rtx (*merge_v4si) (rtx, rtx, rtx) = NULL;
+	  rtx perm_idx;
+
+	  /* Set up some common gen routines and values.  */
+	  if (BYTES_BIG_ENDIAN)
+	    {
+	      if (mode == V16QImode)
+		{
+		  merge_v16qi = gen_altivec_vmrghb;
+		  merge_v8hi = gen_altivec_vmrglh;
+		}
+	      else
+		merge_v8hi = gen_altivec_vmrghh;
+
+	      merge_v4si = gen_altivec_vmrglw;
+	      perm_idx = GEN_INT (3);
+	    }
+	  else
+	    {
+	      if (mode == V16QImode)
+		{
+		  merge_v16qi = gen_altivec_vmrglb;
+		  merge_v8hi = gen_altivec_vmrghh;
+		}
+	      else
+		merge_v8hi = gen_altivec_vmrglh;
+
+	      merge_v4si = gen_altivec_vmrghw;
+	      perm_idx = GEN_INT (0);
+	    }
+
+	  /* Move to VSX register with direct move.
+	     eg: vr_qi[0] = { xxxxxxxA, xxxxxxxx };
+		 vr_qi[1] = { xxxxxxxB, xxxxxxxx };
+		 ...
+		 vr_qi[15] = { xxxxxxxP, xxxxxxxx };  */
+	  rtx vr_qi[16];
+	  for (i = 0; i < n_elts; i++)
+	    {
+	      vr_qi[i] = gen_reg_rtx (V16QImode);
+	      if (TARGET_POWERPC64)
+		emit_insn (gen_p8_mtvsrd_v16qidi2 (vr_qi[i], op[i]));
+	      else
+		emit_insn (gen_p8_mtvsrwz_v16qisi2 (vr_qi[i], op[i]));
+	    }
+
+	  /* Merge/move to vector short.
+	     eg: vr_hi[0] = { xxxxxxxx, xxxxxxAB };
+		 vr_hi[1] = { xxxxxxxx, xxxxxxCD };
+		 ...
+		 vr_hi[7] = { xxxxxxxx, xxxxxxOP };  */
+	  rtx vr_hi[8];
+	  for (i = 0; i < 8; i++)
+	    {
+	      rtx tmp = vr_qi[i];
+	      if (mode == V16QImode)
+		{
+		  tmp = gen_reg_rtx (V16QImode);
+		  emit_insn (merge_v16qi (tmp, vr_qi[2 * i], vr_qi[2 * i + 1]));
+		}
+	      vr_hi[i] = gen_reg_rtx (V8HImode);
+	      emit_move_insn (vr_hi[i], gen_lowpart (V8HImode, tmp));
+	    }
+
+	  /* Merge vector short to vector int.
+	     eg: vr_si[0] = { xxxxxxxx, xxxxABCD };
+		 vr_si[1] = { xxxxxxxx, xxxxEFGH };
+		 ...
+		 vr_si[3] = { xxxxxxxx, xxxxMNOP };  */
+	  rtx vr_si[4];
+	  for (i = 0; i < 4; i++)
+	    {
+	      rtx tmp = gen_reg_rtx (V8HImode);
+	      emit_insn (merge_v8hi (tmp, vr_hi[2 * i], vr_hi[2 * i + 1]));
+	      vr_si[i] = gen_reg_rtx (V4SImode);
+	      emit_move_insn (vr_si[i], gen_lowpart (V4SImode, tmp));
+	    }
+
+	  /* Merge vector int to vector long.
+	     eg: vr_di[0] = { xxxxxxxx, ABCDEFGH };
+		 vr_di[1] = { xxxxxxxx, IJKLMNOP };  */
+	  rtx vr_di[2];
+	  for (i = 0; i < 2; i++)
+	    {
+	      rtx tmp = gen_reg_rtx (V4SImode);
+	      emit_insn (merge_v4si (tmp, vr_si[2 * i], vr_si[2 * i + 1]));
+	      vr_di[i] = gen_reg_rtx (V2DImode);
+	      emit_move_insn (vr_di[i], gen_lowpart (V2DImode, tmp));
+	    }
+
+	  rtx res = gen_reg_rtx (V2DImode);
+	  emit_insn (gen_vsx_xxpermdi_v2di (res, vr_di[0], vr_di[1], perm_idx));
+	  emit_insn (gen_rtx_SET (target, gen_lowpart (mode, res)));
+	}
+
       return;
     }
 
@@ -14392,22 +14587,10 @@ rs6000_invalid_binary_op (int op ATTRIBUTE_UNUSED,
 
   if (!TARGET_FLOAT128_CVT)
     {
-      if ((mode1 == KFmode && mode2 == IFmode)
-	  || (mode1 == IFmode && mode2 == KFmode))
-	return N_("__float128 and __ibm128 cannot be used in the same "
-		  "expression");
-
-      if (TARGET_IEEEQUAD
-	  && ((mode1 == IFmode && mode2 == TFmode)
-	      || (mode1 == TFmode && mode2 == IFmode)))
-	return N_("__ibm128 and long double cannot be used in the same "
-		  "expression");
-
-      if (!TARGET_IEEEQUAD
-	  && ((mode1 == KFmode && mode2 == TFmode)
-	      || (mode1 == TFmode && mode2 == KFmode)))
-	return N_("__float128 and long double cannot be used in the same "
-		  "expression");
+      if ((FLOAT128_IEEE_P (mode1) && FLOAT128_IBM_P (mode2))
+	  || (FLOAT128_IBM_P (mode1) && FLOAT128_IEEE_P (mode2)))
+	return N_("Invalid mixing of IEEE 128-bit and IBM 128-bit floating "
+		  "point types");
     }
 
   return NULL;
@@ -26918,7 +27101,8 @@ static tree
 rs6000_mangle_decl_assembler_name (tree decl, tree id)
 {
   if (!TARGET_IEEEQUAD_DEFAULT && TARGET_IEEEQUAD && TARGET_LONG_DOUBLE_128
-      && TREE_CODE (decl) == FUNCTION_DECL && DECL_IS_BUILTIN (decl) )
+      && TREE_CODE (decl) == FUNCTION_DECL
+      && DECL_IS_UNDECLARED_BUILTIN (decl))
     {
       size_t len = IDENTIFIER_LENGTH (id);
       const char *name = IDENTIFIER_POINTER (id);

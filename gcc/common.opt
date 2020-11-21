@@ -228,6 +228,10 @@ unsigned int flag_sanitize_coverage
 Variable
 bool dump_base_name_prefixed = false
 
+; What subset of registers should be zeroed on function return
+Variable
+unsigned int flag_zero_call_used_regs
+
 ###
 Driver
 
@@ -956,8 +960,12 @@ Driver Undocumented
 ; 13: Fixes the accidental change in 12 to the calling convention for classes
 ;     with deleted copy constructor and trivial move constructor.
 ;     Default in G++ 8.2.
+;
 ; 14: Corrects the mangling of nullptr expression.
 ;     Default in G++ 10.
+;
+; 15: Changes the mangling of __alignof__ to be distinct from that of alignof.
+;     Default in G++ 11.
 ;
 ; Additional positive integers will be assigned as new versions of
 ; the ABI become the default version of the ABI.
@@ -1936,6 +1944,10 @@ fjump-tables
 Common Var(flag_jump_tables) Init(1) Optimization
 Use jump tables for sufficiently large switch statements.
 
+fbit-tests
+Common Var(flag_bit_tests) Init(1) Optimization
+Use bit tests for sufficiently large switch statements.
+
 fkeep-inline-functions
 Common Report Var(flag_keep_inline_functions)
 Generate code for functions even if they are fully inlined.
@@ -2259,6 +2271,14 @@ Enable common options for generating profile info for profile feedback directed 
 fprofile-generate=
 Common Joined RejectNegative
 Enable common options for generating profile info for profile feedback directed optimizations, and set -fprofile-dir=.
+
+fprofile-info-section
+Common RejectNegative
+Register the profile information in the .gcov_info section instead of using a constructor/destructor.
+
+fprofile-info-section=
+Common Joined RejectNegative Var(profile_info_section)
+Register the profile information in the specified section instead of using a constructor/destructor.
 
 fprofile-partial-training
 Common Report Var(flag_profile_partial_training) Optimization
@@ -3000,11 +3020,11 @@ Enable basic block vectorization (SLP) on trees.
 
 fvect-cost-model=
 Common Joined RejectNegative Enum(vect_cost_model) Var(flag_vect_cost_model) Init(VECT_COST_MODEL_DEFAULT) Optimization
--fvect-cost-model=[unlimited|dynamic|cheap]	Specifies the cost model for vectorization.
+-fvect-cost-model=[unlimited|dynamic|cheap|very-cheap]	Specifies the cost model for vectorization.
 
 fsimd-cost-model=
 Common Joined RejectNegative Enum(vect_cost_model) Var(flag_simd_cost_model) Init(VECT_COST_MODEL_UNLIMITED) Optimization
--fsimd-cost-model=[unlimited|dynamic|cheap]	Specifies the vectorization cost model for code marked with a simd directive.
+-fsimd-cost-model=[unlimited|dynamic|cheap|very-cheap]	Specifies the vectorization cost model for code marked with a simd directive.
 
 Enum
 Name(vect_cost_model) Type(enum vect_cost_model) UnknownError(unknown vectorizer cost model %qs)
@@ -3017,6 +3037,9 @@ Enum(vect_cost_model) String(dynamic) Value(VECT_COST_MODEL_DYNAMIC)
 
 EnumValue
 Enum(vect_cost_model) String(cheap) Value(VECT_COST_MODEL_CHEAP)
+
+EnumValue
+Enum(vect_cost_model) String(very-cheap) Value(VECT_COST_MODEL_VERY_CHEAP)
 
 fvect-cost-model
 Common Alias(fvect-cost-model=,dynamic,unlimited)
@@ -3110,6 +3133,10 @@ Assume signed arithmetic overflow wraps around.
 fzero-initialized-in-bss
 Common Report Var(flag_zero_initialized_in_bss) Init(1)
 Put zero initialized data in the bss section.
+
+fzero-call-used-regs=
+Common Report RejectNegative Joined
+Clear call-used registers upon function return.
 
 g
 Common Driver RejectNegative JoinedOrMissing

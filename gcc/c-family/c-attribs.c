@@ -140,6 +140,8 @@ static tree handle_target_clones_attribute (tree *, tree, tree, int, bool *);
 static tree handle_optimize_attribute (tree *, tree, tree, int, bool *);
 static tree ignore_attribute (tree *, tree, tree, int, bool *);
 static tree handle_no_split_stack_attribute (tree *, tree, tree, int, bool *);
+static tree handle_zero_call_used_regs_attribute (tree *, tree, tree, int,
+						  bool *);
 static tree handle_argspec_attribute (tree *, tree, tree, int, bool *);
 static tree handle_fnspec_attribute (tree *, tree, tree, int, bool *);
 static tree handle_warn_unused_attribute (tree *, tree, tree, int, bool *);
@@ -155,6 +157,9 @@ static tree handle_designated_init_attribute (tree *, tree, tree, int, bool *);
 static tree handle_patchable_function_entry_attribute (tree *, tree, tree,
 						       int, bool *);
 static tree handle_copy_attribute (tree *, tree, tree, int, bool *);
+static tree handle_nsobject_attribute (tree *, tree, tree, int, bool *);
+static tree handle_objc_root_class_attribute (tree *, tree, tree, int, bool *);
+static tree handle_objc_nullability_attribute (tree *, tree, tree, int, bool *);
 
 /* Helper to define attribute exclusions.  */
 #define ATTR_EXCL(name, function, type, variable)	\
@@ -451,6 +456,8 @@ const struct attribute_spec c_common_attribute_table[] =
 			      ignore_attribute, NULL },
   { "no_split_stack",	      0, 0, true,  false, false, false,
 			      handle_no_split_stack_attribute, NULL },
+  { "zero_call_used_regs",    1, 1, true, false, false, false,
+			      handle_zero_call_used_regs_attribute, NULL },
   /* For internal use only (marking of function arguments).
      The name contains a space to prevent its usage in source code.  */
   { "arg spec",		      1, -1, true, false, false, false,
@@ -505,6 +512,13 @@ const struct attribute_spec c_common_attribute_table[] =
 			      handle_noinit_attribute, attr_noinit_exclusions },
   { "access",		      1, 3, false, true, true, false,
 			      handle_access_attribute, NULL },
+  /* Attributes used by Objective-C.  */
+  { "NSObject",		      0, 0, true, false, false, false,
+			      handle_nsobject_attribute, NULL },
+  { "objc_root_class",	      0, 0, true, false, false, false,
+			      handle_objc_root_class_attribute, NULL },
+  { "objc_nullability",	      1, 1, true, false, false, false,
+			      handle_objc_nullability_attribute, NULL },
   { NULL,                     0, 0, false, false, false, false, NULL, NULL }
 };
 
@@ -2796,9 +2810,11 @@ handle_copy_attribute (tree *node, tree name, tree args,
   tree attrs = TYPE_ATTRIBUTES (reftype);
 
   /* Copy type attributes from REF to DECL.  Pass in REF if it's a DECL
-     or a type but not if it's an expression.  */
+     or a type but not if it's an expression.  Set ATTR_FLAG_INTERNAL
+     since the attributes' arguments may be in their internal form.  */
   for (tree at = attrs; at; at = TREE_CHAIN (at))
-    decl_attributes (node, at, flags, EXPR_P (ref) ? NULL_TREE : ref);
+    decl_attributes (node, at, flags | ATTR_FLAG_INTERNAL,
+		     EXPR_P (ref) ? NULL_TREE : ref);
 
   return NULL_TREE;
 }
@@ -4275,8 +4291,8 @@ append_access_attr (tree node[3], tree attrs, const char *attrstr,
    the attribute and its arguments into a string.  */
 
 static tree
-handle_access_attribute (tree node[3], tree name, tree args,
-			 int ARG_UNUSED (flags), bool *no_add_attrs)
+handle_access_attribute (tree node[3], tree name, tree args, int flags,
+			 bool *no_add_attrs)
 {
   tree attrs = TYPE_ATTRIBUTES (*node);
   tree type = *node;
@@ -4322,15 +4338,19 @@ handle_access_attribute (tree node[3], tree name, tree args,
 
 	  /* Recursively call self to "replace" the documented/external
 	     form of the attribute with the condensend internal form.  */
-	  decl_attributes (node, axsat, flags);
+	  decl_attributes (node, axsat, flags | ATTR_FLAG_INTERNAL);
 	  return NULL_TREE;
 	}
 
-      /* This is a recursive call to handle the condensed internal form
-	 of the attribute (see below).  Since all validation has been
-	 done simply return here, accepting the attribute as is.  */
-      *no_add_attrs = false;
-      return NULL_TREE;
+      if (flags & ATTR_FLAG_INTERNAL)
+	{
+	  /* This is a recursive call to handle the condensed internal
+	     form of the attribute (see below).  Since all validation
+	     has been done simply return here, accepting the attribute
+	     as is.  */
+	  *no_add_attrs = false;
+	  return NULL_TREE;
+	}
     }
 
   /* Set to true when the access mode has the form of a function call
@@ -4348,6 +4368,13 @@ handle_access_attribute (tree node[3], tree name, tree args,
       access_mode = TREE_OPERAND (access_mode, 0);
       access_mode = DECL_NAME (access_mode);
       funcall = true;
+    }
+  else if (TREE_CODE (access_mode) != IDENTIFIER_NODE)
+    {
+      error ("attribute %qE mode %qE is not an identifier; expected one of "
+	     "%qs, %qs, %qs, or %qs", name, access_mode,
+	     "read_only", "read_write", "write_only", "none");
+      return NULL_TREE;
     }
 
   const char* const access_str = IDENTIFIER_POINTER (access_mode);
@@ -4559,7 +4586,7 @@ handle_access_attribute (tree node[3], tree name, tree args,
 
   /* Recursively call self to "replace" the documented/external form
      of the attribute with the condensed internal form.  */
-  decl_attributes (node, new_attrs, flags);
+  decl_attributes (node, new_attrs, flags | ATTR_FLAG_INTERNAL);
   return NULL_TREE;
 }
 
@@ -4687,7 +4714,7 @@ build_attr_access_from_parms (tree parms, bool skip_voidptr)
 
   /* Attribute access takes a two or three arguments.  Wrap VBLIST in
      another list in case it has more nodes than would otherwise fit.  */
-    vblist = build_tree_list (NULL_TREE, vblist);
+  vblist = build_tree_list (NULL_TREE, vblist);
 
   /* Build a single attribute access with the string describing all
      array arguments and an optional list of any non-parameter VLA
@@ -4994,6 +5021,53 @@ handle_no_split_stack_attribute (tree *node, tree name,
   return NULL_TREE;
 }
 
+/* Handle a "zero_call_used_regs" attribute; arguments as in
+   struct attribute_spec.handler.  */
+
+static tree
+handle_zero_call_used_regs_attribute (tree *node, tree name, tree args,
+				      int ARG_UNUSED (flags),
+				      bool *no_add_attrs)
+{
+  tree decl = *node;
+  tree id = TREE_VALUE (args);
+
+  if (TREE_CODE (decl) != FUNCTION_DECL)
+    {
+      error_at (DECL_SOURCE_LOCATION (decl),
+		"%qE attribute applies only to functions", name);
+      *no_add_attrs = true;
+      return NULL_TREE;
+    }
+
+  if (TREE_CODE (id) != STRING_CST)
+    {
+      error_at (DECL_SOURCE_LOCATION (decl),
+		"%qE argument not a string", name);
+      *no_add_attrs = true;
+      return NULL_TREE;
+    }
+
+  bool found = false;
+  for (unsigned int i = 0; zero_call_used_regs_opts[i].name != NULL; ++i)
+    if (strcmp (TREE_STRING_POINTER (id),
+		zero_call_used_regs_opts[i].name) == 0)
+      {
+	found = true;
+	break;
+      }
+
+  if (!found)
+    {
+      error_at (DECL_SOURCE_LOCATION (decl),
+		"unrecognized %qE attribute argument %qs",
+		name, TREE_STRING_POINTER (id));
+      *no_add_attrs = true;
+    }
+
+  return NULL_TREE;
+}
+
 /* Handle a "returns_nonnull" attribute; arguments as in
    struct attribute_spec.handler.  */
 
@@ -5070,6 +5144,103 @@ handle_patchable_function_entry_attribute (tree *, tree name, tree args,
 	  return NULL_TREE;
 	}
     }
+  return NULL_TREE;
+}
+
+/* Handle a "NSObject" attributes; arguments as in
+   struct attribute_spec.handler.  */
+
+static tree
+handle_nsobject_attribute (tree *node, tree name, tree args,
+			   int /*flags*/, bool *no_add_attrs)
+{
+  *no_add_attrs = true;
+
+  /* This attribute only applies to typedefs (or field decls for properties),
+     we drop it otherwise - but warn about this if enabled.  */
+  if (TREE_CODE (*node) != TYPE_DECL && TREE_CODE (*node) != FIELD_DECL)
+    {
+      warning (OPT_WNSObject_attribute, "%qE attribute may be put on a"
+	       " typedef only; attribute is ignored", name);
+      return NULL_TREE;
+    }
+
+  /* The original implementation only allowed pointers to records, however
+     recent implementations also allow void *.  */
+  tree type = TREE_TYPE (*node);
+  if (!type || !POINTER_TYPE_P (type)
+      || (TREE_CODE (TREE_TYPE (type)) != RECORD_TYPE
+          && !VOID_TYPE_P (TREE_TYPE (type))))
+    {
+      error ("%qE attribute is for pointer types only", name);
+      return NULL_TREE;
+    }
+
+  tree t = tree_cons (name, args, TYPE_ATTRIBUTES (type));
+  TREE_TYPE (*node) = build_type_attribute_variant (type, t);
+
+  return NULL_TREE;
+}
+
+/* Handle a "objc_root_class" attributes; arguments as in
+   struct attribute_spec.handler.  */
+
+static tree
+handle_objc_root_class_attribute (tree */*node*/, tree name, tree /*args*/,
+				  int /*flags*/, bool *no_add_attrs)
+{
+  /* This has no meaning outside Objective-C.  */
+  if (!c_dialect_objc())
+    warning (OPT_Wattributes, "%qE is only applicable to Objective-C"
+	     " class interfaces, attribute ignored", name);
+
+  *no_add_attrs = true;
+  return NULL_TREE;
+}
+
+/* Handle an "objc_nullability" attribute; arguments as in
+   struct attribute_spec.handler.  */
+
+static tree
+handle_objc_nullability_attribute (tree *node, tree name, tree args,
+				   int /*flags*/,
+				   bool *no_add_attrs)
+{
+  *no_add_attrs = true;
+
+  tree type = TREE_TYPE (*node);
+  if (TREE_CODE (*node) == FUNCTION_DECL)
+    type = TREE_TYPE (type);
+
+  if (type && !POINTER_TYPE_P (type))
+    {
+      error ("%qE cannot be applied to non-pointer type %qT", name, type);
+      return NULL_TREE;
+    }
+
+  /* We accept objc_nullability() with a single argument.
+     string: "unspecified", "nullable", "nonnull" or "resettable"
+     integer: 0 and 3 where the values have the same meaning as
+     the strings.  */
+  tree val = TREE_VALUE (args);
+  if (TREE_CODE (val) == INTEGER_CST)
+    {
+      val = default_conversion (val);
+      if (!tree_fits_uhwi_p (val) || tree_to_uhwi (val) > 3)
+	error ("%qE attribute argument %qE is not an integer constant"
+	       " between 0 and 3", name, val);
+      else
+	*no_add_attrs = false; /* OK */
+    }
+  else if (TREE_CODE (val) == STRING_CST
+	   && (strcmp (TREE_STRING_POINTER (val), "nullable") == 0
+	      || strcmp (TREE_STRING_POINTER (val), "nonnull") == 0
+	      || strcmp (TREE_STRING_POINTER (val), "unspecified") == 0
+	      || strcmp (TREE_STRING_POINTER (val), "resettable") == 0))
+    *no_add_attrs = false; /* OK */
+  else if (val != error_mark_node)
+    error ("%qE attribute argument %qE is not recognised", name, val);
+
   return NULL_TREE;
 }
 

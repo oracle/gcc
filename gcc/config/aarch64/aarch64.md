@@ -111,6 +111,13 @@
     ;; "FFR token": a fake register used for representing the scheduling
     ;; restrictions on FFR-related operations.
     (FFRT_REGNUM	85)
+    ;; The pair of scratch registers used for stack probing with -fstack-check.
+    ;; Leave R9 alone as a possible choice for the static chain.
+    ;; Note that the use of these registers is mutually exclusive with the use
+    ;; of STACK_CLASH_SVE_CFA_REGNUM, which is for -fstack-clash-protection
+    ;; rather than -fstack-check.
+    (PROBE_STACK_FIRST_REGNUM  10)
+    (PROBE_STACK_SECOND_REGNUM 11)
     ;; Scratch register used by stack clash protection to calculate
     ;; SVE CFA offsets during probing.
     (STACK_CLASH_SVE_CFA_REGNUM 11)
@@ -1563,6 +1570,24 @@
   FAIL;
 }
 )
+
+;; 0 is dst
+;; 1 is val
+;; 2 is size of copy in bytes
+;; 3 is alignment
+
+(define_expand "setmemdi"
+  [(set (match_operand:BLK 0 "memory_operand")     ;; Dest
+        (match_operand:QI  2 "nonmemory_operand")) ;; Value
+   (use (match_operand:DI  1 "immediate_operand")) ;; Length
+   (match_operand          3 "immediate_operand")] ;; Align
+  "TARGET_SIMD"
+{
+  if (aarch64_expand_setmem (operands))
+    DONE;
+
+  FAIL;
+})
 
 ;; Operands 1 and 3 are tied together by the final condition; so we allow
 ;; fairly lax checking on the second memory operation.

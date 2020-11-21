@@ -688,7 +688,8 @@ vect_slp_analyze_node_dependences (vec_info *vinfo, slp_tree node,
       stmt_vec_info last_access_info = vect_find_last_scalar_stmt_in_slp (node);
       for (unsigned k = 0; k < SLP_TREE_SCALAR_STMTS (node).length (); ++k)
 	{
-	  stmt_vec_info access_info = SLP_TREE_SCALAR_STMTS (node)[k];
+	  stmt_vec_info access_info
+	    = vect_orig_stmt (SLP_TREE_SCALAR_STMTS (node)[k]);
 	  if (access_info == last_access_info)
 	    continue;
 	  data_reference *dr_a = STMT_VINFO_DATA_REF (access_info);
@@ -759,7 +760,8 @@ vect_slp_analyze_node_dependences (vec_info *vinfo, slp_tree node,
 	= vect_find_first_scalar_stmt_in_slp (node);
       for (unsigned k = 0; k < SLP_TREE_SCALAR_STMTS (node).length (); ++k)
 	{
-	  stmt_vec_info access_info = SLP_TREE_SCALAR_STMTS (node)[k];
+	  stmt_vec_info access_info
+	    = vect_orig_stmt (SLP_TREE_SCALAR_STMTS (node)[k]);
 	  if (access_info == first_access_info)
 	    continue;
 	  data_reference *dr_a = STMT_VINFO_DATA_REF (access_info);
@@ -1184,14 +1186,9 @@ static void
 vect_update_misalignment_for_peel (dr_vec_info *dr_info,
 				   dr_vec_info *dr_peel_info, int npeel)
 {
-  /* It can be assumed that if dr_info has the same alignment as dr_peel,
-     it is aligned in the vector loop.  */
+  /* If dr_info is aligned of dr_peel_info is, then mark it so.  */
   if (vect_dr_aligned_if_peeled_dr_is (dr_info, dr_peel_info))
     {
-      gcc_assert (!known_alignment_for_access_p (dr_info)
-		  || !known_alignment_for_access_p (dr_peel_info)
-		  || (DR_MISALIGNMENT (dr_info)
-		      == DR_MISALIGNMENT (dr_peel_info)));
       SET_DR_MISALIGNMENT (dr_info, 0);
       return;
     }
@@ -2164,7 +2161,7 @@ vect_enhance_data_refs_alignment (loop_vec_info loop_vinfo)
         {
           unsigned max_allowed_peel
 	    = param_vect_max_peeling_for_alignment;
-	  if (flag_vect_cost_model == VECT_COST_MODEL_CHEAP)
+	  if (flag_vect_cost_model <= VECT_COST_MODEL_CHEAP)
 	    max_allowed_peel = 0;
           if (max_allowed_peel != (unsigned)-1)
             {
@@ -2262,7 +2259,7 @@ vect_enhance_data_refs_alignment (loop_vec_info loop_vinfo)
   do_versioning
     = (optimize_loop_nest_for_speed_p (loop)
        && !loop->inner /* FORNOW */
-       && flag_vect_cost_model != VECT_COST_MODEL_CHEAP);
+       && flag_vect_cost_model > VECT_COST_MODEL_CHEAP);
 
   if (do_versioning)
     {
@@ -2444,7 +2441,8 @@ vect_slp_analyze_node_alignment (vec_info *vinfo, slp_tree node)
 
   /* For creating the data-ref pointer we need alignment of the
      first element as well.  */
-  first_stmt_info = vect_find_first_scalar_stmt_in_slp (node);
+  first_stmt_info
+    = vect_stmt_to_vectorize (vect_find_first_scalar_stmt_in_slp (node));
   if (first_stmt_info != SLP_TREE_SCALAR_STMTS (node)[0])
     {
       first_dr_info = STMT_VINFO_DR_INFO (first_stmt_info);
@@ -3683,6 +3681,10 @@ vect_prune_runtime_alias_test_list (loop_vec_info loop_vinfo)
 
   unsigned int count = (comp_alias_ddrs.length ()
 			+ check_unequal_addrs.length ());
+
+  if (count && flag_vect_cost_model == VECT_COST_MODEL_VERY_CHEAP)
+    return opt_result::failure_at
+      (vect_location, "would need a runtime alias check\n");
 
   if (dump_enabled_p ())
     dump_printf_loc (MSG_NOTE, vect_location,

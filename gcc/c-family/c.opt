@@ -242,11 +242,11 @@ Generate phony targets for all headers.
 
 MQ
 C ObjC C++ ObjC++ Joined Separate MissingArgError(missing makefile target after %qs)
--MQ <target>	Add a MAKE-quoted target.
+-MQ <target>	Add a target that may require quoting.
 
 MT
 C ObjC C++ ObjC++ Joined Separate MissingArgError(missing makefile target after %qs)
--MT <target>	Add an unquoted target.
+-MT <target>	Add a target that does not require quoting.
 
 P
 C ObjC C++ ObjC++
@@ -255,6 +255,10 @@ Do not generate #line directives.
 U
 C ObjC C++ ObjC++ Joined Separate MissingArgError(macro name missing after %qs)
 -U<macro>	Undefine <macro>.
+
+WNSObject-attribute
+C ObjC C++ ObjC++ LTO Var(warn_nsobject_attribute) Warning Init(1)
+Warn if the NSObject attribute is applied to a non-typedef.
 
 Wabi
 C ObjC C++ ObjC++ LTO Var(warn_abi) Warning
@@ -578,6 +582,10 @@ C ObjC C++ ObjC++
 Werror-implicit-function-declaration
 C ObjC RejectNegative Warning Alias(Werror=, implicit-function-declaration)
 This switch is deprecated; use -Werror=implicit-function-declaration instead.
+
+Wexceptions
+C++ ObjC++ Var(warn_exceptions) Init(1)
+Warn when an exception handler is shadowed by another handler.
 
 Wextra
 C ObjC C++ ObjC++ Warning
@@ -994,6 +1002,11 @@ Enum(cpp_normalize_level) String(id) Value(normalized_identifier_C)
 EnumValue
 Enum(cpp_normalize_level) String(nfc) Value(normalized_C)
 
+Wobjc-root-class
+ObjC ObjC++ Var(warn_objc_root_class) Warning Init(1)
+Warn if a class interface has no superclass.  Root classes may use an attribute
+to suppress this warning.
+
 Wold-style-cast
 C++ ObjC++ Var(warn_old_style_cast) Warning
 Warn if a C-style cast is used in a program.
@@ -1273,6 +1286,10 @@ Warn about using variadic macros.
 Wvarargs
 C ObjC C++ ObjC++ Warning Var(warn_varargs) Init(1)
 Warn about questionable usage of the macros used to retrieve variable arguments.
+
+Wvexing-parse
+C++ ObjC++ Warning Var(warn_vexing_parse) Init(1)
+Warn about the most vexing parse syntactic ambiguity.
 
 Wvla
 C ObjC C++ ObjC++ Var(warn_vla) Init(-1) Warning
@@ -1778,6 +1795,19 @@ Enable OpenACC.
 fopenacc-dim=
 C ObjC C++ ObjC++ LTO Joined Var(flag_openacc_dims)
 Specify default OpenACC compute dimensions.
+
+fopenacc-kernels=
+C ObjC C++ ObjC++ RejectNegative Joined Enum(openacc_kernels) Var(flag_openacc_kernels) Init(OPENACC_KERNELS_PARLOOPS)
+-fopenacc-kernels=[decompose|parloops]	Specify mode of OpenACC 'kernels' constructs handling.
+
+Enum
+Name(openacc_kernels) Type(enum openacc_kernels)
+
+EnumValue
+Enum(openacc_kernels) String(decompose) Value(OPENACC_KERNELS_DECOMPOSE)
+
+EnumValue
+Enum(openacc_kernels) String(parloops) Value(OPENACC_KERNELS_PARLOOPS)
 
 fopenmp
 C ObjC C++ ObjC++ LTO Var(flag_openmp)

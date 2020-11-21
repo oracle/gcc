@@ -770,6 +770,7 @@ typedef enum
   EXT_ATTR_CDECL,
   EXT_ATTR_FASTCALL,
   EXT_ATTR_NO_ARG_CHECK,
+  EXT_ATTR_DEPRECATED,
   EXT_ATTR_LAST, EXT_ATTR_NUM = EXT_ATTR_LAST
 }
 ext_attr_id_t;
@@ -1277,6 +1278,10 @@ enum
   OMP_LIST_TO,
   OMP_LIST_FROM,
   OMP_LIST_REDUCTION,
+  OMP_LIST_REDUCTION_INSCAN,
+  OMP_LIST_REDUCTION_TASK,
+  OMP_LIST_IN_REDUCTION,
+  OMP_LIST_TASK_REDUCTION,
   OMP_LIST_DEVICE_RESIDENT,
   OMP_LIST_LINK,
   OMP_LIST_USE_DEVICE,
@@ -1343,6 +1348,16 @@ enum gfc_omp_if_kind
   OMP_IF_LAST
 };
 
+enum gfc_omp_atomic_op
+{
+  GFC_OMP_ATOMIC_UNSET = 0,
+  GFC_OMP_ATOMIC_UPDATE = 1,
+  GFC_OMP_ATOMIC_READ = 2,
+  GFC_OMP_ATOMIC_WRITE = 3,
+  GFC_OMP_ATOMIC_MASK = 3,
+  GFC_OMP_ATOMIC_SWAP = 16
+};
+
 enum gfc_omp_requires_kind
 {
   /* Keep in sync with gfc_namespace, esp. with omp_req_mem_order.  */
@@ -1363,10 +1378,12 @@ enum gfc_omp_requires_kind
 
 enum gfc_omp_memorder
 {
+  OMP_MEMORDER_UNSET,
+  OMP_MEMORDER_SEQ_CST,
   OMP_MEMORDER_ACQ_REL,
   OMP_MEMORDER_RELEASE,
   OMP_MEMORDER_ACQUIRE,
-  OMP_MEMORDER_LAST
+  OMP_MEMORDER_RELAXED
 };
 
 typedef struct gfc_omp_clauses
@@ -1383,7 +1400,8 @@ typedef struct gfc_omp_clauses
   bool nowait, ordered, untied, mergeable;
   bool inbranch, notinbranch, defaultmap, nogroup;
   bool sched_simd, sched_monotonic, sched_nonmonotonic;
-  bool simd, threads, depend_source, order_concurrent;
+  bool simd, threads, depend_source, order_concurrent, capture;
+  enum gfc_omp_atomic_op atomic_op;
   enum gfc_omp_memorder memorder;
   enum gfc_omp_cancel_kind cancel;
   enum gfc_omp_proc_bind_kind proc_bind;
@@ -2682,18 +2700,6 @@ enum gfc_exec_op
   EXEC_OMP_TASKLOOP, EXEC_OMP_TASKLOOP_SIMD
 };
 
-enum gfc_omp_atomic_op
-{
-  GFC_OMP_ATOMIC_UPDATE = 0,
-  GFC_OMP_ATOMIC_READ = 1,
-  GFC_OMP_ATOMIC_WRITE = 2,
-  GFC_OMP_ATOMIC_CAPTURE = 3,
-  GFC_OMP_ATOMIC_MASK = 3,
-  GFC_OMP_ATOMIC_SEQ_CST = 4,
-  GFC_OMP_ATOMIC_ACQ_REL = 8,
-  GFC_OMP_ATOMIC_SWAP = 16
-};
-
 typedef struct gfc_code
 {
   gfc_exec_op op;
@@ -2748,7 +2754,6 @@ typedef struct gfc_code
     const char *omp_name;
     gfc_omp_namelist *omp_namelist;
     bool omp_bool;
-    gfc_omp_atomic_op omp_atomic;
   }
   ext;		/* Points to additional structures required by statement */
 

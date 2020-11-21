@@ -688,30 +688,26 @@ control_options_for_live_patching (struct gcc_options *opts,
     {
     case LIVE_PATCHING_INLINE_ONLY_STATIC:
       if (opts_set->x_flag_ipa_cp_clone && opts->x_flag_ipa_cp_clone)
-	error_at (loc,
-		  "%<-fipa-cp-clone%> is incompatible with "
-		  "%<-flive-patching=inline-only-static%>");
+	error_at (loc, "%qs is incompatible with %qs",
+		  "-fipa-cp-clone", "-flive-patching=inline-only-static");
       else
 	opts->x_flag_ipa_cp_clone = 0;
 
       if (opts_set->x_flag_ipa_sra && opts->x_flag_ipa_sra)
-	error_at (loc,
-		  "%<-fipa-sra%> is incompatible with "
-		  "%<-flive-patching=inline-only-static%>");
+	error_at (loc, "%qs is incompatible with %qs",
+		  "-fipa-sra", "-flive-patching=inline-only-static");
       else
 	opts->x_flag_ipa_sra = 0;
 
       if (opts_set->x_flag_partial_inlining && opts->x_flag_partial_inlining)
-	error_at (loc,
-		  "%<-fpartial-inlining%> is incompatible with "
-		  "%<-flive-patching=inline-only-static%>");
+	error_at (loc, "%qs is incompatible with %qs",
+		  "-fpartial-inlining", "-flive-patching=inline-only-static");
       else
 	opts->x_flag_partial_inlining = 0;
 
       if (opts_set->x_flag_ipa_cp && opts->x_flag_ipa_cp)
-	error_at (loc,
-		  "%<-fipa-cp%> is incompatible with "
-		  "%<-flive-patching=inline-only-static%>");
+	error_at (loc, "%qs is incompatible with %qs",
+		  "-fipa-cp", "-flive-patching=inline-only-static");
       else
 	opts->x_flag_ipa_cp = 0;
 
@@ -719,9 +715,9 @@ control_options_for_live_patching (struct gcc_options *opts,
     case LIVE_PATCHING_INLINE_CLONE:
       /* live patching should disable whole-program optimization.  */
       if (opts_set->x_flag_whole_program && opts->x_flag_whole_program)
-	error_at (loc,
-		  "%<-fwhole-program%> is incompatible with "
-		  "%<-flive-patching=inline-only-static|inline-clone%>");
+	error_at (loc, "%qs is incompatible with %qs",
+		  "-fwhole-program",
+		  "-flive-patching=inline-only-static|inline-clone");
       else
 	opts->x_flag_whole_program = 0;
 
@@ -730,65 +726,65 @@ control_options_for_live_patching (struct gcc_options *opts,
 	 && !flag_partial_inlining.  */
 
       if (opts_set->x_flag_ipa_pta && opts->x_flag_ipa_pta)
-	error_at (loc,
-		  "%<-fipa-pta%> is incompatible with "
-		  "%<-flive-patching=inline-only-static|inline-clone%>");
+	error_at (loc, "%qs is incompatible with %qs",
+		  "-fipa-pta",
+		  "-flive-patching=inline-only-static|inline-clone");
       else
 	opts->x_flag_ipa_pta = 0;
 
       if (opts_set->x_flag_ipa_reference && opts->x_flag_ipa_reference)
-	error_at (loc,
-		  "%<-fipa-reference%> is incompatible with "
-		  "%<-flive-patching=inline-only-static|inline-clone%>");
+	error_at (loc, "%qs is incompatible with %qs",
+		  "-fipa-reference",
+		  "-flive-patching=inline-only-static|inline-clone");
       else
 	opts->x_flag_ipa_reference = 0;
 
       if (opts_set->x_flag_ipa_ra && opts->x_flag_ipa_ra)
-	error_at (loc,
-		  "%<-fipa-ra%> is incompatible with "
-		  "%<-flive-patching=inline-only-static|inline-clone%>");
+	error_at (loc, "%qs is incompatible with %qs",
+		  "-fipa-ra",
+		  "-flive-patching=inline-only-static|inline-clone");
       else
 	opts->x_flag_ipa_ra = 0;
 
       if (opts_set->x_flag_ipa_icf && opts->x_flag_ipa_icf)
-	error_at (loc,
-		  "%<-fipa-icf%> is incompatible with "
-		  "%<-flive-patching=inline-only-static|inline-clone%>");
+	error_at (loc, "%qs is incompatible with %qs",
+		  "-fipa-icf",
+		  "-flive-patching=inline-only-static|inline-clone");
       else
 	opts->x_flag_ipa_icf = 0;
 
       if (opts_set->x_flag_ipa_icf_functions && opts->x_flag_ipa_icf_functions)
-	error_at (loc,
-		  "%<-fipa-icf-functions%> is incompatible with "
-		  "%<-flive-patching=inline-only-static|inline-clone%>");
+	error_at (loc, "%qs is incompatible with %qs",
+		  "-fipa-icf-functions",
+		  "-flive-patching=inline-only-static|inline-clone");
       else
 	opts->x_flag_ipa_icf_functions = 0;
 
       if (opts_set->x_flag_ipa_icf_variables && opts->x_flag_ipa_icf_variables)
-	error_at (loc,
-		  "%<-fipa-icf-variables%> is incompatible with "
-		  "%<-flive-patching=inline-only-static|inline-clone%>");
+	error_at (loc, "%qs is incompatible with %qs",
+		  "-fipa-icf-variables",
+		  "-flive-patching=inline-only-static|inline-clone");
       else
 	opts->x_flag_ipa_icf_variables = 0;
 
       if (opts_set->x_flag_ipa_bit_cp && opts->x_flag_ipa_bit_cp)
-	error_at (loc,
-		  "%<-fipa-bit-cp%> is incompatible with "
-		  "%<-flive-patching=inline-only-static|inline-clone%>");
+	error_at (loc, "%qs is incompatible with %qs",
+		  "-fipa-bit-cp",
+		  "-flive-patching=inline-only-static|inline-clone");
       else
 	opts->x_flag_ipa_bit_cp = 0;
 
       if (opts_set->x_flag_ipa_vrp && opts->x_flag_ipa_vrp)
-	error_at (loc,
-		  "%<-fipa-vrp%> is incompatible with "
-		  "%<-flive-patching=inline-only-static|inline-clone%>");
+	error_at (loc, "%qs is incompatible with %qs",
+		  "-fipa-vrp",
+		  "-flive-patching=inline-only-static|inline-clone");
       else
 	opts->x_flag_ipa_vrp = 0;
 
       if (opts_set->x_flag_ipa_pure_const && opts->x_flag_ipa_pure_const)
-	error_at (loc,
-		  "%<-fipa-pure-const%> is incompatible with "
-		  "%<-flive-patching=inline-only-static|inline-clone%>");
+	error_at (loc, "%qs is incompatible with %qs",
+		  "-fipa-pure-const",
+		  "-flive-patching=inline-only-static|inline-clone");
       else
 	opts->x_flag_ipa_pure_const = 0;
 
@@ -804,18 +800,18 @@ control_options_for_live_patching (struct gcc_options *opts,
       /* discovery of functions/variables with no address taken.  */
       if (opts_set->x_flag_ipa_reference_addressable
 	  && opts->x_flag_ipa_reference_addressable)
-	error_at (loc,
-		  "%<-fipa-reference-addressable%> is incompatible with "
-		  "%<-flive-patching=inline-only-static|inline-clone%>");
+	error_at (loc, "%qs is incompatible with %qs",
+		  "-fipa-reference-addressable",
+		  "-flive-patching=inline-only-static|inline-clone");
       else
 	opts->x_flag_ipa_reference_addressable = 0;
 
       /* ipa stack alignment propagation.  */
       if (opts_set->x_flag_ipa_stack_alignment
 	  && opts->x_flag_ipa_stack_alignment)
-	error_at (loc,
-		  "%<-fipa-stack-alignment%> is incompatible with "
-		  "%<-flive-patching=inline-only-static|inline-clone%>");
+	error_at (loc, "%qs is incompatible with %qs",
+		  "-fipa-stack-alignment",
+		  "-flive-patching=inline-only-static|inline-clone");
       else
 	opts->x_flag_ipa_stack_alignment = 0;
       break;
@@ -1081,21 +1077,19 @@ finish_options (struct gcc_options *opts, struct gcc_options *opts_set,
   /* Userspace and kernel ASan conflict with each other.  */
   if ((opts->x_flag_sanitize & SANITIZE_USER_ADDRESS)
       && (opts->x_flag_sanitize & SANITIZE_KERNEL_ADDRESS))
-    error_at (loc,
-	      "%<-fsanitize=address%> is incompatible with "
-	      "%<-fsanitize=kernel-address%>");
+    error_at (loc, "%qs is incompatible with %qs",
+	      "-fsanitize=address", "-fsanitize=kernel-address");
 
   /* And with TSan.  */
   if ((opts->x_flag_sanitize & SANITIZE_ADDRESS)
       && (opts->x_flag_sanitize & SANITIZE_THREAD))
-    error_at (loc,
-	      "%<-fsanitize=address%> and %<-fsanitize=kernel-address%> "
-	      "are incompatible with %<-fsanitize=thread%>");
+    error_at (loc, "%qs is incompatible with %qs",
+	      "-fsanitize=thread", "-fsanitize=address|kernel-address");
 
   if ((opts->x_flag_sanitize & SANITIZE_LEAK)
       && (opts->x_flag_sanitize & SANITIZE_THREAD))
-    error_at (loc,
-	      "%<-fsanitize=leak%> is incompatible with %<-fsanitize=thread%>");
+    error_at (loc, "%qs is incompatible with %qs",
+	      "-fsanitize=leak", "-fsanitize=thread");
 
   /* Check error recovery for -fsanitize-recover option.  */
   for (int i = 0; sanitizer_opts[i].name != NULL; ++i)
@@ -1776,6 +1770,24 @@ const struct sanitizer_opts_s coverage_sanitizer_opts[] =
   { NULL, 0U, 0UL, false }
 };
 
+/* -fzero-call-used-regs= suboptions.  */
+const struct zero_call_used_regs_opts_s zero_call_used_regs_opts[] =
+{
+#define ZERO_CALL_USED_REGS_OPT(name, flags) \
+    { #name, flags }
+  ZERO_CALL_USED_REGS_OPT (skip, zero_regs_flags::SKIP),
+  ZERO_CALL_USED_REGS_OPT (used-gpr-arg, zero_regs_flags::USED_GPR_ARG),
+  ZERO_CALL_USED_REGS_OPT (used-gpr, zero_regs_flags::USED_GPR),
+  ZERO_CALL_USED_REGS_OPT (used-arg, zero_regs_flags::USED_ARG),
+  ZERO_CALL_USED_REGS_OPT (used, zero_regs_flags::USED),
+  ZERO_CALL_USED_REGS_OPT (all-gpr-arg, zero_regs_flags::ALL_GPR_ARG),
+  ZERO_CALL_USED_REGS_OPT (all-gpr, zero_regs_flags::ALL_GPR),
+  ZERO_CALL_USED_REGS_OPT (all-arg, zero_regs_flags::ALL_ARG),
+  ZERO_CALL_USED_REGS_OPT (all, zero_regs_flags::ALL),
+#undef ZERO_CALL_USED_REGS_OPT
+  {NULL, 0U}
+};
+
 /* A struct for describing a run of chars within a string.  */
 
 class string_fragment
@@ -1966,6 +1978,27 @@ parse_no_sanitize_attribute (char *value)
 
       q = strtok (NULL, ",");
     }
+
+  return flags;
+}
+
+/* Parse -fzero-call-used-regs suboptions from ARG, return the FLAGS.  */
+
+unsigned int
+parse_zero_call_used_regs_options (const char *arg)
+{
+  unsigned int flags = 0;
+
+  /* Check to see if the string matches a sub-option name.  */
+  for (unsigned int i = 0; zero_call_used_regs_opts[i].name != NULL; ++i)
+    if (strcmp (arg, zero_call_used_regs_opts[i].name) == 0)
+      {
+	flags = zero_call_used_regs_opts[i].flag;
+	break;
+      }
+
+  if (!flags)
+    error ("unrecognized argument to %<-fzero-call-used-regs=%>: %qs", arg);
 
   return flags;
 }
@@ -2563,6 +2596,10 @@ common_handle_option (struct gcc_options *opts,
       SET_OPTION_IF_UNSET (opts, opts_set, flag_ipa_bit_cp, value);
       break;
 
+    case OPT_fprofile_info_section:
+      opts->x_profile_info_section = ".gcov_info";
+      break;
+
     case OPT_fpatchable_function_entry_:
       {
 	char *patch_area_arg = xstrdup (arg);
@@ -2596,6 +2633,11 @@ common_handle_option (struct gcc_options *opts,
       /* Automatically sets -ftree-loop-vectorize and
 	 -ftree-slp-vectorize.  Nothing more to do here.  */
       break;
+    case OPT_fzero_call_used_regs_:
+      opts->x_flag_zero_call_used_regs
+	= parse_zero_call_used_regs_options (arg);
+      break;
+
     case OPT_fshow_column:
       dc->show_column = value;
       break;

@@ -523,7 +523,8 @@ extern GTY(()) bool in_cold_section_p;
 
 extern section *get_unnamed_section (unsigned int, void (*) (const void *),
 				     const void *);
-extern section *get_section (const char *, unsigned int, tree);
+extern section *get_section (const char *, unsigned int, tree,
+			     bool not_existing = false);
 extern section *get_named_section (tree, const char *, int);
 extern section *get_variable_section (tree, bool);
 extern void place_block_symbol (rtx);
@@ -571,8 +572,8 @@ extern void default_ctor_section_asm_out_constructor (rtx, int);
 extern section *default_select_section (tree, int, unsigned HOST_WIDE_INT);
 extern section *default_elf_select_section (tree, int, unsigned HOST_WIDE_INT);
 extern void default_unique_section (tree, int);
-extern section *default_function_rodata_section (tree);
-extern section *default_no_function_rodata_section (tree);
+extern section *default_function_rodata_section (tree, bool);
+extern section *default_no_function_rodata_section (tree, bool);
 extern section *default_clone_table_section (void);
 extern section *default_select_rtx_section (machine_mode, rtx,
 					    unsigned HOST_WIDE_INT);

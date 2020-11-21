@@ -1443,6 +1443,10 @@ Target has runtime support for any options added with
 @item inf
 Target supports floating point infinite (@code{inf}) for type
 @code{double}.
+
+@item inff
+Target supports floating point infinite (@code{inf}) for type
+@code{float}.
 @end table
 @subsubsection Fortran-specific attributes
 
@@ -2243,6 +2247,9 @@ Target supports compiling @code{avx2} instructions.
 @item avx2_runtime
 Target supports the execution of @code{avx2} instructions.
 
+@item avxvnni
+Target supports the execution of @code{avxvnni} instructions.
+
 @item avx512f
 Target supports compiling @code{avx512f} instructions.
 
@@ -2355,6 +2362,11 @@ Target provides @file{fenv.h} include file.
 @item fenv_exceptions
 Target supports @file{fenv.h} with all the standard IEEE exceptions
 and floating-point exceptions are raised by arithmetic operations.
+
+@item fenv_exceptions_dfp
+Target supports @file{fenv.h} with all the standard IEEE exceptions
+and floating-point exceptions are raised by arithmetic operations for
+decimal floating point.
 
 @item fileio
 Target offers such file I/O library functions as @code{fopen},

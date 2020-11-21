@@ -8461,6 +8461,18 @@ proc check_effective_target_avx2 { } {
     } "-O0 -mavx2" ]
 }
 
+# Return 1 if avxvnni instructions can be compiled.
+proc check_effective_target_avxvnni { } {
+    return [check_no_compiler_messages avxvnni object {
+	typedef int __v8si __attribute__ ((__vector_size__ (32)));
+	__v8si
+	_mm256_dpbusd_epi32 (__v8si __A, __v8si __B, __v8si __C)
+        {
+	   return __builtin_ia32_vpdpbusd_v8si (__A, __B, __C);
+	}
+    } "-mavxvnni" ]
+}
+
 # Return 1 if sse instructions can be compiled.
 proc check_effective_target_sse { } {
     return [check_no_compiler_messages sse object {
@@ -9693,6 +9705,44 @@ proc check_effective_target_fenv_exceptions {} {
     } [add_options_for_ieee "-std=gnu99"]]
 }
 
+# Return 1 if <fenv.h> is available with all the standard IEEE
+# exceptions and floating-point exceptions are raised by arithmetic
+# operations for decimal floating point.  (If the target requires
+# special options for "inexact" exceptions, those need to be specified
+# in the testcases.)
+
+proc check_effective_target_fenv_exceptions_dfp {} {
+    return [check_runtime fenv_exceptions_dfp {
+	#include <fenv.h>
+	#include <stdlib.h>
+	#ifndef FE_DIVBYZERO
+	# error Missing FE_DIVBYZERO
+	#endif
+	#ifndef FE_INEXACT
+	# error Missing FE_INEXACT
+	#endif
+	#ifndef FE_INVALID
+	# error Missing FE_INVALID
+	#endif
+	#ifndef FE_OVERFLOW
+	# error Missing FE_OVERFLOW
+	#endif
+	#ifndef FE_UNDERFLOW
+	# error Missing FE_UNDERFLOW
+	#endif
+	volatile _Decimal64 a = 0.0DD, r;
+	int
+	main (void)
+	{
+	  r = a / a;
+	  if (fetestexcept (FE_INVALID))
+	    exit (0);
+	  else
+	    abort ();
+	}
+    } [add_options_for_ieee "-std=gnu99"]]
+}
+
 # Return 1 if -fexceptions is supported.
 
 proc check_effective_target_exceptions {} {
@@ -10301,6 +10351,13 @@ proc check_effective_target_inf { } {
     }]
 }
 
+# Return 1 if target supports floating point "infinite" for float.
+proc check_effective_target_inff { } {
+    return [check_no_compiler_messages supports_inff assembly {
+        const float pinf = __builtin_inff ();
+    }]
+}
+
 # Return 1 if the target supports ARMv8.3 Adv.SIMD Complex instructions
 # instructions, 0 otherwise.  The test is valid for ARM and for AArch64.
 # Record the command line options needed.
@@ -10581,4 +10638,15 @@ proc check_effective_target_movdir { } {
 	  __builtin_ia32_movdir64b (d, s);
 	}
     } "-mmovdiri -mmovdir64b" ]
+}
+
+# Return 1 if target is not support address sanitize, 1 otherwise.
+
+proc check_effective_target_no_fsanitize_address {} {
+    if ![check_no_compiler_messages fsanitize_address executable {
+	int main (void) { return 0; }
+    }] {
+	return 1;
+    }
+    return 0;
 }

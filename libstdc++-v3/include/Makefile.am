@@ -52,6 +52,7 @@ std_headers = \
 	${std_srcdir}/iostream \
 	${std_srcdir}/istream \
 	${std_srcdir}/iterator \
+	${std_srcdir}/latch \
 	${std_srcdir}/limits \
 	${std_srcdir}/list \
 	${std_srcdir}/locale \
@@ -69,10 +70,12 @@ std_headers = \
 	${std_srcdir}/ratio \
 	${std_srcdir}/regex \
 	${std_srcdir}/scoped_allocator \
+	${std_srcdir}/semaphore \
 	${std_srcdir}/set \
 	${std_srcdir}/shared_mutex \
 	${std_srcdir}/span \
 	${std_srcdir}/sstream \
+	${std_srcdir}/syncstream \
 	${std_srcdir}/stack \
 	${std_srcdir}/stdexcept \
 	${std_srcdir}/stop_token \
@@ -102,6 +105,8 @@ bits_headers = \
 	${bits_srcdir}/allocator.h \
 	${bits_srcdir}/atomic_base.h \
 	${bits_srcdir}/atomic_futex.h \
+	${bits_srcdir}/atomic_timed_wait.h \
+	${bits_srcdir}/atomic_wait.h \
 	${bits_srcdir}/basic_ios.h \
 	${bits_srcdir}/basic_ios.tcc \
 	${bits_srcdir}/basic_string.h \
@@ -177,6 +182,7 @@ bits_headers = \
 	${bits_srcdir}/regex_compiler.tcc \
 	${bits_srcdir}/regex_executor.h \
 	${bits_srcdir}/regex_executor.tcc \
+	${bits_srcdir}/semaphore_base.h \
 	${bits_srcdir}/shared_ptr.h \
 	${bits_srcdir}/shared_ptr_atomic.h \
 	${bits_srcdir}/shared_ptr_base.h \
@@ -186,6 +192,7 @@ bits_headers = \
 	${bits_srcdir}/std_abs.h \
 	${bits_srcdir}/std_function.h \
 	${bits_srcdir}/std_mutex.h \
+	${bits_srcdir}/std_thread.h \
 	${bits_srcdir}/stl_algo.h \
 	${bits_srcdir}/stl_algobase.h \
 	${bits_srcdir}/stl_bvector.h \
@@ -855,7 +862,6 @@ endif
 debug_srcdir = ${glibcxx_srcdir}/include/debug
 debug_builddir = ./debug
 debug_headers = \
-	${debug_srcdir}/array \
 	${debug_srcdir}/assertions.h \
 	${debug_srcdir}/bitset \
 	${debug_srcdir}/debug.h \

@@ -162,11 +162,12 @@ gimple_expand_vec_cond_expr (gimple_stmt_iterator *gsi,
 	  op0a = gimple_assign_rhs1 (def_stmt);
 	  op0b = gimple_assign_rhs2 (def_stmt);
 
+	  tree op0_type = TREE_TYPE (op0);
 	  tree op0a_type = TREE_TYPE (op0a);
 	  if (used_vec_cond_exprs >= 2
-	      && (get_vcond_mask_icode (mode, TYPE_MODE (op0a_type))
+	      && (get_vcond_mask_icode (mode, TYPE_MODE (op0_type))
 		  != CODE_FOR_nothing)
-	      && expand_vec_cmp_expr_p (op0a_type, TREE_TYPE (lhs), tcode))
+	      && expand_vec_cmp_expr_p (op0a_type, op0_type, tcode))
 	    {
 	      /* Keep the SSA name and use vcond_mask.  */
 	      tcode = TREE_CODE (op0);
@@ -198,9 +199,8 @@ gimple_expand_vec_cond_expr (gimple_stmt_iterator *gsi,
   unsignedp = TYPE_UNSIGNED (TREE_TYPE (op0a));
 
 
-  gcc_assert (known_eq (GET_MODE_SIZE (mode), GET_MODE_SIZE (cmp_op_mode))
-	      && known_eq (GET_MODE_NUNITS (mode),
-			   GET_MODE_NUNITS (cmp_op_mode)));
+  gcc_assert (known_eq (GET_MODE_NUNITS (mode),
+			GET_MODE_NUNITS (cmp_op_mode)));
 
   icode = get_vcond_icode (mode, cmp_op_mode, unsignedp);
   if (icode == CODE_FOR_nothing)

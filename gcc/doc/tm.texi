@@ -7711,13 +7711,14 @@ example, the function @code{foo} would be placed in @code{.text.foo}.
 Whatever the actual target object format, this is often good enough.
 @end deftypefn
 
-@deftypefn {Target Hook} {section *} TARGET_ASM_FUNCTION_RODATA_SECTION (tree @var{decl})
-Return the readonly data section associated with
-@samp{DECL_SECTION_NAME (@var{decl})}.
+@deftypefn {Target Hook} {section *} TARGET_ASM_FUNCTION_RODATA_SECTION (tree @var{decl}, bool @var{relocatable})
+Return the readonly data or reloc readonly data section associated with
+@samp{DECL_SECTION_NAME (@var{decl})}. @var{relocatable} selects the latter
+over the former.
 The default version of this function selects @code{.gnu.linkonce.r.name} if
 the function's section is @code{.gnu.linkonce.t.name}, @code{.rodata.name}
-if function is in @code{.text.name}, and the normal readonly-data section
-otherwise.
+or @code{.data.rel.ro.name} if function is in @code{.text.name}, and
+the normal readonly-data or reloc readonly data section otherwise.
 @end deftypefn
 
 @deftypevr {Target Hook} {const char *} TARGET_ASM_MERGEABLE_RODATA_PREFIX
@@ -9558,6 +9559,10 @@ If the target implements @code{TARGET_ASM_UNWIND_EMIT}, this hook may be used to
 This target hook emits assembly directives required to unwind the
 given instruction.  This is only used when @code{TARGET_EXCEPT_UNWIND_INFO}
 returns @code{UI_TARGET}.
+@end deftypefn
+
+@deftypefn {Target Hook} rtx TARGET_ASM_MAKE_EH_SYMBOL_INDIRECT (rtx @var{origsymbol}, bool @var{pubvis})
+If necessary, modify personality and LSDA references to handle indirection.  The original symbol is in @code{origsymbol} and if @code{pubvis} is true  the symbol is visible outside the TU.
 @end deftypefn
 
 @deftypevr {Target Hook} bool TARGET_ASM_UNWIND_EMIT_BEFORE_INSN
@@ -12046,6 +12051,18 @@ argument list due to stack realignment.  Return @code{NULL} if no DRAP
 is needed.
 @end deftypefn
 
+@deftypefn {Target Hook} HARD_REG_SET TARGET_ZERO_CALL_USED_REGS (HARD_REG_SET @var{selected_regs})
+This target hook emits instructions to zero the subset of @var{selected_regs}
+that could conceivably contain values that are useful to an attacker.
+Return the set of registers that were actually cleared.
+
+The default implementation uses normal move instructions to zero
+all the registers in @var{selected_regs}.  Define this hook if the
+target has more efficient ways of zeroing certain registers,
+or if you believe that certain registers would never contain
+values that are useful to an attacker.
+@end deftypefn
+
 @deftypefn {Target Hook} bool TARGET_ALLOCATE_STACK_SLOTS_FOR_ARGS (void)
 When optimization is disabled, this hook indicates whether or not
 arguments should be allocated to stack slots.  Normally, GCC allocates
@@ -12078,7 +12095,8 @@ is zero, which disables this optimization.
 @deftypefn {Target Hook} {unsigned HOST_WIDE_INT} TARGET_ASAN_SHADOW_OFFSET (void)
 Return the offset bitwise ored into shifted address to get corresponding
 Address Sanitizer shadow memory address.  NULL if Address Sanitizer is not
-supported by the target.
+supported by the target.  May return 0 if Address Sanitizer is not supported
+by a subtarget.
 @end deftypefn
 
 @deftypefn {Target Hook} {unsigned HOST_WIDE_INT} TARGET_MEMMODEL_CHECK (unsigned HOST_WIDE_INT @var{val})

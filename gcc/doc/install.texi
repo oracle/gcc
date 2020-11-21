@@ -1252,6 +1252,37 @@ If @option{--with-multilib-list} is not given, then only 32-bit and
 64-bit run-time libraries will be enabled.
 @end table
 
+@item --with-multilib-generator=@var{config}
+Specify what multilibs to build.  @var{config} is a semicolon separated list of
+values, possibly consisting of a single value.  Currently only implemented
+for riscv*-*-elf*.  The accepted values and meanings are given below.
+
+
+Every config is constructed with four components: architecture string, ABI,
+reuse rule with architecture string and reuse rule with sub-extension.
+
+Example 1: Add multi-lib suppport for rv32i with ilp32.
+@smallexample
+rv32i-ilp32--
+@end smallexample
+
+Example 2: Add multi-lib suppport for rv32i with ilp32 and rv32imafd with ilp32.
+@smallexample
+rv32i-ilp32--;rv32imafd-ilp32--
+@end smallexample
+
+Example 3: Add multi-lib suppport for rv32i with ilp32; rv32im with ilp32 and
+rv32ic with ilp32 will reuse this multi-lib set.
+@smallexample
+rv32i-ilp32-rv32im-c
+@end smallexample
+
+Example 4: Add multi-lib suppport for rv64ima with lp64; rv64imaf with lp64,
+rv64imac with lp64 and rv64imafc with lp64 will reuse this multi-lib set.
+@smallexample
+rv64ima-lp64--f,c,fc
+@end smallexample
+
 @item --with-endian=@var{endians}
 Specify what endians to use.
 Currently only implemented for sh*-*-*.
@@ -1340,7 +1371,7 @@ Specify which cpu variant the compiler should generate code for by default.
 This option is only supported on some targets, including ARC, ARM, i386, M68k,
 PowerPC, and SPARC@.  It is mandatory for ARC@.  The @option{--with-cpu-32} and
 @option{--with-cpu-64} options specify separate default CPUs for
-32-bit and 64-bit modes; these options are only supported for i386,
+32-bit and 64-bit modes; these options are only supported for aarch64, i386,
 x86-64, PowerPC, and SPARC@.
 
 @item --with-schedule=@var{cpu}
@@ -1532,6 +1563,14 @@ will try to guess whether the @code{.init_array} and
 When building GCC, use a mutex to avoid linking the compilers for
 multiple languages at the same time, to avoid thrashing on build
 systems with limited free memory.  The default is not to use such a mutex.
+
+@item --enable-link-serialization
+When building GCC, use make dependencies to serialize linking the compilers for
+multiple languages, to avoid thrashing on build
+systems with limited free memory.  The default is not to add such
+dependencies and thus with parallel make potentially link different
+compilers concurrently.  If the argument is a positive integer, allow
+that number of concurrent link processes for the large binaries.
 
 @item --enable-maintainer-mode
 The build rules that regenerate the Autoconf and Automake output files as

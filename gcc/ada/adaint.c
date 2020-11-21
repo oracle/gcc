@@ -145,6 +145,13 @@
 #include "version.h"
 #endif
 
+/* limits.h is needed for LLONG_MIN.  */
+#ifdef __cplusplus
+#include <climits>
+#else
+#include <limits.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -2476,9 +2483,7 @@ __gnat_number_of_cpus (void)
 {
   int cores = 1;
 
-#if defined (__linux__) || defined (__sun__) || defined (_AIX) \
-  || defined (__APPLE__) || defined (__FreeBSD__) || defined (__OpenBSD__) \
-  || defined (__DragonFly__) || defined (__NetBSD__)
+#ifdef _SC_NPROCESSORS_ONLN
   cores = (int) sysconf (_SC_NPROCESSORS_ONLN);
 
 #elif defined (__QNX__)

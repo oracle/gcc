@@ -185,6 +185,16 @@ DEFHOOK
  void, (rtx personality),
  NULL)
 
+/* If necessary, modify personality and LSDA references to handle
+   indirection.  This is used when the assembler supports CFI directives.  */
+DEFHOOK
+(make_eh_symbol_indirect,
+ "If necessary, modify personality and LSDA references to handle indirection.\
+  The original symbol is in @code{origsymbol} and if @code{pubvis} is true\
+  the symbol is visible outside the TU.",
+ rtx, (rtx origsymbol, bool pubvis),
+ NULL)
+
 /* Emit any directives required to unwind this instruction.  */
 DEFHOOK
 (unwind_emit,
@@ -549,16 +559,18 @@ Whatever the actual target object format, this is often good enough.",
  void, (tree decl, int reloc),
  default_unique_section)
 
-/* Return the readonly data section associated with function DECL.  */
+/* Return the readonly data or relocated readonly data section
+   associated with function DECL.  */
 DEFHOOK
 (function_rodata_section,
- "Return the readonly data section associated with\n\
-@samp{DECL_SECTION_NAME (@var{decl})}.\n\
+ "Return the readonly data or reloc readonly data section associated with\n\
+@samp{DECL_SECTION_NAME (@var{decl})}. @var{relocatable} selects the latter\n\
+over the former.\n\
 The default version of this function selects @code{.gnu.linkonce.r.name} if\n\
 the function's section is @code{.gnu.linkonce.t.name}, @code{.rodata.name}\n\
-if function is in @code{.text.name}, and the normal readonly-data section\n\
-otherwise.",
- section *, (tree decl),
+or @code{.data.rel.ro.name} if function is in @code{.text.name}, and\n\
+the normal readonly-data or reloc readonly data section otherwise.",
+ section *, (tree decl, bool relocatable),
  default_function_rodata_section)
 
 /* Nonnull if the target wants to override the default ".rodata" prefix
@@ -4452,7 +4464,8 @@ DEFHOOK
 (asan_shadow_offset,
  "Return the offset bitwise ored into shifted address to get corresponding\n\
 Address Sanitizer shadow memory address.  NULL if Address Sanitizer is not\n\
-supported by the target.",
+supported by the target.  May return 0 if Address Sanitizer is not supported\n\
+by a subtarget.",
  unsigned HOST_WIDE_INT, (void),
  NULL)
 
@@ -5079,6 +5092,21 @@ different argument pointer register is needed to access the function's\n\
 argument list due to stack realignment.  Return @code{NULL} if no DRAP\n\
 is needed.",
  rtx, (void), NULL)
+
+/* Generate instruction sequence to zero call used registers.  */
+DEFHOOK
+(zero_call_used_regs,
+ "This target hook emits instructions to zero the subset of @var{selected_regs}\n\
+that could conceivably contain values that are useful to an attacker.\n\
+Return the set of registers that were actually cleared.\n\
+\n\
+The default implementation uses normal move instructions to zero\n\
+all the registers in @var{selected_regs}.  Define this hook if the\n\
+target has more efficient ways of zeroing certain registers,\n\
+or if you believe that certain registers would never contain\n\
+values that are useful to an attacker.",
+ HARD_REG_SET, (HARD_REG_SET selected_regs),
+default_zero_call_used_regs)
 
 /* Return true if all function parameters should be spilled to the
    stack.  */

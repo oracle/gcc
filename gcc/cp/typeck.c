@@ -1832,10 +1832,12 @@ cxx_sizeof_expr (location_t loc, tree e, tsubst_flags_t complain)
 /* Implement the __alignof keyword: Return the minimum required
    alignment of E, measured in bytes.  For VAR_DECL's and
    FIELD_DECL's return DECL_ALIGN (which can be set from an
-   "aligned" __attribute__ specification).  */
+   "aligned" __attribute__ specification).  STD_ALIGNOF acts
+   like in cxx_sizeof_or_alignof_type.  */
 
 static tree
-cxx_alignof_expr (location_t loc, tree e, tsubst_flags_t complain)
+cxx_alignof_expr (location_t loc, tree e, bool std_alignof,
+		  tsubst_flags_t complain)
 {
   tree t;
 
@@ -1848,6 +1850,7 @@ cxx_alignof_expr (location_t loc, tree e, tsubst_flags_t complain)
       TREE_SIDE_EFFECTS (e) = 0;
       TREE_READONLY (e) = 1;
       SET_EXPR_LOCATION (e, loc);
+      ALIGNOF_EXPR_STD_P (e) = std_alignof;
 
       return e;
     }
@@ -1900,23 +1903,25 @@ cxx_alignof_expr (location_t loc, tree e, tsubst_flags_t complain)
     }
   else
     return cxx_sizeof_or_alignof_type (loc, TREE_TYPE (e),
-				       ALIGNOF_EXPR, false,
+				       ALIGNOF_EXPR, std_alignof,
                                        complain & tf_error);
 
   return fold_convert_loc (loc, size_type_node, t);
 }
 
 /* Process a sizeof or alignof expression E with code OP where the operand
-   is an expression.  */
+   is an expression. STD_ALIGNOF acts like in cxx_sizeof_or_alignof_type.  */
 
 tree
 cxx_sizeof_or_alignof_expr (location_t loc, tree e, enum tree_code op,
-			    bool complain)
+			    bool std_alignof, bool complain)
 {
+  gcc_assert (op == SIZEOF_EXPR || op == ALIGNOF_EXPR);
   if (op == SIZEOF_EXPR)
     return cxx_sizeof_expr (loc, e, complain? tf_warning_or_error : tf_none);
   else
-    return cxx_alignof_expr (loc, e, complain? tf_warning_or_error : tf_none);
+    return cxx_alignof_expr (loc, e, std_alignof,
+			     complain? tf_warning_or_error : tf_none);
 }
 
 /*  Build a representation of an expression 'alignas(E).'  Return the
@@ -4062,7 +4067,7 @@ error_args_num (location_t loc, tree fndecl, bool too_many_p)
 		  ? G_("too many arguments to function %q#D")
 		  : G_("too few arguments to function %q#D"),
 		  fndecl);
-      if (!DECL_IS_BUILTIN (fndecl))
+      if (!DECL_IS_UNDECLARED_BUILTIN (fndecl))
 	inform (DECL_SOURCE_LOCATION (fndecl), "declared here");
     }
   else
@@ -4511,6 +4516,9 @@ do_warn_enum_conversions (location_t loc, enum tree_code code, tree type0,
 	    warning_at (loc, opt, "comparison of floating-point type %qT "
 			"with enumeration type %qT is deprecated",
 			type0, type1);
+	  return;
+	case SPACESHIP_EXPR:
+	  /* This is invalid, don't warn.  */
 	  return;
 	default:
 	  if (enum_first_p)
@@ -5584,6 +5592,12 @@ cp_build_binary_op (const op_location_t &location,
 	   arithmetic conversions are applied to the operands."  So we don't do
 	   arithmetic conversions if the operands both have enumeral type.  */
 	result_type = NULL_TREE;
+      else if ((orig_code0 == ENUMERAL_TYPE && orig_code1 == REAL_TYPE)
+	       || (orig_code0 == REAL_TYPE && orig_code1 == ENUMERAL_TYPE))
+	/* [depr.arith.conv.enum]: Three-way comparisons between such operands
+	   [where one is of enumeration type and the other is of a different
+	   enumeration type or a floating-point type] are ill-formed.  */
+	result_type = NULL_TREE;
 
       if (result_type)
 	{
@@ -5598,12 +5612,12 @@ cp_build_binary_op (const op_location_t &location,
 	     type to a floating point type, the program is ill-formed.  */
 	  bool ok = true;
 	  if (TREE_CODE (result_type) == REAL_TYPE
-	      && INTEGRAL_OR_ENUMERATION_TYPE_P (TREE_TYPE (orig_op0)))
+	      && CP_INTEGRAL_TYPE_P (orig_type0))
 	    /* OK */;
 	  else if (!check_narrowing (result_type, orig_op0, complain))
 	    ok = false;
 	  if (TREE_CODE (result_type) == REAL_TYPE
-	      && INTEGRAL_OR_ENUMERATION_TYPE_P (TREE_TYPE (orig_op1)))
+	      && CP_INTEGRAL_TYPE_P (orig_type1))
 	    /* OK */;
 	  else if (!check_narrowing (result_type, orig_op1, complain))
 	    ok = false;
