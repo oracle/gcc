@@ -1,3 +1,334 @@
+2020-11-23  Martin Jambor  <mjambor@suse.cz>
+
+	* ipa-prop.h (ipa_pass_through_data): Expand comment describing
+	operation.
+	* ipa-prop.c (analyze_agg_content_value): Detect new special case and
+	encode it as ASSERT_EXPR.
+	* ipa-cp.c (values_equal_for_ipcp_p): Move before
+	ipa_get_jf_arith_result.
+	(ipa_get_jf_arith_result): Special case ASSERT_EXPR.
+
+2020-11-23  Jeff Law  <law@redhat.com>
+
+	* config/h8300/h8300.c (h8300_rtx_costs): Handle the various
+	comparison rtx codes too.
+
+2020-11-23  Jan Hubicka  <jh@suse.cz>
+
+	* ipa-prop.c (build_agg_jump_func_from_list,
+	ipa_read_jump_function): Reserve agg.items precisely.
+	* ipa-prop.h (ipa_node_params::~ipa_node_params): Release descriptors
+	(ipa_edge_args::~ipa_edge_args): Release agg.items.
+
+2020-11-23  Jan Hubicka  <jh@suse.cz>
+
+	* lto-streamer-in.c (input_cfg): Do not init ssa operands.
+	(input_function): Do not init tree_ssa and set in_ssa_p.
+	(input_ssa_names): Do it here.
+	* tree-ssa.c (init_tree_ssa): Add additional SIZE parameter, default
+	to 0
+	* tree-ssanames.c (init_ssanames): Do not round size up to 50, allocate
+	precisely.
+	* tree-ssa.h (init_tree_ssa): Update prototype.
+
+2020-11-23  Nathan Sidwell  <nathan@acm.org>
+
+	* diagnostic.c (diagnostic_report_current_module): Adjust for C++
+	module importation.
+
+2020-11-23  Jozef Lawrynowicz  <jozef.l@mittosystems.com>
+
+	* config/msp430/msp430.c (msp430_section_attr): Don't warn for "lower"
+	attribute used with "noinit" or "persistent" attributes.
+	(msp430_persist_attr): Remove.
+	(attr_lower_exclusions): Remove ATTR_PERSIST exclusion.
+	(attr_upper_exclusions): Likewise.
+	(attr_either_exclusions): Likewise.
+	(attr_persist_exclusions): Remove.
+	(msp430_attribute_table): Remove ATTR_PERSIST handling.
+	(msp430_handle_generic_attribute): Remove ATTR_PERSIST section conflict
+	handling.
+	(TARGET_ASM_INIT_SECTIONS): Remove.
+	(msp430_init_sections): Remove.
+	(msp430_select_section): Use default_elf_select_section for decls with
+	the "persistent" attribute.
+	(msp430_section_type_flags): Remove ".persistent" section handling.
+	* doc/extend.texi (MSP430 Variable Attributes): Remove "noinit" and
+	"persistent" documentation.
+
+2020-11-23  Richard Biener  <rguenther@suse.de>
+
+	* tree-vect-slp.c (maybe_push_to_hybrid_worklist): Skip
+	debug stmts.
+
+2020-11-23  Jozef Lawrynowicz  <jozef.l@mittosystems.com>
+
+	* doc/extend.texi (Common Variable Attributes): Document the
+	"persistent" variable attribute.
+	* doc/sourcebuild.texi (Effective-Target Keywords): Document
+	the "persistent" effective target keyword.
+	* tree.h (DECL_PERSISTENT_P): Define.
+	* varasm.c (bss_initializer_p): Return false for a
+	DECL_PERSISTENT_P decl initialized to zero.
+	(default_section_type_flags): Handle the ".persistent" section.
+	(default_elf_select_section): Likewise.
+	(default_unique_section): Likewise.
+
+2020-11-23  Jozef Lawrynowicz  <jozef.l@mittosystems.com>
+
+	* tree.h (DECL_NOINIT_P): Define.
+	* varasm.c (DECL_NOINIT_P): Check DECL_NOINIT_P before using
+	unnamed bss/lcomm sections for bss_initializer variables.
+	(default_elf_select_section): Use DECL_NOINIT_P instead of
+	looking up attribute for .noinit section selection.
+	(default_unique_section): Check DECL_NOINIT_P for .noinit
+	section selection.
+
+2020-11-23  Matthew Malcomson  <matthew.malcomson@arm.com>
+
+	* doc/install.texi: Document bootstrap-asan option.
+
+2020-11-22  Uroš Bizjak  <ubizjak@gmail.com>
+
+	PR target/97873
+	* config/i386/i386.md (abs<mode>2): Use SWI48DWI mode iterator.
+	(*abs<dwi>2_doubleword): Use DWIH mode iterator.
+	(<maxmin:code><mode>3): Use SWI48DWI mode iterator.
+	(*<maxmin:code><dwi>3_doubleword): Use DWIH mode iterator.
+
+2020-11-22  Austin Law  <austinklaw@gmail.com>
+
+	* config/h8300/addsub.md: Turn existing patterns into
+	define_insn_and_split style patterns where the splitter
+	adds a clobber of the condition code register.  Drop "cc"
+	attribute.  Add _clobber_flags patterns to match output of
+	the splitters.
+	(add<mod>3_incdec): Remove pattern
+	(adds/subs splitter): Only run before reload.
+	* config/h8300/bitfield.md: Turn existing patterns into
+	define_insn_and_split style patterns where the splitter
+	adds a clobber of the condition code register.  Drop "cc"
+	attribute.  Add _clobber_flags patterns to match output
+	of the splitters.
+	(cstoreqi4, cstorehi4, cstoresi4): Comment out
+	(*bstzhireg, *cmpstz, *bstz, *bistz, *cmpcondset): Likewise
+	(*condbset, *cmpcondbclr, *condbclr): Likewise.
+	(*cmpcondbsetreg, *condbsetreg, *cmpcondbclrreg): Likewise.
+	(*condbclrreg): Likewise.
+	* config/h8300/combiner.md: Turn existing patterns into
+	define_insn_and_split style patterns where the splitter
+	adds a clobber of the condition code register.  Drop "cc"
+	attribute.  Add _clobber_flags patterns to match output of
+	the splitters.  Add appropriate CC register clobbers to
+	existing splitters.
+	(*addsi3_and_r_1): Disable for now.
+	(*addsi3_and_not_r_1, bit-test branches): Likewise.
+	* config/h8300/divmod.md: Turn existing patterns into
+	define_insn_and_split style patterns where the splitter
+	adds a clobber of the condition code register.  Drop "cc"
+	attribute.  Add _clobber_flags patterns to match output of
+	the splitters.
+	* config/h8300/extensions.md: Turn existing patterns into
+	define_insn_and_split style patterns where the splitter
+	adds a clobber of the condition code register.  Drop "cc"
+	attribute.  Add _clobber_flags patterns to match output of
+	the splitters.
+	* config/h8300/genmova.sh: Drop "cc" attribute from patterns.
+	* config/h8300/mova.md: Drop "cc" attribute from patterns.
+	* config/h8300/h8300-modes.def: Add CCZN and CCZNV modes.
+	* config/h8300/h8300-protos.h (output_plussi): Update prototype.
+	(compute_plussi_length): Likewise.
+	(h8300_select_cc_mode): Add prototype.
+	(compute_a_shift_cc): Remove prototype
+	(cmpute_logical_op_cc): Likewise.
+	* config/h8300/h8300.c (names_big): Add "cc" register.
+	(names_extended, names_upper_extended): Likewise.
+	(h8300_emit_stack_adjustment): Be more selective about setting
+	RTX_FRAME_RELATED_P.
+	(h8300_print_operand): Handle CCZN mode
+	(h8300_select_cc_mode): New function.
+	(notice_update_cc): if-0 out.  Only kept for reference purposes.
+	(h8300_expand_store): Likewise.
+	(h8300_binary_length): Handle new insn forms.
+	(output_plussi): Add argument for NEED_FLAGS and handle that case.
+	(compute_plussi_length): Likewise.
+	(compute_logical_op_cc): Return integer.
+	(TARGET_FLAGS_REGNUM): Define.
+	* config/h8300/h8300.h (FIRST_PSEUDO_REGISTER): Bump for cc register.
+	(FIXED_REGISTERS, CALL_USED_REGISTERS): Handle cc register.
+	(REG_ALLOC_ORDER, REGISTER_NAMES): Likewise.
+	(SELECT_CC_MODE): Define.
+	* config/h8300/h8300.md: Add CC_REG.
+	Do not include peepholes.md for now.
+	* config/h8300/jumpcall.md (cbranchqi4): Consolidate into
+	cbranch<mode>4.
+	(cbranchhi4, cbranchsi4): Likewise.
+	(cbranch<mode>4): New expander.
+	(branch): New define_insn_and_split for use before reload.
+	(branch_1, branch_1_false): New patterns to match splitter output.
+	Remove code to manage cc_status.flags.
+	* config/h8300/logical.md: Turn existing patterns into
+	define_insn_and_split style patterns where the splitter
+	adds a clobber of the condition code register.  Drop "cc"
+	attribute.  Add _clobber_flags patterns to match output of
+	the splitters.  Move various peepholes into this file.
+	* config/h8300/movepush.md: Turn existing patterns into
+	define_insn_and_split style patterns where the splitter
+	adds a clobber of the condition code register.  Drop "cc"
+	attribute.  Add _clobber_flags patterns to match output of
+	the splitters.
+	* config/h8300/multiply.md: Turn existing patterns into
+	define_insn_and_split style patterns where the splitter
+	adds a clobber of the condition code register.  Drop "cc"
+	attribute.  Add _clobber_flags patterns to match output of
+	the splitters.
+	* config/h8300/other.md: Turn existing patterns into
+	define_insn_and_split style patterns where the splitter
+	adds a clobber of the condition code register.  Drop "cc"
+	attribute.  Add _clobber_flags patterns to match output of
+	the splitters.
+	* config/h8300/peepholes.md: Remove peepholes that were moved
+	elsewhere.
+	* config/h8300/predicates.md (simple_memory_operand): New.
+	* config/h8300/proepi.md: Drop "cc" attribute setting.
+	* config/h8300/shiftrotate.md: Turn existing patterns into
+	define_insn_and_split style patterns where the splitter
+	adds a clobber of the condition code register.  Drop "cc"
+	attribute.  Add _clobber_flags patterns to match output of
+	the splitters.
+	* config/h8300/testcompare.md: Turn existing patterns into
+	define_insn_and_split style patterns where the splitter
+	adds a clobber of the condition code register.  Drop "cc"
+	attribute.  Add _clobber_flags patterns to match output of
+	the splitters.  Disable various patterns for now.
+	Move some peepholes that were previously in peepholes.md here.
+	* config/h8300/save.md: New file.
+
+2020-11-22  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/95853
+	* tree-ssa-math-opts.c (uaddsub_overflow_check_p): Add maxval
+	argument, if non-NULL, instead look for r > maxval or r <= maxval
+	comparisons.
+	(match_uaddsub_overflow): Pattern recognize even other forms of
+	__builtin_add_overflow, in particular when addition is performed
+	in a wider type and result compared to maximum of the narrower
+	type.
+
+2020-11-22  Jeff Law  <law@redhat.com>
+
+	* config/h8300/jumpcall.md (branch_true, branch_false): Revert
+	recent change.  Ensure operand[0] is always the target label.
+
+2020-11-22  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin-c.c (struct f_align_stack): Rename
+	to type from align_stack to f_align_stack.
+	(push_field_alignment): Likewise.
+	(pop_field_alignment): Likewise.
+
+2020-11-21  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/94695
+	* doc/invoke.texi: Update the -Wrange-loop-construct description.
+
+2020-11-21  Jan Hubicka  <jh@suse.cz>
+
+	* tree-ssa-alias.c (ao_compare::compare_ao_refs,
+	ao_compare::hash_ao_ref): Use OEP_MATCH_SIDE_EFFECTS.
+
+2020-11-21  Jan Hubicka  <jh@suse.cz>
+
+	* ipa-icf.c (sem_function::equals_wpa): Do not compare ODR type with
+	-fno-devirtualize.
+	(sem_item_optimizer::update_hash_by_addr_refs): Hash anonymous ODR
+	types by TYPE_UID of their main variant.
+
+2020-11-21  Aaron Sawdey  <acsawdey@linux.ibm.com>
+
+	* config/rs6000/rs6000.c (rs6000_option_override_internal):
+	Enable vector pair memcpy/memmove expansion.
+
+2020-11-21  Aaron Sawdey  <acsawdey@linux.ibm.com>
+
+	* config/rs6000/mma.md (unspec): Add assemble/extract UNSPECs.
+	(movoi): Change to movoo.
+	(*movpoi): Change to *movoo.
+	(movxi): Change to movxo.
+	(*movpxi): Change to *movxo.
+	(mma_assemble_pair): Change to OO mode.
+	(*mma_assemble_pair): New define_insn_and_split.
+	(mma_disassemble_pair): New define_expand.
+	(*mma_disassemble_pair): New define_insn_and_split.
+	(mma_assemble_acc): Change to XO mode.
+	(*mma_assemble_acc): Change to XO mode.
+	(mma_disassemble_acc): New define_expand.
+	(*mma_disassemble_acc): New define_insn_and_split.
+	(mma_<acc>): Change to XO mode.
+	(mma_<vv>): Change to XO mode.
+	(mma_<avv>): Change to XO mode.
+	(mma_<pv>): Change to OO mode.
+	(mma_<apv>): Change to XO/OO mode.
+	(mma_<vvi4i4i8>): Change to XO mode.
+	(mma_<avvi4i4i8>): Change to XO mode.
+	(mma_<vvi4i4i2>): Change to XO mode.
+	(mma_<avvi4i4i2>): Change to XO mode.
+	(mma_<vvi4i4>): Change to XO mode.
+	(mma_<avvi4i4>): Change to XO mode.
+	(mma_<pvi4i2>): Change to XO/OO mode.
+	(mma_<apvi4i2>): Change to XO/OO mode.
+	(mma_<vvi4i4i4>): Change to XO mode.
+	(mma_<avvi4i4i4>): Change to XO mode.
+	* config/rs6000/predicates.md (input_operand): Allow opaque.
+	(mma_disassemble_output_operand): New predicate.
+	* config/rs6000/rs6000-builtin.def:
+	Changes to disassemble builtins.
+	* config/rs6000/rs6000-call.c (rs6000_return_in_memory):
+	Disallow __vector_pair/__vector_quad as return types.
+	(rs6000_promote_function_mode): Remove function return type
+	check because we can't test it here any more.
+	(rs6000_function_arg): Do not allow __vector_pair/__vector_quad
+	as as function arguments.
+	(rs6000_gimple_fold_mma_builtin):
+	Handle mma_disassemble_* builtins.
+	(rs6000_init_builtins): Create types for XO/OO modes.
+	* config/rs6000/rs6000-modes.def: DElete OI, XI,
+	POI, and PXI modes, and create XO and OO modes.
+	* config/rs6000/rs6000-string.c (expand_block_move):
+	Update to OO mode.
+	* config/rs6000/rs6000.c (rs6000_hard_regno_mode_ok_uncached):
+	Update for XO/OO modes.
+	(rs6000_rtx_costs): Make UNSPEC_MMA_XXSETACCZ cost 0.
+	(rs6000_modes_tieable_p): Update for XO/OO modes.
+	(rs6000_debug_reg_global): Update for XO/OO modes.
+	(rs6000_setup_reg_addr_masks): Update for XO/OO modes.
+	(rs6000_init_hard_regno_mode_ok): Update for XO/OO modes.
+	(reg_offset_addressing_ok_p): Update for XO/OO modes.
+	(rs6000_emit_move): Update for XO/OO modes.
+	(rs6000_preferred_reload_class): Update for XO/OO modes.
+	(rs6000_split_multireg_move): Update for XO/OO modes.
+	(rs6000_mangle_type): Update for opaque types.
+	(rs6000_invalid_conversion): Update for XO/OO modes.
+	* config/rs6000/rs6000.h (VECTOR_ALIGNMENT_P):
+	Update for XO/OO modes.
+	* config/rs6000/rs6000.md (RELOAD): Update for XO/OO modes.
+
+2020-11-21  Aaron Sawdey  <acsawdey@linux.ibm.com>
+
+	* typeclass.h: Add opaque_type_class.
+	* builtins.c (type_to_class): Identify opaque type class.
+	* dwarf2out.c (is_base_type): Handle opaque types.
+	(gen_type_die_with_usage): Handle opaque types.
+	* expr.c (count_type_elements): Opaque types should
+	never have initializers.
+	* ipa-devirt.c (odr_types_equivalent_p): No type-specific handling
+	for opaque types is needed as it eventually checks the underlying
+	mode which is what is important.
+	* tree-streamer.c (record_common_node): Handle opaque types.
+	* tree.c (type_contains_placeholder_1): Handle opaque types.
+	(type_cache_hasher::equal): No additional comparison needed for
+	opaque types.
+
 2020-11-20  Michael Meissner  <meissner@linux.ibm.com>
 
 	* config/rs6000/rs6000-call.c (rs6000_expand_builtin): Add missing
