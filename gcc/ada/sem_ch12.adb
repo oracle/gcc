@@ -4306,7 +4306,7 @@ package body Sem_Ch12 is
       elsif Contains_Instance_Of (Gen_Unit, Current_Scope, Gen_Id) then
          Error_Msg_Node_2 := Current_Scope;
          Error_Msg_NE
-           ("circular Instantiation: & instantiated in &!", N, Gen_Unit);
+           ("circular instantiation: & instantiated in &!", N, Gen_Unit);
          Circularity_Detected := True;
          Restore_Env;
          goto Leave;
@@ -5682,7 +5682,7 @@ package body Sem_Ch12 is
          if Contains_Instance_Of (Gen_Unit, Current_Scope, Gen_Id) then
             Error_Msg_Node_2 := Current_Scope;
             Error_Msg_NE
-              ("circular Instantiation: & instantiated in &!", N, Gen_Unit);
+              ("circular instantiation: & instantiated in &!", N, Gen_Unit);
             Circularity_Detected := True;
             Restore_Hidden_Primitives (Vis_Prims_List);
             goto Leave;
@@ -7800,7 +7800,7 @@ package body Sem_Ch12 is
                if Node (Elmt) = Scop then
                   Error_Msg_Node_2 := Inner;
                   Error_Msg_NE
-                    ("circular Instantiation: & instantiated within &!",
+                    ("circular instantiation: & instantiated within &!",
                      N, Scop);
                   return True;
 
@@ -7810,7 +7810,7 @@ package body Sem_Ch12 is
                elsif Contains_Instance_Of (Node (Elmt), Scop, N) then
                   Error_Msg_Node_2 := Inner;
                   Error_Msg_NE
-                    ("circular Instantiation: & instantiated within &!",
+                    ("circular instantiation: & instantiated within &!",
                      N, Node (Elmt));
                   return True;
                end if;
@@ -10801,6 +10801,16 @@ package body Sem_Ch12 is
                   Next_Non_Pragma (Formal_Node);
                   Next (Actual_Of_Formal);
 
+                  --  A formal subprogram may be overloaded, so advance in
+                  --  the list of actuals to make sure we do not match two
+                  --  successive formals to the same actual. This is only
+                  --  relevant for overloadable entities, others have
+                  --  distinct names.
+
+                  if Is_Overloadable (Actual_Ent) then
+                     Next_Entity (Actual_Ent);
+                  end if;
+
                else
                   --  No further formals to match, but the generic part may
                   --  contain inherited operation that are not hidden in the
@@ -12645,10 +12655,10 @@ package body Sem_Ch12 is
       Analyzed_Formal : Node_Id;
       Actual_Decls    : List_Id) return List_Id
    is
-      A_Gen_T    : constant Entity_Id  :=
+      A_Gen_T    : constant Entity_Id :=
                      Defining_Identifier (Analyzed_Formal);
-      Def        : constant Node_Id    := Formal_Type_Definition (Formal);
-      Gen_T      : constant Entity_Id  := Defining_Identifier (Formal);
+      Def        : constant Node_Id   := Formal_Type_Definition (Formal);
+      Gen_T      : constant Entity_Id := Defining_Identifier (Formal);
       Act_T      : Entity_Id;
       Ancestor   : Entity_Id := Empty;
       Decl_Node  : Node_Id;
@@ -12949,21 +12959,6 @@ package body Sem_Ch12 is
          end if;
 
          if not Subtypes_Match (Desig_Type, Desig_Act) then
-            Error_Msg_NE
-              ("designated type of actual does not match that of formal &",
-               Actual, Gen_T);
-
-            if not Predicates_Match (Desig_Type, Desig_Act) then
-               Error_Msg_N ("\predicates do not match", Actual);
-            end if;
-
-            Abandon_Instantiation (Actual);
-
-         elsif Is_Access_Type (Designated_Type (Act_T))
-           and then Is_Constrained (Designated_Type (Designated_Type (Act_T)))
-                      /=
-                    Is_Constrained (Designated_Type (Desig_Type))
-         then
             Error_Msg_NE
               ("designated type of actual does not match that of formal &",
                Actual, Gen_T);
