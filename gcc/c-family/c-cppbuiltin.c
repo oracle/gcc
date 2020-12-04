@@ -877,6 +877,13 @@ c_cpp_builtins (cpp_reader *pfile)
 
   define_language_independent_builtin_macros (pfile);
 
+  /* encoding definitions used by users and libraries  */
+  builtin_define_with_value ("__GNUC_EXECUTION_CHARSET_NAME",
+    cpp_get_narrow_charset_name (pfile), 1);
+  builtin_define_with_value ("__GNUC_WIDE_EXECUTION_CHARSET_NAME",
+    cpp_get_wide_charset_name (pfile), 1);
+
+
   if (c_dialect_cxx ())
   {
     int major;
@@ -1025,6 +1032,10 @@ c_cpp_builtins (cpp_reader *pfile)
           else
             cpp_define (pfile, "__cpp_concepts=201507L");
         }
+      if (flag_modules)
+	/* The std-defined value is 201907L, but I don't think we can
+	   claim victory yet.  201810 is the p1103 date. */
+	cpp_define (pfile, "__cpp_modules=201810L");
       if (flag_coroutines)
 	cpp_define (pfile, "__cpp_impl_coroutine=201902L"); /* n4861, DIS */
       if (flag_tm)

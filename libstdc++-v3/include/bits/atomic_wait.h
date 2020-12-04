@@ -33,7 +33,7 @@
 #pragma GCC system_header
 
 #include <bits/c++config.h>
-#if defined _GLIBCXX_HAS_GTHREADS || _GLIBCXX_HAVE_LINUX_FUTEX
+#if defined _GLIBCXX_HAS_GTHREADS || defined _GLIBCXX_HAVE_LINUX_FUTEX
 #include <bits/functional_hash.h>
 #include <bits/gthr.h>
 #include <ext/numeric_traits.h>
@@ -50,6 +50,7 @@
 # include <bits/std_mutex.h>  // std::mutex, std::__condvar
 #endif
 
+#define __cpp_lib_atomic_wait 201907L
 
 namespace std _GLIBCXX_VISIBILITY(default)
 {

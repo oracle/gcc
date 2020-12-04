@@ -6287,8 +6287,21 @@ Binary_expression::lower_array_comparison(Gogo* gogo,
   args->push_back(this->operand_address(inserter, this->left_));
   args->push_back(this->operand_address(inserter, this->right_));
 
-  Expression* ret = Expression::make_call(func, args, false, loc);
+  Call_expression* ce = Expression::make_call(func, args, false, loc);
 
+  // Record that this is a call to a generated equality function.  We
+  // need to do this because a comparison returns an abstract boolean
+  // type, but the function necessarily returns "bool".  The
+  // difference shows up in code like
+  //     type mybool bool
+  //     var b mybool = [10]string{} == [10]string{}
+  // The comparison function returns "bool", but since a comparison
+  // has an abstract boolean type we need an implicit conversion to
+  // "mybool".  The implicit conversion is inserted in
+  // Call_expression::do_flatten.
+  ce->set_is_equal_function();
+
+  Expression* ret = ce;
   if (this->op_ == OPERATOR_NOTEQ)
     ret = Expression::make_unary(OPERATOR_NOT, ret, loc);
 
@@ -6978,27 +6991,6 @@ Binary_expression::do_get_backend(Translate_context* context)
   // The only binary operation for string is +, and that should have
   // been converted to a String_concat_expression in do_lower.
   go_assert(!left_type->is_string_type());
-
-  // For complex division Go might want slightly different results than the
-  // backend implementation provides, so we have our own runtime routine.
-  if (this->op_ == OPERATOR_DIV && this->left_->type()->complex_type() != NULL)
-    {
-      Runtime::Function complex_code;
-      switch (this->left_->type()->complex_type()->bits())
-	{
-	case 64:
-          complex_code = Runtime::COMPLEX64_DIV;
-	  break;
-	case 128:
-          complex_code = Runtime::COMPLEX128_DIV;
-	  break;
-	default:
-	  go_unreachable();
-	}
-      Expression* complex_div =
-          Runtime::make_call(complex_code, loc, 2, this->left_, this->right_);
-      return complex_div->get_backend(context);
-    }
 
   Bexpression* left = this->left_->get_backend(context);
   Bexpression* right = this->right_->get_backend(context);
@@ -8893,8 +8885,8 @@ Builtin_call_expression::flatten_append(Gogo* gogo, Named_object* function,
           // We will optimize this to directly zeroing the tail,
           // instead of allocating a new slice then copy.
 
-          // Retrieve the length. Cannot reference s2 as we will remove
-          // the makeslice call.
+          // Retrieve the length and capacity. Cannot reference s2 as
+          // we will remove the makeslice call.
           Expression* len_arg = makecall->args()->at(1);
           len_arg = Expression::make_cast(int_type, len_arg, loc);
           l2tmp = Statement::make_temporary(int_type, len_arg, loc);
@@ -8907,28 +8899,19 @@ Builtin_call_expression::flatten_append(Gogo* gogo, Named_object* function,
           inserter->insert(c2tmp);
 
           // Check bad len/cap here.
-          // if len2 < 0 { panicmakeslicelen(); }
+	  // checkmakeslice(type, len, cap)
+	  // (Note that if len and cap are constants, we won't see a
+	  // makeslice call here, as it will be rewritten to a stack
+	  // allocated array by Mark_address_taken::expression.)
+	  Expression* elem = Expression::make_type_descriptor(element_type,
+							      loc);
           len2 = Expression::make_temporary_reference(l2tmp, loc);
-          Expression* zero = Expression::make_integer_ul(0, int_type, loc);
-          Expression* cond = Expression::make_binary(OPERATOR_LT, len2,
-                                                     zero, loc);
-	  Expression* call = Runtime::make_call(Runtime::PANIC_MAKE_SLICE_LEN,
-						loc, 0);
-          cond = Expression::make_conditional(cond, call, zero->copy(), loc);
-          gogo->lower_expression(function, inserter, &cond);
-          gogo->flatten_expression(function, inserter, &cond);
-          Statement* s = Statement::make_statement(cond, false);
-          inserter->insert(s);
-
-          // if cap2 < 0 { panicmakeslicecap(); }
           Expression* cap2 = Expression::make_temporary_reference(c2tmp, loc);
-          cond = Expression::make_binary(OPERATOR_LT, cap2,
-                                         zero->copy(), loc);
-	  call = Runtime::make_call(Runtime::PANIC_MAKE_SLICE_CAP, loc, 0);
-          cond = Expression::make_conditional(cond, call, zero->copy(), loc);
-          gogo->lower_expression(function, inserter, &cond);
-          gogo->flatten_expression(function, inserter, &cond);
-          s = Statement::make_statement(cond, false);
+	  Expression* check = Runtime::make_call(Runtime::CHECK_MAKE_SLICE,
+						 loc, 3, elem, len2, cap2);
+          gogo->lower_expression(function, inserter, &check);
+          gogo->flatten_expression(function, inserter, &check);
+          Statement* s = Statement::make_statement(check, false);
           inserter->insert(s);
 
           // Remove the original makeslice call.
@@ -11193,6 +11176,13 @@ Call_expression::do_flatten(Gogo* gogo, Named_object*,
         return ret;
     }
 
+  // Add an implicit conversion to a boolean type, if needed.  See the
+  // comment in Binary_expression::lower_array_comparison.
+  if (this->is_equal_function_
+      && this->type_ != NULL
+      && this->type_ != Type::lookup_bool_type())
+    return Expression::make_cast(this->type_, this, this->location());
+
   return this;
 }
 
@@ -11968,7 +11958,7 @@ Call_expression::do_type()
 // parameter types to set the types of the arguments.
 
 void
-Call_expression::do_determine_type(const Type_context*)
+Call_expression::do_determine_type(const Type_context* context)
 {
   if (!this->determining_types())
     return;
@@ -12014,6 +12004,22 @@ Call_expression::do_determine_type(const Type_context*)
 	  else
 	    (*pa)->determine_type_no_context();
 	}
+    }
+
+  // If this is a call to a generated equality function, we determine
+  // the type based on the context.  See the comment in
+  // Binary_expression::lower_array_comparison.
+  if (this->is_equal_function_
+      && !context->may_be_abstract
+      && context->type != NULL
+      && context->type->is_boolean_type()
+      && context->type != Type::lookup_bool_type())
+    {
+      go_assert(this->type_ == NULL
+		|| this->type_ == Type::lookup_bool_type()
+		|| this->type_ == context->type
+		|| this->type_->is_error());
+      this->type_ = context->type;
     }
 }
 
@@ -12802,24 +12808,11 @@ Array_index_expression::do_determine_type(const Type_context*)
   this->array_->determine_type_no_context();
 
   Type_context index_context(Type::lookup_integer_type("int"), false);
-  if (this->start_->is_constant())
-    this->start_->determine_type(&index_context);
-  else
-    this->start_->determine_type_no_context();
+  this->start_->determine_type(&index_context);
   if (this->end_ != NULL)
-    {
-      if (this->end_->is_constant())
-        this->end_->determine_type(&index_context);
-      else
-        this->end_->determine_type_no_context();
-    }
+    this->end_->determine_type(&index_context);
   if (this->cap_ != NULL)
-    {
-      if (this->cap_->is_constant())
-        this->cap_->determine_type(&index_context);
-      else
-        this->cap_->determine_type_no_context();
-    }
+    this->cap_->determine_type(&index_context);
 }
 
 // Check types of an array index.
@@ -13488,17 +13481,9 @@ String_index_expression::do_determine_type(const Type_context*)
   this->string_->determine_type_no_context();
 
   Type_context index_context(Type::lookup_integer_type("int"), false);
-  if (this->start_->is_constant())
-    this->start_->determine_type(&index_context);
-  else
-    this->start_->determine_type_no_context();
+  this->start_->determine_type(&index_context);
   if (this->end_ != NULL)
-    {
-      if (this->end_->is_constant())
-        this->end_->determine_type(&index_context);
-      else
-        this->end_->determine_type_no_context();
-    }
+    this->end_->determine_type(&index_context);
 }
 
 // Check types of a string index.
@@ -15303,9 +15288,22 @@ Array_construction_expression::do_is_static_initializer() const
 void
 Array_construction_expression::do_determine_type(const Type_context*)
 {
+  if (this->is_error_expression())
+    {
+      go_assert(saw_errors());
+      return;
+    }
+
   if (this->vals() == NULL)
     return;
-  Type_context subcontext(this->type_->array_type()->element_type(), false);
+  Array_type* at = this->type_->array_type();
+  if (at == NULL || at->is_error() || at->element_type()->is_error())
+    {
+      go_assert(saw_errors());
+      this->set_is_error();
+      return;
+    }
+  Type_context subcontext(at->element_type(), false);
   for (Expression_list::const_iterator pv = this->vals()->begin();
        pv != this->vals()->end();
        ++pv)
@@ -15320,10 +15318,22 @@ Array_construction_expression::do_determine_type(const Type_context*)
 void
 Array_construction_expression::do_check_types(Gogo*)
 {
+  if (this->is_error_expression())
+    {
+      go_assert(saw_errors());
+      return;
+    }
+
   if (this->vals() == NULL)
     return;
 
   Array_type* at = this->type_->array_type();
+  if (at == NULL || at->is_error() || at->element_type()->is_error())
+    {
+      go_assert(saw_errors());
+      this->set_is_error();
+      return;
+    }
   int i = 0;
   Type* element_type = at->element_type();
   for (Expression_list::const_iterator pv = this->vals()->begin();
@@ -15348,6 +15358,12 @@ Expression*
 Array_construction_expression::do_flatten(Gogo*, Named_object*,
 					   Statement_inserter* inserter)
 {
+  if (this->is_error_expression())
+    {
+      go_assert(saw_errors());
+      return this;
+    }
+
   if (this->vals() == NULL)
     return this;
 
@@ -15384,6 +15400,12 @@ Array_construction_expression::do_flatten(Gogo*, Named_object*,
 void
 Array_construction_expression::do_add_conversions()
 {
+  if (this->is_error_expression())
+    {
+      go_assert(saw_errors());
+      return;
+    }
+
   if (this->vals() == NULL)
     return;
 

@@ -43,6 +43,7 @@ along with GCC; see the file COPYING3.  If not see
 #include "fold-const.h"
 #include "stor-layout.h"
 #include "varasm.h"
+#include "version.h"
 #include "flags.h"
 #include "stmt.h"
 #include "expr.h"
@@ -58,6 +59,8 @@ along with GCC; see the file COPYING3.  If not see
 #include "rtl-iter.h"
 #include "file-prefix-map.h" /* remap_debug_filename()  */
 #include "alloc-pool.h"
+#include "toplev.h"
+#include "opts.h"
 
 #ifdef XCOFF_DEBUGGING_INFO
 #include "xcoffout.h"		/* Needed for external data declarations.  */
@@ -289,6 +292,10 @@ get_section (const char *name, unsigned int flags, tree decl,
   slot = section_htab->find_slot_with_hash (name, htab_hash_string (name),
 					    INSERT);
   flags |= SECTION_NAMED;
+  if (HAVE_GAS_SHF_GNU_RETAIN
+      && decl != nullptr
+      && DECL_PRESERVE_P (decl))
+    flags |= SECTION_RETAIN;
   if (*slot == NULL)
     {
       sect = ggc_alloc<section> ();
@@ -469,6 +476,7 @@ resolve_unique_section (tree decl, int reloc ATTRIBUTE_UNUSED,
   if (DECL_SECTION_NAME (decl) == NULL
       && targetm_common.have_named_sections
       && (flag_function_or_data_sections
+	  || (HAVE_GAS_SHF_GNU_RETAIN && DECL_PRESERVE_P (decl))
 	  || DECL_COMDAT_GROUP (decl)))
     {
       targetm.asm_out.unique_section (decl, reloc);
@@ -1207,7 +1215,8 @@ get_variable_section (tree decl, bool prefer_noswitch_p)
   if (vnode)
     vnode->get_constructor ();
 
-  if (DECL_COMMON (decl))
+  if (DECL_COMMON (decl)
+      && !(HAVE_GAS_SHF_GNU_RETAIN && DECL_PRESERVE_P (decl)))
     {
       /* If the decl has been given an explicit section name, or it resides
 	 in a non-generic address space, then it isn't common, and shouldn't
@@ -6745,9 +6754,10 @@ default_elf_asm_named_section (const char *name, unsigned int flags,
 
   /* If we have already declared this section, we can use an
      abbreviated form to switch back to it -- unless this section is
-     part of a COMDAT groups, in which case GAS requires the full
-     declaration every time.  */
+     part of a COMDAT groups or with SHF_GNU_RETAIN, in which case GAS
+     requires the full declaration every time.  */
   if (!(HAVE_COMDAT_GROUP && (flags & SECTION_LINKONCE))
+      && !(flags & SECTION_RETAIN)
       && (flags & SECTION_DECLARED))
     {
       fprintf (asm_out_file, "\t.section\t%s\n", name);
@@ -6780,6 +6790,10 @@ default_elf_asm_named_section (const char *name, unsigned int flags,
 	*f++ = TLS_SECTION_ASM_FLAG;
       if (HAVE_COMDAT_GROUP && (flags & SECTION_LINKONCE))
 	*f++ = 'G';
+      if (flags & SECTION_RETAIN)
+	*f++ = 'R';
+      if (flags & SECTION_LINK_ORDER)
+	*f++ = 'o';
 #ifdef MACH_DEP_SECTION_ASM_FLAG
       if (flags & SECTION_MACH_DEP)
 	*f++ = MACH_DEP_SECTION_ASM_FLAG;
@@ -6812,6 +6826,14 @@ default_elf_asm_named_section (const char *name, unsigned int flags,
 
       if (flags & SECTION_ENTSIZE)
 	fprintf (asm_out_file, ",%d", flags & SECTION_ENTSIZE);
+      if (flags & SECTION_LINK_ORDER)
+	{
+	  tree id = DECL_ASSEMBLER_NAME (decl);
+	  ultimate_transparent_alias_target (&id);
+	  const char *name = IDENTIFIER_POINTER (id);
+	  name = targetm.strip_name_encoding (name);
+	  fprintf (asm_out_file, ",%s", name);
+	}
       if (HAVE_COMDAT_GROUP && (flags & SECTION_LINKONCE))
 	{
 	  if (TREE_CODE (decl) == IDENTIFIER_NODE)
@@ -8034,45 +8056,14 @@ output_object_blocks (void)
    we want to emit NUL strings terminators into the object file we have to use
    ASM_OUTPUT_SKIP.  */
 
-int
-elf_record_gcc_switches (print_switch_type type, const char * name)
+void
+elf_record_gcc_switches (const char *options)
 {
-  switch (type)
-    {
-    case SWITCH_TYPE_PASSED:
-      ASM_OUTPUT_ASCII (asm_out_file, name, strlen (name));
-      ASM_OUTPUT_SKIP (asm_out_file, HOST_WIDE_INT_1U);
-      break;
-
-    case SWITCH_TYPE_DESCRIPTIVE:
-      if (name == NULL)
-	{
-	  /* Distinguish between invocations where name is NULL.  */
-	  static bool started = false;
-
-	  if (!started)
-	    {
-	      section * sec;
-
-	      sec = get_section (targetm.asm_out.record_gcc_switches_section,
-				 SECTION_DEBUG
-				 | SECTION_MERGE
-				 | SECTION_STRINGS
-				 | (SECTION_ENTSIZE & 1),
-				 NULL);
-	      switch_to_section (sec);
-	      started = true;
-	    }
-	}
-
-    default:
-      break;
-    }
-
-  /* The return value is currently ignored by the caller, but must be 0.
-     For -fverbose-asm the return value would be the number of characters
-     emitted into the assembler file.  */
-  return 0;
+  section *sec = get_section (targetm.asm_out.record_gcc_switches_section,
+			      SECTION_DEBUG | SECTION_MERGE
+			      | SECTION_STRINGS | (SECTION_ENTSIZE & 1), NULL);
+  switch_to_section (sec);
+  ASM_OUTPUT_ASCII (asm_out_file, options, strlen (options) + 1);
 }
 
 /* Emit text to declare externally defined symbols. It is needed to

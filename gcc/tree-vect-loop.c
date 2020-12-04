@@ -8743,6 +8743,24 @@ vectorizable_live_operation (vec_info *vinfo,
 				   "def\n");
 		continue;
 	      }
+	    /* ???  It can also happen that we end up pulling a def into
+	       a loop where replacing out-of-loop uses would require
+	       a new LC SSA PHI node.  Retain the original scalar in
+	       those cases as well.  PR98064.  */
+	    if (TREE_CODE (new_tree) == SSA_NAME
+		&& !SSA_NAME_IS_DEFAULT_DEF (new_tree)
+		&& (gimple_bb (use_stmt)->loop_father
+		    != gimple_bb (vec_stmt)->loop_father)
+		&& !flow_loop_nested_p (gimple_bb (vec_stmt)->loop_father,
+					gimple_bb (use_stmt)->loop_father))
+	      {
+		if (dump_enabled_p ())
+		  dump_printf_loc (MSG_MISSED_OPTIMIZATION, vect_location,
+				   "Using original scalar computation for "
+				   "live lane because there is an out-of-loop "
+				   "definition for it\n");
+		continue;
+	      }
 	    FOR_EACH_IMM_USE_ON_STMT (use_p, imm_iter)
 	      SET_USE (use_p, new_tree);
 	    update_stmt (use_stmt);
@@ -9063,7 +9081,7 @@ maybe_set_vectorized_backedge_value (loop_vec_info loop_vinfo,
    When vectorizing STMT_INFO as a store, set *SEEN_STORE to its
    stmt_vec_info.  */
 
-static void
+static bool
 vect_transform_loop_stmt (loop_vec_info loop_vinfo, stmt_vec_info stmt_info,
 			  gimple_stmt_iterator *gsi, stmt_vec_info *seen_store)
 {
@@ -9079,7 +9097,7 @@ vect_transform_loop_stmt (loop_vec_info loop_vinfo, stmt_vec_info stmt_info,
 
   if (!STMT_VINFO_RELEVANT_P (stmt_info)
       && !STMT_VINFO_LIVE_P (stmt_info))
-    return;
+    return false;
 
   if (STMT_VINFO_VECTYPE (stmt_info))
     {
@@ -9096,13 +9114,15 @@ vect_transform_loop_stmt (loop_vec_info loop_vinfo, stmt_vec_info stmt_info,
   /* Pure SLP statements have already been vectorized.  We still need
      to apply loop vectorization to hybrid SLP statements.  */
   if (PURE_SLP_STMT (stmt_info))
-    return;
+    return false;
 
   if (dump_enabled_p ())
     dump_printf_loc (MSG_NOTE, vect_location, "transform statement.\n");
 
   if (vect_transform_stmt (loop_vinfo, stmt_info, gsi, NULL, NULL))
     *seen_store = stmt_info;
+
+  return true;
 }
 
 /* Helper function to pass to simplify_replace_tree to enable replacing tree's
@@ -9528,17 +9548,17 @@ vect_transform_loop (loop_vec_info loop_vinfo, gimple *loop_vectorized_call)
 			}
 		      stmt_vec_info pat_stmt_info
 			= STMT_VINFO_RELATED_STMT (stmt_info);
-		      vect_transform_loop_stmt (loop_vinfo, pat_stmt_info, &si,
-						&seen_store);
-		      maybe_set_vectorized_backedge_value (loop_vinfo,
-							   pat_stmt_info);
+		      if (vect_transform_loop_stmt (loop_vinfo, pat_stmt_info,
+						    &si, &seen_store))
+			maybe_set_vectorized_backedge_value (loop_vinfo,
+							     pat_stmt_info);
 		    }
 		  else
 		    {
-		      vect_transform_loop_stmt (loop_vinfo, stmt_info, &si,
-						&seen_store);
-		      maybe_set_vectorized_backedge_value (loop_vinfo,
-							   stmt_info);
+		      if (vect_transform_loop_stmt (loop_vinfo, stmt_info, &si,
+						    &seen_store))
+			maybe_set_vectorized_backedge_value (loop_vinfo,
+							     stmt_info);
 		    }
 		}
 	      gsi_next (&si);

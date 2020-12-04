@@ -62,12 +62,6 @@ DEF_GO_RUNTIME(STRINGTOSLICERUNE, "runtime.stringtoslicerune",
 	       P2(POINTER, STRING), R1(SLICE))
 
 
-// Complex division.
-DEF_GO_RUNTIME(COMPLEX64_DIV, "__go_complex64_div",
-	       P2(COMPLEX64, COMPLEX64), R1(COMPLEX64))
-DEF_GO_RUNTIME(COMPLEX128_DIV, "__go_complex128_div",
-	       P2(COMPLEX128, COMPLEX128), R1(COMPLEX128))
-
 // Make a slice.
 DEF_GO_RUNTIME(MAKESLICE, "runtime.makeslice", P3(TYPE, INT, INT),
 	       R1(POINTER))
@@ -264,6 +258,11 @@ DEF_GO_RUNTIME(TYPEDSLICECOPY, "runtime.typedslicecopy",
 DEF_GO_RUNTIME(GROWSLICE, "runtime.growslice",
                P5(TYPE, POINTER, INT, INT, INT), R1(SLICE))
 
+
+// Check the length and cap passed to make, without making a slice.
+// This is used for apend(s, make([]T, len)...).
+DEF_GO_RUNTIME(CHECK_MAKE_SLICE, "runtime.checkMakeSlice", P3(TYPE, INT, INT),
+	       R1(UINTPTR))
 
 // Register roots (global variables) for the garbage collector.
 DEF_GO_RUNTIME(REGISTER_GC_ROOTS, "runtime.registerGCRoots", P1(POINTER), R0())

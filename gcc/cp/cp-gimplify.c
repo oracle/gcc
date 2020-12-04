@@ -1374,6 +1374,14 @@ cp_genericize_r (tree *stmt_p, int *walk_subtrees, void *data)
 	  break;
 	}
 
+      if (tree fndecl = cp_get_callee_fndecl (stmt))
+	if (DECL_IMMEDIATE_FUNCTION_P (fndecl))
+	  {
+	    gcc_assert (source_location_current_p (fndecl));
+	    *stmt_p = cxx_constant_value (stmt);
+	    break;
+	  }
+
       if (!wtd->no_sanitize_p
 	  && sanitize_flags_p ((SANITIZE_NULL
 				| SANITIZE_ALIGNMENT | SANITIZE_VPTR)))
@@ -1550,6 +1558,11 @@ cp_genericize_r (tree *stmt_p, int *walk_subtrees, void *data)
       /* These cases are handled by shared code.  */
       c_genericize_control_stmt (stmt_p, walk_subtrees, data,
 				 cp_genericize_r, cp_walk_subtrees);
+      break;
+
+    case BIT_CAST_EXPR:
+      *stmt_p = build1_loc (EXPR_LOCATION (stmt), VIEW_CONVERT_EXPR,
+			    TREE_TYPE (stmt), TREE_OPERAND (stmt, 0));
       break;
 
     default:
@@ -2992,7 +3005,7 @@ fold_builtin_source_location (location_t loc)
 	      const char *name = "";
 
 	      if (current_function_decl)
-		name = cxx_printable_name (current_function_decl, 0);
+		name = cxx_printable_name (current_function_decl, 2);
 
 	      val = build_string_literal (strlen (name) + 1, name);
 	    }

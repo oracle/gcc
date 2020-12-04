@@ -2218,6 +2218,23 @@ build_ref_qualified_type (tree type, cp_ref_qualifier rqual)
   return build_cp_fntype_variant (type, rqual, raises, late);
 }
 
+tree
+make_binding_vec (tree name, unsigned clusters MEM_STAT_DECL)
+{
+  /* Stored in an unsigned short, but we're limited to the number of
+     modules anyway.  */
+  gcc_checking_assert (clusters <= (unsigned short)(~0));
+  size_t length = (offsetof (tree_binding_vec, vec)
+		   + clusters * sizeof (binding_cluster));
+  tree vec = ggc_alloc_cleared_tree_node_stat (length PASS_MEM_STAT);
+  TREE_SET_CODE (vec, BINDING_VECTOR);
+  BINDING_VECTOR_NAME (vec) = name;
+  BINDING_VECTOR_ALLOC_CLUSTERS (vec) = clusters;
+  BINDING_VECTOR_NUM_CLUSTERS (vec) = 0;
+
+  return vec;
+}
+
 /* Make a raw overload node containing FN.  */
 
 tree
@@ -2237,10 +2254,11 @@ ovl_make (tree fn, tree next)
   return result;
 }
 
-/* Add FN to the (potentially NULL) overload set OVL.  USING_OR_HIDDEN
-   is > 0, if FN is via a using declaration.  USING_OR_HIDDEN is < 0,
-   if FN is hidden.  (A decl cannot be both using and hidden.)  We
-   keep the hidden decls first, but remaining ones are unordered.  */
+/* Add FN to the (potentially NULL) overload set OVL.  USING_OR_HIDDEN is >
+   zero if this is a using-decl.  It is > 1 if we're exporting the
+   using decl.  USING_OR_HIDDEN is < 0, if FN is hidden.  (A decl
+   cannot be both using and hidden.)  We keep the hidden decls first,
+   but remaining ones are unordered.  */
 
 tree
 ovl_insert (tree fn, tree maybe_ovl, int using_or_hidden)
@@ -2264,7 +2282,11 @@ ovl_insert (tree fn, tree maybe_ovl, int using_or_hidden)
       if (using_or_hidden < 0)
 	OVL_HIDDEN_P (maybe_ovl) = true;
       if (using_or_hidden > 0)
-	OVL_DEDUP_P (maybe_ovl) = OVL_USING_P (maybe_ovl) = true;
+	{
+	  OVL_DEDUP_P (maybe_ovl) = OVL_USING_P (maybe_ovl) = true;
+	  if (using_or_hidden > 1)
+	    OVL_EXPORT_P (maybe_ovl) = true;
+	}
     }
   else
     maybe_ovl = fn;
@@ -2966,6 +2988,32 @@ array_type_nelts_total (tree type)
       type = TREE_TYPE (type);
     }
   return sz;
+}
+
+/* Return true if FNDECL is std::source_location::current () method.  */
+
+bool
+source_location_current_p (tree fndecl)
+{
+  gcc_checking_assert (TREE_CODE (fndecl) == FUNCTION_DECL
+		       && DECL_IMMEDIATE_FUNCTION_P (fndecl));
+  if (DECL_NAME (fndecl) == NULL_TREE
+      || TREE_CODE (TREE_TYPE (fndecl)) != FUNCTION_TYPE
+      || TREE_CODE (TREE_TYPE (TREE_TYPE (fndecl))) != RECORD_TYPE
+      || DECL_CONTEXT (fndecl) != TREE_TYPE (TREE_TYPE (fndecl))
+      || !id_equal (DECL_NAME (fndecl), "current"))
+    return false;
+
+  tree source_location = DECL_CONTEXT (fndecl);
+  if (TYPE_NAME (source_location) == NULL_TREE
+      || TREE_CODE (TYPE_NAME (source_location)) != TYPE_DECL
+      || TYPE_IDENTIFIER (source_location) == NULL_TREE
+      || !id_equal (TYPE_IDENTIFIER (source_location),
+		    "source_location")
+      || !decl_in_std_namespace_p (TYPE_NAME (source_location)))
+    return false;
+
+  return true;
 }
 
 struct bot_data
@@ -3918,6 +3966,7 @@ cp_tree_equal (tree t1, tree t2)
     CASE_CONVERT:
     case NON_LVALUE_EXPR:
     case VIEW_CONVERT_EXPR:
+    case BIT_CAST_EXPR:
       if (!same_type_p (TREE_TYPE (t1), TREE_TYPE (t2)))
 	return false;
       /* Now compare operands as usual.  */
@@ -5163,6 +5212,7 @@ cp_walk_subtrees (tree *tp, int *walk_subtrees_p, walk_tree_fn func,
     case CONST_CAST_EXPR:
     case DYNAMIC_CAST_EXPR:
     case IMPLICIT_CONV_EXPR:
+    case BIT_CAST_EXPR:
       if (TREE_TYPE (*tp))
 	WALK_SUBTREE (TREE_TYPE (*tp));
 

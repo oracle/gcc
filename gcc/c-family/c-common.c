@@ -374,6 +374,7 @@ const struct c_common_resword c_common_reswords[] =
   { "__auto_type",	RID_AUTO_TYPE,	D_CONLY },
   { "__bases",          RID_BASES, D_CXXONLY },
   { "__builtin_addressof", RID_ADDRESSOF, D_CXXONLY },
+  { "__builtin_bit_cast", RID_BUILTIN_BIT_CAST, D_CXXONLY },
   { "__builtin_call_with_static_chain",
     RID_BUILTIN_CALL_WITH_STATIC_CHAIN, D_CONLY },
   { "__builtin_choose_expr", RID_CHOOSE_EXPR, D_CONLY },
@@ -539,6 +540,12 @@ const struct c_common_resword c_common_reswords[] =
   /* Concepts-related keywords */
   { "concept",		RID_CONCEPT,	D_CXX_CONCEPTS_FLAGS | D_CXXWARN },
   { "requires", 	RID_REQUIRES,	D_CXX_CONCEPTS_FLAGS | D_CXXWARN },
+
+  /* Modules-related keywords, these are internal unspellable tokens,
+     created by the preprocessor.  */
+  { "module ",		RID__MODULE,	D_CXX_MODULES_FLAGS | D_CXXWARN },
+  { "import ",		RID__IMPORT,	D_CXX_MODULES_FLAGS | D_CXXWARN },
+  { "export ",		RID__EXPORT,	D_CXX_MODULES_FLAGS | D_CXXWARN },
 
   /* Coroutines-related keywords */
   { "co_await",		RID_CO_AWAIT,	D_CXX_COROUTINES_FLAGS | D_CXXWARN },

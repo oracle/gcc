@@ -6454,11 +6454,7 @@ package body Sem_Util is
                        and then Etype (First_Formal (Id)) =
                                 Etype (Next_Formal (First_Formal (Id)))
                      then
-                        if No (Eq_Prims_List) then
-                           Eq_Prims_List := New_Elmt_List;
-                        end if;
-
-                        Append_Elmt (Id, Eq_Prims_List);
+                        Append_New_Elmt (Id, Eq_Prims_List);
                      end if;
                   end if;
                end if;
@@ -8292,6 +8288,13 @@ package body Sem_Util is
                   else
                      Set_Name_Entity_Id (Chars (E), Homonym (E));
                   end if;
+
+                  --  The inherited operation cannot be retrieved
+                  --  by name, even though it may remain accesssible
+                  --  in some cases involving subprogram bodies without
+                  --  specs appearing in with_clauses..
+
+                  Set_Is_Immediately_Visible (E, False);
                end if;
             end;
 
@@ -12729,12 +12732,11 @@ package body Sem_Util is
    ----------------------------------
 
    function Has_Non_Trivial_Precondition (Subp : Entity_Id) return Boolean is
-      Pre : constant Node_Id := Find_Aspect (Subp, Aspect_Pre);
-
+      Pre : constant Node_Id := Find_Aspect (Subp, Aspect_Pre,
+                                             Class_Present => True);
    begin
       return
         Present (Pre)
-          and then Class_Present (Pre)
           and then not Is_Entity_Name (Expression (Pre));
    end Has_Non_Trivial_Precondition;
 
@@ -22456,11 +22458,7 @@ package body Sem_Util is
       function Search_Decl (N : Node_Id) return Traverse_Result is
       begin
          if Nkind (N) in N_Declaration then
-            if No (Decls) then
-               Decls := New_Elmt_List;
-            end if;
-
-            Append_Elmt (N, Decls);
+            Append_New_Elmt (N, Decls);
          end if;
 
          return OK;
@@ -26186,7 +26184,8 @@ package body Sem_Util is
      (Typ      : Entity_Id;
       From_Typ : Entity_Id)
    is
-      DIC_Proc : Entity_Id;
+      DIC_Proc         : Entity_Id;
+      Partial_DIC_Proc : Entity_Id;
 
    begin
       if Present (Typ) and then Present (From_Typ) then
@@ -26207,6 +26206,7 @@ package body Sem_Util is
          end if;
 
          DIC_Proc := DIC_Procedure (From_Typ);
+         Partial_DIC_Proc := Partial_DIC_Procedure (From_Typ);
 
          --  The setting of the attributes is intentionally conservative. This
          --  prevents accidental clobbering of enabled attributes.
@@ -26221,6 +26221,12 @@ package body Sem_Util is
 
          if Present (DIC_Proc) and then No (DIC_Procedure (Typ)) then
             Set_DIC_Procedure (Typ, DIC_Proc);
+         end if;
+
+         if Present (Partial_DIC_Proc)
+           and then No (Partial_DIC_Procedure (Typ))
+         then
+            Set_Partial_DIC_Procedure (Typ, Partial_DIC_Proc);
          end if;
       end if;
    end Propagate_DIC_Attributes;
