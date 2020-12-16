@@ -349,13 +349,8 @@ package body Ch12 is
       --  Ada 2005: an association can be given by: others => <>
 
       if Token = Tok_Others then
-         if Ada_Version < Ada_2005 then
-            Error_Msg_SP
-              ("partial parameterization of formal packages"
-               & " is an Ada 2005 extension");
-            Error_Msg_SP
-              ("\unit must be compiled with -gnat05 switch");
-         end if;
+         Error_Msg_Ada_2005_Extension
+           ("partial parameterization of formal package");
 
          Scan;  --  past OTHERS
 
@@ -428,12 +423,12 @@ package body Ch12 is
 
    procedure P_Formal_Object_Declarations (Decls : List_Id) is
       Decl_Node        : Node_Id;
-      Ident            : Nat;
+      Ident            : Pos;
       Not_Null_Present : Boolean := False;
-      Num_Idents       : Nat;
+      Num_Idents       : Pos;
       Scan_State       : Saved_Scan_State;
 
-      Idents : array (Int range 1 .. 4096) of Entity_Id;
+      Idents : array (Pos range 1 .. 4096) of Entity_Id;
       --  This array holds the list of defining identifiers. The upper bound
       --  of 4096 is intended to be essentially infinite, and we do not even
       --  bother to check for it being exceeded.
@@ -478,12 +473,8 @@ package body Ch12 is
             Set_Access_Definition (Decl_Node,
               P_Access_Definition (Not_Null_Present));
 
-            if Ada_Version < Ada_2005 then
-               Error_Msg_SP
-                 ("access definition not allowed in formal object " &
-                  "declaration");
-               Error_Msg_SP ("\unit must be compiled with -gnat05 switch");
-            end if;
+            Error_Msg_Ada_2005_Extension
+              ("access definition in formal object declaration");
 
          --  Formal object with a subtype mark
 
@@ -923,23 +914,13 @@ package body Ch12 is
          Set_Limited_Present (Def_Node);
          Scan;  --  past LIMITED
 
-         if Ada_Version < Ada_2005 then
-            Error_Msg_SP
-              ("LIMITED in derived type is an Ada 2005 extension");
-            Error_Msg_SP
-              ("\unit must be compiled with -gnat05 switch");
-         end if;
+         Error_Msg_Ada_2005_Extension ("LIMITED in derived type");
 
       elsif Token = Tok_Synchronized then
          Set_Synchronized_Present (Def_Node);
          Scan;  --  past SYNCHRONIZED
 
-         if Ada_Version < Ada_2005 then
-            Error_Msg_SP
-              ("SYNCHRONIZED in derived type is an Ada 2005 extension");
-            Error_Msg_SP
-              ("\unit must be compiled with -gnat05 switch");
-         end if;
+         Error_Msg_Ada_2005_Extension ("SYNCHRONIZED in derived type");
       end if;
 
       if Token = Tok_Abstract then
@@ -955,11 +936,7 @@ package body Ch12 is
       if Token = Tok_And then
          Scan; -- past AND
 
-         if Ada_Version < Ada_2005 then
-            Error_Msg_SP
-              ("abstract interface is an Ada 2005 extension");
-            Error_Msg_SP ("\unit must be compiled with -gnat05 switch");
-         end if;
+         Error_Msg_Ada_2005_Extension ("abstract interface");
 
          Set_Interface_List (Def_Node, New_List);
 
@@ -1190,11 +1167,7 @@ package body Ch12 is
               New_Node (N_Formal_Abstract_Subprogram_Declaration, Prev_Sloc);
             Scan; -- past ABSTRACT
 
-            if Ada_Version < Ada_2005 then
-               Error_Msg_SP
-                 ("formal abstract subprograms are an Ada 2005 extension");
-               Error_Msg_SP ("\unit must be compiled with -gnat05 switch");
-            end if;
+            Error_Msg_Ada_2005_Extension ("formal abstract subprogram");
 
          else
             Def_Node :=
@@ -1214,11 +1187,7 @@ package body Ch12 is
             Scan; -- past <>
 
          elsif Token = Tok_Null then
-            if Ada_Version < Ada_2005 then
-               Error_Msg_SP
-                 ("null default subprograms are an Ada 2005 extension");
-               Error_Msg_SP ("\unit must be compiled with -gnat05 switch");
-            end if;
+            Error_Msg_Ada_2005_Extension ("null default subprogram");
 
             if Nkind (Spec_Node) = N_Procedure_Specification then
                Set_Null_Present (Spec_Node);

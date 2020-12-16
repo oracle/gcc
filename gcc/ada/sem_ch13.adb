@@ -3408,15 +3408,11 @@ package body Sem_Ch13 is
                      --  System.Tasking, but this package does not trigger the
                      --  required initialization of the run-time library.
 
-                     declare
-                        Discard : Entity_Id;
-                     begin
-                        if Restricted_Profile then
-                           Discard := RTE (RE_Activate_Restricted_Tasks);
-                        else
-                           Discard := RTE (RE_Activate_Tasks);
-                        end if;
-                     end;
+                     if Restricted_Profile then
+                        Discard_Node (RTE (RE_Activate_Restricted_Tasks));
+                     else
+                        Discard_Node (RTE (RE_Activate_Tasks));
+                     end if;
 
                      --  Handling for these aspects in subprograms is complete
 
@@ -4149,7 +4145,8 @@ package body Sem_Ch13 is
                         --  Must not be parenthesized
 
                         if Paren_Count (Expr) /= 0 then
-                           Error_Msg_F ("extra parentheses ignored", Expr);
+                           Error_Msg -- CODEFIX
+                             ("redundant parentheses", First_Sloc (Expr));
                         end if;
 
                         --  List of arguments is list of aggregate expressions
@@ -4430,10 +4427,21 @@ package body Sem_Ch13 is
                      goto Continue;
                   end if;
 
-                  if Nkind (Expr) /= N_Aggregate then
+                  if Nkind (Expr) /= N_Aggregate
+                    or else Null_Record_Present (Expr)
+                  then
                      Error_Msg_Name_1 := Nam;
                      Error_Msg_NE
                        ("wrong syntax for aspect `%` for &", Id, E);
+                     goto Continue;
+                  end if;
+
+                  --  Check that the expression is a proper aggregate (no
+                  --  parentheses).
+
+                  if Paren_Count (Expr) /= 0 then
+                     Error_Msg -- CODEFIX
+                       ("redundant parentheses", First_Sloc (Expr));
                      goto Continue;
                   end if;
 

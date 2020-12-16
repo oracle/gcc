@@ -1,3 +1,478 @@
+2020-12-15  Patrick Palka  <ppalka@redhat.com>
+
+	* pt.c (in_template_function): Inspect cfun->decl instead of
+	current_function_decl.
+
+2020-12-15  Nathan Sidwell  <nathan@acm.org>
+
+	* module.cc: Replace stubs with implementation.
+
+2020-12-15  Nathan Sidwell  <nathan@acm.org>
+
+	* Make-lang.in (CXX_AND_OBJCXX_OBJS): Add mapper-client &
+	mapper-resolver.
+	* mapper-client.h: New.
+	* mapper-client.cc: New.
+	* mapper-resolver.cc: New.
+
+2020-12-15  Nathan Sidwell  <nathan@acm.org>
+
+	* name-lookup.c (do_namespace_alias): Set originating module
+	before pushing.
+
+2020-12-11  Jason Merrill  <jason@redhat.com>
+
+	PR libstdc++/97600
+	* call.c (build_user_type_conversion_1): Avoid considering
+	conversion functions that return a clearly unsuitable type.
+
+2020-12-11  Jason Merrill  <jason@redhat.com>
+
+	* cp-tree.h (make_binding_vec): Add CXX_MEM_STAT_INFO.
+
+2020-12-11  Nathan Sidwell  <nathan@acm.org>
+
+	* config-lang.in (gtfiles): Add cp/module.cc.
+	* decl2.c (c_parse_final_cleanups): Add module support.
+	* lambda.c (record_lambda_scope): Call maybe_attach_decl.
+	* module.cc (maybe_attach_decl, lazy_load_specializations): Stubs.
+	(finish_module_procesing): Stub.
+	* pt.c (lookup_template_class_1): Lazy load specializations.
+	(instantiate_template_1): Likewise.
+
+2020-12-11  Nathan Sidwell  <nathan@acm.org>
+
+	* decl2.c (c_parse_final_cleanups): Refactor loop.
+
+2020-12-11  Nathan Sidwell  <nathan@acm.org>
+
+	* cp-tree.h (map_context_from, map_context_to): Declare.
+	* module.cc (map_context_from, map_context_to): Define.
+	* tree.c (cp_tree_equal): Check map_context_{from,to} for parm
+	context difference.  Allow NON_LVALUE_EXPR and VIEW_CONVERT_EXPR
+	with null types.
+
+2020-12-11  Nathan Sidwell  <nathan@acm.org>
+
+	* cp-lang.c (LANG_HOOKS_PREPROCESS_MAIN_FILE): Override.
+	(LANG_HOOKS_PREPROCESS_OPTIONS): Override.
+	(LANG_HOOKS_PREPROCESS_TOKEN): Override.
+	* cp-objcp-common.c (cp_register_dumps): Add module dump.
+	(cp_handle_option): New.
+	* cp-objcp-common.h (cp_handle_option): Declare.
+	(LANG_HOOKS_HANDLE_OPTION): Override.
+	* cp-tree.h (module_dump_id): Declare.
+	* module.cc (module_dump_id): Define.
+	(module_begin_main_file, handle_module_option)
+	(module_preproces_options): Stubs.
+
+2020-12-11  Nathan Sidwell  <nathan@acm.org>
+
+	* module.cc (lazy_specializations_p): Stub.
+	* name-lookup.h (append_imported_binding_slot)
+	(mergeable_namespacE_slots, lookup_class_binding)
+	(walk_module_binding, import_module_binding, set_module_binding)
+	(note_pending_specializations, load_pending_specializations)
+	(add_module_decl, add_imported_namespace): Declare.
+	(get_cxx_dialect_name): Declare.
+	(enum WMB_flags): New.
+	* name-lookup.c (append_imported_binding_slot)
+	(mergeable_namespacE_slots, lookup_class_binding)
+	(walk_module_binding, import_module_binding, set_module_binding)
+	(note_pending_specializations, load_pending_specializations)
+	(add_module_decl, add_imported_namespace): New.
+	(get_cxx_dialect_name): Make extern.
+
+2020-12-11  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/78173
+	* typeck.c (pointer_diff): Use complete_type_or_maybe_complain
+	instead of complete_type_or_else.
+
+2020-12-10  Jason Merrill  <jason@redhat.com>
+
+	* cp-tree.h (struct type_identity): New.
+	(make_temp_override): New.
+	* decl.c (grokdeclarator): Use it.
+	* except.c (maybe_noexcept_warning): Use it.
+	* parser.c (cp_parser_enum_specifier): Use it.
+	(cp_parser_parameter_declaration_clause): Use it.
+	(cp_parser_gnu_attributes_opt): Use it.
+	(cp_parser_std_attribute): Use it.
+
+2020-12-10  Nathan Sidwell  <nathan@acm.org>
+
+	* name-lookup.c (do_nonmember_using_decl): Add INSERT_P parm.
+	Deal with exporting using decls.
+	(finish_nonmember_using_decl): Examine BINDING_VECTOR.
+
+2020-12-10  Nathan Sidwell  <nathan@acm.org>
+
+	* cp-tree.h (visible_instantiation_path): Renamed.
+	* module.cc (get_originating_module_decl, lazy_load_binding)
+	(lazy_load_members, visible_instantiation_path): Stubs.
+	* name-lookup.c (STAT_TYPE_VISIBLE_P, STAT_VISIBLE): New.
+	(search_imported_binding_slot, init_global_partition)
+	(get_fixed_binding_slot): New.
+	(name_lookup::process_module_binding): New.
+	(name_lookup::search_namespace_only): Search BINDING_VECTOR.
+	(name_lookup::adl_namespace_fns): Likewise.
+	(name_lookip::search_adl): Search visible instantiation path.
+	(maybe_lazily_declare): Maybe lazy load members.
+	(implicitly_exporT_namespace): New.
+	(maybe_record_mergeable_decl): New.
+	(check_module_override): New.
+	(do_pushdecl): Deal with BINDING_VECTOR, check override.
+	(add_mergeable_namespace_entity): New.
+	(get_namespace_binding): Deal with BINDING_VECTOR.
+	(do_namespace_alias): Call set_originating_module.
+	(lookup_elaborated_type_1): Deal with BINDING_VECTOR.
+	(do_pushtag): Call set_originating_module.
+	(reuse_namespace): New.
+	(make_namespace_finish): Add FROM_IMPORT parm.
+	(push_namespace): Deal with BINDING_VECTOR & namespace reuse.
+	(maybe_save_operator_binding): Save when module CMI in play.
+	* name-lookup.h (add_mergeable_namespace_entity): Declare.
+
+2020-12-10  Nathan Sidwell  <nathan@acm.org>
+
+	* name-lookup.c: Include bitmap.h.
+	(enum binding_slots): New.
+	(maybe_add_fuzzy_binding): Return bool true if found.
+	(consider_binding_level): Add module support.
+	* module.cc (get_import_bitmap): Stub.
+
+2020-12-10  Nathan Sidwell  <nathan@acm.org>
+
+	* name-lookup.c (pop_local_binding): Check for IDENTIFIER_ANON_P.
+	(update_binding): Level may be null, don't add namespaces to
+	level.
+	(newbinding_bookkeeping): New, broken out of ...
+	(do_pushdecl): ... here, call it.  Don't push anonymous decls.
+	(pushdecl, add_using_namespace): Correct comments.
+	(do_push_nested_namespace): Remove assert.
+	(make_namespace, make_namespace_finish): New, broken out of ...
+	(push_namespace): ... here.  Call them.  Add namespace to level
+	here.
+
+2020-12-10  Nathan Sidwell  <nathan@acm.org>
+
+	* error.c (dump_module_suffix): New.
+	(dump_aggr_type, dump_simple_decl, dump_function_name): Call it.
+	* ptree.c (cxx_print_decl): Print module information.
+	* module.cc (module_name, get_importing_module): Stubs.
+
+2020-12-10  Nathan Sidwell  <nathan@acm.org>
+
+	* name-lookup.h (set_class_bindings): Return vector, take signed
+	'extra' parm.
+	* name-lookup.c (maybe_lazily_declare): Break out ...
+	(get_class_binding): .. of here, call it.
+	(find_member_slot): Adjust get_class_bindings call.
+	(set_class_bindings): Allow -ve extra.  Return the vector.
+	(set_identifier_type_value_with_scope): Remove checking assert.
+	(lookup_using_decl): Set decl's context.
+	(do_pushtag): Adjust set_identifier_type_value_with_scope handling.
+
+2020-12-09  Nathan Sidwell  <nathan@acm.org>
+
+	* parser.h (struct cp_token): Add main_source_p field.
+	* parser.c (cp_lexer_new_main): Pass thought module token filter.
+	Check macros.
+	(cp_lexer_get_preprocessor_token): Set main_source_p.
+	(enum module_parse): New.
+	(cp_parser_diagnose_invalid_type_name): Deal with unrecognized
+	module-directives.
+	(cp_parser_skip_to_closing_parenthesize_1): Skip module-directivres.
+	(cp_parser_skip_to_end_of_statement): Likewise.
+	(cp_parser_skiup_to_end_of_block_or_statement): Likewise.
+	(cp_parser_translation_unit): Add module parsing calls.
+	(cp_parser_module_name, cp_parser_module_declaration): New.
+	(cp_parser_import_declaration, cp_parser_module_export): New.
+	(cp_parser_declaration): Add module export detection.
+	(cp_parser_template_declaration): Adjust 'export' error message.
+	(cp_parser_function_definition_after_declarator): Add
+	module-specific logic.
+	* module.cc (import_module, declare_module)
+	(maybe_check_all_macros): Stubs.
+
+2020-12-09  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/97517
+	* cxx-pretty-print.c (cxx_pretty_printer::simple_type_specifier): Handle
+	NULLPTR_TYPE.
+	(pp_cxx_type_specifier_seq): Likewise.
+	(cxx_pretty_printer::type_id): Likewise.
+
+2020-12-09  Nathan Sidwell  <nathan@acm.org>
+
+	* decl.c (duplicate_decls): Add module-specific redeclaration
+	logic.
+	(cxx_init_decl_processing): Export the global namespace, maybe
+	initialize modules.
+	(start_decl): Reject local-extern in a module, adjust linkage of
+	template var.
+	(xref_tag_1): Add module-specific redeclaration logic.
+	(start_enum): Likewise.
+	(finish_enum_value_list): Export unscoped members of an exported
+	enum.
+	(grokmethod): Implement p1779 linkage of in-class defined
+	functions.
+	* decl2.c (no_linkage_error): Imports are ok.
+	(c_parse_final_cleanups): Call fini_modules.
+	* lex.c (cxx_dup_lang_specific): Clear some module flags in the
+	copy.
+	* module.cc (module_kind): Define.
+	(module_may_redeclare, set_defining_module): Stubs.
+	(init_modules): Error on modules.
+	(fini_modules): Stub.
+	* rtti.c (push_abi_namespace): Save and reset module_kind.
+	(pop_abi_namespace): Restore module kind.
+	(build_dynamic_cast_1, tinfo_base_init): Adjust.
+	* semantics.c (begin_class_definition): Add module-specific logic.
+	(expand_or_defer_fn_1): Keep bodies of more fns when modules_p.
+
+2020-12-09  Tobias Burnus  <tobias@codesourcery.com>
+
+	* parser.c (cp_parser_omp_allocate): New.
+	(cp_parser_omp_construct, cp_parser_pragma): Call it.
+
+2020-12-09  Jason Merrill  <jason@redhat.com>
+
+	PR c++/98019
+	* cvt.c (maybe_warn_nodiscard): Check c_inhibit_evaluation_warnings.
+
+2020-12-09  Jason Merrill  <jason@redhat.com>
+
+	PR c++/59238
+	* init.c (expand_default_init): Pass tf_no_cleanup when building
+	a TARGET_EXPR to go on the RHS of an INIT_EXPR.
+	* typeck.c (cp_build_modify_expr): Likewise.
+
+2020-12-08  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/98103
+	* constexpr.c (cxx_eval_dynamic_cast_fn): If the evaluating of vtable
+	yields a null pointer, give an error and return.  Use objtype.
+
+2020-12-08  Nathan Sidwell  <nathan@acm.org>
+
+	* class.c (layout_class_type): Call set_instantiating_module.
+	(build_self_reference): Likewise.
+	* decl.c (grokfndecl): Call set_originating_module.
+	(grokvardecl): Likewise.
+	(grokdeclarator): Likewise.
+	* pt.c (maybe_new_partial_specialization): Call
+	set_instantiating_module, propagate DECL_MODULE_EXPORT_P.
+	(lookup_template_class_1): Likewise.
+	(tsubst_function_decl): Likewise.
+	(tsubst_decl, instantiate_template_1): Likewise.
+	(build_template_decl): Propagate module flags.
+	(tsubst_template_dcl): Likewise.
+	(finish_concept_definition): Call set_originating_module.
+	* module.cc (set_instantiating_module, set_originating_module): Stubs.
+
+2020-12-08  Jason Merrill  <jason@redhat.com>
+
+	PR c++/96299
+	* cp-tree.h (build_new_op): Add overload that omits some parms.
+	(genericize_spaceship): Add location_t parm.
+	* constexpr.c (cxx_eval_binary_expression): Pass it.
+	* cp-gimplify.c (genericize_spaceship): Pass it.
+	* method.c (genericize_spaceship): Handle class-type arguments.
+	(build_comparison_op): Fall back to op</== when appropriate.
+
+2020-12-08  Jason Merrill  <jason@redhat.com>
+
+	* call.c (build_new_op_1): Set *overload for ambiguity.
+	(build_new_method_call_1): Likewise.
+
+2020-12-08  Bernd Edlinger  <bernd.edlinger@hotmail.de>
+
+	* decl2.c: (is_atomic_expensive_p): New helper function.
+	(build_atomic_load_byte): Rename to...
+	(build_atomic_load_type): ... and add new parameter type.
+	(get_guard_cond): Skip the atomic here if that is expensive.
+	Use the correct type for the atomic load on certain targets.
+
+2020-12-08  Nathan Sidwell  <nathan@acm.org>
+
+	* cp-tree.h (struct tinst_level): Add path & visible fields.
+	(build_cdtor_clones): Declare.
+	(match_mergeable_specialization): Use a spec_entry, add insert parm.
+	* class.c (build_cdtor_clones): Externalize.
+	* pt.c (push_tinst_level_loc): Clear new fields.
+	(match_mergeable_specialization): Adjust API.
+
+2020-12-08  Nathan Sidwell  <nathan@acm.org>
+
+	* decl2.c (start_objects): Refactor and adjust for named module
+	initializers.
+	(finish_objects): Likewise.
+	(generate_ctor_or_dtor_function): Likewise.
+	* module.cc (module_initializer_kind)
+	(module_add_import_initializers): Stubs.
+
+2020-12-08  Nathan Sidwell  <nathan@acm.org>
+
+	* Make-lang.in (MODULE_VERSION): Override when DEVPHASE not empty.
+	* module.cc: Comment.
+
+2020-12-08  Nathan Sidwell  <nathan@acm.org>
+
+	* cp-tree.h (mangle_module_substitution, mangle_identifier)
+	(mangle_module_global_init): Declare.
+	* mangle.c (struct globals): Add mod field.
+	 (mangle_module_substitution, mangle_identifier)
+	(mangle_module_global_init): Define.
+	(write_module, maybe_write_module): New.
+	(write_name): Call it.
+	(start_mangling): Clear mod field.
+	(finish_mangling_internal): Adjust.
+	* module.cc (mangle_module, mangle_module_fini)
+	(get_originating_module): Stubs.
+
+2020-12-08  Nathan Sidwell  <nathan@acm.org>
+
+	* cp-tree.h (module_token_pre, module_token_cdtor)
+	(module_token_lang): Declare.
+	* lex.c: Include langhooks.
+	(struct module_token_filter): New.
+	* cp-tree.h (module_token_pre, module_token_cdtor)
+	(module_token_lang): Define.
+	* module.cc (get_module, preprocess_module, preprocessed_module):
+	Nop stubs.
+
+2020-12-08  Nathan Sidwell  <nathan@acm.org>
+
+	* Make-lang.in (MODULE_VERSION): Define.
+	* module.cc: Add includes.
+
+2020-12-08  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/98187
+	* parser.c (cp_parser_omp_parallel): For parallel master with
+	-fopenmp-simd only, just call cp_parser_omp_master instead of
+	wrapping it in OMP_PARALLEL.
+
+2020-12-07  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/98043
+	* decl.c (pop_switch): If SWITCH_STMT_TYPE is a scoped enum type,
+	set it to the type of SWITCH_STMT_COND.
+
+2020-12-07  Nathan Sidwell  <nathan@acm.org>
+
+	* cp-tree.h (build_cplus_array_type): Add defaulted DEP parm.
+	* tree.c (set_array_type_common): Add DEP parm.
+	(build_cplus_array_type): Add DEP parm, determine dependency if
+	needed.  Mark dependency of new types.
+	(cp_build_qualified_type_real): Adjust array-building call, assert
+	no surprising dependency.
+	(strip_typedefs): Likewise.
+
+2020-12-07  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/98116
+	* typeck.c (structural_comptypes): Move early outs to comptype.
+	Always check template-alias match when comparing_specializations.
+	(comptypes): Do early out checking here.
+
+2020-12-05  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/97093
+	* constraint.cc (parameter_mapping_equivalent_p): Add some
+	sanity checks.  Clarify comment.
+	(tsubst_nested_requirement): Always perform satisfaction
+	quietly first.  If that yields an erroneous result, emit a
+	context message and replay satisfaction noisily with the
+	diagnostic normal form.
+	(finish_nested_requirement): Normalize the constraint-expression
+	twice, once with diagnostic information and once without.  Store
+	them in a TREE_LIST within the TREE_TYPE.
+	(diagnose_nested_requirement): When replaying satisfaction, use
+	the diagnostic normal form instead of renormalizing on the spot.
+
+2020-12-05  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/97093
+	* constraint.cc (struct sat_info): Define.
+	(tsubst_nested_requirement): Pass a sat_info object to
+	satisfy_constraint.
+	(satisfy_constraint_r): Take a sat_info argument instead of
+	subst_info.
+	(satisfy_conjunction): Likewise.
+	(satisfy_disjunction): Likewise.  Instead of first evaluating
+	each branch quietly, evaluate each branch only with
+	unsatisfaction diagnostics disabled.  Exit early if evaluation
+	of a branch returns error_mark_node.
+	(satisfy_atom): Take a sat_info argument instead of subst_info.
+	Fix a comment.  Check diagnose_unsatisfaction_p() instead of
+	noisy() before replaying a substitution failure.
+	(satisfy_constraint): Take a sat_info argument instead of
+	subst_info.
+	(satisfy_associated_constraints): Likewise.
+	(satisfy_constraint_expression): Likewise.
+	(satisfy_declaration_constraints): Likewise.
+	(constraint_satisfaction_value): Likewise and adjust
+	accordingly.  Fix formatting.
+	(constraints_satisfied_p): Pass a sat_info object to
+	constraint_satisfaction_value.
+	(evaluate_concept_check): Pass a sat_info object to
+	satisfy_constraint_expression.
+	(diagnose_nested_requirement): Likewise.
+	(diagnose_constraints): Pass an appropriate sat_info object to
+	constraint_satisfaction_value.
+
+2020-12-05  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/98122
+	* constexpr.c (cxx_union_active_member): New function.
+	(cxx_fold_indirect_ref_1): Add ctx argument, pass it through to
+	recursive call.  Handle UNION_TYPE.
+	(cxx_fold_indirect_ref): Add ctx argument, pass it to recursive calls
+	and cxx_fold_indirect_ref_1.
+	(cxx_eval_indirect_ref): Adjust cxx_fold_indirect_ref calls.
+
+2020-12-04  Jason Merrill  <jason@redhat.com>
+
+	PR c++/93083
+	* pt.c (convert_template_argument): Handle equivalent placeholders.
+	(do_class_deduction): Look through EXPR_PACK_EXPANSION, too.
+
+2020-12-04  Jason Merrill  <jason@redhat.com>
+
+	* decl2.c (clear_consteval_vfns): Remove *.
+	* pt.c (do_auto_deduction): Remove *.
+	* parser.c (cp_parser_late_parsing_default_args): Change loop
+	to use range 'for'.
+
+2020-12-04  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/98116
+	* cp-tree.h (comparing_typenames): Delete.
+	(cplus_build_array_type): Remove default parm.
+	* pt.c (comparing_typenames): Delete.
+	(spec_hasher::equal): Don't increment it.
+	* tree.c (set_array_type_canon): Remove dep parm.
+	(build_cplus_array_type): Remove dep parm changes.
+	(cp_build_qualified_type_real): Remove dependent array type
+	changes.
+	(strip_typedefs): Likewise.
+	* typeck.c (structural_comptypes): Revert comparing_typename
+	changes.
+
+2020-12-04  Nathan Sidwell  <nathan@acm.org>
+
+	* cp-tree.h: Add various inline module state predicates, and
+	declare the API that will be provided by modules.cc
+
+2020-12-04  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/80780
+	* cp-gimplify.c (fold_builtin_source_location): Use 2 instead of 0
+	as last argument to cxx_printable_name.
+
 2020-12-03  Jason Merrill  <jason@redhat.com>
 
 	* cp-tree.h (releasing_vec::operator[]): Change parameter type to

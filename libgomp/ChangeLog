@@ -1,3 +1,17 @@
+2020-12-09  Andrew Stubbs  <ams@codesourcery.com>
+
+	* plugin/plugin-gcn.c: Include hsa_ext_amd.h.
+	(HSA_AMD_AGENT_INFO_COMPUTE_UNIT_COUNT): Delete redundant definition.
+
+2020-12-08  Tobias Burnus  <tobias@codesourcery.com>
+
+	* testsuite/libgomp.fortran/scan-1.f90: New test.
+
+2020-12-05  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR target/97865
+	* configure: Regenerate.
+
 2020-11-29  John David Anglin  <danglin@gcc.gnu.org>
 
 	* configure: Regenerate.

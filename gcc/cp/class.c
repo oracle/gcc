@@ -4920,7 +4920,7 @@ build_clone (tree fn, tree name, bool need_vtt_parm_p,
 /* Build the clones of FN, return the number of clones built.  These
    will be inserted onto DECL_CHAIN of FN.  */
 
-static void
+void
 build_cdtor_clones (tree fn, bool needs_vtt_p, bool base_omits_inherited_p,
 		    bool update_methods)
 {
@@ -6758,6 +6758,8 @@ layout_class_type (tree t, tree *virtuals_p)
 
       TYPE_CONTEXT (base_t) = t;
       DECL_CONTEXT (base_d) = t;
+
+      set_instantiating_module (base_d);
 
       /* If the ABI version is not at least two, and the last
 	 field was a bit-field, RLI may not be on a byte
@@ -8738,6 +8740,7 @@ build_self_reference (void)
   DECL_ARTIFICIAL (decl) = 1;
   SET_DECL_SELF_REFERENCE_P (decl);
   set_underlying_type (decl);
+  set_instantiating_module (decl);  
 
   if (processing_template_decl)
     decl = push_template_decl (decl);

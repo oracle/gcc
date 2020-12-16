@@ -147,11 +147,12 @@ along with GCC; see the file COPYING3.  If not see
 #define m_BDVER4 (HOST_WIDE_INT_1U<<PROCESSOR_BDVER4)
 #define m_ZNVER1 (HOST_WIDE_INT_1U<<PROCESSOR_ZNVER1)
 #define m_ZNVER2 (HOST_WIDE_INT_1U<<PROCESSOR_ZNVER2)
+#define m_ZNVER3 (HOST_WIDE_INT_1U<<PROCESSOR_ZNVER3)
 #define m_BTVER1 (HOST_WIDE_INT_1U<<PROCESSOR_BTVER1)
 #define m_BTVER2 (HOST_WIDE_INT_1U<<PROCESSOR_BTVER2)
 #define m_BDVER	(m_BDVER1 | m_BDVER2 | m_BDVER3 | m_BDVER4)
 #define m_BTVER (m_BTVER1 | m_BTVER2)
-#define m_ZNVER	(m_ZNVER1 | m_ZNVER2)
+#define m_ZNVER	(m_ZNVER1 | m_ZNVER2 | m_ZNVER3)
 #define m_AMD_MULTIPLE (m_ATHLON_K8 | m_AMDFAM10 | m_BDVER | m_BTVER \
 			| m_ZNVER)
 
@@ -745,6 +746,7 @@ static const struct processor_costs *processor_cost_table[] =
   &btver1_cost,
   &btver2_cost,
   &znver1_cost,
+  &znver2_cost,
   &znver2_cost
 };
 
@@ -1372,6 +1374,14 @@ ix86_valid_target_attribute_tree (tree fndecl, tree args,
       /* Add any builtin functions with the new isa if any.  */
       ix86_add_new_builtins (opts->x_ix86_isa_flags, opts->x_ix86_isa_flags2);
 
+      enum excess_precision orig_ix86_excess_precision
+	= opts->x_ix86_excess_precision;
+      bool orig_ix86_unsafe_math_optimizations
+	= opts->x_ix86_unsafe_math_optimizations;
+      opts->x_ix86_excess_precision = opts->x_flag_excess_precision;
+      opts->x_ix86_unsafe_math_optimizations
+	= opts->x_flag_unsafe_math_optimizations;
+
       /* Save the current options unless we are validating options for
 	 #pragma.  */
       t = build_target_option_node (opts, opts_set);
@@ -1380,6 +1390,9 @@ ix86_valid_target_attribute_tree (tree fndecl, tree args,
       opts->x_ix86_tune_string = orig_tune_string;
       opts_set->x_ix86_fpmath = orig_fpmath_set;
       opts_set->x_prefer_vector_width_type = orig_pvw_set;
+      opts->x_ix86_excess_precision = orig_ix86_excess_precision;
+      opts->x_ix86_unsafe_math_optimizations
+	= orig_ix86_unsafe_math_optimizations;
 
       release_options_strings (option_strings);
     }
@@ -1871,9 +1884,7 @@ ix86_option_override_internal (bool main_args_p,
 	     as -mtune=generic.  With native compilers we won't see the
 	     -mtune=native, as it was changed by the driver.  */
       if (!strcmp (opts->x_ix86_tune_string, "native"))
-	{
-	  opts->x_ix86_tune_string = "generic";
-	}
+	opts->x_ix86_tune_string = "generic";
       else if (!strcmp (opts->x_ix86_tune_string, "x86-64"))
         warning (OPT_Wdeprecated,
 		 main_args_p
@@ -1895,10 +1906,12 @@ ix86_option_override_internal (bool main_args_p,
 
       /* opts->x_ix86_tune_string is set to opts->x_ix86_arch_string
 	 or defaulted.  We need to use a sensible tune option.  */
-      if (!strcmp (opts->x_ix86_tune_string, "x86-64"))
-	{
-	  opts->x_ix86_tune_string = "generic";
-	}
+      if (!strncmp (opts->x_ix86_tune_string, "x86-64", 6)
+	  && (opts->x_ix86_tune_string[6] == '\0'
+	      || (!strcmp (opts->x_ix86_tune_string + 6, "-v2")
+		  || !strcmp (opts->x_ix86_tune_string + 6, "-v3")
+		  || !strcmp (opts->x_ix86_tune_string + 6, "-v4"))))
+	opts->x_ix86_tune_string = "generic";
     }
 
   if (opts->x_ix86_stringop_alg == rep_prefix_8_byte
@@ -2068,17 +2081,6 @@ ix86_option_override_internal (bool main_args_p,
 	  {
 	    error ("CPU you selected does not support x86-64 "
 		   "instruction set");
-	    return false;
-	  }
-
-	/* The feature-only micro-architecture levels that use
-	   PTA_NO_TUNE are only defined for the x86-64 psABI.  */
-	if ((processor_alias_table[i].flags & PTA_NO_TUNE) != 0
-	    && (!TARGET_64BIT_P (opts->x_ix86_isa_flags)
-		|| opts->x_ix86_abi != SYSV_ABI))
-	  {
-	    error (G_("%qs architecture level is only defined"
-		      " for the x86-64 psABI"), opts->x_ix86_arch_string);
 	    return false;
 	  }
 
@@ -3017,8 +3019,14 @@ ix86_option_override_internal (bool main_args_p,
   /* Save the initial options in case the user does function specific
      options.  */
   if (main_args_p)
-    target_option_default_node = target_option_current_node
-      = build_target_option_node (opts, opts_set);
+    {
+      opts->x_ix86_excess_precision
+	= opts->x_flag_excess_precision;
+      opts->x_ix86_unsafe_math_optimizations
+	= opts->x_flag_unsafe_math_optimizations;
+      target_option_default_node = target_option_current_node
+        = build_target_option_node (opts, opts_set);
+    }
 
   if (opts->x_flag_cf_protection != CF_NONE)
     opts->x_flag_cf_protection
@@ -3317,6 +3325,24 @@ ix86_set_current_function (tree fndecl)
     {
       cl_target_option_restore (&global_options, &global_options_set,
 				TREE_TARGET_OPTION (new_tree));
+      if (TREE_TARGET_GLOBALS (new_tree))
+	restore_target_globals (TREE_TARGET_GLOBALS (new_tree));
+      else if (new_tree == target_option_default_node)
+	restore_target_globals (&default_target_globals);
+      else
+	TREE_TARGET_GLOBALS (new_tree) = save_target_globals_default_opts ();
+    }
+  else if (flag_unsafe_math_optimizations
+	   != TREE_TARGET_OPTION (new_tree)->x_ix86_unsafe_math_optimizations
+	   || (flag_excess_precision
+	       != TREE_TARGET_OPTION (new_tree)->x_ix86_excess_precision))
+    {
+      cl_target_option_restore (&global_options, &global_options_set,
+				TREE_TARGET_OPTION (new_tree));
+      ix86_excess_precision = flag_excess_precision;
+      ix86_unsafe_math_optimizations = flag_unsafe_math_optimizations;
+      DECL_FUNCTION_SPECIFIC_TARGET (fndecl) = new_tree
+	= build_target_option_node (&global_options, &global_options_set);
       if (TREE_TARGET_GLOBALS (new_tree))
 	restore_target_globals (TREE_TARGET_GLOBALS (new_tree));
       else if (new_tree == target_option_default_node)

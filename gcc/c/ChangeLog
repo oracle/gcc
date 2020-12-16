@@ -1,3 +1,27 @@
+2020-12-14  Martin Liska  <mliska@suse.cz>
+
+	PR sanitizer/98204
+	* c-typeck.c (pointer_diff): Do not emit a top-level
+	sanitization.
+	(build_binary_op): Likewise.
+
+2020-12-09  Tobias Burnus  <tobias@codesourcery.com>
+
+	* c-parser.c (c_parser_omp_allocate): New.
+	(c_parser_omp_construct): Call it.
+
+2020-12-09  Richard Biener  <rguenther@suse.de>
+
+	PR c/98200
+	* gimple-parser.c (c_parser_gimple_postfix_expression): Return
+	early on error.
+
+2020-12-07  Martin Uecker  <muecker@gwdg.de>
+
+	PR c/97981
+	* c-typeck.c (convert_lvalue_to_rvalue): Move the code
+	that drops qualifiers to the end of the function.
+
 2020-11-26  Martin Uecker  <muecker@gwdg.de>
 
 	PR c/65455

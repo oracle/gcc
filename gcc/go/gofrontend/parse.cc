@@ -1442,6 +1442,7 @@ Parse::const_decl()
 void
 Parse::const_spec(int iota, Type** last_type, Expression_list** last_expr_list)
 {
+  Location loc = this->location();
   Typed_identifier_list til;
   this->identifier_list(&til);
 
@@ -1466,7 +1467,11 @@ Parse::const_spec(int iota, Type** last_type, Expression_list** last_expr_list)
       for (Expression_list::const_iterator p = (*last_expr_list)->begin();
 	   p != (*last_expr_list)->end();
 	   ++p)
-	expr_list->push_back((*p)->copy());
+	{
+	  Expression* copy = (*p)->copy();
+	  copy->set_location(loc);
+	  expr_list->push_back(copy);
+	}
     }
   else
     {
@@ -2070,6 +2075,7 @@ Parse::create_dummy_global(Type* type, Expression* init,
   if (type == NULL && init == NULL)
     type = Type::lookup_bool_type();
   Variable* var = new Variable(type, init, true, false, false, location);
+  var->set_is_global_sink();
   static int count;
   char buf[30];
   snprintf(buf, sizeof buf, "_.%d", count);

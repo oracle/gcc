@@ -90,7 +90,7 @@ AC_SYS_LARGEFILE
 GLIBCXX_CONFIGURE
 
 # Libtool setup.
-if test "x${with_newlib}" != "xyes"; then
+if test "x${with_newlib}" != "xyes" && test "x${with_avrlibc}" != "xyes"; then
   AC_LIBTOOL_DLOPEN
 fi
 AM_PROG_LIBTOOL
@@ -183,7 +183,6 @@ GLIBCXX_ENABLE_VTABLE_VERIFY([no])
 # Checks for operating systems support that doesn't require linking.
 GLIBCXX_CHECK_STDIO_PROTO
 GLIBCXX_CHECK_MATH11_PROTO
-GLIBCXX_CHECK_SYSTEM_ERROR
 GLIBCXX_CHECK_UCHAR_H
 
 # For the streamoff typedef.

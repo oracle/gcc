@@ -67,7 +67,7 @@ class Backend_name
  public:
   Backend_name()
     : prefix_(NULL), components_(), count_(0), suffix_(),
-      is_asm_name_(false)
+      is_asm_name_(false), is_non_identifier_(false)
   {}
 
   // Set the prefix.  Prefixes are always constant strings.
@@ -120,6 +120,18 @@ class Backend_name
     this->is_asm_name_ = true;
   }
 
+  // Whether some component includes some characters that can't appear
+  // in an identifier.
+  bool
+  is_non_identifier() const
+  { return this->is_non_identifier_; }
+
+  // Record that some component includes some character that can't
+  // appear in an identifier.
+  void
+  set_is_non_identifier()
+  { this->is_non_identifier_ = true; }
+
   // Get the user visible name.
   std::string
   name() const;
@@ -150,6 +162,9 @@ class Backend_name
   std::string suffix_;
   // True if components_[0] is an assembler name specified by the user.
   bool is_asm_name_;
+  // True if some component includes some character that can't
+  // normally appear in an identifier.
+  bool is_non_identifier_;
 };
 
 // An initialization function for an imported package.  This is a
@@ -2098,6 +2113,20 @@ class Variable
   is_varargs_parameter() const
   { return this->is_varargs_parameter_; }
 
+  // Return whether this is a global sink variable, created only to
+  // run an initializer.
+  bool
+  is_global_sink() const
+  { return this->is_global_sink_; }
+
+  // Record that this is a global sink variable.
+  void
+  set_is_global_sink()
+  {
+    go_assert(this->is_global_);
+    this->is_global_sink_ = true;
+  }
+
   // Whether this variable's address is taken.
   bool
   is_address_taken() const
@@ -2325,6 +2354,9 @@ class Variable
   bool is_receiver_ : 1;
   // Whether this is the varargs parameter of a function.
   bool is_varargs_parameter_ : 1;
+  // Whether this is a global sink variable created to run an
+  // initializer.
+  bool is_global_sink_ : 1;
   // Whether this variable is ever referenced.
   bool is_used_ : 1;
   // Whether something takes the address of this variable.  For a
