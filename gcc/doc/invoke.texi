@@ -19989,7 +19989,7 @@ Permissible names are: @samp{arm7tdmi}, @samp{arm7tdmi-s}, @samp{arm710t},
 @samp{cortex-a32}, @samp{cortex-a35}, @samp{cortex-a53}, @samp{cortex-a55},
 @samp{cortex-a57}, @samp{cortex-a72}, @samp{cortex-a73}, @samp{cortex-a75},
 @samp{cortex-a76}, @samp{cortex-a76ae}, @samp{cortex-a77},
-@samp{cortex-a78}, @samp{cortex-a78ae},
+@samp{cortex-a78}, @samp{cortex-a78ae}, @samp{cortex-a78c},
 @samp{ares}, @samp{cortex-r4}, @samp{cortex-r4f},
 @samp{cortex-r5}, @samp{cortex-r7}, @samp{cortex-r8}, @samp{cortex-r52},
 @samp{cortex-m0}, @samp{cortex-m0plus}, @samp{cortex-m1}, @samp{cortex-m3},
@@ -28172,7 +28172,7 @@ the backchain is placed into the topmost word of the 96/160 byte register
 save area.
 
 In general, code compiled with @option{-mbackchain} is call-compatible with
-code compiled with @option{-mmo-backchain}; however, use of the backchain
+code compiled with @option{-mno-backchain}; however, use of the backchain
 for debugging purposes usually requires that the whole binary is built with
 @option{-mbackchain}.  Note that the combination of @option{-mbackchain},
 @option{-mpacked-stack} and @option{-mhard-float} is not supported.  In order
@@ -32890,6 +32890,13 @@ Declarations with explicit language linkage (@code{extern "C"} or
 the purview of a named module.  This is not implemented.  Such
 declarations will be attached to the module, if any, in which they are
 declared.
+
+@item Standard Library Header Units
+The Standard Library is not provided as importable header units.  If
+you want to import such units, you must explicitly build them first.
+If you do not do this with care, you may have multiple declarations,
+which the module machinery must merge---compiler resource usage can be
+affected by how you partition header files into header units.
 
 @end table
 

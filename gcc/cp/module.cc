@@ -207,6 +207,8 @@ Classes used:
 
 #define _DEFAULT_SOURCE 1 /* To get TZ field of struct tm, if available.  */
 #include "config.h"
+#define INCLUDE_STRING
+#define INCLUDE_VECTOR
 #include "system.h"
 #include "coretypes.h"
 #include "cp-tree.h"
@@ -252,8 +254,22 @@ Classes used:
 #endif
 #endif
 
-#if !HOST_HAS_O_CLOEXEC
+/* Some open(2) flag differences, what a colourful world it is!  */
+#if defined (O_CLOEXEC)
+// OK
+#elif defined (_O_NOINHERIT)
+/* Windows' _O_NOINHERIT matches O_CLOEXEC flag */
+#define O_CLOEXEC _O_NOINHERIT
+#else
 #define O_CLOEXEC 0
+#endif
+#if defined (O_BINARY)
+// Ok?
+#elif defined (_O_BINARY)
+/* Windows' open(2) call defaults to text!  */
+#define O_BINARY _O_BINARY
+#else
+#define O_BINARY 0
 #endif
 
 static inline cpp_hashnode *cpp_node (tree id)
@@ -1596,7 +1612,7 @@ elf_in::defrost (const char *name)
   gcc_checking_assert (is_frozen ());
   struct stat stat;
 
-  fd = open (name, O_RDONLY | O_CLOEXEC);
+  fd = open (name, O_RDONLY | O_CLOEXEC | O_BINARY);
   if (fd < 0 || fstat (fd, &stat) < 0)
     set_error (errno);
   else
@@ -2718,7 +2734,7 @@ uintset<T>::hash::add (typename uintset<T>::hash::key_t key, T value)
 	{
 	  unsigned n = set->num * 2;
 	  size_t new_size = (offsetof (uintset, values)
-			     + sizeof (uintset::values) * n);
+			     + sizeof (uintset (0u).values) * n);
 	  uintset *new_set = new (::operator new (new_size)) uintset (set);
 	  delete set;
 	  set = new_set;
@@ -2743,7 +2759,7 @@ uintset<T>::hash::create (typename uintset<T>::hash::key_t key, unsigned num,
     p2alloc++;
 
   size_t new_size = (offsetof (uintset, values)
-		     + (sizeof (uintset::values) << p2alloc));
+		     + (sizeof (uintset (0u).values) << p2alloc));
   uintset *set = new (::operator new (new_size)) uintset (key);
   set->allocp2 = p2alloc;
   set->num = num;
@@ -4679,6 +4695,7 @@ create_dirs (char *path)
 	char sep = *base;
 	*base = 0;
 	int failed = mkdir (path, S_IRWXU | S_IRWXG | S_IRWXO);
+	dump () && dump ("Mkdir ('%s') errno:=%u", path, failed ? errno : 0);
 	*base = sep;
 	if (failed
 	    /* Maybe racing with another creator (of a *different*
@@ -11357,7 +11374,8 @@ has_definition (tree decl)
       break;
 
     case VAR_DECL:
-      if (DECL_TEMPLATE_INFO (decl)
+      if (DECL_LANG_SPECIFIC (decl)
+	  && DECL_TEMPLATE_INFO (decl)
 	  && DECL_USE_TEMPLATE (decl) < 2)
 	return DECL_INITIAL (decl);
       else
@@ -18568,7 +18586,7 @@ module_state::do_import (cpp_reader *reader, bool outermost)
     {
       const char *file = maybe_add_cmi_prefix (filename);
       dump () && dump ("CMI is %s", file);
-      fd = open (file, O_RDONLY | O_CLOEXEC);
+      fd = open (file, O_RDONLY | O_CLOEXEC | O_BINARY);
       e = errno;
     }
 
@@ -19704,7 +19722,8 @@ finish_module_processing (cpp_reader *reader)
 	  if (!errorcount)
 	    for (unsigned again = 2; ; again--)
 	      {
-		fd = open (tmp_name, O_RDWR | O_CREAT | O_TRUNC | O_CLOEXEC,
+		fd = open (tmp_name,
+			   O_RDWR | O_CREAT | O_TRUNC | O_CLOEXEC | O_BINARY,
 			   S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
 		e = errno;
 		if (fd >= 0 || !again || e != ENOENT)
@@ -19729,8 +19748,17 @@ finish_module_processing (cpp_reader *reader)
 	      input_location = loc;
 	    }
 	  if (to.end ())
-	    if (rename (tmp_name, path))
-	      to.set_error (errno);
+	    {
+	      /* Some OS's do not replace NEWNAME if it already
+		 exists.  This'll have a race condition in erroneous
+		 concurrent builds.  */
+	      unlink (path);
+	      if (rename (tmp_name, path))
+		{
+		  dump () && dump ("Rename ('%s','%s') errno=%u", errno);
+		  to.set_error (errno);
+		}
+	    }
 
 	  if (to.get_error ())
 	    {
