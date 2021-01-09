@@ -1,5 +1,5 @@
 /* -*- C++ -*- Parser.
-   Copyright (C) 2000-2020 Free Software Foundation, Inc.
+   Copyright (C) 2000-2021 Free Software Foundation, Inc.
    Written by Mark Mitchell <mark@codesourcery.com>.
 
    This file is part of GCC.
@@ -665,6 +665,16 @@ cp_lexer_new_main (void)
   lexer->last_token = lexer->next_token
                       + lexer->buffer->length ()
 		      - 1;
+
+  if (lexer->buffer->length () != 1)
+    {
+      /* Set the EOF token's location to be the just after the previous
+         token's range.  That way 'at-eof' diagnostics point at something
+	 meaninful.  */
+      auto range = get_range_from_loc (line_table, tok[-1].location);
+      tok[0].location
+	= linemap_position_for_loc_and_offset (line_table, range.m_finish, 1);
+    }
 
   if (filter)
     module_token_cdtor (parse_in, filter);
@@ -13716,19 +13726,22 @@ cp_parser_module_declaration (cp_parser *parser, module_parse mp_state,
       cp_lexer_consume_token (parser->lexer);
       cp_parser_require_pragma_eol (parser, token);
 
-      if ((mp_state != MP_PURVIEW && mp_state != MP_PURVIEW_IMPORTS)
+      if (!(mp_state == MP_PURVIEW || mp_state == MP_PURVIEW_IMPORTS)
 	  || !module_interface_p () || module_partition_p ())
 	error_at (token->location,
-		  "private module fragment not permitted here");
+		  "private module fragment only permitted in purview"
+		  " of module interface or partition");
       else
 	{
 	  mp_state = MP_PRIVATE_IMPORTS;
 	  sorry_at (token->location, "private module fragment");
 	}
     }
-  else if (mp_state != MP_FIRST && mp_state != MP_GLOBAL)
+  else if (!(mp_state == MP_FIRST || mp_state == MP_GLOBAL))
     {
-      error_at (token->location, "module-declaration not permitted here");
+      /* Neither the first declaration, nor in a GMF.  */
+      error_at (token->location, "module-declaration only permitted as first"
+		" declaration, or ending a global module fragment");
     skip_eol:
       cp_parser_skip_to_pragma_eol (parser, token);
     }

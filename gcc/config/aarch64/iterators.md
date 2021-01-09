@@ -1,5 +1,5 @@
 ;; Machine description for AArch64 architecture.
-;; Copyright (C) 2009-2020 Free Software Foundation, Inc.
+;; Copyright (C) 2009-2021 Free Software Foundation, Inc.
 ;; Contributed by ARM Ltd.
 ;;
 ;; This file is part of GCC.
@@ -1290,6 +1290,11 @@
 			  (V2SI "2d") (V16QI "8h") 
 			  (V8HI "4s") (V4SI "2d")
 			  (V8HF "4s") (V4SF "2d")])
+
+;; Widened mode with half the element register suffixes for VD_BHSI/VQW/VQ_HSF.
+(define_mode_attr Vwhalf [(V8QI "4h") (V4HI "2s")
+			  (V2SI "1d") (V16QI "8h")
+			  (V8HI "4s") (V4SI "2d")])
 
 ;; SVE vector after narrowing.
 (define_mode_attr Ventype [(VNx8HI "b")

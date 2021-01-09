@@ -1,5 +1,5 @@
 /* Machine description for AArch64 architecture.
-   Copyright (C) 2009-2020 Free Software Foundation, Inc.
+   Copyright (C) 2009-2021 Free Software Foundation, Inc.
    Contributed by ARM Ltd.
 
    This file is part of GCC.
@@ -5224,8 +5224,11 @@ aarch64_expand_mov_immediate (rtx dest, rtx imm)
       switch (sty)
 	{
 	case SYMBOL_FORCE_TO_MEM:
+	  if (int_mode != ptr_mode)
+	    imm = convert_memory_address (ptr_mode, imm);
+
 	  if (const_offset != 0
-	      && targetm.cannot_force_const_mem (int_mode, imm))
+	      && targetm.cannot_force_const_mem (ptr_mode, imm))
 	    {
 	      gcc_assert (can_create_pseudo_p ());
 	      base = aarch64_force_temporary (int_mode, dest, base);
@@ -7436,7 +7439,18 @@ offset_4bit_signed_scaled_p (machine_mode mode, poly_int64 offset)
 	  && IN_RANGE (multiple, -8, 7));
 }
 
-/* Return true if OFFSET is a unsigned 6-bit value multiplied by the size
+/* Return true if OFFSET is a signed 6-bit value multiplied by the size
+   of MODE.  */
+
+static inline bool
+offset_6bit_signed_scaled_p (machine_mode mode, poly_int64 offset)
+{
+  HOST_WIDE_INT multiple;
+  return (constant_multiple_p (offset, GET_MODE_SIZE (mode), &multiple)
+	  && IN_RANGE (multiple, -32, 31));
+}
+
+/* Return true if OFFSET is an unsigned 6-bit value multiplied by the size
    of MODE.  */
 
 static inline bool
@@ -18494,11 +18508,11 @@ bool
 aarch64_sve_prefetch_operand_p (rtx op, machine_mode mode)
 {
   struct aarch64_address_info addr;
-  if (!aarch64_classify_address (&addr, op, mode, false))
+  if (!aarch64_classify_address (&addr, op, mode, false, ADDR_QUERY_ANY))
     return false;
 
   if (addr.type == ADDRESS_REG_IMM)
-    return known_eq (addr.const_offset, 0);
+    return offset_6bit_signed_scaled_p (mode, addr.const_offset);
 
   return addr.type == ADDRESS_REG_REG;
 }

@@ -1,5 +1,5 @@
 /* The analysis "engine".
-   Copyright (C) 2019-2020 Free Software Foundation, Inc.
+   Copyright (C) 2019-2021 Free Software Foundation, Inc.
    Contributed by David Malcolm <dmalcolm@redhat.com>.
 
 This file is part of GCC.
@@ -3374,6 +3374,7 @@ exploded_path::feasible_p (logger *logger, feasibility_problem **out,
   LOG_SCOPE (logger);
 
   auto_sbitmap snodes_visited (eg->get_supergraph ().m_nodes.length ());
+  bitmap_clear (snodes_visited);
 
   /* Traverse the path, updating this model.  */
   region_model model (eng->get_model_manager ());

@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2020 Free Software Foundation, Inc.
+# Copyright (C) 2007-2021 Free Software Foundation, Inc.
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -197,7 +197,7 @@ proc check_effective_target_s390_z14_hw { } {
 	int main (void)
 	{
 	    int x = 0;
-	    asm ("msgrkc %%0,%%0,%%0" : "+r" (x) : );
+	    asm ("msgrkc %0,%0,%0" : "+r" (x) : );
 	    return x;
 	}
     }] "-march=z14 -m64 -mzarch" ] } { return 0 } else { return 1 }
