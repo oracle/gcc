@@ -873,11 +873,8 @@ vect_record_max_nunits (vec_info *vinfo, stmt_vec_info stmt_info,
 
   /* If populating the vector type requires unrolling then fail
      before adjusting *max_nunits for basic-block vectorization.  */
-  poly_uint64 nunits = TYPE_VECTOR_SUBPARTS (vectype);
-  unsigned HOST_WIDE_INT const_nunits;
   if (is_a <bb_vec_info> (vinfo)
-      && (!nunits.is_constant (&const_nunits)
-	  || const_nunits > group_size))
+      && !multiple_p (group_size, TYPE_VECTOR_SUBPARTS (vectype)))
     {
       if (dump_enabled_p ())
 	dump_printf_loc (MSG_MISSED_OPTIMIZATION, vect_location,
@@ -928,6 +925,8 @@ vect_build_slp_tree_1 (vec_info *vinfo, unsigned char *swap,
   stmt_vec_info first_load = NULL, prev_first_load = NULL;
   bool first_stmt_load_p = false, load_p = false;
   bool first_stmt_phi_p = false, phi_p = false;
+  bool maybe_soft_fail = false;
+  tree soft_fail_nunits_vectype = NULL_TREE;
 
   /* For every stmt in NODE find its def stmt/s.  */
   stmt_vec_info stmt_info;
@@ -977,16 +976,24 @@ vect_build_slp_tree_1 (vec_info *vinfo, unsigned char *swap,
 
       tree nunits_vectype;
       if (!vect_get_vector_types_for_stmt (vinfo, stmt_info, &vectype,
-					   &nunits_vectype, group_size)
-	  || (nunits_vectype
-	      && !vect_record_max_nunits (vinfo, stmt_info, group_size,
-					  nunits_vectype, max_nunits)))
+					   &nunits_vectype, group_size))
 	{
 	  if (is_a <bb_vec_info> (vinfo) && i != 0)
 	    continue;
 	  /* Fatal mismatch.  */
 	  matches[0] = false;
 	  return false;
+	}
+      /* Record nunits required but continue analysis, producing matches[]
+	 as if nunits was not an issue.  This allows splitting of groups
+	 to happen.  */
+      if (nunits_vectype
+	  && !vect_record_max_nunits (vinfo, stmt_info, group_size,
+				      nunits_vectype, max_nunits))
+	{
+	  gcc_assert (is_a <bb_vec_info> (vinfo));
+	  maybe_soft_fail = true;
+	  soft_fail_nunits_vectype = nunits_vectype;
 	}
 
       gcc_assert (vectype);
@@ -1098,7 +1105,8 @@ vect_build_slp_tree_1 (vec_info *vinfo, unsigned char *swap,
 	      tree vec = TREE_OPERAND (gimple_assign_rhs1 (stmt), 0);
 	      if (!is_a <bb_vec_info> (vinfo)
 		  || TREE_CODE (vec) != SSA_NAME
-		  || !types_compatible_p (vectype, TREE_TYPE (vec)))
+		  || !operand_equal_p (TYPE_SIZE (vectype),
+				       TYPE_SIZE (TREE_TYPE (vec))))
 		{
 		  if (dump_enabled_p ())
 		    dump_printf_loc (MSG_MISSED_OPTIMIZATION, vect_location,
@@ -1338,6 +1346,23 @@ vect_build_slp_tree_1 (vec_info *vinfo, unsigned char *swap,
       && TREE_CODE_CLASS (alt_stmt_code) != tcc_reference)
     {
       *two_operators = true;
+    }
+
+  if (maybe_soft_fail)
+    {
+      unsigned HOST_WIDE_INT const_nunits;
+      if (!TYPE_VECTOR_SUBPARTS
+	    (soft_fail_nunits_vectype).is_constant (&const_nunits)
+	  || const_nunits > group_size)
+	matches[0] = false;
+      else
+	{
+	  /* With constant vector elements simulate a mismatch at the
+	     point we need to split.  */
+	  unsigned tail = group_size & (const_nunits - 1);
+	  memset (&matches[group_size - tail], 0, sizeof (bool) * tail);
+	}
+      return false;
     }
 
   return true;
@@ -1618,7 +1643,11 @@ vect_build_slp_tree_2 (vec_info *vinfo, slp_tree node,
 	  lperm.safe_push (std::make_pair (0, (unsigned)lane));
 	}
       slp_tree vnode = vect_create_new_slp_node (vNULL);
-      SLP_TREE_VECTYPE (vnode) = TREE_TYPE (vec);
+      /* ???  We record vectype here but we hide eventually necessary
+	 punning and instead rely on code generation to materialize
+	 VIEW_CONVERT_EXPRs as necessary.  We instead should make
+	 this explicit somehow.  */
+      SLP_TREE_VECTYPE (vnode) = vectype;
       SLP_TREE_VEC_DEFS (vnode).safe_push (vec);
       /* We are always building a permutation node even if it is an identity
 	 permute to shield the rest of the vectorizer from the odd node
@@ -3857,7 +3886,7 @@ vect_bb_slp_mark_live_stmts (bb_vec_info bb_vinfo, slp_tree node,
 		      mark_visited = false;
 		    else
 		      STMT_VINFO_LIVE_P (stmt_info) = false;
-		    BREAK_FROM_IMM_USE_STMT (use_iter);
+		    break;
 		  }
 	      }
 	  /* We have to verify whether we can insert the lane extract
@@ -4124,7 +4153,7 @@ vect_bb_slp_scalar_cost (vec_info *vinfo,
 			      (vect_stmt_to_vectorize (use_stmt_info)))
 		      {
 			(*life)[i] = true;
-			BREAK_FROM_IMM_USE_STMT (use_iter);
+			break;
 		      }
 		  }
 	    }
@@ -5647,6 +5676,18 @@ vectorizable_slp_permutation (vec_info *vinfo, gimple_stmt_iterator *gsi,
 	      slp_tree first_node = SLP_TREE_CHILDREN (node)[first_vec.first];
 	      tree first_def
 		= vect_get_slp_vect_def (first_node, first_vec.second);
+	      /* ???  We SLP match existing vector element extracts but
+		 allow punning which we need to re-instantiate at uses
+		 but have no good way of explicitely representing.  */
+	      if (!types_compatible_p (TREE_TYPE (first_def), vectype))
+		{
+		  gassign *conv_stmt;
+		  conv_stmt = gimple_build_assign (make_ssa_name (vectype),
+						   build1 (VIEW_CONVERT_EXPR,
+							   vectype, first_def));
+		  vect_finish_stmt_generation (vinfo, NULL, conv_stmt, gsi);
+		  first_def = gimple_assign_lhs (conv_stmt);
+		}
 	      gassign *perm_stmt;
 	      tree perm_dest = make_ssa_name (vectype);
 	      if (!identity_p)
@@ -5655,6 +5696,16 @@ vectorizable_slp_permutation (vec_info *vinfo, gimple_stmt_iterator *gsi,
 		    = SLP_TREE_CHILDREN (node)[second_vec.first];
 		  tree second_def
 		    = vect_get_slp_vect_def (second_node, second_vec.second);
+		  if (!types_compatible_p (TREE_TYPE (second_def), vectype))
+		    {
+		      gassign *conv_stmt;
+		      conv_stmt = gimple_build_assign (make_ssa_name (vectype),
+						       build1
+							 (VIEW_CONVERT_EXPR,
+							  vectype, second_def));
+		      vect_finish_stmt_generation (vinfo, NULL, conv_stmt, gsi);
+		      second_def = gimple_assign_lhs (conv_stmt);
+		    }
 		  tree mask_vec = vect_gen_perm_mask_checked (vectype, indices);
 		  perm_stmt = gimple_build_assign (perm_dest, VEC_PERM_EXPR,
 						   first_def, second_def,
