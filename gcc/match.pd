@@ -947,8 +947,18 @@ DEFINE_INT_AND_FLOAT_ROUND_FN (RINT)
  (bit_ior:c (bit_xor:c@3 @0 @1) (bit_xor:c (bit_xor:c @1 @2) @0))
  (bit_ior @3 @2))
 
-/* Simplify (~X & Y) to X ^ Y if we know that (X & ~Y) is 0.  */
 #if GIMPLE
+/* (~X | C) ^ D -> (X | C) ^ (~D ^ C) if (~D ^ C) can be simplified.  */
+(simplify
+ (bit_xor:c (bit_ior:cs (bit_not:s @0) @1) @2)
+  (bit_xor (bit_ior @0 @1) (bit_xor! (bit_not! @2) @1)))
+
+/* (~X & C) ^ D -> (X & C) ^ (D ^ C) if (D ^ C) can be simplified.  */
+(simplify
+ (bit_xor:c (bit_and:cs (bit_not:s @0) @1) @2)
+  (bit_xor (bit_and @0 @1) (bit_xor! @2 @1)))
+
+/* Simplify (~X & Y) to X ^ Y if we know that (X & ~Y) is 0.  */
 (simplify
  (bit_and (bit_not SSA_NAME@0) INTEGER_CST@1)
  (if (INTEGRAL_TYPE_P (TREE_TYPE (@0))
@@ -1109,6 +1119,18 @@ DEFINE_INT_AND_FLOAT_ROUND_FN (RINT)
 	&& wi::to_wide (@1) != wi::min_value (TYPE_PRECISION (type),
 					      SIGNED))
     (minus (plus @1 { build_minus_one_cst (type); }) @0))))
+
+/* ~(X >> Y) -> ~X >> Y if ~X can be simplified.  */
+(simplify
+ (bit_not (rshift:s @0 @1))
+  (if (!TYPE_UNSIGNED (TREE_TYPE (@0)))
+   (rshift (bit_not! @0) @1)
+   /* For logical right shifts, this is possible only if @0 doesn't
+      have MSB set and the logical right shift is changed into
+      arithmetic shift.  */
+   (if (!wi::neg_p (tree_nonzero_bits (@0)))
+    (with { tree stype = signed_type_for (TREE_TYPE (@0)); }
+     (convert (rshift (bit_not! (convert:stype @0)) @1))))))
 #endif
 
 /* x + (x & 1) -> (x + 1) & ~1 */
