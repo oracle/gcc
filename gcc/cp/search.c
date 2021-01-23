@@ -698,6 +698,14 @@ friend_accessible_p (tree scope, tree decl, tree type, tree otype)
       if (DECL_CLASS_SCOPE_P (scope)
 	  && friend_accessible_p (DECL_CONTEXT (scope), decl, type, otype))
 	return 1;
+      /* Perhaps SCOPE is a friend function defined inside a class from which
+	 DECL is accessible.  Checking this is necessary only when the class
+	 is dependent, for otherwise add_friend will already have added the
+	 class to SCOPE's DECL_BEFRIENDING_CLASSES.  */
+      if (tree fctx = DECL_FRIEND_CONTEXT (scope))
+	if (dependent_type_p (fctx)
+	    && protected_accessible_p (decl, fctx, type, otype))
+	  return 1;
     }
 
   /* Maybe scope's template is a friend.  */
@@ -902,7 +910,7 @@ struct lookup_field_info {
   const char *errstr;
 };
 
-/* Nonzero for a class member means that it is shared between all objects
+/* True for a class member means that it is shared between all objects
    of that class.
 
    [class.member.lookup]:If the resulting set of declarations are not all
@@ -912,25 +920,27 @@ struct lookup_field_info {
 
    This function checks that T contains no non-static members.  */
 
-int
+bool
 shared_member_p (tree t)
 {
-  if (VAR_P (t) || TREE_CODE (t) == TYPE_DECL \
+  if (VAR_P (t) || TREE_CODE (t) == TYPE_DECL
       || TREE_CODE (t) == CONST_DECL)
-    return 1;
+    return true;
   if (is_overloaded_fn (t))
     {
       for (ovl_iterator iter (get_fns (t)); iter; ++iter)
 	{
 	  tree decl = strip_using_decl (*iter);
-	  /* We don't expect or support dependent decls.  */
-	  gcc_assert (TREE_CODE (decl) != USING_DECL);
+	  if (TREE_CODE (decl) == USING_DECL)
+	    /* Conservatively assume a dependent using-declaration
+	       might resolve to a non-static member.  */
+	    return false;
 	  if (DECL_NONSTATIC_MEMBER_FUNCTION_P (decl))
-	    return 0;
+	    return false;
 	}
-      return 1;
+      return true;
     }
-  return 0;
+  return false;
 }
 
 /* Routine to see if the sub-object denoted by the binfo PARENT can be

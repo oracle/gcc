@@ -2837,7 +2837,8 @@ Version 14, which first appeared in G++ 10, corrects the mangling of
 the nullptr expression.
 
 Version 15, which first appeared in G++ 11, changes the mangling of
-@code{__alignof__} to be distinct from that of @code{alignof}.
+@code{__alignof__} to be distinct from that of @code{alignof}, and
+dependent operator names.
 
 See also @option{-Wabi}.
 
@@ -32749,6 +32750,7 @@ compiler uses @code{mblen} and @code{mbtowc} as defined by the default locale to
 recognize and translate multibyte characters.
 
 @item GCC_EXTRA_DIAGNOSTIC_OUTPUT
+@findex GCC_EXTRA_DIAGNOSTIC_OUTPUT
 If @env{GCC_EXTRA_DIAGNOSTIC_OUTPUT} is set to one of the following values,
 then additional text will be emitted to stderr when fix-it hints are
 emitted.  @option{-fdiagnostics-parseable-fixits} and

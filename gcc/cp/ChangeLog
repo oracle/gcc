@@ -1,3 +1,143 @@
+2021-01-22  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/96623
+	* parser.c (inject_parm_decls): Remove a redundant assignment.
+	(cp_parser_class_specifier_1): Clear current_class_{ptr,ref}
+	before calling inject_parm_decls.
+
+2021-01-22  Jason Merrill  <jason@redhat.com>
+
+	PR c++/98744
+	* call.c (make_base_init_ok): Use DECL_HAS_VTT_PARM_P.
+
+2021-01-22  Jakub Jelinek  <jakub@redhat.com>
+
+	PR sanitizer/95693
+	* init.c (build_zero_init_1): Revert the 2018-03-06 change to
+	return build_zero_cst for reference types.
+	* typeck2.c (process_init_constructor_record): Instead call
+	build_zero_cst here during error recovery instead of build_zero_init.
+
+2021-01-22  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/98545
+	* mangle.c (write_member_name): Emit abi_warn_or_compat_version_crosses
+	warnings regardless of abi_version_at_least.
+	(write_expression): When the expression is a dependent name
+	and an operator name, write "on" before writing its name.
+
+2021-01-22  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/97966
+	* pt.c (instantiate_class_template_1): Instantiate members
+	marked with attribute used only after we're done instantiating
+	the class.
+
+2021-01-21  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/71879
+	* semantics.c (finish_decltype_type): Set up a cp_unevaluated
+	sentinel at the start of the function.  Remove a now-redundant
+	manual adjustment of cp_unevaluated_operand.
+
+2021-01-21  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/98624
+	* module.cc (depset::hash::find_dependencies): Add
+	module arg.
+	(trees_out::core_vals): Check state before calling
+	write_location.
+	(sort_cluster, module_state::write): Adjust
+	find_dependencies call.
+
+2021-01-21  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/98672
+	* constexpr.c (check_for_return_continue_data): Add break_stmt member.
+	(check_for_return_continue): Also look for BREAK_STMT.  Handle
+	SWITCH_STMT by ignoring break_stmt from its body.
+	(potential_constant_expression_1) <case FOR_STMT>,
+	<case WHILE_STMT>: If the condition isn't constant true, check if
+	the loop body can contain a return stmt.
+	<case SWITCH_STMT>: Adjust check_for_return_continue_data initializer.
+	<case IF_STMT>: If recursion with tf_none is successful,
+	merge *jump_target from the branches - returns with highest priority,
+	breaks or continues lower.  If then branch is potentially constant and
+	doesn't return, check the else branch if it could return, break or
+	continue.
+
+2021-01-21  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/98530
+	* name-lookup.c (lookup_class_binding): Rearrange a stat-hack.
+
+2021-01-20  Nathan Sidwell  <nathan@acm.org>
+
+	* module.cc (bytes_in::i, bytes_in::wi): Avoid left shift of
+	signed type.
+
+2021-01-20  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/95434
+	* pt.c (tsubst) <case TEMPLATE_TYPE_PARM>: If tsubsting
+	CLASS_PLACEHOLDER_TEMPLATE yields a TEMPLATE_TEMPLATE_PARM,
+	adjust to its TEMPLATE_TEMPLATE_PARM_TEMPLATE_DECL.
+
+2021-01-20  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/82613
+	* parser.c (cp_parser_class_head): Defer access checking when
+	parsing the base-clause until all bases are seen and attached
+	to the class type.
+	* pt.c (instantiate_class_template): Likewise when substituting
+	into dependent bases.
+
+2021-01-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/98742
+	* semantics.c (finish_omp_clauses) <case OMP_CLAUSE_DETACH>: If
+	error_operand_p, remove clause without further checking.  Check
+	for non-NULL TYPE_NAME.
+
+2021-01-19  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/98659
+	* pt.c (maybe_instantiate_noexcept): Return false if FN is
+	error_mark_node.
+
+2021-01-19  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/98687
+	* name-lookup.c (push_using_decl_bindings): New, broken out of...
+	(finish_nonmember_using_decl): ...here.
+	* name-lookup.h (push_using_decl_bindings): Update declaration.
+	* pt.c (tsubst_expr): Update the call to push_using_decl_bindings.
+
+2021-01-19  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/41437
+	PR c++/58993
+	* search.c (friend_accessible_p): If scope is a hidden friend
+	defined inside a dependent class, consider access from the
+	class.
+	* parser.c (cp_parser_late_parsing_for_member): Don't push a
+	dk_no_check access state.
+
+2021-01-19  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/98333
+	* parser.c (cp_parser_class_specifier_1): Perform late-parsing
+	of NSDMIs before late-parsing of noexcept-specifiers.
+
+2021-01-19  Nathan Sidwell  <nathan@acm.org>
+
+	* module.cc (identifier): Merge overloads.
+
+2021-01-19  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/98624
+	* module.cc (trees_out::write_location): Make static.
+
 2021-01-16  Kwok Cheung Yeung  <kcy@codesourcery.com>
 
 	* parser.c (cp_parser_omp_clause_detach): New.

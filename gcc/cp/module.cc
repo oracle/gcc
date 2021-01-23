@@ -276,13 +276,10 @@ static inline cpp_hashnode *cpp_node (tree id)
 {
   return CPP_HASHNODE (GCC_IDENT_TO_HT_IDENT (id));
 }
-static inline tree identifier (cpp_hashnode *node)
+
+static inline tree identifier (const cpp_hashnode *node)
 {
-  return HT_IDENT_TO_GCC_IDENT (HT_NODE (node));
-}
-static inline const_tree identifier (const cpp_hashnode *node)
-{
-  return identifier (const_cast <cpp_hashnode *> (node));
+  return HT_IDENT_TO_GCC_IDENT (HT_NODE (const_cast<cpp_hashnode *> (node)));
 }
 
 /* During duplicate detection we need to tell some comparators that
@@ -881,9 +878,12 @@ bytes_in::i ()
 	  v &= 0xf;
 	  if (v & 0x8)
 	    v |= -1 ^ 0x7;
+	  /* unsigned necessary due to left shifts of -ve values.  */
+	  unsigned uv = unsigned (v);
 	  if ((ptr = read (++bytes)))
 	    while (bytes--)
-	      v = (v << 8) | (*ptr++ & 0xff);
+	      uv = (uv << 8) | (*ptr++ & 0xff);
+	  v = int (uv);
 	}
       else if (v & 0x40)
 	v |= -1 ^ 0x3f;
@@ -972,9 +972,12 @@ bytes_in::wi ()
 	  v &= 0xf;
 	  if (v & 0x8)
 	    v |= -1 ^ 0x7;
+	  /* unsigned necessary due to left shifts of -ve values.  */
+	  unsigned HOST_WIDE_INT uv = (unsigned HOST_WIDE_INT) v;
 	  if ((ptr = read (++bytes)))
 	    while (bytes--)
-	      v = (v << 8) | (*ptr++ & 0xff);
+	      uv = (uv << 8) | (*ptr++ & 0xff);
+	  v = (HOST_WIDE_INT) uv;
 	}
       else if (v & 0x40)
 	v |= -1 ^ 0x3f;
@@ -2561,7 +2564,7 @@ public:
     void add_class_entities (vec<tree, va_gc> *);
 
   public:    
-    void find_dependencies ();
+    void find_dependencies (module_state *);
     bool finalize_dependencies ();
     vec<depset *> connect ();
   };
@@ -3727,7 +3730,7 @@ class GTY((chain_next ("%h.parent"), for_user)) module_state {
   static cpp_macro *deferred_macro (cpp_reader *, location_t, cpp_hashnode *);
 
  public:
-  void write_location (bytes_out &, location_t);
+  static void write_location (bytes_out &, location_t);
   location_t read_location (bytes_in &) const;
 
  public:
@@ -5892,7 +5895,8 @@ trees_out::core_vals (tree t)
       if (!DECL_TEMPLATE_PARM_P (t))
 	WT (t->decl_minimal.context);
 
-      state->write_location (*this, t->decl_minimal.locus);
+      if (state)
+	state->write_location (*this, t->decl_minimal.locus);
     }
 
   if (CODE_CONTAINS_STRUCT (code, TS_TYPE_COMMON))
@@ -5995,7 +5999,8 @@ trees_out::core_vals (tree t)
 
   if (CODE_CONTAINS_STRUCT (code, TS_EXP))
     {
-      state->write_location (*this, t->exp.locus);
+      if (state)
+	state->write_location (*this, t->exp.locus);
 
       /* Walk in forward order, as (for instance) REQUIRES_EXPR has a
          bunch of unscoped parms on its first operand.  It's safer to
@@ -6134,9 +6139,12 @@ trees_out::core_vals (tree t)
 
       /* Miscellaneous common nodes.  */
     case BLOCK:
-      state->write_location (*this, t->block.locus);
-      state->write_location (*this, t->block.end_locus);
-      
+      if (state)
+	{
+	  state->write_location (*this, t->block.locus);
+	  state->write_location (*this, t->block.end_locus);
+	}
+
       /* DECL_LOCAL_DECL_P decls are first encountered here and
          streamed by value.  */
       chained_decls (t->block.vars);
@@ -6177,7 +6185,8 @@ trees_out::core_vals (tree t)
 	/* The ompcode is serialized in start.  */
 	if (streaming_p ())
 	  WU (t->omp_clause.subcode.map_kind);
-	state->write_location (*this, t->omp_clause.locus);
+	if (state)
+	  state->write_location (*this, t->omp_clause.locus);
 
 	unsigned len = omp_clause_num_ops[OMP_CLAUSE_CODE (t)];
 	for (unsigned ix = 0; ix != len; ix++)
@@ -6264,8 +6273,9 @@ trees_out::core_vals (tree t)
       WT (((lang_tree_node *)t)->lambda_expression.extra_scope);
       /* pending_proxies is a parse-time thing.  */
       gcc_assert (!((lang_tree_node *)t)->lambda_expression.pending_proxies);
-      state->write_location
-	(*this, ((lang_tree_node *)t)->lambda_expression.locus);
+      if (state)
+	state->write_location
+	  (*this, ((lang_tree_node *)t)->lambda_expression.locus);
       if (streaming_p ())
 	{
 	  WU (((lang_tree_node *)t)->lambda_expression.default_capture_mode);
@@ -6285,8 +6295,9 @@ trees_out::core_vals (tree t)
     case STATIC_ASSERT:
       WT (((lang_tree_node *)t)->static_assertion.condition);
       WT (((lang_tree_node *)t)->static_assertion.message);
-      state->write_location
-	(*this, ((lang_tree_node *)t)->static_assertion.location);
+      if (state)
+	state->write_location
+	  (*this, ((lang_tree_node *)t)->static_assertion.location);
       break;
 
     case TEMPLATE_DECL:
@@ -6318,7 +6329,8 @@ trees_out::core_vals (tree t)
 		WT (m.binfo);
 		WT (m.decl);
 		WT (m.diag_decl);
-		state->write_location (*this, m.loc);
+		if (state)
+		  state->write_location (*this, m.loc);
 	      }
 	  }
       }
@@ -13153,9 +13165,9 @@ depset::hash::add_mergeable (depset *mergeable)
    entries on the same binding that need walking.  */
 
 void
-depset::hash::find_dependencies ()
+depset::hash::find_dependencies (module_state *module)
 {
-  trees_out walker (NULL, NULL, *this);
+  trees_out walker (NULL, module, *this);
   vec<depset *> unreached;
   unreached.create (worklist.length ());
 
@@ -13541,7 +13553,7 @@ sort_cluster (depset::hash *original, depset *scc[], unsigned size)
   gcc_checking_assert (use_lwm <= bind_lwm);
   dump (dumper::MERGE) && dump ("Ordering %u/%u depsets", use_lwm, size);
 
-  table.find_dependencies ();
+  table.find_dependencies (nullptr);
 
   vec<depset *> order = table.connect ();
   gcc_checking_assert (order.length () == use_lwm);
@@ -17565,7 +17577,7 @@ module_state::write (elf_out *to, cpp_reader *reader)
     }
 
   /* Now join everything up.  */
-  table.find_dependencies ();
+  table.find_dependencies (this);
 
   if (!table.finalize_dependencies ())
     {

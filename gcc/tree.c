@@ -12638,10 +12638,13 @@ tree_inlined_location (tree exp, bool system_header /* = true */)
     }
 
   if (loc == UNKNOWN_LOCATION)
-    loc = EXPR_LOCATION (exp);
-
-  if (system_header)
-    return expansion_point_location_if_in_system_header (loc);
+    {
+      loc = EXPR_LOCATION (exp);
+      if (system_header)
+	/* Only consider macro expansion when the block traversal failed
+	   to find a location.  Otherwise it's not relevant.  */
+	return expansion_point_location_if_in_system_header (loc);
+    }
 
   return loc;
 }
@@ -14025,11 +14028,11 @@ vector_element_bits (const_tree type)
   gcc_checking_assert (VECTOR_TYPE_P (type));
   if (VECTOR_BOOLEAN_TYPE_P (type))
     {
-      if (VECTOR_MODE_P (TYPE_MODE (type)))
+      if (SCALAR_INT_MODE_P (TYPE_MODE (type)))
+	return 1;
+      else
 	return vector_element_size (tree_to_poly_uint64 (TYPE_SIZE (type)),
 				    TYPE_VECTOR_SUBPARTS (type));
-      else
-	return 1;
     }
   return tree_to_uhwi (TYPE_SIZE (TREE_TYPE (type)));
 }

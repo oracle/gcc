@@ -1,3 +1,393 @@
+2021-01-22  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/96623
+	* g++.dg/cpp0x/noexcept64.C: New test.
+
+2021-01-22  David Edelsohn  <dje.gcc@gmail.com>
+
+	* g++.dg/eh/spbp.C: Remove skip on AIX.
+
+2021-01-22  Jakub Jelinek  <jakub@redhat.com>
+
+	* gcc.target/powerpc/m128-check.h (CHECK_EXP, CHECK_FP_EXP): Fix a
+	typo, UINON_TYPE to UNION_TYPE.
+
+2021-01-22  Jakub Jelinek  <jakub@redhat.com>
+
+	* gcc.target/i386/m128-check.h (CHECK_EXP, CHECK_FP_EXP): Fix a typo,
+	UINON_TYPE to UNION_TYPE.
+	* gcc.target/i386/m256-check.h (CHECK_FP_EXP): Likewise.
+	* gcc.target/i386/m512-check.h (CHECK_ROUGH_EXP): Likewise.
+
+2021-01-22  Jakub Jelinek  <jakub@redhat.com>
+
+	* gcc.target/powerpc/m128-check.h (check_##UINON_TYPE): Add
+	optimize ("no-strict-aliasing") attribute.
+
+2021-01-22  Jason Merrill  <jason@redhat.com>
+
+	PR c++/98744
+	* g++.dg/init/elide7.C: New test.
+
+2021-01-22  Jakub Jelinek  <jakub@redhat.com>
+
+	PR sanitizer/95693
+	* g++.dg/ubsan/pr95693.C: New test.
+
+2021-01-22  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/98545
+	* g++.dg/abi/mangle76.C: New test.
+
+2021-01-22  Paul Thomas  <pault@gcc.gnu.org>
+
+	PR fortran/98565
+	* gfortran.dg/associated_target_7.f90 : New test.
+
+2021-01-22  Martin Jambor  <mjambor@suse.cz>
+
+	PR tree-optimization/47059
+	* gcc.dg/tree-ssa/pr47059.c: New test.
+
+2021-01-22  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	PR tree-optimization/98766
+	* gcc.dg/pr98766.c: New test.
+
+2021-01-22  Nathan Sidwell  <nathan@acm.org>
+
+	PR testsuite/98795
+	* g++.dg/modules/modules.exp (module_cmi_p): Avoid
+	embedded absolute paths.
+	(module_do_it): Append $std to test name.
+
+2021-01-22  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/98793
+	* gcc.dg/pr98793.c: New testcase.
+
+2021-01-22  Xionghu Luo  <luoxhu@linux.ibm.com>
+
+	* gcc.target/powerpc/pr79251.p8.c: New test.
+	* gcc.target/powerpc/fold-vec-insert-char-p8.c: Adjust
+	instruction counts.
+	* gcc.target/powerpc/fold-vec-insert-char-p9.c: Likewise.
+	* gcc.target/powerpc/fold-vec-insert-double.c: Likewise.
+	* gcc.target/powerpc/fold-vec-insert-float-p8.c: Likewise.
+	* gcc.target/powerpc/fold-vec-insert-float-p9.c: Likewise.
+	* gcc.target/powerpc/fold-vec-insert-int-p8.c: Likewise.
+	* gcc.target/powerpc/fold-vec-insert-int-p9.c: Likewise.
+	* gcc.target/powerpc/fold-vec-insert-longlong.c: Likewise.
+	* gcc.target/powerpc/fold-vec-insert-short-p8.c: Likewise.
+	* gcc.target/powerpc/fold-vec-insert-short-p9.c: Likewise.
+	* gcc.target/powerpc/vsx-builtin-7.c: Likewise.
+
+2021-01-22  Xionghu Luo  <luoxhu@linux.ibm.com>
+
+	* gcc.target/powerpc/pr79251.p9.c: New test.
+	* gcc.target/powerpc/pr79251-run.c: New test.
+	* gcc.target/powerpc/pr79251.h: New header.
+
+2021-01-22  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/98773
+	* gcc.dg/torture/pr98773.c: New testcase.
+
+2021-01-22  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/90248
+	* gcc.dg/tree-ssa/copy-sign-1.c: Don't expect any copysign
+	builtins.
+	* gcc.dg/pr90248.c: New test.
+
+2021-01-22  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/98255
+	* gcc.dg/pr98255.c: New test.
+
+2021-01-22  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/98786
+	* gcc.dg/torture/pr98786.c: New testcase.
+
+2021-01-22  Prathamesh Kulkarni  <prathamesh.kulkarni@linaro.org>
+
+	PR target/98636
+	* gcc.target/arm/pr98636.c: New test.
+
+2021-01-22  liuhongt  <hongtao.liu@intel.com>
+
+	PR target/96891
+	PR target/98348
+	* gcc.target/i386/avx512bw-pr96891-1.c: New test.
+	* gcc.target/i386/avx512f-pr96891-1.c: New test.
+	* gcc.target/i386/avx512f-pr96891-2.c: New test.
+	* gcc.target/i386/avx512f-pr96891-3.c: New test.
+	* g++.target/i386/avx512f-pr96891-1.C: New test.
+	* gcc.target/i386/bitwise_mask_op-3.c: Adjust testcase.
+
+2021-01-22  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/97966
+	* g++.dg/cpp0x/noexcept63.C: New test.
+
+2021-01-21  David Edelsohn  <dje.gcc@gmail.com>
+
+	* g++.dg/cpp2a/lambda-uneval1.C: Ignore preceding "l" and
+	intervening period.
+	* g++.dg/cpp2a/lambda-uneval5.C: Ignore preceding "l" and
+	explicitly check for intervening space, tab or period.
+
+2021-01-21  Vladimir N. Makarov  <vmakarov@redhat.com>
+
+	PR rtl-optimization/98777
+	* gcc.target/riscv/pr98777.c: New.
+
+2021-01-21  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/71879
+	* g++.dg/cpp0x/decltype-71879.C: New test.
+
+2021-01-21  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/98672
+	* g++.dg/cpp1y/constexpr-98672.C: New test.
+
+2021-01-21  Andrea Corallo  <andrea.corallo@arm.com>
+
+	PR target/96372
+	* lib/target-supports.exp
+	(check_effective_target_arm_thumb2_no_arm_v8_1_lob): Define proc.
+	* gcc.target/arm/ivopts.c: Use target
+	'arm_thumb2_no_arm_v8_1_lob'.
+
+2021-01-21  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/98530
+	* g++.dg/modules/stat-mem-1.h: New.
+	* g++.dg/modules/stat-mem-1_a.H: New.
+	* g++.dg/modules/stat-mem-1_b.C: New.
+
+2021-01-21  Paul Thomas  <pault@gcc.gnu.org>
+
+	PR fortran/96320
+	* gfortran.dg/module_procedure_5.f90 : New test.
+	* gfortran.dg/module_procedure_6.f90 : New test.
+
+2021-01-21  Richard Biener  <rguenther@suse.de>
+
+	PR testsuite/97299
+	* gcc.dg/vect/slp-reduc-3.c: Amend target selectors.
+
+2021-01-21  Richard Biener  <rguenther@suse.de>
+
+	PR testsuite/98241
+	* gcc.dg/pr78973.c: Remove ilp32 XFAIL.
+
+2021-01-21  Richard Biener  <rguenther@suse.de>
+
+	* gcc.dg/Walloca-2.c: Un-XFAIL.
+
+2021-01-21  liuhongt  <hongtao.liu@intel.com>
+
+	PR rtl-optimization/98694
+	* gcc.target/i386/pr98694.c: New test.
+
+2021-01-20  Andrew MacLeod  <amacleod@redhat.com>
+
+	* gcc.dg/torture/ftrapv-2.c: Make overflow instruction unremovable.
+
+2021-01-20  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* gcc.target/aarch64/vdup_lane_2.c: Scan for fmov rather than
+	dup.
+
+2021-01-20  Vladimir N. Makarov  <vmakarov@redhat.com>
+
+	PR rtl-optimization/98722
+	* g++.target/s390/pr98722.C: New.
+
+2021-01-20  Eugene Rozenfeld  <erozen@microsoft.com>
+
+	PR tree-optimization/96674
+	* gcc.dg/pr96674.c: New tests.
+
+2021-01-20  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/95434
+	* g++.dg/cpp2a/lambda-generic9.C: New test.
+
+2021-01-20  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/82613
+	* g++.dg/parse/access12.C: New test.
+	* g++.dg/template/access35.C: New test.
+
+2021-01-20  Richard Sandiford  <richard.sandiford@arm.com>
+
+	PR tree-optimization/98535
+	* gcc.target/aarch64/sve/pr98535.c: New file.
+
+2021-01-20  Tobias Burnus  <tobias@codesourcery.com>
+
+	PR fortran/98763
+	* gfortran.dg/gomp/task-detach-1.f90: Use integer(1) to avoid
+	missing diagnostic issues with c_intptr_t == default integer kind.
+
+2021-01-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/98721
+	* gcc.dg/pr98721-1.c: New test.
+	* gcc.dg/pr98721-2.c: New test.
+
+2021-01-20  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/98758
+	* gcc.dg/torture/pr98758.c: New testcase.
+
+2021-01-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/98742
+	* c-c++-common/gomp/task-detach-2.c: New test.
+
+2021-01-20  Tobias Burnus  <tobias@codesourcery.com>
+
+	PR fortran/98757
+	PR fortran/98476
+	* gfortran.dg/gomp/is_device_ptr-2.f90: Fix dg-error.
+
+2021-01-19  David Edelsohn  <dje.gcc@gmail.com>
+
+	* gcc.dg/cpp/ucs.c: Expect Invalid warning for 2byte wchar.
+	* gcc.dg/debug/dwarf2/inline6.c: Remove skip AIX.
+	* gcc.dg/debug/dwarf2/lang-c11.c: Remove skip AIX.
+	* gcc.dg/debug/dwarf2/pr41445-7.c: Remove skip AIX.
+	* gcc.dg/debug/dwarf2/pr41445-8.c: Remove skip AIX.
+	* gcc.dg/tree-ssa/builtin-sprintf-warn-20.c: Require 4byte wchar.
+
+2021-01-19  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/98659
+	* g++.dg/template/deduce8.C: New test.
+
+2021-01-19  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/98687
+	* g++.dg/lookup/using64.C: New test.
+	* g++.dg/lookup/using65.C: New test.
+
+2021-01-19  Martin Sebor  <msebor@redhat.com>
+
+	PR middle-end/98664
+	* gcc.dg/Wvla-larger-than-4.c: Adjust expected output.
+	* gcc.dg/plugin/diagnostic-test-inlining-3.c: Same.
+	* g++.dg/warn/Wfree-nonheap-object-5.C: New test.
+	* gcc.dg/Wfree-nonheap-object-4.c: New test.
+
+2021-01-19  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/41437
+	PR c++/58993
+	* g++.dg/opt/pr87974.C: Adjust.
+	* g++.dg/template/access34.C: New test.
+	* g++.dg/template/friend68.C: New test.
+	* g++.dg/template/friend69.C: New test.
+
+2021-01-19  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/98333
+	* g++.dg/cpp0x/noexcept62.C: New test.
+
+2021-01-19  Will Schmidt  <will_schmidt@vnet.ibm.com>
+
+	* gcc.target/powerpc/pr88233.c: Update dg- stanzas.
+
+2021-01-19  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* gcc.target/aarch64/advsimd-intrinsics/arm-neon-ref.h
+	(CHECK_CUMULATIVE_SAT): Delete.
+	(CHECK_CUMULATIVE_SAT_NAMED): Likewise.  Deleted related
+	variables.
+	* gcc.target/aarch64/advsimd-intrinsics/binary_sat_op.inc:
+	Remove uses of the above.
+	* gcc.target/aarch64/advsimd-intrinsics/unary_sat_op.inc:
+	Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqabs.c: Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqadd.c: Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqdmlXl.inc: Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqdmlXl_lane.inc:
+	Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqdmlXl_n.inc: Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqdmlal.c: Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqdmlal_lane.c:
+	Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqdmlal_n.c: Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqdmlsl.c: Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqdmlsl_lane.c:
+	Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqdmlsl_n.c: Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqdmulh.c: Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqdmulh_lane.c:
+	Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqdmulh_n.c: Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqdmull.c: Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqdmull_lane.c:
+	Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqdmull_n.c: Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqmovn.c: Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqmovun.c: Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqneg.c: Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqrdmlXh.inc: Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqrdmlXh_lane.inc:
+	Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqrdmlah.c: Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqrdmlah_lane.c:
+	Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqrdmlsh.c: Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqrdmlsh_lane.c:
+	Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqrdmulh.c: Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqrdmulh_lane.c:
+	Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqrdmulh_n.c: Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqrshl.c: Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqrshrn_n.c: Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqrshrun_n.c: Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqshl.c: Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqshl_n.c: Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqshlu_n.c: Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqshrn_n.c: Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqshrun_n.c: Likewise.
+	* gcc.target/aarch64/advsimd-intrinsics/vqsub.c: Likewise.
+
+2021-01-19  Jeff Law  <law@redhat.com>
+
+	* gcc.dg/debug/dwarf2/dwarf-float.c: Force dwarf-4 generation
+	and update expected output.
+
+2021-01-19  Richard Biener  <rguenther@suse.de>
+
+	PR ipa/98330
+	* g++.dg/pr98330.C: New testcase.
+	* gcc.dg/pr98330.c: Likewise.
+
+2021-01-19  Richard Biener  <rguenther@suse.de>
+
+	PR ipa/97673
+	* gfortran.dg/pr97673.f90: New testcase.
+
+2021-01-19  Tobias Burnus  <tobias@codesourcery.com>
+
+	PR fortran/98476
+	* gfortran.dg/gomp/map-3.f90: Update expected scan-dump-tree.
+	* gfortran.dg/gomp/is_device_ptr-2.f90: New test.
+	* gfortran.dg/gomp/use_device_ptr-1.f90: New test.
+
+2021-01-19  Martin Jambor  <mjambor@suse.cz>
+
+	PR ipa/98690
+	* g++.dg/ipa/pr98690.C: New test.
+
 2021-01-18  Jeff Law  <law@redhat.com>
 
 	* gcc.dg/debug/dwarf2/pr41445-7.c: Fix expected output.

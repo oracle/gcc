@@ -253,36 +253,22 @@ DEFINE_INT_AND_FLOAT_ROUND_FN (RINT)
 (for cmp (gt ge lt le)
      outp (convert convert negate negate)
      outn (negate negate convert convert)
- /* Transform (X > 0.0 ? 1.0 : -1.0) into copysign(1, X). */
- /* Transform (X >= 0.0 ? 1.0 : -1.0) into copysign(1, X). */
- /* Transform (X < 0.0 ? 1.0 : -1.0) into copysign(1,-X). */
- /* Transform (X <= 0.0 ? 1.0 : -1.0) into copysign(1,-X). */
+ /* Transform X * (X > 0.0 ? 1.0 : -1.0) into abs(X). */
+ /* Transform X * (X >= 0.0 ? 1.0 : -1.0) into abs(X). */
+ /* Transform X * (X < 0.0 ? 1.0 : -1.0) into -abs(X). */
+ /* Transform X * (X <= 0.0 ? 1.0 : -1.0) into -abs(X). */
  (simplify
-  (cond (cmp @0 real_zerop) real_onep@1 real_minus_onep)
-  (if (!HONOR_NANS (type) && !HONOR_SIGNED_ZEROS (type)
-       && types_match (type, TREE_TYPE (@0)))
-   (switch
-    (if (types_match (type, float_type_node))
-     (BUILT_IN_COPYSIGNF @1 (outp @0)))
-    (if (types_match (type, double_type_node))
-     (BUILT_IN_COPYSIGN @1 (outp @0)))
-    (if (types_match (type, long_double_type_node))
-     (BUILT_IN_COPYSIGNL @1 (outp @0))))))
- /* Transform (X > 0.0 ? -1.0 : 1.0) into copysign(1,-X). */
- /* Transform (X >= 0.0 ? -1.0 : 1.0) into copysign(1,-X). */
- /* Transform (X < 0.0 ? -1.0 : 1.0) into copysign(1,X). */
- /* Transform (X <= 0.0 ? -1.0 : 1.0) into copysign(1,X). */
+  (mult:c @0 (cond (cmp @0 real_zerop) real_onep@1 real_minus_onep))
+  (if (!HONOR_NANS (type) && !HONOR_SIGNED_ZEROS (type))
+   (outp (abs @0))))
+ /* Transform X * (X > 0.0 ? -1.0 : 1.0) into -abs(X). */
+ /* Transform X * (X >= 0.0 ? -1.0 : 1.0) into -abs(X). */
+ /* Transform X * (X < 0.0 ? -1.0 : 1.0) into abs(X). */
+ /* Transform X * (X <= 0.0 ? -1.0 : 1.0) into abs(X). */
  (simplify
-  (cond (cmp @0 real_zerop) real_minus_onep real_onep@1)
-  (if (!HONOR_NANS (type) && !HONOR_SIGNED_ZEROS (type)
-       && types_match (type, TREE_TYPE (@0)))
-   (switch
-    (if (types_match (type, float_type_node))
-     (BUILT_IN_COPYSIGNF @1 (outn @0)))
-    (if (types_match (type, double_type_node))
-     (BUILT_IN_COPYSIGN @1 (outn @0)))
-    (if (types_match (type, long_double_type_node))
-     (BUILT_IN_COPYSIGNL @1 (outn @0)))))))
+  (mult:c @0 (cond (cmp @0 real_zerop) real_minus_onep real_onep@1))
+  (if (!HONOR_NANS (type) && !HONOR_SIGNED_ZEROS (type))
+   (outn (abs @0)))))
 
 /* Transform X * copysign (1.0, X) into abs(X). */
 (simplify
@@ -2158,6 +2144,20 @@ DEFINE_INT_AND_FLOAT_ROUND_FN (RINT)
      @2)
     (if (eqne == NE_EXPR)
      { constant_boolean_node (true, type); }))))
+
+/* y == XXX_MIN || x < y --> x <= y - 1 */
+(simplify
+ (bit_ior:c (eq:s @1 min_value) (lt:s @0 @1))
+  (if (INTEGRAL_TYPE_P (TREE_TYPE (@1))
+       && TYPE_OVERFLOW_WRAPS (TREE_TYPE (@1)))
+  (le @0 (minus @1 { build_int_cst (TREE_TYPE (@1), 1); }))))
+
+/* y != XXX_MIN && x >= y --> x > y - 1 */
+(simplify
+ (bit_and:c (ne:s @1 min_value) (ge:s @0 @1))
+  (if (INTEGRAL_TYPE_P (TREE_TYPE (@1))
+       && TYPE_OVERFLOW_WRAPS (TREE_TYPE (@1)))
+  (gt @0 (minus @1 { build_int_cst (TREE_TYPE (@1), 1); }))))
 
 /* Convert (X == CST1) && (X OP2 CST2) to a known value
    based on CST1 OP2 CST2.  Similarly for (X != CST1).  */

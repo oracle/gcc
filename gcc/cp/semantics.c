@@ -2214,8 +2214,7 @@ finish_qualified_id_expr (tree qualifying_class,
     {
       /* See if any of the functions are non-static members.  */
       /* If so, the expression may be relative to 'this'.  */
-      if ((type_dependent_expression_p (expr)
-	   || !shared_member_p (expr))
+      if (!shared_member_p (expr)
 	  && current_class_ptr
 	  && DERIVED_FROM_P (qualifying_class,
 			     current_nonlambda_class_type ()))
@@ -7430,12 +7429,18 @@ finish_omp_clauses (tree clauses, enum c_omp_region_type ort)
 	      remove = true;
 	      break;
 	    }
+	  else if (error_operand_p (t))
+	    {
+	      remove = true;
+	      break;
+	    }
 	  else
 	    {
 	      tree type = TYPE_MAIN_VARIANT (TREE_TYPE (t));
 	      if (!type_dependent_expression_p (t)
 		  && (!INTEGRAL_TYPE_P (type)
 		      || TREE_CODE (type) != ENUMERAL_TYPE
+		      || TYPE_NAME (type) == NULL_TREE
 		      || (DECL_NAME (TYPE_NAME (type))
 			  != get_identifier ("omp_event_handle_t"))))
 		{
@@ -10074,6 +10079,9 @@ finish_decltype_type (tree expr, bool id_expression_or_member_access_p,
       return error_mark_node;
     }
 
+  /* decltype is an unevaluated context.  */
+  cp_unevaluated u;
+
   /* Depending on the resolution of DR 1172, we may later need to distinguish
      instantiation-dependent but not type-dependent expressions so that, say,
      A<decltype(sizeof(T))>::U doesn't require 'typename'.  */
@@ -10089,9 +10097,7 @@ finish_decltype_type (tree expr, bool id_expression_or_member_access_p,
     }
   else if (processing_template_decl)
     {
-      ++cp_unevaluated_operand;
       expr = instantiate_non_dependent_expr_sfinae (expr, complain);
-      --cp_unevaluated_operand;
       if (expr == error_mark_node)
 	return error_mark_node;
     }

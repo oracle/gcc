@@ -1,3 +1,346 @@
+2021-01-22  Jonathan Wright  <jonathan.wright@arm.com>
+
+	* config/aarch64/aarch64-simd-builtins.def: Add mla builtin
+	generator macro.
+	* config/aarch64/arm_neon.h (vmla_s8): Use RTL builtin rather
+	than asm.
+	(vmla_s16): Likewise.
+	(vmla_s32): Likewise.
+	(vmla_u8): Likewise.
+	(vmla_u16): Likewise.
+	(vmla_u32): Likewise.
+	(vmlaq_s8): Likewise.
+	(vmlaq_s16): Likewise.
+	(vmlaq_s32): Likewise.
+	(vmlaq_u8): Likewise.
+	(vmlaq_u16): Likewise.
+	(vmlaq_u32): Likewise.
+
+2021-01-22  David Malcolm  <dmalcolm@redhat.com>
+
+	* doc/invoke.texi (GCC_EXTRA_DIAGNOSTIC_OUTPUT): Add @findex
+	directive.
+
+2021-01-22  Jakub Jelinek  <jakub@redhat.com>
+
+	PR debug/98796
+	* dwarf2out.c (output_file_names): For -gdwarf-5, if there are no
+	filenames to emit, still emit the required 0 index directory and
+	filename entries that match DW_AT_comp_dir and DW_AT_name of the
+	compilation unit.
+
+2021-01-22  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/98545
+	* doc/invoke.texi: Update C++ ABI Version 15 description.
+
+2021-01-22  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	PR tree-optimization/98766
+	* tree-ssa-math-opts.c (convert_mult_to_fma): Use maybe_le when
+	comparing against type size with param_avoid_fma_max_bits.
+
+2021-01-22  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/98793
+	* tree.c (vector_element_bits): Key single-bit bool vector on
+	integer mode rather than not vector mode.
+
+2021-01-22  Xionghu Luo  <luoxhu@linux.ibm.com>
+
+	PR target/98093
+	* config/rs6000/rs6000-c.c (altivec_resolve_overloaded_builtin):
+	Generate ARRAY_REF(VIEW_CONVERT_EXPR) for P8 and later
+	platforms.
+	* config/rs6000/rs6000.c (rs6000_expand_vector_set_var): Update
+	to call different path for P8 and P9.
+	(rs6000_expand_vector_set_var_p9): New function.
+	(rs6000_expand_vector_set_var_p8): New function.
+
+2021-01-22  Xionghu Luo  <luoxhu@linux.ibm.com>
+
+	PR target/79251
+	PR target/98065
+	* config/rs6000/rs6000-c.c (altivec_resolve_overloaded_builtin):
+	Ajdust variable index vec_insert from address dereference to
+	ARRAY_REF(VIEW_CONVERT_EXPR) tree expression.
+	* config/rs6000/rs6000-protos.h (rs6000_expand_vector_set_var):
+	New declaration.
+	* config/rs6000/rs6000.c (rs6000_expand_vector_set_var): New function.
+
+2021-01-22  Martin Liska  <mliska@suse.cz>
+
+	PR gcov-profile/98739
+	* profile.c (compute_value_histograms): Drop time profile for
+	-fprofile-reproducible=multithreaded.
+
+2021-01-22  Nathan Sidwell  <nathan@acm.org>
+
+	* gcc.c (process_command): Don't check OPT_SPECIAL_input_file
+	existence here.
+
+2021-01-22  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/98773
+	* tree-data-ref.c (initalize_matrix_A): Revert previous
+	change, retaining failing on HOST_WIDE_INT_MIN CHREC_RIGHT.
+
+2021-01-22  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/90248
+	* match.pd (X cmp 0.0 ? 1.0 : -1.0 -> copysign(1, +-X),
+	X cmp 0.0 ? -1.0 : +1.0 -> copysign(1, -+X)): Remove
+	simplifications.
+	(X * (X cmp 0.0 ? 1.0 : -1.0) -> +-abs(X),
+	X * (X cmp 0.0 ? -1.0 : 1.0) -> +-abs(X)): New simplifications.
+
+2021-01-22  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/98255
+	* tree-dfa.c (get_ref_base_and_extent): For ARRAY_REFs, sign
+	extend index - low_bound from sizetype's precision rather than index
+	precision.
+	(get_addr_base_and_unit_offset_1): Likewise.
+	* tree-ssa-sccvn.c (ao_ref_init_from_vn_reference): Likewise.
+	* gimple-fold.c (fold_const_aggregate_ref_1): Likewise.
+
+2021-01-22  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/98786
+	* tree-ssa-phiopt.c (factor_out_conditional_conversion): Avoid
+	adding new uses of abnormals.  Verify we deal with a conditional
+	conversion.
+
+2021-01-22  Prathamesh Kulkarni  <prathamesh.kulkarni@linaro.org>
+
+	PR target/98636
+	* optc-save-gen.awk: Add arm_fp16_format to checked_options.
+
+2021-01-22  liuhongt  <hongtao.liu@intel.com>
+
+	PR target/96891
+	PR target/98348
+	* config/i386/sse.md (VI_128_256): New mode iterator.
+	(*avx_cmp<mode>3_1, *avx_cmp<mode>3_2, *avx_cmp<mode>3_3,
+	 *avx_cmp<mode>3_4, *avx2_eq<mode>3, *avx2_pcmp<mode>3_1,
+	 *avx2_pcmp<mode>3_2, *avx2_gt<mode>3): New
+	define_insn_and_split to lower avx512 vector comparison to avx
+	version when dest is vector.
+	(*<avx512>_cmp<mode>3,*<avx512>_cmp<mode>3,*<avx512>_ucmp<mode>3):
+	define_insn_and_split for negating the comparison result.
+	* config/i386/predicates.md (float_vector_all_ones_operand):
+	New predicate.
+	* config/i386/i386-expand.c (ix86_expand_sse_movcc): Use
+	general NOT operator without UNSPEC_MASKOP.
+
+2021-01-21  Vladimir N. Makarov  <vmakarov@redhat.com>
+
+	PR rtl-optimization/98777
+	* lra-int.h (lra_pmode_pseudo): New extern.
+	* lra.c (lra_pmode_pseudo): New global.
+	(lra): Set it up.
+	* lra-eliminations.c (eliminate_regs_in_insn): Use it.
+
+2021-01-21  Ilya Leoshkevich  <iii@linux.ibm.com>
+
+	* fwprop.c (fwprop_propagation::classify_result): Allow
+	(subreg (mem)) simplifications.
+
+2021-01-21  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* config/aarch64/aarch64-simd.md (aarch64_sqdml<SBINQOPS:as>l<mode>):
+	Split into...
+	(aarch64_sqdmlal<mode>): ... This...
+	(aarch64_sqdmlsl<mode>): ... And this.
+	(aarch64_sqdml<SBINQOPS:as>l_lane<mode>): Split into...
+	(aarch64_sqdmlal_lane<mode>): ... This...
+	(aarch64_sqdmlsl_lane<mode>): ... And this.
+	(aarch64_sqdml<SBINQOPS:as>l_laneq<mode>): Split into...
+	(aarch64_sqdmlsl_laneq<mode>): ... This...
+	(aarch64_sqdmlal_laneq<mode>):  ... And this.
+	(aarch64_sqdml<SBINQOPS:as>l_n<mode>): Split into...
+	(aarch64_sqdmlsl_n<mode>): ... This...
+	(aarch64_sqdmlal_n<mode>): ... And this.
+	(aarch64_sqdml<SBINQOPS:as>l2<mode>_internal): Split into...
+	(aarch64_sqdmlal2<mode>_internal): ... This...
+	(aarch64_sqdmlsl2<mode>_internal): ... And this.
+
+2021-01-21  Christophe Lyon  <christophe.lyon@linaro.org>
+
+	* config/arm/arm_mve.h (__arm_vcmpneq_s8): Fix return type.
+
+2021-01-21  Andrea Corallo  <andrea.corallo@arm.com>
+
+	PR target/96372
+	* doc/sourcebuild.texi (arm_thumb2_no_arm_v8_1_lob): Document.
+
+2021-01-21  liuhongt  <hongtao.liu@intel.com>
+
+	PR rtl-optimization/98694
+	* regcprop.c (copy_value): If SRC had been assigned a mode
+	narrower than the copy, we can't link DEST into the chain even
+	they have same hard_regno_nregs(i.e. HImode/SImode in i386
+	backend).
+
+2021-01-20  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* config/aarch64/aarch64-simd.md (aarch64_get_lane<mode>):
+	Convert to define_insn_and_split.  Split into simple move when moving
+	bottom element.
+
+2021-01-20  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	* config/rs6000/rs6000.c (rs6000_emit_le_vsx_store): Change assert.
+	Adjust comment.  Simplify code.
+
+2021-01-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR debug/98765
+	* dwarf2out.c (reset_indirect_string): Also reset indirect strings
+	with DW_FORM_line_strp form.
+	(prune_unused_types_update_strings): Don't add into debug_str_hash
+	indirect strings with DW_FORM_line_strp form.
+	(adjust_name_comp_dir): New function.
+	(dwarf2out_finish): Call it on CU DIEs after resetting
+	debug_line_str_hash.
+
+2021-01-20  Vladimir N. Makarov  <vmakarov@redhat.com>
+
+	PR rtl-optimization/98722
+	* lra-eliminations.c (eliminate_regs_in_insn): Check that target
+	has no 3-op add insn to transform insns containing two pluses.
+
+2021-01-20  Richard Biener  <rguenther@suse.de>
+
+	* hwint.h (add_hwi): New function.
+	(mul_hwi): Likewise.
+	* tree-data-ref.c (initialize_matrix_A): Properly translate
+	tree constants and avoid HOST_WIDE_INT_MIN.
+	(lambda_matrix_row_add): Avoid undefined integer overflow
+	and return true on such overflow.
+	(lambda_matrix_right_hermite): Handle overflow from
+	lambda_matrix_row_add gracefully.  Simplify previous fix.
+	(analyze_subscript_affine_affine): Likewise.
+
+2021-01-20  Eugene Rozenfeld  <erozen@microsoft.com>
+
+	PR tree-optimization/96674
+	* match.pd: New patterns: x < y || y == XXX_MIN --> x <= y - 1
+	x >= y && y != XXX_MIN --> x > y - 1
+
+2021-01-20  Richard Sandiford  <richard.sandiford@arm.com>
+
+	PR tree-optimization/98535
+	* tree-vect-slp.c (duplicate_and_interleave): Use quick_grow_cleared.
+	If the high and low permutes are the same, remove the high permutes
+	from the working set and only continue with the low ones.
+
+2021-01-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/98721
+	* builtins.c (access_ref::inform_access): Don't assume
+	SSA_NAME_IDENTIFIER must be non-NULL.  Print messages about
+	object whenever allocfn is NULL, rather than only when DECL_P
+	is true.  Use %qE instead of %qD for that.  Formatting fixes.
+
+2021-01-20  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/98758
+	* tree-data-ref.c (int_divides_p): Use lambda_int arguments.
+	(lambda_matrix_right_hermite): Avoid undefinedness with
+	signed integer abs and multiplication.
+	(analyze_subscript_affine_affine): Use lambda_int.
+
+2021-01-20  David Malcolm  <dmalcolm@redhat.com>
+
+	PR debug/98751
+	* dwarf2out.c (output_line_info): Rename static variable
+	"generation", moving it out of the function to...
+	(output_line_info_generation): New.
+	(init_sections_and_labels): Likewise, renaming the variable to...
+	(init_sections_and_labels_generation): New.
+	(dwarf2out_c_finalize): Reset the new variables.
+
+2021-01-19  Martin Sebor  <msebor@redhat.com>
+
+	PR middle-end/98664
+	* tree-ssa-live.c (remove_unused_scope_block_p): Keep scopes for
+	all functions, even if they're not declared artificial or inline.
+	* tree.c (tree_inlined_location): Use macro expansion location
+	only if scope traversal fails to expose one.
+
+2021-01-19  Richard Sandiford  <richard.sandiford@arm.com>
+
+	PR rtl-optimization/92294
+	* alias.c (compare_base_symbol_refs): Take an extra parameter
+	and add the distance between two symbols to it.  Enshrine in
+	comments that -1 means "either 0 or 1, but we can't tell
+	which at compile time".
+	(memrefs_conflict_p): Update call accordingly.
+	(rtx_equal_for_memref_p): Likewise.  Take the distance between symbols
+	into account.
+
+2021-01-19  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* config/aarch64/aarch64-simd-builtins.def (sqshl, uqshl,
+	sqrshl, uqrshl, sqadd, uqadd, sqsub, uqsub, suqadd, usqadd, sqmovn,
+	uqmovn, sqxtn2, uqxtn2, sqabs, sqneg, sqdmlal, sqdmlsl, sqdmlal_lane,
+	sqdmlsl_lane, sqdmlal_laneq, sqdmlsl_laneq, sqdmlal_n, sqdmlsl_n,
+	sqdmlal2, sqdmlsl2, sqdmlal2_lane, sqdmlsl2_lane, sqdmlal2_laneq,
+	sqdmlsl2_laneq, sqdmlal2_n, sqdmlsl2_n, sqdmull, sqdmull_lane,
+	sqdmull_laneq, sqdmull_n, sqdmull2, sqdmull2_lane, sqdmull2_laneq,
+	sqdmull2_n, sqdmulh, sqrdmulh, sqdmulh_lane, sqdmulh_laneq,
+	sqrdmulh_lane, sqrdmulh_laneq, sqshrun_n, sqrshrun_n, sqshrn_n,
+	uqshrn_n, sqrshrn_n, uqrshrn_n, sqshlu_n, sqshl_n, uqshl_n, sqrdmlah,
+	sqrdmlsh, sqrdmlah_lane, sqrdmlsh_lane, sqrdmlah_laneq, sqrdmlsh_laneq,
+	sqmovun): Use NONE flags.
+
+2021-01-19  Richard Biener  <rguenther@suse.de>
+
+	PR ipa/98330
+	* ipa-modref.c (analyze_stmt): Only record a summary for a
+	direct call.
+
+2021-01-19  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/98638
+	* tree-ssanames.c (fini_ssanames): Zero SSA_NAME_DEF_STMT.
+
+2021-01-19  Daniel Hellstrom  <daniel@gaisler.com>
+
+	* config/sparc/rtemself.h (TARGET_OS_CPP_BUILTINS): Add
+	built-in define __FIX_LEON3FT_TN0018.
+
+2021-01-19  Richard Biener  <rguenther@suse.de>
+
+	PR ipa/97673
+	* tree-inline.c (tree_function_versioning): Set input_location
+	to UNKNOWN_LOCATION throughout the function.
+
+2021-01-19  Tobias Burnus  <tobias@codesourcery.com>
+
+	PR fortran/98476
+	* omp-low.c (lower_omp_target): Handle nonpointer is_device_ptr.
+
+2021-01-19  Martin Jambor  <mjambor@suse.cz>
+
+	PR ipa/98690
+	* ipa-sra.c (ssa_name_only_returned_p): New parameter fun.  Check
+	whether non-call exceptions allow removal of a statement.
+	(isra_analyze_call): Pass the appropriate function to
+	ssa_name_only_returned_p.
+
+2021-01-19  Geng Qi  <gengqi@linux.alibaba.com>
+
+	* config/riscv/arch-canonicalize (longext_sort): New function for
+	 sorting 'multi-letter'.
+	* config/riscv/multilib-generator: Adjusting the loop of 'alt' in
+	'alts'.	The 'arch' may not be the first of 'alts'.
+	(_expand_combination): Add underline for the 'ext' without '*'.
+	This is because, a single-letter extension can always be treated well
+	with a '_' prefix, but it cannot be separated out if it is appended
+	to a multi-letter.
+
 2021-01-18  Vladimir N. Makarov  <vmakarov@redhat.com>
 
 	PR target/97847
