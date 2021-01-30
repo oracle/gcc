@@ -6573,7 +6573,8 @@ check_base_type (const_tree cand, const_tree base)
 			        TYPE_ATTRIBUTES (base)))
     return false;
   /* Check alignment.  */
-  if (TYPE_ALIGN (cand) == TYPE_ALIGN (base))
+  if (TYPE_ALIGN (cand) == TYPE_ALIGN (base)
+      && TYPE_USER_ALIGN (cand) == TYPE_USER_ALIGN (base))
     return true;
   /* Atomic types increase minimal alignment.  We must to do so as well
      or we get duplicated canonical types. See PR88686.  */
@@ -6608,6 +6609,7 @@ check_aligned_type (const_tree cand, const_tree base, unsigned int align)
 	  && TYPE_CONTEXT (cand) == TYPE_CONTEXT (base)
 	  /* Check alignment.  */
 	  && TYPE_ALIGN (cand) == align
+	  && TYPE_USER_ALIGN (cand) == TYPE_USER_ALIGN (base)
 	  && attribute_list_equal (TYPE_ATTRIBUTES (cand),
 				   TYPE_ATTRIBUTES (base))
 	  && check_lang_type (cand, base));
@@ -11079,13 +11081,13 @@ build_opaque_vector_type (tree innertype, poly_int64 nunits)
 
 /* Return the value of element I of VECTOR_CST T as a wide_int.  */
 
-wide_int
+static poly_wide_int
 vector_cst_int_elt (const_tree t, unsigned int i)
 {
   /* First handle elements that are directly encoded.  */
   unsigned int encoded_nelts = vector_cst_encoded_nelts (t);
   if (i < encoded_nelts)
-    return wi::to_wide (VECTOR_CST_ENCODED_ELT (t, i));
+    return wi::to_poly_wide (VECTOR_CST_ENCODED_ELT (t, i));
 
   /* Identify the pattern that contains element I and work out the index of
      the last encoded element for that pattern.  */
@@ -11096,13 +11098,13 @@ vector_cst_int_elt (const_tree t, unsigned int i)
 
   /* If there are no steps, the final encoded value is the right one.  */
   if (!VECTOR_CST_STEPPED_P (t))
-    return wi::to_wide (VECTOR_CST_ENCODED_ELT (t, final_i));
+    return wi::to_poly_wide (VECTOR_CST_ENCODED_ELT (t, final_i));
 
   /* Otherwise work out the value from the last two encoded elements.  */
   tree v1 = VECTOR_CST_ENCODED_ELT (t, final_i - npatterns);
   tree v2 = VECTOR_CST_ENCODED_ELT (t, final_i);
-  wide_int diff = wi::to_wide (v2) - wi::to_wide (v1);
-  return wi::to_wide (v2) + (count - 2) * diff;
+  poly_wide_int diff = wi::to_poly_wide (v2) - wi::to_poly_wide (v1);
+  return wi::to_poly_wide (v2) + (count - 2) * diff;
 }
 
 /* Return the value of element I of VECTOR_CST T.  */
@@ -14027,13 +14029,7 @@ vector_element_bits (const_tree type)
 {
   gcc_checking_assert (VECTOR_TYPE_P (type));
   if (VECTOR_BOOLEAN_TYPE_P (type))
-    {
-      if (SCALAR_INT_MODE_P (TYPE_MODE (type)))
-	return 1;
-      else
-	return vector_element_size (tree_to_poly_uint64 (TYPE_SIZE (type)),
-				    TYPE_VECTOR_SUBPARTS (type));
-    }
+    return TYPE_PRECISION (TREE_TYPE (type));
   return tree_to_uhwi (TYPE_SIZE (TREE_TYPE (type)));
 }
 

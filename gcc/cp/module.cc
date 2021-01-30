@@ -3029,7 +3029,7 @@ public:
   bool read_definition (tree decl);
   
 private:
-  bool is_matching_decl (tree existing, tree decl);
+  bool is_matching_decl (tree existing, tree decl, bool is_typedef);
   static bool install_implicit_member (tree decl);
   bool read_function_def (tree decl, tree maybe_template);
   bool read_var_def (tree decl, tree maybe_template);
@@ -4064,6 +4064,7 @@ import_entity_module (unsigned index)
     /* This is an index for an exported entity.  */
     return (*modules)[0];
 
+  /* Do not include the current TU (not an off-by-one error).  */
   unsigned pos = 1;
   unsigned len = modules->length () - pos;
   while (len)
@@ -7864,8 +7865,8 @@ trees_out::decl_value (tree decl, depset *dep)
 			 || !dep == (VAR_OR_FUNCTION_DECL_P (inner)
 				     && DECL_LOCAL_DECL_P (inner)));
   else if ((TREE_CODE (inner) == TYPE_DECL
-	    && TYPE_NAME (TREE_TYPE (inner)) == inner
-	    && !is_typedef)
+	    && !is_typedef
+	    && TYPE_NAME (TREE_TYPE (inner)) == inner)
 	   || TREE_CODE (inner) == FUNCTION_DECL)
     {
       bool write_defn = !dep && has_definition (decl);
@@ -8088,12 +8089,6 @@ trees_in::decl_value ()
 		     && TREE_CODE (inner) == TYPE_DECL
 		     && DECL_ORIGINAL_TYPE (inner)
 		     && !TREE_TYPE (inner));
-  if (is_typedef)
-    {
-      /* Frob it to be ready for cloning.  */
-      TREE_TYPE (inner) = DECL_ORIGINAL_TYPE (inner);
-      DECL_ORIGINAL_TYPE (inner) = NULL_TREE;
-    }
 
   existing = back_refs[~tag];
   bool installed = install_entity (existing);
@@ -8156,7 +8151,12 @@ trees_in::decl_value ()
 	}
 
       if (is_typedef)
-	set_underlying_type (inner);
+	{
+	  /* Frob it to be ready for cloning.  */
+	  TREE_TYPE (inner) = DECL_ORIGINAL_TYPE (inner);
+	  DECL_ORIGINAL_TYPE (inner) = NULL_TREE;
+	  set_underlying_type (inner);
+	}
 
       if (inner_tag)
 	/* Set the TEMPLATE_DECL's type.  */
@@ -8218,7 +8218,7 @@ trees_in::decl_value ()
 	/* Set the TEMPLATE_DECL's type.  */
 	TREE_TYPE (decl) = TREE_TYPE (inner);
 
-      if (!is_matching_decl (existing, decl))
+      if (!is_matching_decl (existing, decl, is_typedef))
 	unmatched_duplicate (existing);
 
       /* And our result is the existing node.  */
@@ -8257,8 +8257,8 @@ trees_in::decl_value ()
   if (inner
       && !NAMESPACE_SCOPE_P (inner)
       && ((TREE_CODE (inner) == TYPE_DECL
-	   && TYPE_NAME (TREE_TYPE (inner)) == inner
-	   && !is_typedef)
+	   && !is_typedef
+	   && TYPE_NAME (TREE_TYPE (inner)) == inner)
 	  || TREE_CODE (inner) == FUNCTION_DECL)
       && u ())
     read_definition (decl);
@@ -11088,7 +11088,7 @@ trees_in::binfo_mergeable (tree *type)
    decls_match because it can cause instantiations of constraints.  */
 
 bool
-trees_in::is_matching_decl (tree existing, tree decl)
+trees_in::is_matching_decl (tree existing, tree decl, bool is_typedef)
 {
   // FIXME: We should probably do some duplicate decl-like stuff here
   // (beware, default parms should be the same?)  Can we just call
@@ -11099,35 +11099,36 @@ trees_in::is_matching_decl (tree existing, tree decl)
   // can elide some of the checking
   gcc_checking_assert (TREE_CODE (existing) == TREE_CODE (decl));
 
-  tree inner = decl;
+  tree d_inner = decl;
+  tree e_inner = existing;
   if (TREE_CODE (decl) == TEMPLATE_DECL)
     {
-      inner = DECL_TEMPLATE_RESULT (decl);
-      gcc_checking_assert (TREE_CODE (DECL_TEMPLATE_RESULT (existing))
-			   == TREE_CODE (inner));
+      d_inner = DECL_TEMPLATE_RESULT (d_inner);
+      e_inner = DECL_TEMPLATE_RESULT (e_inner);
+      gcc_checking_assert (TREE_CODE (e_inner) == TREE_CODE (d_inner));
     }
 
   gcc_checking_assert (!map_context_from);
   /* This mapping requres the new decl on the lhs and the existing
      entity on the rhs of the comparitors below.  */
-  map_context_from = inner;
-  map_context_to = STRIP_TEMPLATE (existing);
+  map_context_from = d_inner;
+  map_context_to = e_inner;
 
-  if (TREE_CODE (inner) == FUNCTION_DECL)
+  if (TREE_CODE (d_inner) == FUNCTION_DECL)
     {
       tree e_ret = fndecl_declared_return_type (existing);
       tree d_ret = fndecl_declared_return_type (decl);
 
-      if (decl != inner && DECL_NAME (inner) == fun_identifier
-	  && LAMBDA_TYPE_P (DECL_CONTEXT (inner)))
+      if (decl != d_inner && DECL_NAME (d_inner) == fun_identifier
+	  && LAMBDA_TYPE_P (DECL_CONTEXT (d_inner)))
 	/* This has a recursive type that will compare different.  */;
       else if (!same_type_p (d_ret, e_ret))
 	goto mismatch;
 
-      tree e_type = TREE_TYPE (existing);
-      tree d_type = TREE_TYPE (decl);
+      tree e_type = TREE_TYPE (e_inner);
+      tree d_type = TREE_TYPE (d_inner);
 
-      if (DECL_EXTERN_C_P (decl) != DECL_EXTERN_C_P (existing))
+      if (DECL_EXTERN_C_P (d_inner) != DECL_EXTERN_C_P (e_inner))
 	goto mismatch;
 
       for (tree e_args = TYPE_ARG_TYPES (e_type),
@@ -11174,6 +11175,13 @@ trees_in::is_matching_decl (tree existing, tree decl)
 	}
       else if (!DEFERRED_NOEXCEPT_SPEC_P (d_spec)
 	       && !comp_except_specs (d_spec, e_spec, ce_type))
+	goto mismatch;
+    }
+  else if (is_typedef)
+    {
+      if (!DECL_ORIGINAL_TYPE (e_inner)
+	  || !same_type_p (DECL_ORIGINAL_TYPE (d_inner),
+			   DECL_ORIGINAL_TYPE (e_inner)))
 	goto mismatch;
     }
   /* Using cp_tree_equal because we can meet TYPE_ARGUMENT_PACKs
@@ -11255,12 +11263,10 @@ trees_in::is_matching_decl (tree existing, tree decl)
     /* Don't instantiate again!  */
     DECL_TEMPLATE_INSTANTIATED (existing) = true;
 
-  tree e_inner = inner == decl ? existing : DECL_TEMPLATE_RESULT (existing);
-
-  if (TREE_CODE (inner) == FUNCTION_DECL
-      && DECL_DECLARED_INLINE_P (inner))
+  if (TREE_CODE (d_inner) == FUNCTION_DECL
+      && DECL_DECLARED_INLINE_P (d_inner))
     DECL_DECLARED_INLINE_P (e_inner) = true;
-  if (!DECL_EXTERNAL (inner))
+  if (!DECL_EXTERNAL (d_inner))
     DECL_EXTERNAL (e_inner) = false;
 
   // FIXME: Check default tmpl and fn parms here
@@ -14475,6 +14481,7 @@ struct module_state_config {
   const char *dialect_str;
   unsigned num_imports;
   unsigned num_partitions;
+  unsigned num_entities;
   unsigned ordinary_locs;
   unsigned macro_locs;
   unsigned ordinary_loc_align;
@@ -14482,7 +14489,7 @@ struct module_state_config {
 public:
   module_state_config ()
     :dialect_str (get_dialect ()),
-     num_imports (0), num_partitions (0),
+     num_imports (0), num_partitions (0), num_entities (0),
      ordinary_locs (0), macro_locs (0), ordinary_loc_align (0)
   {
   }
@@ -15281,9 +15288,7 @@ module_state::read_entities (unsigned count, unsigned lwm, unsigned hwm)
   dump () && dump ("Reading entities");
   dump.indent ();
 
-  vec_safe_reserve (entity_ary, count);
-  unsigned ix;
-  for (ix = 0; ix != count; ix++)
+  for (binding_slot *slot = entity_ary->begin () + entity_lwm; count--; slot++)
     {
       unsigned snum = sec.u ();
       if (snum && (snum - lwm) >= (hwm - lwm))
@@ -15291,13 +15296,9 @@ module_state::read_entities (unsigned count, unsigned lwm, unsigned hwm)
       if (sec.get_overrun ())
 	break;
 
-      binding_slot slot;
-      slot.u.binding = NULL_TREE;
       if (snum)
-	slot.set_lazy (snum << 2);
-      entity_ary->quick_push (slot);
+	slot->set_lazy (snum << 2);
     }
-  entity_num = ix;
 
   dump.outdent ();
   if (!sec.end (from ()))
@@ -17296,6 +17297,7 @@ module_state::write_config (elf_out *to, module_state_config &config,
 
   cfg.u (config.num_imports);
   cfg.u (config.num_partitions);
+  cfg.u (config.num_entities);
 
   cfg.u (config.ordinary_locs);
   cfg.u (config.macro_locs);
@@ -17479,6 +17481,7 @@ module_state::read_config (module_state_config &config)
 
   config.num_imports = cfg.u ();
   config.num_partitions = cfg.u ();
+  config.num_entities = cfg.u ();
 
   config.ordinary_locs = cfg.u ();
   config.macro_locs = cfg.u ();
@@ -17712,6 +17715,7 @@ module_state::write (elf_out *to, cpp_reader *reader)
 
   /* Write the entitites.  None happens if we contain namespaces or
      nothing. */
+  config.num_entities = counts[MSC_entities];
   if (counts[MSC_entities])
     write_entities (to, sccs, counts[MSC_entities], &crc);
 
@@ -17812,6 +17816,21 @@ module_state::read_initial (cpp_reader *reader)
   /* Determine the module's number.  */
   gcc_checking_assert (mod == MODULE_UNKNOWN);
   gcc_checking_assert (this != (*modules)[0]);
+
+  {
+    /* Allocate space in the entities array now -- that array must be
+       monotionically in step with the modules array.  */
+    entity_lwm = vec_safe_length (entity_ary);
+    entity_num = config.num_entities;
+    gcc_checking_assert (modules->length () == 1
+			 || modules->last ()->entity_lwm <= entity_lwm);
+    vec_safe_reserve (entity_ary, config.num_entities);
+
+    binding_slot slot;
+    slot.u.binding = NULL_TREE;
+    for (unsigned count = config.num_entities; count--;)
+      entity_ary->quick_push (slot);
+  }
 
   /* We'll run out of other resources before we run out of module
      indices.  */
@@ -17934,8 +17953,8 @@ module_state::read_language (bool outermost)
 
   function_depth++; /* Prevent unexpected GCs.  */
 
-  /* Read the entity table.  */
-  entity_lwm = vec_safe_length (entity_ary);
+  if (counts[MSC_entities] != entity_num)
+    ok = false;
   if (ok && counts[MSC_entities]
       && !read_entities (counts[MSC_entities],
 			 counts[MSC_sec_lwm], counts[MSC_sec_hwm]))

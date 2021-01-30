@@ -1,3 +1,554 @@
+2021-01-29  Vladimir N. Makarov  <vmakarov@redhat.com>
+
+	PR target/97701
+	* lra-constraints.c (in_class_p): Don't narrow class only for REG
+	or MEM.
+
+2021-01-29  Will Schmidt  <will_schmidt@vnet.ibm.com>
+
+	* config/rs6000/rs6000-call.c (rs6000_expand_binup_builtin): Add
+	clauses for CODE_FOR_vsx_xvcvuxddp_scale and
+	CODE_FOR_vsx_xvcvsxddp_scale to the parameter checking code.
+
+2021-01-29  Andrew MacLeod  <amacleod@redhat.com>
+
+	PR tree-optimization/98866
+	* gimple-range-gori.h (gori_compute:set_range_invariant): New.
+	* gimple-range-gori.cc (gori_map::set_range_invariant): New.
+	(gori_map::m_maybe_invariant): Rename from all_outgoing.
+	(gori_map::gori_map): Rename all_outgoing to m_maybe_invariant.
+	(gori_map::is_export_p): Ditto.
+	(gori_map::calculate_gori): Ditto.
+	(gori_compute::set_range_invariant): New.
+	* gimple-range.cc (gimple_ranger::range_of_stmt): Set range
+	invariant for pointers evaluating to [1, +INF].
+
+2021-01-29  Richard Biener  <rguenther@suse.de>
+
+	PR rtl-optimization/98863
+	* config/i386/i386-features.c (remove_partial_avx_dependency):
+	Do not perform DF analysis.
+	(pass_data_remove_partial_avx_dependency): Remove
+	TODO_df_finish.
+
+2021-01-29  Jonathan Wright  <jonathan.wright@arm.com>
+
+	* config/aarch64/aarch64-simd-builtins.def: Add [su]mull_n
+	builtin generator macros.
+	* config/aarch64/aarch64-simd.md (aarch64_<su>mull_n<mode>):
+	Define.
+	* config/aarch64/arm_neon.h (vmull_n_s16): Use RTL builtin
+	instead of inline asm.
+	(vmull_n_s32): Likewise.
+	(vmull_n_u16): Likewise.
+	(vmull_n_u32): Likewise.
+
+2021-01-29  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* config/aarch64/aarch64-simd-builtins.def (sabdl2, uabdl2):
+	Define builtins.
+	* config/aarch64/aarch64-simd.md (aarch64_<sur>abdl2<mode>_3):
+	Rename to...
+	(aarch64_<sur>abdl2<mode>): ... This.
+	(<sur>sadv16qi): Adjust use of above.
+	* config/aarch64/arm_neon.h (vabdl_high_s8): Reimplement using
+	builtin.
+	(vabdl_high_s16): Likewise.
+	(vabdl_high_s32): Likewise.
+	(vabdl_high_u8): Likewise.
+	(vabdl_high_u16): Likewise.
+	(vabdl_high_u32): Likewise.
+
+2021-01-29  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* config/aarch64/aarch64-simd-builtins.def (sabal2): Define
+	builtin.
+	(uabal2): Likewise.
+	* config/aarch64/aarch64-simd.md (aarch64_<sur>abal2<mode>): New
+	pattern.
+	* config/aarch64/aarch64.md (unspec): Add UNSPEC_SABAL2 and
+	UNSPEC_UABAL2.
+	* config/aarch64/arm_neon.h (vabal_high_s8): Reimplement using
+	builtin.
+	(vabal_high_s16): Likewise.
+	(vabal_high_s32): Likewise.
+	(vabal_high_u8): Likewise.
+	(vabal_high_u16): Likewise.
+	(vabal_high_u32): Likewise.
+	* config/aarch64/iterators.md (ABAL2): New mode iterator.
+	(sur): Handle UNSPEC_SABAL2, UNSPEC_UABAL2.
+
+2021-01-29  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* config/aarch64/aarch64-simd-builtins.def (sabal): Define
+	builtin.
+	(uabal): Likewise.
+	* config/aarch64/aarch64-simd.md (aarch64_<sur>abal<mode>_4):
+	Rename to...
+	(aarch64_<sur>abal<mode>): ... This
+	(<sur>sadv16qi): Adust use of the above.
+	* config/aarch64/arm_neon.h (vabal_s8): Reimplement using
+	builtin.
+	(vabal_s16): Likewise.
+	(vabal_s32): Likewise.
+	(vabal_u8): Likewise.
+	(vabal_u16): Likewise.
+	(vabal_u32): Likewise.
+
+2021-01-29  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* config/aarch64/aarch64-simd-builtins.def (saddlv, uaddlv):
+	Define builtins.
+	* config/aarch64/aarch64-simd.md (aarch64_<su>addlv<mode>):
+	Define.
+	* config/aarch64/arm_neon.h (vaddlv_s8): Reimplement using
+	builtin.
+	(vaddlv_s16): Likewise.
+	(vaddlv_u8): Likewise.
+	(vaddlv_u16): Likewise.
+	(vaddlvq_s8): Likewise.
+	(vaddlvq_s16): Likewise.
+	(vaddlvq_s32): Likewise.
+	(vaddlvq_u8): Likewise.
+	(vaddlvq_u16): Likewise.
+	(vaddlvq_u32): Likewise.
+	(vaddlv_s32): Likewise.
+	(vaddlv_u32): Likewise.
+	* config/aarch64/iterators.md (VDQV_L): New mode iterator.
+	(unspec): Add UNSPEC_SADDLV, UNSPEC_UADDLV.
+	(Vwstype): New mode attribute.
+	(Vwsuf): Likewise.
+	(VWIDE_S): Likewise.
+	(USADDLV): New int iterator.
+	(su): Handle UNSPEC_SADDLV, UNSPEC_UADDLV.
+
+2021-01-29  Jonathan Wright  <jonathan.wright@arm.com>
+
+	* config/aarch64/aarch64-simd-builtins.def: Add [su]mlsl_lane[q]
+	builtin generator macros.
+	* config/aarch64/aarch64-simd.md (aarch64_vec_<su>mlsl_lane<Qlane>):
+	Define.
+	* config/aarch64/arm_neon.h (vmlsl_lane_s16): Use RTL builtin
+	instead of inline asm.
+	(vmlsl_lane_s32): Likewise.
+	(vmlsl_lane_u16): Likewise.
+	(vmlsl_lane_u32): Likewise.
+	(vmlsl_laneq_s16): Likewise.
+	(vmlsl_laneq_s32): Likewise.
+	(vmlsl_laneq_u16): Likewise.
+	(vmlsl_laneq_u32): Likewise.
+
+2021-01-29  Richard Biener  <rguenther@suse.de>
+
+	* doc/invoke.texi (--param max-gcse-memory): Document unit
+	of size.
+	* gcse.c (gcse_or_cprop_is_too_expensive): Adjust.
+	* params.opt (--param max-gcse-memory): Adjust default and
+	document unit of size.
+
+2021-01-29  Richard Biener  <rguenther@suse.de>
+
+	PR rtl-optimization/98863
+	* gcse.c (gcse_or_cprop_is_too_expensive): Use unsigned
+	HOST_WIDE_INT for the memory estimate.
+
+2021-01-29  Bin Cheng  <bin.cheng@linux.alibaba.com>
+	    Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/97627
+	* tree-ssa-loop-niter.c (number_of_iterations_exit_assumptions):
+	Do not analyze fake edges.
+
+2021-01-29  Richard Biener  <rguenther@suse.de>
+
+	PR rtl-optimization/98144
+	* df.h (df_mir_bb_info): Add con_visited member.
+	* df-problems.c (df_mir_alloc): Initialize con_visited,
+	do not fully populate IN and OUT.
+	(df_mir_reset): Likewise.
+	(df_mir_confluence_0): Set con_visited.
+	(df_mir_confluence_n): Properly handle implicitely
+	fully populated IN and OUT as designated by con_visited
+	and update con_visited accordingly.
+
+2021-01-29  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/98849
+	* config/arm/vec-common.md (mve_vshlq_<supf><mode>,
+	vashl<mode>3, vashr<mode>3, vlshr<mode>3): Add
+	&& !TARGET_REALLY_IWMMXT to conditions.
+
+2021-01-29  Jakub Jelinek  <jakub@redhat.com>
+
+	PR debug/98331
+	* cfgbuild.c (find_bb_boundaries): Reset debug_insn when seeing
+	a BARRIER.
+
+2021-01-28  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/94775
+	* stor-layout.c (finalize_type_size): If we reset TYPE_USER_ALIGN in
+	the main variant, maybe reset it in its variants too.
+	* tree.c (check_base_type): Return true only if TYPE_USER_ALIGN match.
+	(check_aligned_type): Check if TYPE_USER_ALIGN match.
+
+2021-01-28  Christophe Lyon  <christophe.lyon@linaro.org>
+
+	PR target/98730
+	* config/arm/arm.c (arm_rtx_costs_internal): Adjust cost of vector
+	of constant zero for comparisons.
+
+2021-01-28  Michael Meissner  <meissner@linux.ibm.com>
+
+	* config/rs6000/rs6000.c (rs6000_mangle_decl_assembler_name): Add
+	support for mapping built-in function names for long double
+	built-in functions if long double is IEEE 128-bit.
+
+2021-01-28  Jonathan Wright  <jonathan.wright@arm.com>
+
+	* config/aarch64/aarch64-simd-builtins.def: Add [su]mlsl_n
+	builtin generator macros.
+	* config/aarch64/aarch64-simd.md (aarch64_<su>mlsl_n<mode>):
+	Define.
+	* config/aarch64/arm_neon.h (vmlsl_n_s16): Use RTL builtin
+	instead of inline asm.
+	(vmlsl_n_s32): Likewise.
+	(vmlsl_n_u16): Likewise.
+	(vmlsl_n_u32): Likewise.
+
+2021-01-28  Jonathan Wright  <jonathan.wright@arm.com>
+
+	* config/aarch64/aarch64-simd-builtins.def: Add [su]mlal_n
+	builtin generator macros.
+	* config/aarch64/aarch64-simd.md (aarch64_<su>mlal_n<mode>):
+	Define.
+	* config/aarch64/arm_neon.h (vmlal_n_s16): Use RTL builtin
+	instead of inline asm.
+	(vmlal_n_s32): Likewise.
+	(vmlal_n_u16): Likewise.
+	(vmlal_n_u32): Likewise.
+
+2021-01-28  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* config/aarch64/aarch64-simd-builtins.def (shrn2): Define
+	builtin.
+	* config/aarch64/aarch64-simd.md (aarch64_shrn2<mode>_insn_le):
+	Define.
+	(aarch64_shrn2<mode>_insn_be): Likewise.
+	(aarch64_shrn2<mode>): Likewise.
+	* config/aarch64/arm_neon.h (vshrn_high_n_s16): Reimlplement
+	using builtins.
+	(vshrn_high_n_s32): Likewise.
+	(vshrn_high_n_s64): Likewise.
+	(vshrn_high_n_u16): Likewise.
+	(vshrn_high_n_u32): Likewise.
+	(vshrn_high_n_u64): Likewise.
+
+2021-01-28  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* config/aarch64/aarch64-simd-builtins.def (shrn): Define
+	builtin.
+	* config/aarch64/aarch64-simd.md (aarch64_shrn<mode>_insn_le):
+	Define.
+	(aarch64_shrn<mode>_insn_be): Likewise.
+	(aarch64_shrn<mode>): Likewise.
+	* config/aarch64/arm_neon.h (vshrn_n_s16): Reimplement using
+	builtins.
+	(vshrn_n_s32): Likewise.
+	(vshrn_n_s64): Likewise.
+	(vshrn_n_u16): Likewise.
+	(vshrn_n_u32): Likewise.
+	(vshrn_n_u64): Likewise.
+	* config/aarch64/iterators.md (vn_mode): New mode attribute.
+
+2021-01-28  Richard Biener  <rguenther@suse.de>
+
+	PR rtl-optimization/80960
+	* dse.c (check_mem_read_rtx): Call get_addr on the
+	offsetted address.
+
+2021-01-28  Xionghu Luo  <luoxhu@linux.ibm.com>
+	    David Edelsohn  <dje.gcc@gmail.com>
+
+	PR target/98799
+	* config/rs6000/rs6000-c.c (altivec_resolve_overloaded_builtin):
+	Don't generate VIEW_CONVERT_EXPR for fcode ALTIVEC_BUILTIN_VEC_INSERT
+	when -m32.
+	* config/rs6000/rs6000-protos.h (rs6000_expand_vector_set_var):
+	Delete.
+	* config/rs6000/rs6000.c (rs6000_expand_vector_set): Remove the
+	wrapper call rs6000_expand_vector_set_var for cleanup.  Call
+	rs6000_expand_vector_set_var_p9 and rs6000_expand_vector_set_var_p8
+	directly.
+	(rs6000_expand_vector_set_var): Delete.
+	(rs6000_expand_vector_set_var_p9): Make static.
+	(rs6000_expand_vector_set_var_p8): Make static.
+
+2021-01-28  Xing GUO  <higuoxing@gmail.com>
+
+	* common/config/riscv/riscv-common.c
+	(riscv_subset_list::parsing_subset_version): Fix -march option parsing
+	when `p` extension exists.
+
+2021-01-27  Vladimir N. Makarov  <vmakarov@redhat.com>
+
+	PR rtl-optimization/97684
+	* ira.c (ira): Call ira_set_pseudo_classes before
+	update_equiv_regs when it is necessary.
+
+2021-01-27  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/98853
+	* config/aarch64/aarch64.md (*aarch64_bfxilsi_uxtw): Use
+	%w0, %w1 and %2 instead of %0, %1 and %2.
+
+2021-01-27  Aaron Sawdey  <acsawdey@linux.ibm.com>
+
+	* config/rs6000/genfusion.pl: New script to generate
+	define_insn_and_split patterns so combine can arrange fused
+	instructions next to each other.
+	* config/rs6000/fusion.md: New file, generated fused instruction
+	patterns for combine.
+	* config/rs6000/predicates.md (const_m1_to_1_operand): New predicate.
+	(non_update_memory_operand): New predicate.
+	* config/rs6000/rs6000-cpus.def: Add OPTION_MASK_P10_FUSION and
+	OPTION_MASK_P10_FUSION_LD_CMPI to ISA_3_1_MASKS_SERVER and
+	POWERPC_MASKS.
+	* config/rs6000/rs6000-protos.h (address_is_non_pfx_d_or_x): Add
+	prototype.
+	* config/rs6000/rs6000.c (rs6000_option_override_internal):
+	Automatically set OPTION_MASK_P10_FUSION and
+	OPTION_MASK_P10_FUSION_LD_CMPI if target is power10.
+	(rs600_opt_masks): Allow -mpower10-fusion
+	in function attributes.
+	(address_is_non_pfx_d_or_x): New function.
+	* config/rs6000/rs6000.h: Add MASK_P10_FUSION.
+	* config/rs6000/rs6000.md: Include fusion.md.
+	* config/rs6000/rs6000.opt: Add -mpower10-fusion
+	and -mpower10-fusion-ld-cmpi.
+	* config/rs6000/t-rs6000: Add dependencies involving fusion.md.
+
+2021-01-27  Jonathan Wright  <jonathan.wright@arm.com>
+
+	* config/aarch64/aarch64-simd-builtins.def: Add [su]mlal
+	builtin generator macros.
+	* config/aarch64/aarch64-simd.md (*aarch64_<su>mlal<mode>):
+	Rename to...
+	(aarch64_<su>mlal<mode>): This.
+	* config/aarch64/arm_neon.h (vmlal_s8): Use RTL builtin
+	instead of inline asm.
+	(vmlal_s16): Likewise.
+	(vmlal_s32): Likewise.
+	(vmlal_u8): Likewise.
+	(vmlal_u16): Likewise.
+	(vmlal_u32): Likewise.
+
+2021-01-27  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/98854
+	* tree-vect-slp.c (vect_build_slp_tree_2): Also build
+	PHIs from scalars when the number of CTORs matches the
+	number of children.
+
+2021-01-27  Jonathan Wright  <jonathan.wright@arm.com>
+
+	* config/aarch64/aarch64-simd-builtins.def: Add mls_n builtin
+	generator macro.
+	* config/aarch64/aarch64-simd.md (*aarch64_mls_elt_merge<mode>):
+	Rename to...
+	(aarch64_mls_n<mode>): This.
+	* config/aarch64/arm_neon.h (vmls_n_s16): Use RTL builtin
+	instead of asm.
+	(vmls_n_s32): Likewise.
+	(vmls_n_u16): Likewise.
+	(vmls_n_u32): Likewise.
+	(vmlsq_n_s16): Likewise.
+	(vmlsq_n_s32): Likewise.
+	(vmlsq_n_u16): Likewise.
+	(vmlsq_n_u32): Likewise.
+
+2021-01-27  Jonathan Wright  <jonathan.wright@arm.com>
+
+	* config/aarch64/aarch64-simd-builtins.def: Add mls builtin
+	generator macro.
+	* config/aarch64/arm_neon.h (vmls_s8): Use RTL builtin rather
+	than asm.
+	(vmls_s16): Likewise.
+	(vmls_s32): Likewise.
+	(vmls_u8): Likewise.
+	(vmls_u16): Likewise.
+	(vmls_u32): Likewise.
+	(vmlsq_s8): Likewise.
+	(vmlsq_s16): Likewise.
+	(vmlsq_s32): Likewise.
+	(vmlsq_u8): Likewise.
+	(vmlsq_u16): Likewise.
+	(vmlsq_u32): Likewise.
+
+2021-01-27  Jonathan Wright  <jonathan.wright@arm.com>
+
+	* config/aarch64/aarch64-simd-builtins.def: Add mla_n builtin
+	generator macro.
+	* config/aarch64/aarch64-simd.md (*aarch64_mla_elt_merge<mode>):
+	Rename to...
+	(aarch64_mla_n<mode>): This.
+	* config/aarch64/arm_neon.h (vmla_n_s16): Use RTL builtin
+	instead of asm.
+	(vmla_n_s32): Likewise.
+	(vmla_n_u16): Likewise.
+	(vmla_n_u32): Likewise.
+	(vmlaq_n_s16): Likewise.
+	(vmlaq_n_s32): Likewise.
+	(vmlaq_n_u16): Likewise.
+	(vmlaq_n_u32): Likewise.
+
+2021-01-27  liuhongt  <hongtao.liu@intel.com>
+
+	PR target/98833
+	* config/i386/sse.md (sse2_gt<mode>3): Drop !TARGET_XOP in condition.
+	(*sse2_eq<mode>3): Ditto.
+
+2021-01-27  Jakub Jelinek  <jakub@redhat.com>
+
+	* tree-pass.h (PROP_trees): Rename to ...
+	(PROP_gimple): ... this.
+	* cfgexpand.c (pass_data_expand): Replace PROP_trees with PROP_gimple.
+	* passes.c (execute_function_dump, execute_function_todo,
+	execute_one_ipa_transform_pass, execute_one_pass): Likewise.
+	* varpool.c (ctor_for_folding): Likewise.
+
+2021-01-27  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/97260
+	* varpool.c: Include tree-pass.h.
+	(ctor_for_folding): In GENERIC return DECL_INITIAL for TREE_READONLY
+	non-TREE_SIDE_EFFECTS automatic variables.
+
+2021-01-26  Paul Fee  <paul.f.fee@gmail.com>
+
+	* doc/cpp.texi (__cplusplus): Document value for -std=c++23
+	or -std=gnu++23.
+	* doc/invoke.texi: Document -std=c++23 and -std=gnu++23.
+	* dwarf2out.c (highest_c_language): Recognise C++20 and C++23.
+	(gen_compile_unit_die): Recognise C++23.
+
+2021-01-26  Jakub Jelinek  <jakub@redhat.com>
+
+	PR bootstrap/98839
+	* dwarf2asm.c (dw2_assemble_integer): Cast DWARF2_ADDR_SIZE to int
+	in comparison.
+
+2021-01-26  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/98681
+	* config/aarch64/aarch64.c (aarch64_mask_and_shift_for_ubfiz_p):
+	Use UINTVAL (shft_amnt) and UINTVAL (mask) instead of INTVAL (shft_amnt)
+	and INTVAL (mask).  Add && INTVAL (mask) > 0 condition.
+
+2021-01-26  Richard Biener  <rguenther@suse.de>
+
+	* gimple-pretty-print.c (dump_binary_rhs): Handle
+	VEC_WIDEN_{PLUS,MINUS}_{LO,HI}_EXPR.
+
+2021-01-26  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/98726
+	* tree.h (vector_cst_int_elt): Remove.
+	* tree.c (vector_cst_int_elt): Use poly_wide_int for computations,
+	make static.
+
+2021-01-26  Andrew Stubbs  <ams@codesourcery.com>
+
+	* config/gcn/gcn.c (gcn_expand_reduc_scalar): Use move instructions
+	for V64DFmode min/max reductions.
+
+2021-01-26  Jakub Jelinek  <jakub@redhat.com>
+
+	* dwarf2asm.c (dw2_assemble_integer): Handle size twice as large
+	as DWARF2_ADDR_SIZE if x is not a scalar int by emitting it as
+	two halves, one with x and the other with const0_rtx, ordered
+	depending on endianity.
+
+2021-01-26  Alexandre Oliva  <oliva@adacore.com>
+
+	* gimplify.c (gimplify_decl_expr): Skip asan marking calls for
+	temporaries not seen in binding block, and not about to be
+	added as gimple variables.
+
+2021-01-25  Martin Sebor  <msebor@redhat.com>
+
+	PR c++/98646
+	* tree-ssa-ccp.c (pass_post_ipa_warn::execute): Adjust warning text.
+
+2021-01-25  Martin Liska  <mliska@suse.cz>
+
+	* value-prof.c (get_nth_most_common_value): Use %s instead
+	of %qs string.
+
+2021-01-25  Jakub Jelinek  <jakub@redhat.com>
+
+	PR debug/98811
+	* configure.ac (HAVE_AS_GDWARF_5_DEBUG_FLAG): Only define if
+	readelf -wi is able to read the emitted .debug_info back.
+	* configure: Regenerated.
+
+2021-01-25  Martin Liska  <mliska@suse.cz>
+
+	PR gcov-profile/98739
+	* common.opt: Add missing sign symbol.
+	* value-prof.c (get_nth_most_common_value): Restore handling
+	of PROFILE_REPRODUCIBILITY_PARALLEL_RUNS and
+	PROFILE_REPRODUCIBILITY_MULTITHREADED.
+
+2021-01-25  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/98807
+	* tree.c (vector_element_bits): Always use precision of
+	the element type for boolean vectors.
+
+2021-01-25  Sebastian Huber  <sebastian.huber@embedded-brains.de>
+
+	* config/rtems.h (STARTFILE_SPEC): Remove qnolinkcmds.
+	(ENDFILE_SPEC): Evaluate qnolinkcmds.
+
+2021-01-25  Sebastian Huber  <sebastian.huber@embedded-brains.de>
+
+	* config/rtems.h (STARTFILE_SPEC): Remove nostdlib and
+	nostartfiles handling since this is already done by
+	LINK_COMMAND_SPEC.  Evaluate qnolinkcmds.
+	(ENDFILE_SPEC): Remove nostdlib and nostartfiles handling since this
+	is already done by LINK_COMMAND_SPEC.
+	(LIB_SPECS): Remove nostdlib and nodefaultlibs handling since
+	this is already done by LINK_COMMAND_SPEC.  Remove qnolinkcmds
+	evaluation.
+
+2021-01-25  Jakub Jelinek  <jakub@redhat.com>
+
+	PR testsuite/98771
+	* fold-const-call.c (host_size_t_cst_p): Renamed to ...
+	(size_t_cst_p): ... this.  Check and store unsigned HOST_WIDE_INT
+	value rather than host size_t.
+	(fold_const_call): Change type of s2 from size_t to
+	unsigned HOST_WIDE_INT.  Use size_t_cst_p instead of
+	host_size_t_cst_p.  For strncmp calls, pass MIN (s2, SIZE_MAX)
+	instead of s2 as last argument.
+
+2021-01-25  Tamar Christina  <tamar.christina@arm.com>
+
+	* config/arm/iterators.md (rotsplit1, rotsplit2, conj_op, fcmac1,
+	VCMLA_OP, VCMUL_OP): New.
+	* config/arm/mve.md (mve_vcmlaq<mve_rot><mode>): Support vec_dup 0.
+	* config/arm/neon.md (cmul<conj_op><mode>3): New.
+	* config/arm/unspecs.md (UNSPEC_VCMLA_CONJ, UNSPEC_VCMLA180_CONJ,
+	UNSPEC_VCMUL_CONJ): New.
+	* config/arm/vec-common.md (cmul<conj_op><mode>3, arm_vcmla<rot><mode>,
+	cml<fcmac1><conj_op><mode>4): New.
+
+2021-01-23  Jakub Jelinek  <jakub@redhat.com>
+
+	PR testsuite/97301
+	* config/rs6000/mmintrin.h (__m64): Add __may_alias__ attribute.
+
 2021-01-22  Jonathan Wright  <jonathan.wright@arm.com>
 
 	* config/aarch64/aarch64-simd-builtins.def: Add mla builtin

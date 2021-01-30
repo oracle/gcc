@@ -1,3 +1,24 @@
+2021-01-28  Jakub Jelinek  <jakub@redhat.com>
+
+	* c.opt (-std=c++2a, -std=c++20, -std=gnu++2a, -std=gnu++20): Remove
+	draft from description.
+	(-std=c++2b): Fix a pasto, 2020 -> 2023.
+
+2021-01-26  Paul Fee  <paul.f.fee@gmail.com>
+
+	* c-common.h (cxx_dialect): Add cxx23 as a dialect.
+	* c.opt: Add options for -std=c++23, std=c++2b, -std=gnu++23
+	and -std=gnu++2b
+	* c-opts.c (set_std_cxx23): New.
+	(c_common_handle_option): Set options when -std=c++23 is enabled.
+	(c_common_post_options): Adjust comments.
+	(set_std_cxx20): Likewise.
+
+2021-01-25  Martin Sebor  <msebor@redhat.com>
+
+	PR c++/98646
+	* c-common.c (check_nonnull_arg): Adjust warning text.
+
 2021-01-17  Martin Sebor  <msebor@redhat.com>
 
 	* c-pretty-print.c (c_pretty_printer::primary_expression): Don't

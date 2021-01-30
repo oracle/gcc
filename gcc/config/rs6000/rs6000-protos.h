@@ -58,7 +58,6 @@ extern bool rs6000_split_128bit_ok_p (rtx []);
 extern void rs6000_expand_float128_convert (rtx, rtx, bool);
 extern void rs6000_expand_vector_init (rtx, rtx);
 extern void rs6000_expand_vector_set (rtx, rtx, rtx);
-extern void rs6000_expand_vector_set_var (rtx, rtx, rtx);
 extern void rs6000_expand_vector_extract (rtx, rtx, rtx);
 extern void rs6000_split_vec_extract_var (rtx, rtx, rtx, rtx, rtx);
 extern rtx rs6000_adjust_vec_address (rtx, rtx, rtx, rtx, machine_mode);
@@ -192,6 +191,8 @@ enum non_prefixed_form {
 
 extern enum insn_form address_to_insn_form (rtx, machine_mode,
 					    enum non_prefixed_form);
+extern bool address_is_non_pfx_d_or_x (rtx addr, machine_mode mode,
+				       enum non_prefixed_form non_prefix_format);
 extern bool prefixed_load_p (rtx_insn *);
 extern bool prefixed_store_p (rtx_insn *);
 extern bool prefixed_paddi_p (rtx_insn *);
