@@ -1,3 +1,37 @@
+2021-02-09  David Malcolm  <dmalcolm@redhat.com>
+
+	PR analyzer/98575
+	* sm-file.cc (is_file_using_fn_p): Support "_IO_"-prefixed
+	variants.
+
+2021-02-09  David Malcolm  <dmalcolm@redhat.com>
+
+	PR analyzer/98575
+	* store.cc (store::set_value): Treat a pointer written to *UNKNOWN
+	as having escaped.
+
+2021-02-02  David Malcolm  <dmalcolm@redhat.com>
+
+	PR analyzer/93355
+	PR analyzer/96374
+	* engine.cc (toplevel_function_p): Simplify so that
+	we only reject functions with a "__analyzer_" prefix.
+	(add_any_callbacks): Delete.
+	(exploded_graph::build_initial_worklist): Update for
+	dropped param of toplevel_function_p.
+	(exploded_graph::build_initial_worklist): Don't bother
+	looking for callbacks that are reachable from global
+	initializers.
+
+2021-02-01  David Malcolm  <dmalcolm@redhat.com>
+
+	PR analyzer/98918
+	* region-model-manager.cc
+	(region_model_manager::get_or_create_initial_value):
+	Fold the initial value of *UNKNOWN_PTR to an UNKNOWN value.
+	(region_model_manager::get_field_region): Fold the value
+	of UNKNOWN_PTR->FIELD to *UNKNOWN_PTR_OF_&FIELD_TYPE.
+
 2021-01-29  David Malcolm  <dmalcolm@redhat.com>
 
 	* checker-path.cc (event_kind_to_string): Handle

@@ -3002,13 +3002,12 @@ vectorizable_bswap (vec_info *vinfo,
 
       STMT_VINFO_TYPE (stmt_info) = call_vec_info_type;
       DUMP_VECT_SCOPE ("vectorizable_bswap");
-      if (! slp_node)
-	{
-	  record_stmt_cost (cost_vec,
-			    1, vector_stmt, stmt_info, 0, vect_prologue);
-	  record_stmt_cost (cost_vec,
-			    ncopies, vec_perm, stmt_info, 0, vect_body);
-	}
+      record_stmt_cost (cost_vec,
+			1, vector_stmt, stmt_info, 0, vect_prologue);
+      record_stmt_cost (cost_vec,
+			slp_node
+			? SLP_TREE_NUMBER_OF_VEC_STMTS (slp_node) : ncopies,
+			vec_perm, stmt_info, 0, vect_body);
       return true;
     }
 
@@ -10085,14 +10084,6 @@ vectorizable_condition (vec_info *vinfo,
 
   /* Transform.  */
 
-  if (!slp_node)
-    {
-      vec_oprnds0.create (1);
-      vec_oprnds1.create (1);
-      vec_oprnds2.create (1);
-      vec_oprnds3.create (1);
-    }
-
   /* Handle def.  */
   scalar_dest = gimple_assign_lhs (stmt);
   if (reduction_type != EXTRACT_LAST_REDUCTION)
@@ -10244,7 +10235,6 @@ vectorizable_condition (vec_info *vinfo,
 
 	  if (masks)
 	    {
-	      unsigned vec_num = vec_oprnds0.length ();
 	      tree loop_mask
 		= vect_get_loop_mask (gsi, masks, vec_num * ncopies,
 				      vectype, i);
@@ -10480,11 +10470,6 @@ vectorizable_comparison (vec_info *vinfo,
     }
 
   /* Transform.  */
-  if (!slp_node)
-    {
-      vec_oprnds0.create (1);
-      vec_oprnds1.create (1);
-    }
 
   /* Handle def.  */
   lhs = gimple_assign_lhs (stmt);

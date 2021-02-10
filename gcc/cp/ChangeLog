@@ -1,3 +1,170 @@
+2021-02-09  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/98944
+	* module.cc (module_state::is_rooted): Rename to ...
+	(module_state::has_location): ... here.  Adjust callers.
+	(module_state::read_partitions): Adjust validity check.
+	Don't overwrite a known location.
+
+2021-02-09  Jason Merrill  <jason@redhat.com>
+
+	PR c++/96905
+	* pt.c (mark_decl_instantiated): Exit early if consteval.
+
+2021-02-09  Jason Merrill  <jason@redhat.com>
+
+	PR c++/98326
+	PR c++/20408
+	* cp-gimplify.c (simple_empty_class_p): Don't touch an invisiref
+	parm.
+
+2021-02-09  Jason Merrill  <jason@redhat.com>
+
+	PR c++/98994
+	PR c++/97566
+	* constexpr.c (cxx_eval_store_expression): Only skip empty fields in
+	RECORD_TYPE.
+
+2021-02-08  Nathan Sidwell  <nathan@acm.org>
+
+	* decl.c (start_cleanup_fn): Push function into
+	namespace.
+
+2021-02-08  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/98531
+	* cp-tree.h (push_abi_namespace, pop_abi_namespace): Declare.
+	* decl.c (push_abi_namespace, pop_abi_namespace): Moved
+	from rtti.c, add default namespace arg.
+	(check_redeclaration_exception_specification): Allow a lazy
+	builtin's eh spec to differ from an lready-declared user
+	declaration.
+	(declare_global_var): Use push/pop_abi_namespace.
+	(get_atexit_node): Push the fndecl into a namespace.
+	* rtti.c (push_abi_namespace, pop_abi_namespace): Moved to
+	decl.c.
+
+2021-02-08  Marek Polacek  <polacek@redhat.com>
+
+	* cp-tree.h (CLASSTYPE_TI_TEMPLATE): Fix typo.
+
+2021-02-05  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/98947
+	* call.c (build_conditional_expr_1): Don't call mark_lvalue_use
+	on arg2/arg3.
+	* expr.c (mark_use) <case MODIFY_EXPR>: Don't check read_p when
+	issuing the -Wvolatile warning.  Only set TREE_THIS_VOLATILE if
+	a warning was emitted.
+
+2021-02-05  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/96462
+	* name-lookup.c (lookup_using_decl): Hoist the destructor check.
+
+2021-02-05  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/97878
+	* decl.c (check_array_initializer): For structured bindings, require
+	the array type to be complete.
+
+2021-02-04  Jason Merrill  <jason@redhat.com>
+
+	PR c++/98717
+	* constraint.cc (build_concept_check_arguments): Remove assert.
+	(build_concept_check): Allow empty args.
+
+2021-02-04  Tom Greenslade (thomgree)  <thomgree@cisco.com>
+
+	PR c++/90926
+	* call.c (can_convert_array): Extend to handle all valid aggregate
+	initializers of an array; including by string literals, not just by
+	brace-init-list.
+	(build_aggr_conv): Call can_convert_array more often, not just in
+	brace-init-list case.
+	* typeck2.c (array_string_literal_compatible_p): New function.
+	(digest_init_r): call array_string_literal_compatible_p
+	* cp-tree.h: (array_string_literal_compatible_p): Declare.
+
+2021-02-04  Jason Merrill  <jason@redhat.com>
+
+	PR c++/98802
+	* pt.c (do_class_deduction): No aggregate guide if any_dguides_p.
+
+2021-02-04  Jason Merrill  <jason@redhat.com>
+
+	PR c++/95192
+	* pt.c (tsubst_attribute): Handle error.
+	(apply_late_template_attributes): Return false on error.
+	(tsubst_function_decl): Check its return value.
+	(tsubst_decl): Likewise.
+	(push_template_decl): Assert current_template_parms.
+	(tsubst_template_decl): Set current_template_parms.
+
+2021-02-03  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/98951
+	* call.c (struct z_candidate): Mark rewritten and reversed as const.
+	(struct NonPublicField): Mark operator() as const.
+	(struct NonTrivialField): Likewise.
+
+2021-02-03  Jason Merrill  <jason@redhat.com>
+
+	PR c++/98926
+	PR c++/98570
+	* pt.c (spec_hasher::equal): Set processing_template_decl.
+	* Make-lang.in (check-g++-strict-gc): Add --param
+	hash-table-verification-limit=10000.
+
+2021-02-03  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/98899
+	* parser.c (cp_parser_class_specifier_1): Use any possible
+	DEFPARSE_INSTANTIATIONS to update DEFERRED_NOEXCEPT_PATTERN.
+	(cp_parser_save_noexcept): Initialize DEFPARSE_INSTANTIATIONS.
+	* pt.c (tsubst_exception_specification): Stash new_specs into
+	DEFPARSE_INSTANTIATIONS.
+	* tree.c (fixup_deferred_exception_variants): Use
+	UNPARSED_NOEXCEPT_SPEC_P.
+
+2021-02-02  Jason Merrill  <jason@redhat.com>
+
+	PR c++/98929
+	PR c++/96199
+	* error.c (dump_expr): Ignore dummy object.
+	* pt.c (tsubst_baselink): Handle dependent scope.
+
+2021-02-01  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/98295
+	* constexpr.c (cxx_eval_array_reference): Also set
+	new_ctx.object when setting new_ctx.ctor.
+
+2021-02-01  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/98355
+	* parser.c (cp_parser_has_attribute_expression): Use
+	uses_template_parms instead of type_dependent_expression_p.
+
+2021-02-01  Jason Merrill  <jason@redhat.com>
+
+	PR c++/98570
+	* cp-tree.h: Declare it.
+	* pt.c (comparing_dependent_aliases): New flag.
+	(template_args_equal, spec_hasher::equal): Set it.
+	(dependent_alias_template_spec_p): Assert that we don't
+	get non-types other than error_mark_node.
+	(instantiate_alias_template): SET_TYPE_STRUCTURAL_EQUALITY
+	on complex alias specializations.  Set TYPE_DEPENDENT_P here.
+	(tsubst_decl): Not here.
+	* module.cc (module_state::read_cluster): Set
+	comparing_dependent_aliases instead of
+	comparing_specializations.
+	* tree.c (cp_tree_equal): Remove comparing_specializations
+	module handling.
+	* typeck.c (structural_comptypes): Adjust.
+	(comptypes): Remove comparing_specializations handling.
+
 2021-01-29  Nathan Sidwell  <nathan@acm.org>
 
 	PR c++/98843

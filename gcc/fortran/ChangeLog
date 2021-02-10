@@ -1,3 +1,33 @@
+2021-02-04  Julian Brown  <julian@codesourcery.com>
+
+	* openmp.c (resolve_omp_clauses): Omit OpenACC update in
+	contiguity check and stride-specified error.
+
+2021-02-04  Julian Brown  <julian@codesourcery.com>
+
+	* trans-openmp.c (gfc_trans_omp_clauses): Use class_pointer attribute
+	for BT_CLASS.
+
+2021-02-04  Julian Brown  <julian@codesourcery.com>
+
+	* trans-openmp.c (gfc_trans_omp_clauses): Fix dereferencing for
+	BT_DERIVED members.
+
+2021-02-04  Tobias Burnus  <tobias@codesourcery.com>
+
+	* openmp.c (resolve_omp_clauses): Explicitly diagnose
+	substrings as not permitted.
+
+2021-02-03  Jeff Law  <law@redhat.com>
+
+	* intrinsic.texi (ANINT): Fix typo.
+
+2021-02-03  Tobias Burnus  <tobias@codesourcery.com>
+
+	PR fortran/98913
+	* dependency.c (gfc_dep_resolver): Treat local access
+	to coarrays like any array access in dependency analysis.
+
 2021-01-28  Harald Anlauf  <anlauf@gmx.de>
 
 	PR fortran/86470

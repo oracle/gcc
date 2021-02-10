@@ -1,3 +1,18 @@
+2021-02-04  Martin Sebor  <msebor@redhat.com>
+
+	PR c/97882
+	* c-decl.c (locate_old_decl): Add type to diagnostic output.
+	(diagnose_mismatched_decls): Same.
+	(start_function): Introduce temporaries for better readability.
+	* c-typeck.c (comptypes_internal): Only consider complete enum
+	types in comparisons with integers.
+
+2021-02-01  Martin Sebor  <msebor@redhat.com>
+
+	PR middle-end/97172
+	* c-decl.c (free_attr_access_data): New function.
+	(c_parse_final_cleanups): Call free_attr_access_data.
+
 2021-01-16  Kwok Cheung Yeung  <kcy@codesourcery.com>
 
 	* c-parser.c (c_parser_omp_clause_detach): New.
