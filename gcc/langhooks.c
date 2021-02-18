@@ -929,3 +929,12 @@ lang_GNU_OBJC (void)
 {
   return strncmp (lang_hooks.name, "GNU Objective-C", 15) == 0;
 }
+
+/* Returns true if the current lang_hooks represents the GNU GIMPLE
+   frontend.  */
+
+bool
+lang_GNU_GIMPLE (void)
+{
+  return strncmp (lang_hooks.name, "GNU GIMPLE", 10) == 0;
+}

@@ -638,5 +638,6 @@ extern bool lang_GNU_C (void);
 extern bool lang_GNU_CXX (void);
 extern bool lang_GNU_Fortran (void);
 extern bool lang_GNU_OBJC (void);
+extern bool lang_GNU_GIMPLE (void);
 
 #endif /* GCC_LANG_HOOKS_H */
