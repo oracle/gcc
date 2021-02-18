@@ -3537,7 +3537,9 @@ dwarf2out_do_frame (void)
   /* We want to emit correct CFA location expressions or lists, so we
      have to return true if we're going to output debug info, even if
      we're not going to output frame or unwind info.  */
-  if (write_symbols == DWARF2_DEBUG || write_symbols == VMS_AND_DWARF2_DEBUG)
+  if (write_symbols == DWARF2_DEBUG || write_symbols == VMS_AND_DWARF2_DEBUG
+      || write_symbols == CTF_DEBUG || write_symbols == CTF_AND_DWARF2_DEBUG
+      || write_symbols == BTF_DEBUG)
     return true;
 
   if (saved_do_cfi_asm > 0)

@@ -1442,7 +1442,9 @@ asm_str_count (const char *templ)
 static bool
 dwarf2_debug_info_emitted_p (tree decl)
 {
-  if (write_symbols != DWARF2_DEBUG && write_symbols != VMS_AND_DWARF2_DEBUG)
+  if (write_symbols != DWARF2_DEBUG && write_symbols != VMS_AND_DWARF2_DEBUG
+      && write_symbols != CTF_DEBUG && write_symbols != CTF_AND_DWARF2_DEBUG
+      && write_symbols != BTF_DEBUG)
     return false;
 
   if (DECL_IGNORED_P (decl))
@@ -2333,6 +2335,7 @@ final_scan_insn_1 (rtx_insn *insn, FILE *file, int optimize_p ATTRIBUTE_UNUSED,
 	  if (debug_info_level == DINFO_LEVEL_NORMAL
 	      || debug_info_level == DINFO_LEVEL_VERBOSE
 	      || write_symbols == DWARF2_DEBUG
+	      || write_symbols == CTF_AND_DWARF2_DEBUG
 	      || write_symbols == VMS_AND_DWARF2_DEBUG
 	      || write_symbols == VMS_DEBUG)
 	    {
@@ -2371,6 +2374,7 @@ final_scan_insn_1 (rtx_insn *insn, FILE *file, int optimize_p ATTRIBUTE_UNUSED,
 	  if (debug_info_level == DINFO_LEVEL_NORMAL
 	      || debug_info_level == DINFO_LEVEL_VERBOSE
 	      || write_symbols == DWARF2_DEBUG
+	      || write_symbols == CTF_AND_DWARF2_DEBUG
 	      || write_symbols == VMS_AND_DWARF2_DEBUG
 	      || write_symbols == VMS_DEBUG)
 	    {
