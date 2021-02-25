@@ -741,10 +741,14 @@ region_model::on_assignment (const gassign *assign, region_model_context *ctxt)
 
    Return true if the function call has unknown side effects (it wasn't
    recognized and we don't have a body for it, or are unable to tell which
-   fndecl it is).  */
+   fndecl it is).
+
+   Write true to *OUT_TERMINATE_PATH if this execution path should be
+   terminated (e.g. the function call terminates the process).  */
 
 bool
-region_model::on_call_pre (const gcall *call, region_model_context *ctxt)
+region_model::on_call_pre (const gcall *call, region_model_context *ctxt,
+			   bool *out_terminate_path)
 {
   bool unknown_side_effects = false;
 
@@ -787,6 +791,9 @@ region_model::on_call_pre (const gcall *call, region_model_context *ctxt)
 	    impl_call_memset (cd);
 	    return false;
 	    break;
+	  case BUILT_IN_REALLOC:
+	    impl_call_realloc (cd);
+	    return false;
 	  case BUILT_IN_STRCPY:
 	  case BUILT_IN_STRCPY_CHK:
 	    impl_call_strcpy (cd);
@@ -836,6 +843,25 @@ region_model::on_call_pre (const gcall *call, region_model_context *ctxt)
 	return impl_call_calloc (cd);
       else if (is_named_call_p (callee_fndecl, "alloca", call, 1))
 	return impl_call_alloca (cd);
+      else if (is_named_call_p (callee_fndecl, "realloc", call, 2))
+	{
+	  impl_call_realloc (cd);
+	  return false;
+	}
+      else if (is_named_call_p (callee_fndecl, "error"))
+	{
+	  if (impl_call_error (cd, 3, out_terminate_path))
+	    return false;
+	  else
+	    unknown_side_effects = true;
+	}
+      else if (is_named_call_p (callee_fndecl, "error_at_line"))
+	{
+	  if (impl_call_error (cd, 5, out_terminate_path))
+	    return false;
+	  else
+	    unknown_side_effects = true;
+	}
       else if (is_named_call_p (callee_fndecl, "getchar", call, 0))
 	{
 	  /* No side-effects (tracking stream state is out-of-scope
@@ -1980,18 +2006,8 @@ region_model::compare_initial_and_pointer (const initial_svalue *init,
   /* If we have a pointer to something within a stack frame, it can't be the
      initial value of a param.  */
   if (pointee->maybe_get_frame_region ())
-    {
-      const region *reg = init->get_region ();
-      if (tree reg_decl = reg->maybe_get_decl ())
-	if (TREE_CODE (reg_decl) == SSA_NAME)
-	  {
-	    tree ssa_name = reg_decl;
-	    if (SSA_NAME_IS_DEFAULT_DEF (ssa_name)
-		&& SSA_NAME_VAR (ssa_name)
-		&& TREE_CODE (SSA_NAME_VAR (ssa_name)) == PARM_DECL)
-	      return tristate::TS_FALSE;
-	  }
-    }
+    if (init->initial_value_of_param_p ())
+      return tristate::TS_FALSE;
 
   return tristate::TS_UNKNOWN;
 }
@@ -2202,24 +2218,32 @@ region_model::eval_condition (tree lhs,
   return eval_condition (get_rvalue (lhs, ctxt), op, get_rvalue (rhs, ctxt));
 }
 
-/* Attempt to return a path_var that represents SVAL, or return NULL_TREE.
+/* Implementation of region_model::get_representative_path_var.
+   Attempt to return a path_var that represents SVAL, or return NULL_TREE.
    Use VISITED to prevent infinite mutual recursion with the overload for
    regions.  */
 
 path_var
-region_model::get_representative_path_var (const svalue *sval,
-					    svalue_set *visited) const
+region_model::get_representative_path_var_1 (const svalue *sval,
+					     svalue_set *visited) const
 {
-  if (sval == NULL)
-    return path_var (NULL_TREE, 0);
-
-  if (const svalue *cast_sval = sval->maybe_undo_cast ())
-    sval = cast_sval;
+  gcc_assert (sval);
 
   /* Prevent infinite recursion.  */
   if (visited->contains (sval))
     return path_var (NULL_TREE, 0);
   visited->add (sval);
+
+  /* Handle casts by recursion into get_representative_path_var.  */
+  if (const svalue *cast_sval = sval->maybe_undo_cast ())
+    {
+      path_var result = get_representative_path_var (cast_sval, visited);
+      tree orig_type = sval->get_type ();
+      /* If necessary, wrap the result in a cast.  */
+      if (result.m_tree && orig_type)
+	result.m_tree = build1 (NOP_EXPR, orig_type, result.m_tree);
+      return result;
+    }
 
   auto_vec<path_var> pvs;
   m_store.get_representative_path_vars (this, visited, sval, &pvs);
@@ -2233,7 +2257,7 @@ region_model::get_representative_path_var (const svalue *sval,
       const region *reg = ptr_sval->get_pointee ();
       if (path_var pv = get_representative_path_var (reg, visited))
 	return path_var (build1 (ADDR_EXPR,
-				 TREE_TYPE (sval->get_type ()),
+				 sval->get_type (),
 				 pv.m_tree),
 			 pv.m_stack_depth);
     }
@@ -2261,16 +2285,54 @@ region_model::get_representative_path_var (const svalue *sval,
   return pvs[0];
 }
 
-/* Attempt to return a tree that represents SVAL, or return NULL_TREE.  */
+/* Attempt to return a path_var that represents SVAL, or return NULL_TREE.
+   Use VISITED to prevent infinite mutual recursion with the overload for
+   regions
+
+   This function defers to get_representative_path_var_1 to do the work;
+   it adds verification that get_representative_path_var_1 returned a tree
+   of the correct type.  */
+
+path_var
+region_model::get_representative_path_var (const svalue *sval,
+					   svalue_set *visited) const
+{
+  if (sval == NULL)
+    return path_var (NULL_TREE, 0);
+
+  tree orig_type = sval->get_type ();
+
+  path_var result = get_representative_path_var_1 (sval, visited);
+
+  /* Verify that the result has the same type as SVAL, if any.  */
+  if (result.m_tree && orig_type)
+    gcc_assert (TREE_TYPE (result.m_tree) == orig_type);
+
+  return result;
+}
+
+/* Attempt to return a tree that represents SVAL, or return NULL_TREE.
+
+   Strip off any top-level cast, to avoid messages like
+     double-free of '(void *)ptr'
+   from analyzer diagnostics.  */
 
 tree
 region_model::get_representative_tree (const svalue *sval) const
 {
   svalue_set visited;
-  return get_representative_path_var (sval, &visited).m_tree;
+  tree expr = get_representative_path_var (sval, &visited).m_tree;
+
+  /* Strip off any top-level cast.  */
+  if (expr && TREE_CODE (expr) == NOP_EXPR)
+    return TREE_OPERAND (expr, 0);
+
+  return expr;
 }
 
-/* Attempt to return a path_var that represents REG, or return
+/* Implementation of region_model::get_representative_path_var.
+
+   Attempt to return a path_var that represents REG, or return
    the NULL path_var.
    For example, a region for a field of a local would be a path_var
    wrapping a COMPONENT_REF.
@@ -2278,8 +2340,8 @@ region_model::get_representative_tree (const svalue *sval) const
    svalues.  */
 
 path_var
-region_model::get_representative_path_var (const region *reg,
-					    svalue_set *visited) const
+region_model::get_representative_path_var_1 (const region *reg,
+					     svalue_set *visited) const
 {
   switch (reg->get_kind ())
     {
@@ -2409,6 +2471,30 @@ region_model::get_representative_path_var (const region *reg,
     case RK_UNKNOWN:
       return path_var (NULL_TREE, 0);
     }
+}
+
+/* Attempt to return a path_var that represents REG, or return
+   the NULL path_var.
+   For example, a region for a field of a local would be a path_var
+   wrapping a COMPONENT_REF.
+   Use VISITED to prevent infinite mutual recursion with the overload for
+   svalues.
+
+   This function defers to get_representative_path_var_1 to do the work;
+   it adds verification that get_representative_path_var_1 returned a tree
+   of the correct type.  */
+
+path_var
+region_model::get_representative_path_var (const region *reg,
+					   svalue_set *visited) const
+{
+  path_var result = get_representative_path_var_1 (reg, visited);
+
+  /* Verify that the result has the same type as REG, if any.  */
+  if (result.m_tree && reg->get_type ())
+    gcc_assert (TREE_TYPE (result.m_tree) == reg->get_type ());
+
+  return result;
 }
 
 /* Update this model for any phis in SNODE, assuming we came from

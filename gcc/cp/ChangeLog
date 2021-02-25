@@ -1,3 +1,251 @@
+2021-02-24  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/98718
+	* module.cc (ool): New indirection vector.
+	(loc_spans::maybe_propagate): Location is not optional.
+	(loc_spans::open): Likewise.  Assert monotonically advancing.
+	(module_for_ordinary_loc): Use ool indirection vector.
+	(module_state::write_prepare_maps): Do not count empty macro
+	expansions.  Elide empty spans.
+	(module_state::write_macro_maps): Skip empty expansions.
+	(ool_cmp): New qsort comparator.
+	(module_state::write): Create and destroy ool vector.
+	(name_pending_imports): Fix dump push/pop.
+	(preprocess_module): Likewise.  Add more dumping.
+	(preprocessed_module): Likewise.
+
+2021-02-24  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR c++/96251
+	* coroutines.cc (coro_common_keyword_context_valid_p): Suppress
+	error reporting when instantiating for a constexpr.
+
+2021-02-23  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99208
+	* decl.c (name_unnamed_type): Check DECL identity, not IDENTIFIER
+	identity.
+
+2021-02-23  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/95468
+	* pt.c (tsubst_copy_and_build) <case BASELINK>: New case, copied
+	over from tsubst_copy.
+
+2021-02-23  Patrick Palka  <ppalka@redhat.com>
+
+	* pt.c (instantiation_dependent_expression_p): Check
+	processing_template_decl before calling
+	potential_constant_expression.
+
+2021-02-22  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99174
+	* module.cc (struct module_state): Add visited_p flag.
+	(name_pending_imports): Use it to avoid duplicate requests.
+	(preprocess_module): Don't read preprocessor state if we failed to
+	load a module's config.
+
+2021-02-22  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99153
+	* decl.c (duplicate_decls): Move DECL_MODULE_IMPORT_P propagation
+	to common-path.
+	* module.cc (set_defining_module): Add assert.
+
+2021-02-19  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/98741
+	* module.cc (pending_imports): New.
+	(declare_module): Adjust test condition.
+	(name_pending_imports): New.
+	(preprocess_module): Reimplement using pending_imports.
+	(preprocessed_module): Move name-getting to name_pending_imports.
+	* name-lookup.c (append_imported_binding_slot): Assert module
+	ordering is increasing.
+
+2021-02-19  Nathan Sidwell  <nathan@acm.org>
+
+	* module.cc (note_cmis): New.
+	(struct module_state): Add inform_read_p bit.
+	(module_state::do_import): Inform of CMI location, if enabled.
+	(init_modules): Canonicalize note_cmis entries.
+	(handle_module_option): Handle -flang-info-module-read=FOO.
+
+2021-02-19  Jason Merrill  <jason@redhat.com>
+
+	PR c++/96926
+	* call.c (perfect_conversion_p): Limit rvalueness
+	test to reference bindings.
+
+2021-02-19  Jason Merrill  <jason@redhat.com>
+
+	PR c++/96926
+	* call.c (perfect_conversion_p): New.
+	(perfect_candidate_p): New.
+	(add_candidates): Ignore templates after a perfect non-template.
+
+2021-02-18  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99023
+	* module.cc (canonicalize_header_name): Use
+	cpp_probe_header_unit.
+	(maybe_translate_include): Fix note_includes comparison.
+	(init_modules): Fix note_includes string termination.
+
+2021-02-18  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/99132
+	* cp-gimplify.c (cp_genericize_r) <case CALL_EXPR>: Use
+	cp_get_callee_fndecl_nofold instead of cp_get_callee_fndecl to check
+	for immediate function calls.
+
+2021-02-17  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99023
+	* module.cc (struct macro_export): Add GTY markers.
+	(macro_exports): Likewise, us a va_gc Vector.
+
+2021-02-17  Jakub Jelinek  <jakub@redhat.com>
+
+	PR sanitizer/99106
+	* init.c (build_zero_init_1): For flexible array members just return
+	NULL_TREE instead of returning empty CONSTRUCTOR with non-complete
+	ARRAY_TYPE.
+
+2021-02-17  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99116
+	* name-lookup.c (do_pushdecl): Don't peek under template_parm
+	bindings here ...
+	(set_identifier_type_value_with_scope): ... or here.
+	(do_pushtag): Only set_identifier_type_value_with_scope at
+	non-class template parm scope, and use parent scope.
+
+2021-02-17  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99071
+	* name-lookup.c (maybe_record_mergeable_decl): Deref the correct
+	pointer.
+
+2021-02-17  Patrick Palka  <ppalka@redhat.com>
+
+	PR debug/96997
+	PR c++/94034
+	* tree.c (build_aggr_init_expr): Revert r10-7718 change.
+
+2021-02-12  Nathan Sidwell  <nathan@acm.org>
+
+	* module.cc (module_state::write_cluster): Check bindings for
+	imported using-decls.
+
+2021-02-12  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99040
+	* module.cc (trees_in::decl_value): Call add_module_namespace_decl
+	for new namespace-scope entities.
+	(module_state::read_cluster): Don't call add_module_decl here.
+	* name-lookup.h (add_module_decl): Rename to ...
+	(add_module_namespace_decl): ... this.
+	* name-lookup.c (newbinding_bookkeeping): Move into ...
+	(do_pushdecl): ... here.  Its only remaining caller.
+	(add_module_decl): Rename to ...
+	(add_module_namespace_decl): ... here.  Add checking-assert for
+	circularity. Don't call newbinding_bookkeeping, just extern_c
+	checking and incomplete var checking.
+
+2021-02-12  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99039
+	PR c++/99040
+	* cp-tree.h (CPTI_GLOBAL_TYPE): Delete.
+	(global_type_node): Delete.
+	(IDENTIFIER_TYPE_VALUE): Delete.
+	(IDENTIFIER_HAS_TYPE_VALUE): Delete.
+	(get_type_value): Delete.
+	* name-lookup.h (identifier_type_value): Delete.
+	* name-lookup.c (check_module_override): Don't
+	SET_IDENTIFIER_TYPE_VALUE here.
+	(do_pushdecl): Nor here.
+	(identifier_type_value_1, identifier_type_value): Delete.
+	(set_identifier_type_value_with_scope): Only
+	SET_IDENTIFIER_TYPE_VALUE for local and class scopes.
+	(pushdecl_nanmespace_level): Remove shadow stack nadgering.
+	(do_pushtag): Use REAL_IDENTIFIER_TYPE_VALUE.
+	* call.c (check_dtor_name): Use lookup_name.
+	* decl.c (cxx_init_decl_processing): Drop global_type_node.
+	* decl2.c (cplus_decl_attributes): Don't SET_IDENTIFIER_TYPE_VALUE
+	here.
+	* init.c (get_type_value): Delete.
+	* pt.c (instantiate_class_template_1): Don't call pushtag or
+	SET_IDENTIFIER_TYPE_VALUE here.
+	(tsubst): Assert never an identifier.
+	(dependent_type_p): Drop global_type_node assert.
+	* typeck.c (error_args_num): Don't use IDENTIFIER_HAS_TYPE_VALUE
+	to determine ctorness.
+
+2021-02-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/97742
+	* parser.c (cp_parser_requirement_seq): Stop iterating after reaching
+	CPP_EOF.
+
+2021-02-12  Jason Merrill  <jason@redhat.com>
+
+	PR c++/97246
+	PR c++/94546
+	* pt.c (extract_fnparm_pack): Check DECL_PACK_P here.
+	(register_parameter_specializations): Not here.
+
+2021-02-11  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/95888
+	* pt.c (lookup_template_class_1): Pass tf_none to tsubst when looking
+	for the partial instantiation.
+
+2021-02-11  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/99033
+	* init.c (build_zero_init_1): Handle zero initialiation of
+	flexible array members like initialization of [0] arrays.
+	Use integer_minus_onep instead of comparison to integer_minus_one_node
+	and integer_zerop instead of comparison against size_zero_node.
+	Formatting fixes.
+
+2021-02-11  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/99063
+	* semantics.c (finish_do_stmt): Check for unexpanded parameter packs.
+
+2021-02-11  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/97582
+	* name-lookup.c (op_unqualified_lookup): Handle an ambiguous
+	lookup result by discarding it if the first element is a
+	class-scope declaration, otherwise return it.
+	(push_operator_bindings): Handle an ambiguous lookup result by
+	doing push_local_binding on each element in the list.
+
+2021-02-11  Marek Polacek  <polacek@redhat.com>
+
+	* parser.c (cp_parser_selection_statement): Use vec_free.
+
+2021-02-10  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/98988
+	PR c++/99031
+	* constexpr.c: Include cgraph.h.
+	(cxx_eval_call_expression): Call varpool_node::finalize_decl on
+	heap artificial vars.
+	(cxx_eval_outermost_constant_expr): Remove varpool nodes for
+	heap artificial vars.
+
+2021-02-10  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99030
+	* pt.c (tsubst_copy) [VAR_DECL]: For a DECL_LOCAL_DECL_P T is the
+	answer if there's no local specialization.
+
 2021-02-09  Nathan Sidwell  <nathan@acm.org>
 
 	PR c++/98944

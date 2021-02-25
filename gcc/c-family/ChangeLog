@@ -1,3 +1,30 @@
+2021-02-19  Nathan Sidwell  <nathan@acm.org>
+
+	* c.opt (flang-info-module-read, flang-info-module-read=): New.
+
+2021-02-18  H.J. Lu  <hjl.tools@gmail.com>
+
+	PR target/99113
+	* c-attribs.c (c_common_attribute_table): Add the "retain"
+	attribute.
+	(handle_retain_attribute): New function.
+
+2021-02-16  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/99062
+	* c-attribs.c (handle_assume_aligned_attribute): Check that the
+	alignment argument is non-negative.  Tweak a warning message.
+
+2021-02-12  Martin Sebor  <msebor@redhat.com>
+
+	PR c/99055
+	* c-warn.c (warn_parm_array_mismatch): Free strings returned from
+	print_generic_expr_to_str.
+
+2021-02-10  Richard Biener  <rguenther@suse.de>
+
+	* c-common.c (parse_optimize_options): Free decoded_options.
+
 2021-02-04  emsr  <3dw4rd@verizon.net>
 
 	* c-cppbuiltin.c (c_cpp_builtins): __cpp_size_t_suffix=202011L.

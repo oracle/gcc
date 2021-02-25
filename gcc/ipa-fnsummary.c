@@ -1197,7 +1197,8 @@ unmodified_parm_1 (ipa_func_body_info *fbi, gimple *stmt, tree op,
       return SSA_NAME_VAR (op);
     }
   /* Non-SSA parm reference?  */
-  if (TREE_CODE (op) == PARM_DECL)
+  if (TREE_CODE (op) == PARM_DECL
+      && fbi->aa_walk_budget > 0)
     {
       bool modified = false;
 
@@ -1205,12 +1206,13 @@ unmodified_parm_1 (ipa_func_body_info *fbi, gimple *stmt, tree op,
       ao_ref_init (&refd, op);
       int walked = walk_aliased_vdefs (&refd, gimple_vuse (stmt),
 				       mark_modified, &modified, NULL, NULL,
-				       fbi->aa_walk_budget + 1);
+				       fbi->aa_walk_budget);
       if (walked < 0)
 	{
 	  fbi->aa_walk_budget = 0;
 	  return NULL_TREE;
 	}
+      fbi->aa_walk_budget -= walked;
       if (!modified)
 	{
 	  if (size_p)
@@ -2240,7 +2242,7 @@ param_change_prob (ipa_func_body_info *fbi, gimple *stmt, int i)
 
       if (init != error_mark_node)
 	return 0;
-      if (!bb->count.nonzero_p ())
+      if (!bb->count.nonzero_p () || fbi->aa_walk_budget == 0)
 	return REG_BR_PROB_BASE;
       if (dump_file)
 	{
@@ -2255,8 +2257,12 @@ param_change_prob (ipa_func_body_info *fbi, gimple *stmt, int i)
       int walked
 	= walk_aliased_vdefs (&refd, gimple_vuse (stmt), record_modified, &info,
 			      NULL, NULL, fbi->aa_walk_budget);
+      if (walked > 0)
+	fbi->aa_walk_budget -= walked;
       if (walked < 0 || bitmap_bit_p (info.bb_set, bb->index))
 	{
+	  if (walked < 0)
+	    fbi->aa_walk_budget = 0;
 	  if (dump_file)
 	    {
 	      if (walked < 0)
@@ -2769,7 +2775,13 @@ analyze_function_body (struct cgraph_node *node, bool early)
 			     (gimple_call_arg (stmt, i));
 		    }
 		}
-
+	      /* We cannot setup VLA parameters during inlining.  */
+	      for (unsigned int i = 0; i < gimple_call_num_args (stmt); ++i)
+		if (TREE_CODE (gimple_call_arg (stmt, i)) == WITH_SIZE_EXPR)
+		  {
+		    edge->inline_failed = CIF_FUNCTION_NOT_INLINABLE;
+		    break;
+		  }
 	      es->call_stmt_size = this_size;
 	      es->call_stmt_time = this_time;
 	      es->loop_depth = bb_loop_depth (bb);

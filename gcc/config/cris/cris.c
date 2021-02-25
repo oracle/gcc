@@ -880,9 +880,6 @@ cris_print_operand (FILE *file, rtx x, int code)
 {
   rtx operand = x;
 
-  /* Size-strings corresponding to MULT expressions.  */
-  static const char *const mults[] = { "BAD:0", ".b", ".w", "BAD:3", ".d" };
-
   /* New code entries should just be added to the switch below.  If
      handling is finished, just return.  If handling was just a
      modification of the operand, the modified operand should be put in
@@ -1212,11 +1209,21 @@ cris_print_operand (FILE *file, rtx x, int code)
       return;
 
     case 'T':
-      /* Print the size letter for an operand to a MULT, which must be a
-	 const_int with a suitable value.  */
-      if (!CONST_INT_P (operand) || INTVAL (operand) > 4)
-	LOSE_AND_RETURN ("invalid operand for 'T' modifier", x);
-      fprintf (file, "%s", mults[INTVAL (operand)]);
+      {
+	/* Print the size letter for an operand to a ASHIFT, which must be a
+	   const_int with a suitable value.  */
+	int shiftval;
+
+	if (!CONST_INT_P (operand))
+	  LOSE_AND_RETURN ("invalid operand for 'T' modifier", x);
+
+	shiftval = INTVAL (operand);
+
+	if (!(shiftval == 1 || shiftval == 2))
+	  LOSE_AND_RETURN ("invalid operand for 'T' modifier", x);
+
+	fprintf (file, "%s", shiftval == 1 ? ".w" : ".d");
+      }
       return;
 
     case 0:
@@ -2885,8 +2892,13 @@ cris_expand_prologue (void)
       framesize += size + cfoa_size;
     }
 
+  /* FIXME: -mmax-stackframe=SIZE is obsoleted; use -Wstack-usage=SIZE
+     instead.  Make it an alias?  */
   if (cris_max_stackframe && framesize > cris_max_stackframe)
     warning (0, "stackframe too big: %d bytes", framesize);
+
+  if (flag_stack_usage_info)
+    current_function_static_stack_size = framesize;
 }
 
 /* The expander for the epilogue pattern.  */

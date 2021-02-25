@@ -10137,7 +10137,17 @@ lookup_template_class_1 (tree d1, tree arglist, tree in_decl, tree context,
 	  /* Temporarily reduce by one the number of levels in the ARGLIST
 	     so as to avoid comparing the last set of arguments.  */
 	  TREE_VEC_LENGTH (arglist)--;
-	  found = tsubst (gen_tmpl, arglist, complain, NULL_TREE);
+	  /* We don't use COMPLAIN in the following call because this isn't
+	     the immediate context of deduction.  For instance, tf_partial
+	     could be set here as we might be at the beginning of template
+	     argument deduction when any explicitly specified template
+	     arguments are substituted into the function type.  tf_partial
+	     could lead into trouble because we wouldn't find the partial
+	     instantiation that might have been created outside tf_partial
+	     context, because the levels of template parameters wouldn't
+	     match, because in a tf_partial context, tsubst doesn't reduce
+	     TEMPLATE_PARM_LEVEL.  */
+	  found = tsubst (gen_tmpl, arglist, tf_none, NULL_TREE);
 	  TREE_VEC_LENGTH (arglist)++;
 	  /* FOUND is either a proper class type, or an alias
 	     template specialization.  In the later case, it's a
@@ -11961,14 +11971,13 @@ instantiate_class_template_1 (tree type)
 		       instantiation, but the TYPE is not.) */
 		    CLASSTYPE_USE_TEMPLATE (newtag) = 0;
 
-		  /* Now, we call pushtag to put this NEWTAG into the scope of
-		     TYPE.  We first set up the IDENTIFIER_TYPE_VALUE to avoid
-		     pushtag calling push_template_decl.  We don't have to do
-		     this for enums because it will already have been done in
-		     tsubst_enum.  */
-		  if (name)
-		    SET_IDENTIFIER_TYPE_VALUE (name, newtag);
-		  pushtag (name, newtag);
+		  /* Now, install the tag.  We don't use pushtag
+		     because that does too much work -- creating an
+		     implicit typedef, which we've already done.  */
+		  set_identifier_type_value (name, TYPE_NAME (newtag));
+		  maybe_add_class_template_decl_list (type, newtag, false);
+		  TREE_PUBLIC (TYPE_NAME (newtag)) = true;
+		  determine_visibility (TYPE_NAME (newtag));
 		}
 	    }
 	  else if (DECL_DECLARES_FUNCTION_P (t))
@@ -12292,29 +12301,40 @@ extract_fnparm_pack (tree tmpl_parm, tree *spec_p)
 {
   /* Collect all of the extra "packed" parameters into an
      argument pack.  */
-  tree parmvec;
-  tree argpack = make_node (NONTYPE_ARGUMENT_PACK);
+  tree argpack;
   tree spec_parm = *spec_p;
-  int i, len;
+  int len;
 
   for (len = 0; spec_parm; ++len, spec_parm = TREE_CHAIN (spec_parm))
     if (tmpl_parm
 	&& !function_parameter_expanded_from_pack_p (spec_parm, tmpl_parm))
       break;
 
-  /* Fill in PARMVEC and PARMTYPEVEC with all of the parameters.  */
-  parmvec = make_tree_vec (len);
   spec_parm = *spec_p;
-  for (i = 0; i < len; i++, spec_parm = DECL_CHAIN (spec_parm))
+  if (len == 1 && DECL_PACK_P (spec_parm))
     {
-      tree elt = spec_parm;
-      if (DECL_PACK_P (elt))
-	elt = make_pack_expansion (elt);
-      TREE_VEC_ELT (parmvec, i) = elt;
+      /* The instantiation is still a parameter pack; don't wrap it in a
+	 NONTYPE_ARGUMENT_PACK.  */
+      argpack = spec_parm;
+      spec_parm = DECL_CHAIN (spec_parm);
     }
+  else
+    {
+      /* Fill in PARMVEC with all of the parameters.  */
+      tree parmvec = make_tree_vec (len);
+      argpack = make_node (NONTYPE_ARGUMENT_PACK);
+      for (int i = 0; i < len; i++)
+	{
+	  tree elt = spec_parm;
+	  if (DECL_PACK_P (elt))
+	    elt = make_pack_expansion (elt);
+	  TREE_VEC_ELT (parmvec, i) = elt;
+	  spec_parm = DECL_CHAIN (spec_parm);
+	}
 
-  /* Build the argument packs.  */
-  SET_ARGUMENT_PACK_ARGS (argpack, parmvec);
+      /* Build the argument packs.  */
+      SET_ARGUMENT_PACK_ARGS (argpack, parmvec);
+    }
   *spec_p = spec_parm;
 
   return argpack;
@@ -15403,10 +15423,8 @@ tsubst (tree t, tree args, tsubst_flags_t complain, tree in_decl)
 
   code = TREE_CODE (t);
 
-  if (code == IDENTIFIER_NODE)
-    type = IDENTIFIER_TYPE_VALUE (t);
-  else
-    type = TREE_TYPE (t);
+  gcc_assert (code != IDENTIFIER_NODE);
+  type = TREE_TYPE (t);
 
   gcc_assert (type != unknown_type_node);
 
@@ -19838,6 +19856,11 @@ tsubst_copy_and_build (tree t,
     case SCOPE_REF:
       RETURN (tsubst_qualified_id (t, args, complain, in_decl, /*done=*/true,
 				  /*address_p=*/false));
+
+    case BASELINK:
+      RETURN (tsubst_baselink (t, current_nonlambda_class_type (),
+			       args, complain, in_decl));
+
     case ARRAY_REF:
       op1 = tsubst_non_call_postfix_expression (TREE_OPERAND (t, 0),
 						args, complain, in_decl);
@@ -25706,8 +25729,7 @@ register_parameter_specializations (tree pattern, tree inst)
     }
   for (; tmpl_parm; tmpl_parm = DECL_CHAIN (tmpl_parm))
     {
-      if (!DECL_PACK_P (tmpl_parm)
-	  || (spec_parm && DECL_PACK_P (spec_parm)))
+      if (!DECL_PACK_P (tmpl_parm))
 	{
 	  register_local_specialization (spec_parm, tmpl_parm);
 	  spec_parm = DECL_CHAIN (spec_parm);
@@ -26754,10 +26776,6 @@ dependent_type_p (tree type)
   if (type == error_mark_node)
     return false;
 
-  /* Getting here with global_type_node means we improperly called this
-     function on the TREE_TYPE of an IDENTIFIER_NODE.  */
-  gcc_checking_assert (type != global_type_node);
-
   /* If we have not already computed the appropriate value for TYPE,
      do so now.  */
   if (!TYPE_DEPENDENT_P_VALID (type))
@@ -27506,7 +27524,8 @@ bool
 instantiation_dependent_expression_p (tree expression)
 {
   return (instantiation_dependent_uneval_expression_p (expression)
-	  || (potential_constant_expression (expression)
+	  || (processing_template_decl
+	      && potential_constant_expression (expression)
 	      && value_dependent_expression_p (expression)));
 }
 

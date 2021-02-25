@@ -1,3 +1,261 @@
+2021-02-24  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99261
+	* src/c++17/floating_to_chars.cc (sprintf_ld): Add extra args
+	before value to be printed.
+
+2021-02-24  Patrick Palka  <ppalka@redhat.com>
+
+	* src/c++17/floating_to_chars.cc (__floating_to_chars_precision):
+	Relax the condition that guards the printf code path to accept
+	F128_type as well as long double.
+
+2021-02-24  Cassio Neri  <cassio.neri@gmail.com>
+
+	* include/std/chrono (year_month_day_last:day): New
+	implementation.
+
+2021-02-24  Cassio Neri  <cassio.neri@gmail.com>
+
+	* include/std/chrono (year::is_leap): New implementation.
+	* testsuite/std/time/year/2.cc: New test.
+
+2021-02-24  Cassio Neri  <cassio.neri@gmail.com>
+
+	* include/std/chrono (year_month_day::_M_days_since_epoch):
+	New implementation.
+	* testsuite/std/time/year_month_day/4.cc: New test.
+
+2021-02-24  Cassio Neri  <cassio.neri@gmail.com>
+
+	* include/std/chrono (year_month_day::_S_from_days): New
+	implementation.
+	* testsuite/std/time/year_month_day/3.cc: New test.
+
+2021-02-24  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/98384
+	* testsuite/20_util/to_chars/long_double.cc: Include <optional>.
+	(test01): Simplify verifying the nearby values by using a
+	2-iteration loop and a dedicated output buffer to check that the
+	nearby values are different.  Factor out the printf-based
+	verification into a local function, and check that the leading
+	hex digits agree before comparing to the output of printf.  Also
+	verify the output by round-tripping it through from_chars.
+
+2021-02-24  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/98389
+	* config/abi/pre/gnu.ver (GLIBCXX_3.4.29): Do not match to_chars
+	symbols for long double arguments mangled as 'g'.
+	* config/os/gnu-linux/ldbl-extra.ver: Likewise.
+	* config/os/gnu-linux/ldbl-ieee128-extra.ver: Likewise.
+	* src/c++17/Makefile.am [GLIBCXX_LDBL_ALT128_COMPAT_TRUE]:
+	Use -mabi=ibmlongdouble for floating_to_chars.cc.
+	* src/c++17/Makefile.in: Regenerate.
+	* src/c++17/floating_to_chars.cc (floating_type_traits_binary128):
+	New type defining type traits of IEEE binary128 format.
+	(floating_type_traits<__float128>): Define specialization.
+	(floating_type_traits<long double>): Define in terms of
+	floating_type_traits_binary128 when appropriate.
+	(floating_to_shortest_scientific): Handle __float128.
+	(sprintf_ld): New function template for printing a long double
+	or __ieee128 value using sprintf.
+	(__floating_to_chars_shortest, __floating_to_chars_precision):
+	Use sprintf_ld.
+	(to_chars): Define overloads for __float128.
+
+2021-02-24  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/17_intro/names.cc: Undefine 'u' on powerpc*-linux*.
+
+2021-02-23  Martin Sebor  <msebor@redhat.com>
+
+	PR c++/99074
+	* libsupc++/dyncast.cc (__dynamic_cast): Return null when
+	first argument is null.
+
+2021-02-23  Jakub Jelinek  <jakub@redhat.com>
+
+	PR libstdc++/99181
+	* testsuite/21_strings/char_traits/requirements/char/99181.cc: New
+	test.
+
+2021-02-23  Jakub Jelinek  <jakub@redhat.com>
+
+	PR libstdc++/99181
+	* include/bits/char_traits.h (char_traits<char>::compare): For
+	constexpr evaluation don't call
+	__gnu_cxx::char_traits<char_type>::compare but do the comparison loop
+	directly.
+
+2021-02-23  Jakub Jelinek  <jakub@redhat.com>
+
+	PR libstdc++/97549
+	* include/pstl/parallel_backend_serial.h: Remove __pstl::__par_backend.
+
+2021-02-23  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/98384
+	* src/c++17/floating_to_chars.cc (get_ieee_repr): Extract
+	the high- and low-order parts from an IBM long double value
+	in an endian-agnostic way.
+
+2021-02-19  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/atomic_wait.h (__thread_relax()): Call
+	__thread_yield() not __gthread_yield().
+
+2021-02-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/atomic_wait.h (__thread_yield()): Check
+	_GLIBCXX_HAS_GTHREADS before using __gthread_yield.
+	(__thread_relax()): Use __thread_yield() instead of repeating
+	the preprocessor checks for __gthread_yield.
+
+2021-02-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/mutex (once_flag::_M_activate()): Add explicit
+	return statement for passive case.
+	(once_flag::_M_finish(bool)): Use reserved name for parameter.
+
+2021-02-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99096
+	* testsuite/util/testsuite_fs.h: Always include <unistd.h>.
+
+2021-02-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/88881
+	* src/c++17/fs_ops.cc (fs::symlink_status): Re-enable workaround.
+
+2021-02-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/status_cxx2014.xml: Document implementation
+	specific properties of std::experimental::filesystem::rename.
+	* doc/xml/manual/status_cxx2017.xml: Document implementation
+	specific properties of std::filesystem::rename.
+	* doc/html/*: Regenerate.
+	* src/c++17/fs_ops.cc (fs::rename): Implement correct behaviour
+	for directories on Windows.
+	* src/filesystem/ops-common.h (__gnu_posix::rename): Use
+	MoveFileExW on Windows.
+	* testsuite/27_io/filesystem/operations/rename.cc: New test.
+	* testsuite/experimental/filesystem/operations/rename.cc: New test.
+
+2021-02-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/util/testsuite_fs.h (nonexistent_path): Add
+	random number to the path.
+
+2021-02-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/experimental/internet (address_v6::to_string): Include
+	scope ID in string.
+	* testsuite/experimental/net/internet/address/v6/members.cc:
+	Test to_string() results.
+
+2021-02-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/experimental/internet (address_v6::any): Avoid using
+	memcpy in constexpr function.
+	(address_v6::loopback): Likewise.
+	(make_address_v6): Fix missing return statements on error paths.
+	* include/experimental/io_context: Avoid -Wdangling-else
+	warning.
+	* testsuite/experimental/net/internet/address/v4/members.cc:
+	Remove unused variables.
+	* testsuite/experimental/net/internet/address/v6/members.cc:
+	New test.
+
+2021-02-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/shared_ptr_base.h (__shared_ptr::_M_get_deleter):
+	Add unused attribute to parameter.
+	* src/c++11/shared_ptr.cc (_Sp_make_shared_tag::_S_eq):
+	Likewise.
+
+2021-02-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/27_io/basic_ostream/emit/1.cc: Expect test to fail
+	if -fno-rtti is used.
+	* testsuite/30_threads/async/forced_unwind.cc: Expect test
+	to abort if -fno-rtti is used.
+
+2021-02-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/util/testsuite_allocator.h (memory_resource):
+	Remove requirement for RTTI and exceptions to be enabled.
+
+2021-02-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/27_io/basic_istringstream/rdbuf/char/2832.cc: Use
+	static_cast when RTTI is disabled.
+	* testsuite/27_io/basic_istringstream/rdbuf/wchar_t/2832.cc:
+	Likewise.
+	* testsuite/27_io/basic_ostringstream/rdbuf/char/2832.cc:
+	Likewise.
+	* testsuite/27_io/basic_ostringstream/rdbuf/wchar_t/2832.cc:
+	Likewise.
+	* testsuite/27_io/basic_stringstream/str/char/2.cc:
+	Likewise.
+	* testsuite/27_io/basic_stringstream/str/wchar_t/2.cc:
+	Likewise.
+
+2021-02-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/ostream (__syncbuf_base::_S_get): Mark parameter
+	as unused and only use dynamic_cast when RTTI is enabled.
+
+2021-02-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99077
+	* src/c++11/cxx11-ios_failure.cc (__ios_failure(const char*, int)):
+	Change int parameter to error_code, to match std::ios_failure.
+	(__throw_ios_failure(const char*, int)): Construct error_code
+	from int parameter.
+
+2021-02-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	* libsupc++/eh_ptr.cc (_GLIBCXX_EH_PTR_RELOPS_COMPAT): Define
+	new macro.
+	* libsupc++/exception_ptr.h (_GLIBCXX_EH_PTR_USED): Check new
+	macro instead of _GLIBCXX_EH_PTR_COMPAT.
+	(operator==): Likewise.
+
+2021-02-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99058
+	* doc/xml/manual/status_cxx2011.xml: Document when support
+	became stable.
+	* doc/xml/manual/status_cxx2014.xml: Likewise.
+	* doc/xml/manual/status_cxx2017.xml: Likewise.
+	* doc/html/manual/status.html: Regenerate.
+
+2021-02-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/88881
+	* src/c++17/fs_ops.cc (fs::status): Re-enable workaround.
+
+2021-02-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	* src/c++17/fs_ops.cc (fs::create_hard_link, fs::equivalent)
+	(fs::remove): Use std::system_category() for error codes from
+	GetLastError().
+	* src/filesystem/ops.cc (fs::create_hard_link, fs::remove):
+	Likewise.
+
+2021-02-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/27_io/filesystem/operations/proximate.cc: Fix typo
+	in __MINGW32__ macro name.
+	* testsuite/27_io/filesystem/path/compare/lwg2936.cc: Likewise.
+	* testsuite/27_io/filesystem/path/generation/proximate.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/generation/relative.cc:
+	Likewise.
+	* testsuite/util/testsuite_fs.h: Likewise.
+
 2021-02-09  François Dumont  <fdumont@gcc.gnu.org>
 
 	* include/bits/stl_tree.h

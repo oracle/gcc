@@ -4999,10 +4999,16 @@ gfc_match_call (void)
   sym = st->n.sym;
 
   /* If this is a variable of derived-type, it probably starts a type-bound
-     procedure call.  */
-  if ((sym->attr.flavor != FL_PROCEDURE
-       || gfc_is_function_return_value (sym, gfc_current_ns))
-      && (sym->ts.type == BT_DERIVED || sym->ts.type == BT_CLASS))
+     procedure call. Associate variable targets have to be resolved for the
+     target type.  */
+  if (((sym->attr.flavor != FL_PROCEDURE
+	|| gfc_is_function_return_value (sym, gfc_current_ns))
+       && (sym->ts.type == BT_DERIVED || sym->ts.type == BT_CLASS))
+		||
+      (sym->assoc && sym->assoc->target
+       && gfc_resolve_expr (sym->assoc->target)
+       && (sym->assoc->target->ts.type == BT_DERIVED
+	   || sym->assoc->target->ts.type == BT_CLASS)))
     return match_typebound_call (st);
 
   /* If it does not seem to be callable (include functions so that the
@@ -5530,6 +5536,24 @@ gfc_match_namelist (void)
 	  if (m == MATCH_ERROR)
 	    goto error;
 
+	  if (sym->ts.type == BT_UNKNOWN)
+	    {
+	      if (gfc_current_ns->seen_implicit_none)
+		{
+		  /* It is required that members of a namelist be declared
+		     before the namelist.  We check this by checking if the
+		     symbol has a defined type for IMPLICIT NONE.  */
+		  gfc_error ("Symbol %qs in namelist %qs at %C must be "
+			     "declared before the namelist is declared.",
+			     sym->name, group_name->name);
+		  gfc_error_check ();
+		}
+	      else
+		/* If the type is not set already, we set it here to the
+		   implicit default type.  It is not allowed to set it
+		   later to any other type.  */
+		gfc_set_default_type (sym, 0, gfc_current_ns);
+	    }
 	  if (sym->attr.in_namelist == 0
 	      && !gfc_add_in_namelist (&sym->attr, sym->name, NULL))
 	    goto error;

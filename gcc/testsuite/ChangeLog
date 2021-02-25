@@ -1,3 +1,710 @@
+2021-02-24  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/98718
+	* g++.dg/modules/pr98718_a.C: New.
+	* g++.dg/modules/pr98718_b.C: New.
+
+2021-02-24  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* g++.dg/coroutines/co-await-void_type.C: Mark promise
+	final_suspend call as noexcept.
+	* g++.dg/coroutines/co-return-syntax-08-bad-return.C: Likewise.
+	* g++.dg/coroutines/co-return-syntax-10-movable.C: Likewise.
+	* g++.dg/coroutines/co-return-warning-1.C: Likewise.
+	* g++.dg/coroutines/co-yield-syntax-08-needs-expr.C: Likewise.
+	* g++.dg/coroutines/coro-bad-gro-00-class-gro-scalar-return.C: Likewise.
+	* g++.dg/coroutines/coro-bad-gro-01-void-gro-non-class-coro.C: Likewise.
+	* g++.dg/coroutines/coro-missing-gro.C: Likewise.
+	* g++.dg/coroutines/coro-missing-promise-yield.C: Likewise.
+	* g++.dg/coroutines/coro-missing-ret-value.C: Likewise.
+	* g++.dg/coroutines/coro-missing-ret-void.C: Likewise.
+	* g++.dg/coroutines/coro-missing-ueh.h: Likewise.
+	* g++.dg/coroutines/coro1-allocators.h: Likewise.
+	* g++.dg/coroutines/coro1-refs-and-ctors.h: Likewise.
+	* g++.dg/coroutines/coro1-ret-int-yield-int.h: Likewise.
+	* g++.dg/coroutines/pr94682-preview-this.C: Likewise.
+	* g++.dg/coroutines/pr94752.C: Likewise.
+	* g++.dg/coroutines/pr94760-mismatched-traits-and-promise-prev.C: Likewise.
+	* g++.dg/coroutines/pr94879-folly-1.C: Likewise.
+	* g++.dg/coroutines/pr94883-folly-2.C: Likewise.
+	* g++.dg/coroutines/pr95050.C: Likewise.
+	* g++.dg/coroutines/pr95345.C: Likewise.
+	* g++.dg/coroutines/pr95440.C: Likewise.
+	* g++.dg/coroutines/pr95591.C: Likewise.
+	* g++.dg/coroutines/pr95711.C: Likewise.
+	* g++.dg/coroutines/pr95813.C: Likewise.
+	* g++.dg/coroutines/symmetric-transfer-00-basic.C: Likewise.
+	* g++.dg/coroutines/torture/co-await-07-tmpl.C: Likewise.
+	* g++.dg/coroutines/torture/co-await-17-capture-comp-ref.C: Likewise.
+	* g++.dg/coroutines/torture/co-ret-00-void-return-is-ready.C: Likewise.
+	* g++.dg/coroutines/torture/co-ret-01-void-return-is-suspend.C: Likewise.
+	* g++.dg/coroutines/torture/co-ret-03-different-GRO-type.C: Likewise.
+	* g++.dg/coroutines/torture/co-ret-04-GRO-nontriv.C: Likewise.
+	* g++.dg/coroutines/torture/co-ret-06-template-promise-val-1.C: Likewise.
+	* g++.dg/coroutines/torture/co-ret-08-template-cast-ret.C: Likewise.
+	* g++.dg/coroutines/torture/co-ret-09-bool-await-susp.C: Likewise.
+	* g++.dg/coroutines/torture/co-ret-15-default-return_void.C: Likewise.
+	* g++.dg/coroutines/torture/co-ret-17-void-ret-coro.C: Likewise.
+	* g++.dg/coroutines/torture/co-yield-00-triv.C: Likewise.
+	* g++.dg/coroutines/torture/co-yield-03-tmpl.C: Likewise.
+	* g++.dg/coroutines/torture/co-yield-04-complex-local-state.C: Likewise.
+	* g++.dg/coroutines/torture/exceptions-test-0.C: Likewise.
+	* g++.dg/coroutines/torture/exceptions-test-01-n4849-a.C: Likewise.
+	* g++.dg/coroutines/torture/func-params-04.C: Likewise.
+	* g++.dg/coroutines/torture/local-var-06-structured-binding.C: Likewise.
+	* g++.dg/coroutines/torture/mid-suspend-destruction-0.C: Likewise.
+
+2021-02-24  Jakub Jelinek  <jakub@redhat.com>
+
+	PR fortran/99226
+	* c-c++-common/gomp/pr99226.c: New test.
+	* gfortran.dg/gomp/pr99226.f90: New test.
+
+2021-02-24  Vladimir N. Makarov  <vmakarov@redhat.com>
+
+	PR inline-asm/99123
+	* gcc.target/i386/pr99123.c: New.
+
+2021-02-24  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gcc.dg/stack-usage-1.c: Adjust for CRIS.
+
+2021-02-24  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99072
+	* g++.dg/modules/pr99072.H: New.
+
+2021-02-24  Paul Thomas  <pault@gcc.gnu.org>
+
+	PR fortran/98342
+	* gfortran.dg/assumed_rank_21.f90 : New test.
+
+2021-02-24  Martin Sebor  <msebor@redhat.com>
+
+	PR middle-end/97172
+	* gcc.dg/pr97172-2.c: New test.
+
+2021-02-24  Tamar Christina  <tamar.christina@arm.com>
+
+	PR tree-optimization/99220
+	* g++.dg/vect/pr99220.cc: New test.
+
+2021-02-24  Tamar Christina  <tamar.christina@arm.com>
+
+	PR tree-optimization/99149
+	* g++.dg/vect/pr99149.cc: Disabled on BE.
+
+2021-02-24  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR c++/96251
+	* g++.dg/coroutines/pr96251.C: New test.
+
+2021-02-24  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/99225
+	* gcc.c-torture/compile/pr99225.c: New test.
+
+2021-02-24  Tamar Christina  <tamar.christina@arm.com>
+
+	PR tree-optimization/99149
+	* g++.dg/vect/pr99149.cc: New test.
+
+2021-02-24  Richard Biener  <rguenther@suse.de>
+
+	PR c/99224
+	* gcc.dg/pr99224.c: New testcase.
+
+2021-02-23  Peter Bergner  <bergner@linux.ibm.com>
+
+	* gcc.target/powerpc/mma-builtin-4.c: Add tests for
+	__builtin_vsx_assemble_pair and __builtin_vsx_disassemble_pair.
+	Add __has_builtin tests for built-ins.
+	Update expected instruction counts.
+
+2021-02-23  Martin Sebor  <msebor@redhat.com>
+
+	PR c++/99074
+	* g++.dg/warn/Wnonnull11.C: New test.
+
+2021-02-23  Paul Thomas  <pault@gcc.gnu.org>
+
+	PR fortran/99124
+	* gfortran.dg/class_defined_operator_2.f03 : New test.
+	* gfortran.dg/elemental_result_2.f90 : New test.
+	* gfortran.dg/class_assign_4.f90: Correct the non-conforming
+	elemental function with an allocatable result with an operator
+	interface with array dummies and result.
+
+2021-02-23  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/99206
+	* gfortran.dg/reshape_zerosize_4.f90: New test.
+
+2021-02-23  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99208
+	* g++.dg/modules/pr99208_a.C: New.
+	* g++.dg/modules/pr99208_b.C: New.
+
+2021-02-23  Martin Liska  <mliska@suse.cz>
+
+	PR sanitizer/99168
+	* c-c++-common/asan/pr99168.c: New test.
+
+2021-02-23  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/95468
+	* g++.dg/template/non-dependent15.C: New test.
+
+2021-02-23  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/99204
+	* gfortran.dg/pr99204.f90: New test.
+
+2021-02-23  Kewen Lin  <linkw@linux.ibm.com>
+
+	* gcc.target/powerpc/vec-init-10.c: New test.
+
+2021-02-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* g++.dg/warn/Wplacement-new-size-1.C,
+	g++.dg/warn/Wplacement-new-size-2.C,
+	g++.dg/warn/Wplacement-new-size-6.C: Adjust for
+	default_packed targets.
+
+2021-02-22  David Malcolm  <dmalcolm@redhat.com>
+
+	PR analyzer/99196
+	* gcc.dg/analyzer/error-1.c: New test.
+	* gcc.dg/analyzer/error-2.c: New test.
+	* gcc.dg/analyzer/error-3.c: New test.
+
+2021-02-22  H.J. Lu  <hjl.tools@gmail.com>
+
+	PR testsuite/99173
+	* c-c++-common/attr-retain-5.c: Require R_flag_in_section.
+	* c-c++-common/attr-retain-6.c: Likewise.
+	* c-c++-common/attr-retain-7.c: Likewise.
+	* c-c++-common/attr-retain-8.c: Likewise.
+	* c-c++-common/attr-retain-9.c: Likewise.
+
+2021-02-22  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* gcc.target/aarch64/sve/cse_sve_vl_constants_1.c: New test.
+
+2021-02-22  Hans-Peter Nilsson  <hp@axis.com>
+
+	* g++.dg/warn/Warray-bounds-10.C, g++.dg/warn/Warray-bounds-11.C,
+	g++.dg/warn/Warray-bounds-12.C, g++.dg/warn/Warray-bounds-13.C:
+	Handle __INT32_TYPE__ being "long int".
+
+2021-02-22  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gcc.target/cris/biap.c: Add a Y+=X*2 to the Y+=X*4.
+
+2021-02-22  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gcc.target/cris/biap-mul.c: New test.
+
+2021-02-22  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gcc.target/cris/torture/sync-reload-mul-1.c: New test.
+
+2021-02-22  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99174
+	* g++.dg/modules/pr99174-1_a.C: New.
+	* g++.dg/modules/pr99174-1_b.C: New.
+	* g++.dg/modules/pr99174-1_c.C: New.
+	* g++.dg/modules/pr99174.H: New.
+
+2021-02-22  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99153
+	* g++.dg/modules/pr99153_a.H: New.
+	* g++.dg/modules/pr99153_b.H: New.
+
+2021-02-22  Andre Vieira  <andre.simoesdiasvieira@arm.com>
+
+	PR rtl-optimization/98791
+	* gcc.target/aarch64/sve/pr98791.c: New test.
+
+2021-02-22  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/99165
+	* g++.dg/pr99165.C: New testcase.
+
+2021-02-21  Harald Anlauf  <anlauf@gmx.de>
+
+	* gfortran.dg/intent_optimize_3.f90: New test.
+
+2021-02-20  David Edelsohn  <dje.gcc@gmail.com>
+
+	* c-c++-common/attr-retain-5.c: Skip on AIX.
+	* c-c++-common/attr-retain-6.c: Same.
+	* c-c++-common/attr-retain-7.c: Same.
+	* c-c++-common/attr-retain-8.c: Same.
+	* c-c++-common/attr-retain-9.c: Same.
+
+2021-02-20  Ilya Leoshkevich  <iii@linux.ibm.com>
+
+	PR target/99134
+	* gcc.target/s390/vector/long-double-from-decimal128.c: New test.
+	* gcc.target/s390/vector/long-double-from-decimal32.c: New test.
+	* gcc.target/s390/vector/long-double-from-decimal64.c: New test.
+	* gcc.target/s390/vector/long-double-to-decimal128.c: New test.
+	* gcc.target/s390/vector/long-double-to-decimal32.c: New test.
+	* gcc.target/s390/vector/long-double-to-decimal64.c: New test.
+
+2021-02-19  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/98741
+	* g++.dg/modules/pr98741_a.H: New.
+	* g++.dg/modules/pr98741_b.H: New.
+	* g++.dg/modules/pr98741_c.C: New.
+	* g++.dg/modules/pr98741_d.C: New.
+
+2021-02-19  Jerry DeLisle  <jvdelisle@gcc.gnu.org>
+
+	PR fortran/98686
+	* gfortran.dg/namelist_4.f90: Modify.
+	* gfortran.dg/namelist_98.f90: New test.
+
+2021-02-19  Martin Sebor  <msebor@redhat.com>
+
+	PR c/97172
+	* gcc.dg/pr97172.c: Add test cases.
+
+2021-02-19  Nathan Sidwell  <nathan@acm.org>
+
+	* g++.dg/modules/pr99166_a.X: New.
+	* g++.dg/modules/pr99166_b.C: New.
+	* g++.dg/modules/pr99166_c.C: New.
+	* g++.dg/modules/pr99166_d.C: New.
+
+2021-02-19  Tobias Burnus  <tobias@codesourcery.com>
+
+	PR fortran/99010
+	* gfortran.dg/coarray/array_temporary-1.f90: New test.
+
+2021-02-19  Tobias Burnus  <tobias@codesourcery.com>
+
+	PR fortran/99146
+	* gfortran.dg/dtio_36.f90: New test.
+
+2021-02-19  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/99122
+	* gcc.dg/pr99122-3.c: New testcase.
+
+2021-02-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/98998
+	* gcc.target/arm/pure-code/pr98998.c: New test.
+
+2021-02-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR ipa/99034
+	* g++.dg/opt/pr99034.C: New test.
+
+2021-02-19  Tobias Burnus  <tobias@codesourcery.com>
+
+	PR fortran/99027
+	* gfortran.dg/ubound_1.f90: New test.
+
+2021-02-19  Andre Vieira  <andre.simoesdiasvieira@arm.com>
+
+	PR target/98657
+	* gcc.target/aarch64/sve/pr98657.c: New test.
+
+2021-02-19  Jason Merrill  <jason@redhat.com>
+
+	* g++.dg/cpp0x/decltype64.C: Change argument to const&.
+
+2021-02-19  David Malcolm  <dmalcolm@redhat.com>
+
+	PR jit/99126
+	* jit.dg/test-trap.c: New test.
+
+2021-02-19  Jason Merrill  <jason@redhat.com>
+
+	PR c++/96926
+	* g++.dg/cpp0x/overload4.C: New test.
+
+2021-02-18  Vladimir N. Makarov  <vmakarov@redhat.com>
+
+	PR rtl-optimization/96264
+	* gcc.target/powerpc/pr96264.c: New.
+
+2021-02-18  H.J. Lu  <hjl.tools@gmail.com>
+
+	PR target/99113
+	* c-c++-common/attr-retain-1.c: New test.
+	* c-c++-common/attr-retain-2.c: Likewise.
+	* c-c++-common/attr-retain-3.c: Likewise.
+	* c-c++-common/attr-retain-4.c: Likewise.
+	* c-c++-common/attr-retain-5.c: Likewise.
+	* c-c++-common/attr-retain-6.c: Likewise.
+	* c-c++-common/attr-retain-7.c: Likewise.
+	* c-c++-common/attr-retain-8.c: Likewise.
+	* c-c++-common/attr-retain-9.c: Likewise.
+	* c-c++-common/pr99113.c: Likewise.
+	* gcc.c-torture/compile/attr-retain-1.c: Likewise.
+	* gcc.c-torture/compile/attr-retain-2.c: Likewise.
+	* c-c++-common/attr-used.c: Don't expect SHF_GNU_RETAIN section.
+	* c-c++-common/attr-used-2.c: Likewise.
+	* c-c++-common/attr-used-3.c: Likewise.
+	* c-c++-common/attr-used-4.c: Likewise.
+	* c-c++-common/attr-used-9.c: Likewise.
+	* gcc.c-torture/compile/attr-used-retain-1.c: Likewise.
+	* gcc.c-torture/compile/attr-used-retain-2.c: Likewise.
+	* c-c++-common/attr-used-5.c: Don't expect warning for the used
+	attribute nor SHF_GNU_RETAIN section.
+	* c-c++-common/attr-used-6.c: Likewise.
+	* c-c++-common/attr-used-7.c: Likewise.
+	* c-c++-common/attr-used-8.c: Likewise.
+
+2021-02-18  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99023
+	* g++.dg/modules/modules.exp: Bail on cross-testing.  Add support
+	for .X files.
+	* g++.dg/modules/pr99023_a.X: New.
+	* g++.dg/modules/pr99023_b.X: New.
+
+2021-02-18  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c/99136
+	* gcc.dg/pr99136.c: New test.
+
+2021-02-18  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99023
+	* g++.dg/modules/modules.exp: Remove dg-module-headers support
+	* g++.dg/modules/alias-2_a.H: Delete.
+	* g++.dg/modules/sys/alias-2_a.H: Delete.
+
+2021-02-18  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99150
+	* g++.dg/modules/pr99023_a.H: Delete.
+	* g++.dg/modules/pr99023_b.H: Delete.
+
+2021-02-18  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/99132
+	* g++.dg/cpp2a/constexpr-virtual18.C: New test.
+
+2021-02-18  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/99122
+	* gcc.dg/pr99122-1.c: New testcase.
+	* gcc.dg/pr99122-2.c: Likewise.
+
+2021-02-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	PR tree-optimization/99142
+	* gcc.dg/tree-ssa/pr99142.c: New test.
+
+2021-02-18  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/99109
+	* g++.dg/warn/Warray-bounds-17.C: New test.
+
+2021-02-18  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/99104
+	* gcc.dg/pr99104.c: New test.
+
+2021-02-17  David Malcolm  <dmalcolm@redhat.com>
+
+	PR analyzer/94596
+	* gcc.dg/analyzer/pr94596.c: New test.
+
+2021-02-17  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99023
+	* g++.dg/modules/pr99023_a.H: New.
+	* g++.dg/modules/pr99023_b.H: New.
+
+2021-02-17  David Malcolm  <dmalcolm@redhat.com>
+
+	PR analyzer/98969
+	* g++.dg/analyzer/pr99064.C: Convert dg-bogus to dg-warning.
+	* gcc.dg/analyzer/pr96841.c: Add -Wno-analyzer-too-complex to
+	options.  Remove false leak directive.
+	* gcc.dg/analyzer/pr98969.c (test_1): Remove xfail from leak
+	false positive.
+	(test_3): New.
+
+2021-02-17  Julian Brown  <julian@codesourcery.com>
+
+	* gfortran.dg/goacc/array-with-dt-2.f90: Remove expected errors.
+	* gfortran.dg/goacc/array-with-dt-6.f90: New test.
+	* gfortran.dg/goacc/mapping-tests-2.f90: Update expected error.
+	* gfortran.dg/goacc/ref_inquiry.f90: Update expected errors.
+	* gfortran.dg/gomp/ref_inquiry.f90: Likewise.
+
+2021-02-17  Julian Brown  <julian@codesourcery.com>
+
+	* gfortran.dg/goacc/array-with-dt-1.f90: New test.
+	* gfortran.dg/goacc/array-with-dt-3.f90: Likewise.
+	* gfortran.dg/goacc/array-with-dt-4.f90: Likewise.
+	* gfortran.dg/goacc/array-with-dt-5.f90: Likewise.
+	* gfortran.dg/goacc/derived-chartypes-1.f90: Re-enable test.
+	* gfortran.dg/goacc/derived-chartypes-2.f90: Likewise.
+	* gfortran.dg/goacc/derived-classtypes-1.f95: Uncomment
+	previously-broken directives.
+
+2021-02-17  Jakub Jelinek  <jakub@redhat.com>
+
+	PR sanitizer/99106
+	* g++.dg/ubsan/pr99106.C: New test.
+
+2021-02-17  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99116
+	* g++.dg/lookup/pr99116-1.C: New.
+	* g++.dg/lookup/pr99116-2.C: New.
+
+2021-02-17  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99071
+	* g++.dg/modules/pr99071_a.H: New.
+	* g++.dg/modules/pr99071_b.H: New.
+
+2021-02-17  Patrick Palka  <ppalka@redhat.com>
+
+	PR debug/96997
+	PR c++/94034
+	* g++.dg/cpp1y/constexpr-nsdmi7b.C:  Adjust expected location of
+	"call to non-'constexpr' function" error message.
+
+2021-02-16  Nathan Sidwell  <nathan@acm.org>
+
+	* g++.dg/modules/pr99050_a.H: New.
+	* g++.dg/modules/pr99050_b.C: New.
+
+2021-02-16  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/99062
+	* gcc.dg/attr-assume_aligned-4.c: Adjust dg-warning.
+	* g++.dg/ext/attr-assume-aligned.C: New test.
+
+2021-02-16  YunQiang Su  <yunqiang.su@cipunited.com>
+
+	* gcc.target/mips/compact-branches-5.c: Force -fno-PIC.
+	* gcc.target/mips/compact-branches-6.c: Force -fno-PIC.
+
+2021-02-16  Tobias Burnus  <tobias@codesourcery.com>
+
+	* gfortran.dg/goacc/ref_inquiry.f90: New test.
+	* gfortran.dg/gomp/ref_inquiry.f90: New test.
+
+2021-02-16  Vladimir N. Makarov  <vmakarov@redhat.com>
+
+	PR inline-asm/98096
+	* gcc.c-torture/compile/pr98096.c: New.
+
+2021-02-16  Tobias Burnus  <tobias@codesourcery.com>
+
+	PR fortran/99111
+	* gfortran.dg/fmt_nonchar_1.f90: New test.
+	* gfortran.dg/fmt_nonchar_2.f90: New test.
+
+2021-02-16  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/99100
+	* gcc.target/i386/pr99100.c: New test.
+
+2021-02-16  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gcc.misc-tests/outputs.exp (outest): Fix typo "is_target".
+
+2021-02-15  Peter Bergner  <bergner@linux.ibm.com>
+
+	PR rtl-optimization/98872
+	* gcc.target/powerpc/pr98872.c: New test.
+
+2021-02-15  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/99079
+	* gcc.dg/fold-modpow2-2.c: New test.
+	* gcc.c-torture/execute/pr99079.c: New test.
+
+2021-02-13  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/98439
+	* gcc.target/i386/pr98439.c: New test.
+
+2021-02-13  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/96166
+	* gcc.target/i386/pr96166.c: New test.
+
+2021-02-12  Jakub Jelinek  <jakub@redhat.com>
+
+	* gcc.dg/rtl/aarch64/multi-subreg-1.c: Add dg-do compile directive
+	and restrict the test to aarch64-*-* target only.
+
+2021-02-12  Nathan Sidwell  <nathan@acm.org>
+
+	* g++.dg/modules/pr99039_a.C: New.
+	* g++.dg/modules/pr99039_b.C: New.
+
+2021-02-12  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99040
+	* g++.dg/modules/pr99040_a.C: New.
+	* g++.dg/modules/pr99040_b.C: New.
+	* g++.dg/modules/pr99040_c.C: New.
+	* g++.dg/modules/pr99040_d.C: New.
+
+2021-02-12  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99039
+	PR c++/99040
+	* g++.dg/lookup/pr99039.C: New.
+
+2021-02-12  Steve Kargl  <sgk@troutmask.apl.washington.edu>
+
+	PR libfortran/95647
+	* gfortran.dg/ieee/ieee_12.f90: New test.
+
+2021-02-12  Richard Sandiford  <richard.sandiford@arm.com>
+
+	* gcc.dg/rtl/aarch64/multi-subreg-1.c: New test.
+
+2021-02-12  Christophe Lyon  <christophe.lyon@linaro.org>
+
+	PR target/98931
+	* gcc.target/arm/pr98931.c: Add -mthumb
+
+2021-02-12  Tobias Burnus  <tobias@codesourcery.com>
+
+	PR fortran/99043
+	* gfortran.dg/assumed_rank_20.f90: New test.
+
+2021-02-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/97742
+	* g++.dg/cpp2a/concepts-requires24.C: New test.
+
+2021-02-12  Jason Merrill  <jason@redhat.com>
+
+	PR c++/97246
+	* g++.dg/cpp2a/lambda-generic-variadic21.C: New test.
+
+2021-02-12  David Malcolm  <dmalcolm@redhat.com>
+
+	PR analyzer/98969
+	* g++.dg/analyzer/pr99064.C: New test.
+	* gcc.dg/analyzer/pr98969.c: New test.
+
+2021-02-11  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/95888
+	* g++.dg/template/deduce10.C: New test.
+	* g++.dg/template/deduce9.C: New test.
+
+2021-02-11  Peter Bergner  <bergner@linux.ibm.com>
+
+	PR target/99041
+	* g++.target/powerpc/pr99041.C: New test.
+
+2021-02-11  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/99033
+	* g++.dg/ext/flexary38.C: New test.
+
+2021-02-11  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/99063
+	* g++.dg/cpp0x/variadic-crash6.C: New test.
+
+2021-02-11  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/97582
+	* g++.dg/cpp0x/lambda/lambda-template17.C: New test.
+
+2021-02-11  Andrea Corallo  <andrea.corallo@arm.com>
+
+	PR target/98931
+	* gcc.target/arm/pr98931.c: New testcase.
+
+2021-02-11  Joel Hutton  <joel.hutton@arm.com>
+
+	PR tree-optimization/98772
+	* gcc.target/aarch64/pr98772.c: New test.
+
+2021-02-11  Paul Thomas  <pault@gcc.gnu.org>
+
+	PR fortran/98897
+	* gfortran.dg/typebound_call_32.f90: New test.
+
+2021-02-11  Paul Thomas  <pault@gcc.gnu.org>
+
+	PR fortran/99060
+	* gfortran.dg/pr99060.f90: New test.
+
+2021-02-11  Alexandre Oliva  <oliva@adacore.com>
+
+	* gcc.target/arm/simd/vmmla_1.c: Pass -mfpu=auto.
+
+2021-02-11  Jerry DeLisle  <jvdelisle@gcc.gnu.org>
+
+	PR libfortran/98825
+	* gfortran.dg/dollar_edit_descriptor_4.f: New test.
+
+2021-02-10  Martin Sebor  <msebor@redhat.com>
+
+	PR tree-optimization/92879
+	* g++.dg/warn/Warray-bounds-16.C: New test.
+
+2021-02-10  David Malcolm  <dmalcolm@redhat.com>
+
+	PR preprocessor/96391
+	* g++.dg/plugin/location-overflow-test-pr96391.c: New test.
+	* g++.dg/plugin/plugin.exp (plugin_test_list): Add it,
+	using the location_overflow_plugin.c from gcc.dg/plugin.
+
+2021-02-10  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/99035
+	* g++.dg/ext/weak6.C: New test.
+
+2021-02-10  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/99025
+	* gcc.target/i386/pr99025.c: New test.
+
+2021-02-10  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/98988
+	PR c++/99031
+	* g++.dg/cpp2a/constexpr-new16.C: New test.
+	* g++.dg/cpp2a/constexpr-new17.C: New test.
+
+2021-02-10  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99030
+	* g++.dg/lookup/pr99030.C: New.
+
+2021-02-10  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/99007
+	* g++.dg/gomp/pr99007.C: New test.
+	* gcc.dg/gomp/pr99007-1.c: New test.
+	* gcc.dg/gomp/pr99007-2.c: New test.
+	* gcc.dg/gomp/pr99007-3.c: New test.
+
+2021-02-10  Julian Brown  <julian@codesourcery.com>
+
+	PR fortran/98979
+	* gfortran.dg/goacc/array-with-dt-2.f90: Add expected errors.
+	* gfortran.dg/goacc/derived-chartypes-1.f90: Skip ICEing test.
+	* gfortran.dg/goacc/derived-chartypes-2.f90: Likewise.
+
 2021-02-09  David Malcolm  <dmalcolm@redhat.com>
 
 	PR analyzer/98575
