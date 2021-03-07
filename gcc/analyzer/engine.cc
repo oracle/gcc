@@ -3352,6 +3352,15 @@ exploded_graph::to_json () const
   return egraph_obj;
 }
 
+exploded_path::exploded_path (const exploded_path &other)
+: m_edges (other.m_edges.length ())
+{
+  int i;
+  const exploded_edge *eedge;
+  FOR_EACH_VEC_ELT (other.m_edges, i, eedge)
+    m_edges.quick_push (eedge);
+}
+
 /* Look for the last use of SEARCH_STMT within this path.
    If found write the edge's index to *OUT_IDX and return true, otherwise
    return false.  */
@@ -4581,45 +4590,30 @@ private:
     pp_printf (pp, "DIAGNOSTIC: %s", sd->m_d->get_kind ());
     gv->end_tdtr ();
     gv->begin_trtd ();
-    pp_printf (pp, "epath length: %i", sd->get_epath_length ());
+    if (sd->get_best_epath ())
+      pp_printf (pp, "epath length: %i", sd->get_epath_length ());
+    else
+      pp_printf (pp, "no best epath");
     gv->end_tdtr ();
-    switch (sd->get_status ())
+    if (const feasibility_problem *p = sd->get_feasibility_problem ())
       {
-      default:
-      case saved_diagnostic::STATUS_NEW:
-	gcc_unreachable ();
-	break;
-      case saved_diagnostic::STATUS_INFEASIBLE_PATH:
-	{
-	  gv->begin_trtd ();
-	  pp_printf (pp, "INFEASIBLE");
-	  gv->end_tdtr ();
-	  const feasibility_problem *p = sd->get_feasibility_problem ();
-	  gcc_assert (p);
-	  gv->begin_trtd ();
-	  pp_printf (pp, "at eedge %i: EN:%i -> EN:%i",
-		     p->m_eedge_idx,
-		     p->m_eedge.m_src->m_index,
-		     p->m_eedge.m_dest->m_index);
-	  pp_write_text_as_html_like_dot_to_stream (pp);
-	  gv->end_tdtr ();
-	  gv->begin_trtd ();
-	  p->m_eedge.m_sedge->dump (pp);
-	  pp_write_text_as_html_like_dot_to_stream (pp);
-	  gv->end_tdtr ();
-	  gv->begin_trtd ();
-	  pp_gimple_stmt_1 (pp, p->m_last_stmt, 0, (dump_flags_t)0);
-	  pp_write_text_as_html_like_dot_to_stream (pp);
-	  gv->end_tdtr ();
-	  /* Ideally we'd print p->m_model here; see the notes above about
-	     tooltips.  */
-	}
-	break;
-      case saved_diagnostic::STATUS_FEASIBLE_PATH:
 	gv->begin_trtd ();
-	pp_printf (pp, "FEASIBLE");
+	pp_printf (pp, "INFEASIBLE at eedge %i: EN:%i -> EN:%i",
+		   p->m_eedge_idx,
+		   p->m_eedge.m_src->m_index,
+		   p->m_eedge.m_dest->m_index);
+	pp_write_text_as_html_like_dot_to_stream (pp);
 	gv->end_tdtr ();
-	break;
+	gv->begin_trtd ();
+	p->m_eedge.m_sedge->dump (pp);
+	pp_write_text_as_html_like_dot_to_stream (pp);
+	gv->end_tdtr ();
+	gv->begin_trtd ();
+	pp_gimple_stmt_1 (pp, p->m_last_stmt, 0, (dump_flags_t)0);
+	pp_write_text_as_html_like_dot_to_stream (pp);
+	gv->end_tdtr ();
+	/* Ideally we'd print p->m_model here; see the notes above about
+	   tooltips.  */
       }
     pp_printf (pp, "</TABLE>");
     gv->end_tdtr ();

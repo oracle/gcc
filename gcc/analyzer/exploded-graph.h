@@ -866,7 +866,6 @@ class exploded_path
 public:
   exploded_path () : m_edges () {}
   exploded_path (const exploded_path &other);
-  exploded_path & operator= (const exploded_path &other);
 
   unsigned length () const { return m_edges.length (); }
 
@@ -879,7 +878,6 @@ public:
   void dump (FILE *fp) const;
   void dump () const;
 
-  bool feasible_p (logger *logger, feasibility_problem **out) const;
   bool feasible_p (logger *logger, feasibility_problem **out,
 		    engine *eng, const exploded_graph *eg) const;
 

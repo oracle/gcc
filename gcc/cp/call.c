@@ -1449,7 +1449,9 @@ standard_conversion (tree to, tree from, tree expr, bool c_cast_p,
       tree fbase = class_of_this_parm (fromfn);
       tree tbase = class_of_this_parm (tofn);
 
-      if (!DERIVED_FROM_P (fbase, tbase))
+      /* If FBASE and TBASE are equivalent but incomplete, DERIVED_FROM_P
+	 yields false.  But a pointer to member of incomplete class is OK.  */
+      if (!same_type_p (fbase, tbase) && !DERIVED_FROM_P (fbase, tbase))
 	return NULL;
 
       tree fstat = static_fn_type (fromfn);
@@ -6083,6 +6085,15 @@ op_is_ordered (tree_code code)
     case LSHIFT_EXPR:
       // 8. a >> b
     case RSHIFT_EXPR:
+      // a && b
+      // Predates P0145R3.
+    case TRUTH_ANDIF_EXPR:
+      // a || b
+      // Predates P0145R3.
+    case TRUTH_ORIF_EXPR:
+      // a , b
+      // Predates P0145R3.
+    case COMPOUND_EXPR:
       return (flag_strong_eval_order ? 1 : 0);
 
     default:
@@ -7290,6 +7301,14 @@ build_temp (tree expr, tree type, int flags,
       && CLASS_TYPE_P (TREE_TYPE (expr))
       && !type_has_nontrivial_copy_init (TREE_TYPE (expr)))
     return get_target_expr_sfinae (expr, complain);
+
+  /* In decltype, we might have decided not to wrap this call in a TARGET_EXPR.
+     But it turns out to be a subexpression, so perform temporary
+     materialization now.  */
+  if (TREE_CODE (expr) == CALL_EXPR
+      && CLASS_TYPE_P (type)
+      && same_type_ignoring_top_level_qualifiers_p (type, TREE_TYPE (expr)))
+    expr = build_cplus_new (type, expr, complain);
 
   savew = warningcount + werrorcount, savee = errorcount;
   releasing_vec args (make_tree_vector_single (expr));

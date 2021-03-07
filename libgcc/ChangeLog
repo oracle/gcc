@@ -1,3 +1,42 @@
+2021-03-06  Jakub Jelinek  <jakub@redhat.com>
+
+	PR gcov-profile/99406
+	* libgcov.h (MAP_FAILED, MAP_ANONYMOUS): If HAVE_SYS_MMAN_H is
+	defined, define these macros if not defined already.
+
+2021-03-04  Martin Liska  <mliska@suse.cz>
+
+	PR gcov-profile/99105
+	* libgcov-driver.c (write_top_counters): Rename to ...
+	(write_topn_counters): ... this.
+	(write_one_data): Pre-allocate buffer for number of items
+	in the corresponding linked lists.
+	* libgcov.h (malloc_mmap): New function.
+	(allocate_gcov_kvp): Use it.
+
+2021-03-04  Martin Liska  <mliska@suse.cz>
+
+	PR gcov-profile/99385
+	* libgcov.h (allocate_gcov_kvp): Call mmap with fd equal to -1.
+
+2021-03-03  Martin Liska  <mliska@suse.cz>
+
+	PR gcov-profile/97461
+	* config.in: Regenerate.
+	* configure: Likewise.
+	* configure.ac: Check sys/mman.h header file
+	* libgcov-driver.c (struct gcov_kvp): Remove static
+	pre-allocated pool and use a dynamic one.
+	* libgcov.h (MMAP_CHUNK_SIZE): New.
+	(gcov_counter_add): Use mmap to allocate pool for struct
+	gcov_kvp.
+
+2021-03-02  Michael Meissner  <meissner@linux.ibm.com>
+
+	* config/rs6000/_sprintfkf.h (__sprintfkf): Fix prototype to match
+	the function.
+	* config/rs6000/_sprintfkf.c: Include _sprintfkf.h.
+
 2021-02-24  Jakub Jelinek  <jakub@redhat.com>
 
 	PR libgcc/99236
