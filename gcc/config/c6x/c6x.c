@@ -439,8 +439,7 @@ c6x_output_file_unwind (FILE * f)
     {
       if (flag_unwind_tables || flag_exceptions)
 	{
-	  if (write_symbols == DWARF2_DEBUG
-	      || write_symbols == VMS_AND_DWARF2_DEBUG)
+	  if (dwarf_debuginfo_p ())
 	    asm_fprintf (f, "\t.cfi_sections .debug_frame, .c6xabi.exidx\n");
 	  else
 	    asm_fprintf (f, "\t.cfi_sections .c6xabi.exidx\n");
