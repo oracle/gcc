@@ -43,6 +43,14 @@ const char *const debug_type_names[] =
   "none", "stabs", "dwarf-2", "xcoff", "vms"
 };
 
+/* Return TRUE if dwarf2 debug info is enabled.  */
+
+bool dwarf_debuginfo_p ()
+{
+  return (write_symbols == DWARF2_DEBUG
+	  || write_symbols == VMS_AND_DWARF2_DEBUG);
+}
+
 /* Parse the -femit-struct-debug-detailed option value
    and set the flag variables. */
 

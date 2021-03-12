@@ -25,6 +25,9 @@ along with GCC; see the file COPYING3.  If not see
 /* Names of debug_info_type, for error messages.  */
 extern const char *const debug_type_names[];
 
+/* Return true iff DWARF2 debug info is enabled.  */
+extern bool dwarf_debuginfo_p ();
+
 extern void strip_off_ending (char *, int);
 extern int base_of_path (const char *path, const char **base_out);
 
