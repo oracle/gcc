@@ -27,6 +27,9 @@ extern const char *const debug_type_names[];
 
 /* Return true iff DWARF2 debug info is enabled.  */
 extern bool dwarf_debuginfo_p ();
+/* Return true iff the debug info format is to be generated based on DWARF
+   DIEs (like CTF and BTF debug info formats).  */
+extern bool dwarf_based_debuginfo_p ();
 
 extern void strip_off_ending (char *, int);
 extern int base_of_path (const char *path, const char **base_out);

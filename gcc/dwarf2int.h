@@ -36,6 +36,7 @@ dw_attr_node;
 
 extern dw_attr_node *get_AT (dw_die_ref, enum dwarf_attribute);
 extern HOST_WIDE_INT AT_int (dw_attr_node *);
+extern dw_loc_descr_ref AT_loc (dw_attr_node *);
 extern unsigned HOST_WIDE_INT AT_unsigned (dw_attr_node *a);
 extern dw_die_ref get_AT_ref (dw_die_ref, enum dwarf_attribute);
 extern const char *get_AT_string (dw_die_ref, enum dwarf_attribute);
