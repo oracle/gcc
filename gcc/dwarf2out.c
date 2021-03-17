@@ -79,6 +79,7 @@ along with GCC; see the file COPYING3.  If not see
 #include "output.h"
 #include "expr.h"
 #include "dwarf2out.h"
+#include "dwarf2ctf.h"
 #include "dwarf2asm.h"
 #include "dwarf2int.h"
 #include "toplev.h"
@@ -3660,7 +3661,6 @@ static inline dw_die_ref AT_ref (dw_attr_node *);
 static inline int AT_ref_external (dw_attr_node *);
 static inline void set_AT_ref_external (dw_attr_node *, int);
 static void add_AT_loc (dw_die_ref, enum dwarf_attribute, dw_loc_descr_ref);
-static inline dw_loc_descr_ref AT_loc (dw_attr_node *);
 static void add_AT_loc_list (dw_die_ref, enum dwarf_attribute,
 			     dw_loc_list_ref);
 static inline dw_loc_list_ref AT_loc_list (dw_attr_node *);
@@ -4877,7 +4877,7 @@ add_AT_loc (dw_die_ref die, enum dwarf_attribute attr_kind, dw_loc_descr_ref loc
   add_dwarf_attr (die, &attr);
 }
 
-static inline dw_loc_descr_ref
+dw_loc_descr_ref
 AT_loc (dw_attr_node *a)
 {
   gcc_assert (a && AT_class (a) == dw_val_class_loc);
@@ -28106,7 +28106,7 @@ dwarf2out_source_line (unsigned int line, unsigned int column,
   dw_line_info_table *table;
   static var_loc_view lvugid;
 
-  if (debug_info_level < DINFO_LEVEL_TERSE)
+  if (debug_info_level < DINFO_LEVEL_TERSE || dwarf_based_debuginfo_p ())
     return;
 
   table = cur_line_info_table;
@@ -31612,6 +31612,15 @@ dwarf2out_finish (const char *filename)
   unsigned char checksum[16];
   char dl_section_ref[MAX_ARTIFICIAL_LABEL_BYTES];
 
+  /* Emit CTF/BTF debug info.  */
+  if ((ctf_debug_info_level > CTFINFO_LEVEL_NONE
+       || btf_debug_info_level > BTFINFO_LEVEL_NONE) && lang_GNU_C ())
+    ctf_debug_finalize (filename, btf_debug_info_level > BTFINFO_LEVEL_NONE);
+
+  /* Skip emitting DWARF if only CTF/BTF is to be generated.  */
+  if (dwarf_based_debuginfo_p ())
+    return;
+
   /* Flush out any latecomers to the limbo party.  */
   flush_limbo_die_list ();
 
@@ -32349,6 +32358,17 @@ note_variable_value (dw_die_ref die)
   FOR_EACH_CHILD (die, c, note_variable_value (c));
 }
 
+static void
+debug_format_do_cu (dw_die_ref die)
+{
+  dw_die_ref c;
+
+  if (!ctf_do_die (die))
+    return;
+
+  FOR_EACH_CHILD (die, c, ctf_do_die (c));
+}
+
 /* Perform any cleanups needed after the early debug generation pass
    has run.  */
 
@@ -32469,6 +32489,16 @@ dwarf2out_early_finish (const char *filename)
     {
       fprintf (dump_file, "EARLY DWARF for %s\n", filename);
       print_die (comp_unit_die (), dump_file);
+    }
+
+  /* Generate CTF debug info.  */
+  if ((ctf_debug_info_level > CTFINFO_LEVEL_NONE
+       || btf_debug_info_level > BTFINFO_LEVEL_NONE) && lang_GNU_C ())
+    {
+      ctf_debug_init ();
+      debug_format_do_cu (comp_unit_die ());
+      for (limbo_die_node *node = limbo_die_list; node; node = node->next) 
+	debug_format_do_cu (node->die);
     }
 
   /* Do not generate DWARF assembler now when not producing LTO bytecode.  */
