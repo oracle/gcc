@@ -29,8 +29,11 @@ enum debug_info_type
   DWARF2_DEBUG,	    /* Write Dwarf v2 debug info (using dwarf2out.c).  */
   XCOFF_DEBUG,	    /* Write IBM/Xcoff debug info (using dbxout.c).  */
   VMS_DEBUG,        /* Write VMS debug info (using vmsdbgout.c).  */
-  VMS_AND_DWARF2_DEBUG /* Write VMS debug info (using vmsdbgout.c).
-                          and DWARF v2 debug info (using dwarf2out.c).  */
+  CTF_DEBUG,	    /* Write CTF debug info (using ctfout.c).  */
+  BTF_DEBUG,	    /* Write BTF debug info (using btfout.c).  */
+  VMS_AND_DWARF2_DEBUG, /* Write VMS debug info (using vmsdbgout.c).
+                           and DWARF v2 debug info (using dwarf2out.c).  */
+  CTF_AND_DWARF2_DEBUG, /* Write both CTF and DWARF v2 debug info.  */
 };
 
 enum debug_info_levels
@@ -105,6 +108,26 @@ enum dwarf_gnat_encodings
 				       encodings for the rest.  */
   DWARF_GNAT_ENCODINGS_MINIMAL = 2  /* Emit all the standard DWARF we can.
 				       Emit GNAT encodings for the rest.  */
+};
+
+/* CTF debug info levels.
+   CTF debug info levels are untied with DWARF debug info levels because CTF
+   may co-exist with DWARF.  */
+enum ctf_debug_info_levels
+{
+  CTFINFO_LEVEL_NONE = 0,     /* Write no CTF debug info.  */
+  CTFINFO_LEVEL_TERSE = 1,    /* Write CTF information to support tracebacks
+				 only.  Not Implemented.  */
+  CTFINFO_LEVEL_NORMAL = 2    /* Write CTF type information for all entities
+				 (functions, data objects, variables etc.)
+				 at file-scope or global-scope only.  */
+};
+
+/* BTF debug info levels.  */
+enum btf_debug_info_levels
+{
+  BTFINFO_LEVEL_NONE = 0,
+  BTFINFO_LEVEL_NORMAL = 1
 };
 
 /* Enumerate Objective-c instance variable visibility settings. */
