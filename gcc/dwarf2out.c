@@ -80,6 +80,7 @@ along with GCC; see the file COPYING3.  If not see
 #include "expr.h"
 #include "dwarf2out.h"
 #include "dwarf2asm.h"
+#include "dwarf2int.h"
 #include "toplev.h"
 #include "md5.h"
 #include "tree-pretty-print.h"
@@ -3069,17 +3070,6 @@ maybe_reset_location_view (rtx_insn *insn, dw_line_info_table *table)
     RESET_NEXT_VIEW (table->view);
 }
 
-/* Each DIE attribute has a field specifying the attribute kind,
-   a link to the next attribute in the chain, and an attribute value.
-   Attributes are typically linked below the DIE they modify.  */
-
-typedef struct GTY(()) dw_attr_struct {
-  enum dwarf_attribute dw_attr;
-  dw_val_node dw_attr_val;
-}
-dw_attr_node;
-
-
 /* The Debugging Information Entry (DIE) structure.  DIEs form a tree.
    The children of each node form a circular list linked by
    die_sib.  die_child points to the node *before* the "first" child node.  */
@@ -3651,14 +3641,11 @@ static const char *dwarf_form_name (unsigned);
 static tree decl_ultimate_origin (const_tree);
 static tree decl_class_context (tree);
 static void add_dwarf_attr (dw_die_ref, dw_attr_node *);
-static inline enum dw_val_class AT_class (dw_attr_node *);
 static inline unsigned int AT_index (dw_attr_node *);
 static void add_AT_flag (dw_die_ref, enum dwarf_attribute, unsigned);
 static inline unsigned AT_flag (dw_attr_node *);
 static void add_AT_int (dw_die_ref, enum dwarf_attribute, HOST_WIDE_INT);
-static inline HOST_WIDE_INT AT_int (dw_attr_node *);
 static void add_AT_unsigned (dw_die_ref, enum dwarf_attribute, unsigned HOST_WIDE_INT);
-static inline unsigned HOST_WIDE_INT AT_unsigned (dw_attr_node *);
 static void add_AT_double (dw_die_ref, enum dwarf_attribute,
 			   HOST_WIDE_INT, unsigned HOST_WIDE_INT);
 static inline void add_AT_vec (dw_die_ref, enum dwarf_attribute, unsigned int,
@@ -3690,12 +3677,7 @@ static void add_AT_macptr (dw_die_ref, enum dwarf_attribute, const char *);
 static void add_AT_range_list (dw_die_ref, enum dwarf_attribute,
                                unsigned long, bool);
 static inline const char *AT_lbl (dw_attr_node *);
-static dw_attr_node *get_AT (dw_die_ref, enum dwarf_attribute);
 static const char *get_AT_low_pc (dw_die_ref);
-static const char *get_AT_string (dw_die_ref, enum dwarf_attribute);
-static int get_AT_flag (dw_die_ref, enum dwarf_attribute);
-static unsigned get_AT_unsigned (dw_die_ref, enum dwarf_attribute);
-static inline dw_die_ref get_AT_ref (dw_die_ref, enum dwarf_attribute);
 static bool is_c (void);
 static bool is_cxx (void);
 static bool is_cxx (const_tree);
@@ -3709,7 +3691,6 @@ static dw_die_ref lookup_type_die (tree);
 static dw_die_ref strip_naming_typedef (tree, dw_die_ref);
 static dw_die_ref lookup_type_die_strip_naming_typedef (tree);
 static void equate_type_number_to_die (tree, dw_die_ref);
-static dw_die_ref lookup_decl_die (tree);
 static var_loc_list *lookup_decl_loc (const_tree);
 static void equate_decl_number_to_die (tree, dw_die_ref);
 static struct var_loc_node *add_var_loc_to_decl (tree, rtx, const char *, var_loc_view);
@@ -3782,7 +3763,6 @@ static void output_ranges (void);
 static dw_line_info_table *new_line_info_table (void);
 static void output_line_info (bool);
 static void output_file_names (void);
-static dw_die_ref base_type_die (tree, bool);
 static int is_base_type (tree);
 static dw_die_ref subrange_type_die (tree, tree, tree, tree, dw_die_ref);
 static int decl_quals (const_tree);
@@ -3830,7 +3810,6 @@ static rtx rtl_for_decl_location (tree);
 static bool add_location_or_const_value_attribute (dw_die_ref, tree, bool);
 static bool tree_add_const_value_attribute (dw_die_ref, tree);
 static bool tree_add_const_value_attribute_for_decl (dw_die_ref, tree);
-static void add_name_attribute (dw_die_ref, const char *);
 static void add_desc_attribute (dw_die_ref, tree);
 static void add_gnat_descriptive_type_attribute (dw_die_ref, tree, dw_die_ref);
 static void add_comp_dir_attribute (dw_die_ref);
@@ -4432,7 +4411,7 @@ add_dwarf_attr (dw_die_ref die, dw_attr_node *attr)
   vec_safe_push (die->die_attr, *attr);
 }
 
-static inline enum dw_val_class
+enum dw_val_class
 AT_class (dw_attr_node *a)
 {
   return a->dw_attr_val.val_class;
@@ -4488,7 +4467,7 @@ add_AT_int (dw_die_ref die, enum dwarf_attribute attr_kind, HOST_WIDE_INT int_va
   add_dwarf_attr (die, &attr);
 }
 
-static inline HOST_WIDE_INT
+HOST_WIDE_INT
 AT_int (dw_attr_node *a)
 {
   gcc_assert (a && (AT_class (a) == dw_val_class_const
@@ -4511,7 +4490,7 @@ add_AT_unsigned (dw_die_ref die, enum dwarf_attribute attr_kind,
   add_dwarf_attr (die, &attr);
 }
 
-static inline unsigned HOST_WIDE_INT
+unsigned HOST_WIDE_INT
 AT_unsigned (dw_attr_node *a)
 {
   gcc_assert (a && (AT_class (a) == dw_val_class_unsigned_const
@@ -5136,6 +5115,30 @@ index_addr_table_entry (addr_table_entry **h, unsigned int *index)
   return 1;
 }
 
+/* Return the tag of a given DIE.  */
+
+enum dwarf_tag
+dw_get_die_tag (dw_die_ref die)
+{
+  return die->die_tag;
+}
+
+/* Return a reference to the children list of a given DIE.  */
+
+dw_die_ref
+dw_get_die_child (dw_die_ref die)
+{
+  return die->die_child;
+}
+
+/* Return a reference to the sibling of a given DIE.  */
+
+dw_die_ref
+dw_get_die_sib (dw_die_ref die)
+{
+  return die->die_sib;
+}
+
 /* Add an address constant attribute value to a DIE.  When using
    dwarf_split_debug_info, address attributes in dies destined for the
    final executable should be direct references--setting the parameter
@@ -5331,7 +5334,7 @@ AT_lbl (dw_attr_node *a)
 
 /* Get the attribute of type attr_kind.  */
 
-static dw_attr_node *
+dw_attr_node *
 get_AT (dw_die_ref die, enum dwarf_attribute attr_kind)
 {
   dw_attr_node *a;
@@ -5386,7 +5389,7 @@ get_AT_low_pc (dw_die_ref die)
 /* Return the value of the string attribute designated by ATTR_KIND, or
    NULL if it is not present.  */
 
-static inline const char *
+const char *
 get_AT_string (dw_die_ref die, enum dwarf_attribute attr_kind)
 {
   dw_attr_node *a = get_AT (die, attr_kind);
@@ -5397,7 +5400,7 @@ get_AT_string (dw_die_ref die, enum dwarf_attribute attr_kind)
 /* Return the value of the flag attribute designated by ATTR_KIND, or -1
    if it is not present.  */
 
-static inline int
+int
 get_AT_flag (dw_die_ref die, enum dwarf_attribute attr_kind)
 {
   dw_attr_node *a = get_AT (die, attr_kind);
@@ -5408,7 +5411,7 @@ get_AT_flag (dw_die_ref die, enum dwarf_attribute attr_kind)
 /* Return the value of the unsigned attribute designated by ATTR_KIND, or 0
    if it is not present.  */
 
-static inline unsigned
+unsigned
 get_AT_unsigned (dw_die_ref die, enum dwarf_attribute attr_kind)
 {
   dw_attr_node *a = get_AT (die, attr_kind);
@@ -5416,7 +5419,7 @@ get_AT_unsigned (dw_die_ref die, enum dwarf_attribute attr_kind)
   return a ? AT_unsigned (a) : 0;
 }
 
-static inline dw_die_ref
+dw_die_ref
 get_AT_ref (dw_die_ref die, enum dwarf_attribute attr_kind)
 {
   dw_attr_node *a = get_AT (die, attr_kind);
@@ -5709,7 +5712,7 @@ splice_child_die (dw_die_ref parent, dw_die_ref child)
 
 /* Create and return a new die with TAG_VALUE as tag.  */
  
-static inline dw_die_ref
+dw_die_ref
 new_die_raw (enum dwarf_tag tag_value)
 {
   dw_die_ref die = ggc_cleared_alloc<die_node> ();
@@ -5854,7 +5857,7 @@ decl_die_hasher::equal (die_node *x, tree y)
 
 /* Return the DIE associated with a given declaration.  */
 
-static inline dw_die_ref
+dw_die_ref
 lookup_decl_die (tree decl)
 {
   dw_die_ref *die = decl_die_table->find_slot_with_hash (decl, DECL_UID (decl),
@@ -12907,7 +12910,7 @@ need_endianity_attribute_p (bool reverse)
    This routine must only be called for GCC type nodes that correspond to
    Dwarf base (fundamental) types.  */
 
-static dw_die_ref
+dw_die_ref
 base_type_die (tree type, bool reverse)
 {
   dw_die_ref base_type_result;
@@ -20632,7 +20635,7 @@ compute_frame_pointer_to_fb_displacement (poly_int64 offset)
 /* Generate a DW_AT_name attribute given some string value to be included as
    the value of the attribute.  */
 
-static void
+void
 add_name_attribute (dw_die_ref die, const char *name_string)
 {
   if (name_string != NULL && *name_string != 0)
