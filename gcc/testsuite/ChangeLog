@@ -1,3 +1,494 @@
+2021-03-19  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/99500
+	* g++.dg/cpp2a/concepts-err3.C: New test.
+
+2021-03-18  Martin Sebor  <msebor@redhat.com>
+
+	PR middle-end/99502
+	* g++.dg/warn/Warray-bounds-22.C: New test.
+	* g++.dg/warn/Warray-bounds-23.C: New test.
+	* g++.dg/warn/Warray-bounds-24.C: New test.
+
+2021-03-18  Jakub Jelinek  <jakub@redhat.com>
+
+	PR testsuite/99636
+	* gcc.dg/strlenopt-80.c: For powerpc*-*-*, only enable for lp64.
+
+2021-03-18  Jakub Jelinek  <jakub@redhat.com>
+
+	PR testsuite/99626
+	* gcc.dg/strlenopt-73.c: Ifdef out test_copy_cond_unequal_length_i64
+	on targets other than x86, aarch64, s390 and 64-bit powerpc.  Use
+	test_copy_cond_unequal_length_i128 for __x86_64__ with int128 support
+	rather than __i386__.
+
+2021-03-18  Christophe Lyon  <christophe.lyon@linaro.org>
+
+	PR testsuite/97680
+	* c-c++-common/zero-scratch-regs-10.c: Skip on arm
+
+2021-03-18  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR objc++/49070
+	* obj-c++.dg/pr49070.mm: New test.
+	* objc.dg/unnamed-parms.m: New test.
+
+2021-03-18  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* g++.target/aarch64/sve/aarch64-sve.exp: Add -moverride=tune=none to
+	sve_flags.
+	* g++.target/aarch64/sve/acle/aarch64-sve-acle-asm.exp: Likewise.
+	* g++.target/aarch64/sve/acle/aarch64-sve-acle.exp: Likewise.
+	* gcc.target/aarch64/sve/aarch64-sve.exp: Likewise.
+	* gcc.target/aarch64/sve/acle/aarch64-sve-acle-asm.exp: Likewise.
+	* gcc.target/aarch64/sve/acle/aarch64-sve-acle.exp: Likewise.
+
+2021-03-18  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/98099
+	* gcc.dg/pr98099.c: Don't compile the test on pdp endian.
+	For big endian use -fsso-struct=little-endian dg-options.
+
+2021-03-17  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/97973
+	* g++.dg/conversion/real-to-int1.C: New test.
+
+2021-03-17  Anthony Sharp  <anthonysharp15@gmail.com>
+	    Jason Merrill  <jason@redhat.com>
+
+	* g++.dg/cpp1z/using9.C: New using decl test.
+
+2021-03-17  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* c-c++-common/asan/strncpy-overflow-1.c: Add _FORTIFY_SOURCE=0 and
+	-gdwarf-3 to the command line options. Adjust the expected line
+	numbers for the revised options header.
+
+2021-03-17  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* c-c++-common/asan/memcmp-1.c: Add _FORTIFY_SOURCE=0 and
+	-gdwarf-3 to the command line options.  Provide Darwin-
+	specific match lines for the expected output.
+
+2021-03-17  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* gcc.target/aarch64/acle/rng_2.c: New test.
+
+2021-03-17  H.J. Lu  <hjl.tools@gmail.com>
+
+	PR target/99504
+	* gcc.target/i386/pr99530-1.c: New test.
+	* gcc.target/i386/pr99530-2.c: Likewise.
+	* gcc.target/i386/pr99530-3.c: Likewise.
+	* gcc.target/i386/pr99530-4.c: Likewise.
+	* gcc.target/i386/pr99530-5.c: Likewise.
+	* gcc.target/i386/pr99530-6.c: Likewise.
+
+2021-03-16  Christophe Lyon  <christophe.lyon@linaro.org>
+
+	PR target/99542
+	* gcc.dg/declare-simd.c (fn2): Expect a warning only under lp64.
+
+2021-03-16  Jason Merrill  <jason@redhat.com>
+
+	* g++.dg/cpp2a/nontype-float1.C: New test.
+
+2021-03-16  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	PR target/98092
+	PR target/98092
+	* gcc.target/powerpc/pr98092.c: New.
+
+2021-03-16  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/99600
+	* gcc.target/i386/pr99600.c: New test.
+
+2021-03-16  Martin Liska  <mliska@suse.cz>
+	    Jason Merrill  <jason@redhat.com>
+
+	PR c++/99108
+	* g++.target/i386/pr99108.C: New test.
+
+2021-03-16  Martin Liska  <mliska@suse.cz>
+
+	PR target/99592
+	* gcc.target/arm/pr99592.c: New test.
+
+2021-03-16  Ilya Leoshkevich  <iii@linux.ibm.com>
+
+	* gcc.target/s390/vector/long-double-asm-fprvrmem.c: New test.
+
+2021-03-16  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99496
+	* g++.dg/modules/pr99496_a.H: New.
+	* g++.dg/modules/pr99496_b.C: New.
+
+2021-03-16  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/99563
+	* gcc.target/i386/avx-pr99563.c: New test.
+
+2021-03-16  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/99542
+	* gcc.dg/gomp/pr99542.c: New test.
+	* gcc.dg/gomp/pr59669-2.c (bar): Don't expect a warning on aarch64.
+	* gcc.dg/gomp/simd-clones-2.c (setArray): Likewise.
+	* g++.dg/vect/simd-clone-7.cc (bar): Likewise.
+	* g++.dg/gomp/declare-simd-1.C (f37): Expect a different warning
+	on aarch64.
+	* gcc.dg/declare-simd.c (fn2): Expect a new warning on aarch64.
+
+2021-03-15  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/99601
+	* g++.dg/modules/builtin-3_a.C: Fix target selector syntax errors.
+	* g++.dg/modules/builtin-3_b.C: Likewise.
+
+2021-03-15  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99601
+	* g++.dg/modules/builtin-3_a.C: Fix lp64 x86 detection.
+	* g++.dg/modules/builtin-3_b.C: Fix lp64 x86 detection.
+
+2021-03-15  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR c++/99047
+	* g++.dg/coroutines/pr99047.C: New test.
+
+2021-03-15  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR c++/98704
+	* g++.dg/coroutines/torture/pr98704.C: New test.
+
+2021-03-15  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR c++/98480
+	* g++.dg/coroutines/pr98480.C: New test.
+	* g++.dg/coroutines/torture/co-await-24-for-init.C: New test.
+	* g++.dg/coroutines/torture/co-await-25-for-condition.C: New test.
+	* g++.dg/coroutines/torture/co-await-26-for-iteration-expr.C: New test.
+
+2021-03-15  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR c++/96749
+	* g++.dg/coroutines/pr96749-1.C: New test.
+	* g++.dg/coroutines/pr96749-2.C: New test.
+
+2021-03-15  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/98834
+	* g++.dg/opt/pr98834.C: New testcase.
+
+2021-03-15  Thomas Koenig  <tkoenig@gcc.gnu.org>
+
+	PR fortran/99345
+	* gfortran.dg/do_check_16.f90: New test.
+	* gfortran.dg/do_check_17.f90: New test.
+
+2021-03-15  Paul Thomas  <pault@gcc.gnu.org>
+
+	PR fortran/99545
+	* gfortran.dg/pr99545.f90: New test.
+
+2021-03-15  David Edelsohn  <dje.gcc@gmail.com>
+
+	* gcc.target/powerpc/pr99492.c: Fix typo.
+
+2021-03-14  Harald Anlauf  <anlauf@gmx.de>
+	    Paul Thomas  <pault@gcc.gnu.org>
+
+	* gfortran.dg/pr99112.f90: New test.
+
+2021-03-13  Martin Sebor  <msebor@redhat.com>
+
+	PR tree-optimization/99489
+	* gcc.dg/Wstringop-truncation-9.c: New test.
+
+2021-03-13  Paul Thomas  <pault@gcc.gnu.org>
+
+	PR fortran/99125
+	* gfortran.dg/alloc_deferred_comp_1.f90: New test.
+
+2021-03-13  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/99544
+	* gcc.dg/gomp/pr99544.c: New test.
+
+2021-03-12  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99238
+	* g++.dg/modules/pr99238.h: New.
+	* g++.dg/modules/pr99238_a.H: New.
+	* g++.dg/modules/pr99238_b.H: New.
+
+2021-03-12  Tobias Burnus  <tobias@codesourcery.com>
+
+	PR fortran/99514
+	* gfortran.dg/gomp/threadprivate-1.f90: New test.
+
+2021-03-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/99321
+	* gcc.target/i386/avx512vl-pr99321-2.c: New test.
+
+2021-03-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/99507
+	* g++.dg/cpp2a/consteval19.C: New test.
+
+2021-03-11  David Malcolm  <dmalcolm@redhat.com>
+
+	PR analyzer/96374
+	* gcc.dg/analyzer/dot-output.c: Add -fdump-analyzer-feasibility
+	to options.
+	* gcc.dg/analyzer/feasibility-1.c (test_6): Remove xfail.
+	(test_7): New.
+	* gcc.dg/analyzer/pr93355-localealias-feasibility-2.c: Remove xfail.
+	* gcc.dg/analyzer/pr93355-localealias-feasibility-3.c: Remove xfails.
+	* gcc.dg/analyzer/pr93355-localealias-feasibility.c: Remove
+	-fno-analyzer-feasibility from options.
+	* gcc.dg/analyzer/pr93355-localealias.c: Likewise.
+	* gcc.dg/analyzer/unknown-fns-4.c: Remove xfail.
+
+2021-03-11  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99248
+	* g++.dg/modules/pr99248.h: New.
+	* g++.dg/modules/pr99248_a.H: New.
+	* g++.dg/modules/pr99248_b.H: New.
+
+2021-03-11  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99528
+	* g++.dg/modules/pr99528.h: New.
+	* g++.dg/modules/pr99528_a.H: New.
+	* g++.dg/modules/pr99528_b.H: New.
+	* g++.dg/modules/pr99528_c.C: New.
+
+2021-03-11  Richard Biener  <rguenther@suse.de>
+
+	PR testsuite/98245
+	* gcc.dg/vect/bb-slp-46.c: Scan for the scalar compute
+	instead of verifying the total number of adds.
+
+2021-03-11  Richard Biener  <rguenther@suse.de>
+
+	PR testsuite/97494
+	* gcc.dg/vect/pr97428.c: XFAIL on !vect_hw_misalign.
+
+2021-03-11  Richard Biener  <rguenther@suse.de>
+
+	PR testsuite/97494
+	* gcc.dg/vect/vect-complex-5.c: XFAIL on !vect_hw_misalign.
+
+2021-03-11  Richard Biener  <rguenther@suse.de>
+
+	PR testsuite/97494
+	* gcc.dg/vect/slp-21.c: Adjust for powerpc64*-*-*.
+
+2021-03-11  Jakub Jelinek  <jakub@redhat.com>
+
+	PR ipa/99517
+	* gcc.target/i386/avx2-pr99517-1.c: New test.
+	* gcc.target/i386/avx2-pr99517-2.c: New test.
+
+2021-03-10  David Edelsohn  <dje.gcc@gmail.com>
+
+	PR target/99492
+	* gcc.target/powerpc/pr99492.c: New testcase.
+
+2021-03-10  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/99205
+	* gfortran.dg/data_char_4.f90: New test.
+	* gfortran.dg/data_char_5.f90: New test.
+
+2021-03-10  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	* gcc.target/powerpc/pr98959.c: Add int128 and lp64 selectors.
+
+2021-03-10  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99423
+	* g++.dg/modules/pr99423_a.H: New.
+	* g++.dg/modules/pr99423_b.H: New.
+
+2021-03-10  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/99305
+	PR testsuite/99498
+	* g++.dg/opt/pr99305.C: Don't expect cast to unsigned char on
+	unsigned_char effective targets.
+
+2021-03-10  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99508
+	* g++.dg/ext/pr99508.C: New.
+
+2021-03-10  John David Anglin  <danglin@gcc.gnu.org>
+
+	PR testsuite/99292
+	* lib/target-supports.exp (check_effective_target_lra): New.
+	* gcc.c-torture/compile/asmgoto-2.c: Use LRA target selector.
+	* gcc.c-torture/compile/asmgoto-5.c: Likewise.
+	* gcc.c-torture/compile/pr98096.c: Likewise.
+	* gcc.dg/pr97954.c: Likewise.
+
+2021-03-10  David Malcolm  <dmalcolm@redhat.com>
+
+	* gcc.dg/analyzer/pr94047.c: Remove "-Wno-analyzer-too-complex".
+	* gcc.dg/analyzer/zlib-2.c: Likewise.
+
+2021-03-10  Joel Hutton  <joel.hutton@arm.com>
+
+	* gcc.dg/vect/pr99102.c: Fix target selector.
+
+2021-03-10  Joel Hutton  <joel.hutton@arm.com>
+
+	PR target/99102
+	* gcc.dg/vect/pr99102.c: New test.
+
+2021-03-10  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* gnat.dg/specs/lto25.ads: New test.
+
+2021-03-09  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/99305
+	* g++.dg/opt/pr99305.C: New test.
+
+2021-03-09  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	* lib/target-supports.exp (check_effective_target_powerpc_sqrt): New.
+	(check_effective_target_sqrt_insn): Use it.
+
+2021-03-09  Vladimir N. Makarov  <vmakarov@redhat.com>
+
+	PR target/99454
+	* gcc.target/i386/pr99454.c: New.
+
+2021-03-09  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* gcc.dg/array-quals-1.c: Pass -fno-pie if supported.
+	* gcc.dg/loop-9.c: Likewise.
+	* gfortran.dg/pr95690.f90: Replace *-*-solaris* with sparc*-*-*.
+	* gnat.dg/opt39.adb: Pass --param option for Aarch64 too.
+
+2021-03-09  Jakub Jelinek  <jakub@redhat.com>
+
+	PR sanitizer/98920
+	* c-c++-common/asan/pr98920.c: Only include regex.h if the header
+	exists.  If REG_STARTEND macro isn't defined, just return 0 from main
+	instead of the actual test.
+
+2021-03-09  Martin Liska  <mliska@suse.cz>
+
+	PR target/99464
+	* gcc.target/i386/pr99464.c: New test.
+
+2021-03-09  Joel Brobecker  <brobecker@adacore.com>
+
+	* gcc.target/powerpc/undef-bool-2.c: Add
+	dg-require-effective-target powerpc_vsx_ok directive.
+	* g++.dg/ext/undef-bool-1.C: Add dg-require-effective-target
+	powerpc_vsx_ok directive.
+
+2021-03-08  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/49278
+	* gfortran.dg/parameter_data.f90: New test.
+
+2021-03-08  Martin Sebor  <msebor@redhat.com>
+
+	PR middle-end/98266
+	* g++.dg/warn/Warray-bounds-15.C: New test.
+	* g++.dg/warn/Warray-bounds-18.C: New test.
+	* g++.dg/warn/Warray-bounds-19.C: New test.
+	* g++.dg/warn/Warray-bounds-20.C: New test.
+	* g++.dg/warn/Warray-bounds-21.C: New test.
+
+2021-03-08  Martin Sebor  <msebor@redhat.com>
+
+	PR middle-end/97631
+	* c-c++-common/Wstringop-overflow.c: Remove unexpected warnings.
+	Add an xfail.
+	* c-c++-common/Wstringop-truncation.c: Add expected warnings.
+	* gcc.dg/Wstringop-overflow-10.c: Also enable -Wstringop-truncation.
+	* gcc.dg/Wstringop-overflow-66.c: New test.
+	* gcc.dg/tree-ssa/strncpy-2.c: Adjust expected warning.
+
+2021-03-08  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/96268
+	* g++.dg/cpp2a/nontype-class41.C: New test.
+
+2021-03-08  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99436
+	* g++.dg/modules/modules.exp (MOD_STD_LIST): Add 2b.
+
+2021-03-08  Nathan Sidwell  <nathan@acm.org>
+
+	* g++.dg/modules/pr99468.H: New.
+
+2021-03-08  Peter Bergner  <bergner@linux.ibm.com>
+
+	PR target/98959
+	* gcc.target/powerpc/pr98959.c: New test.
+
+2021-03-08  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99285
+	* g++.dg/modules/pr99285_a.H: New.
+	* g++.dg/modules/pr99285_b.H: New.
+
+2021-03-08  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	PR target/99437
+	* gcc.target/aarch64/simd/pr99437.c: New test.
+
+2021-03-08  Martin Liska  <mliska@suse.cz>
+
+	PR sanitizer/98920
+	* c-c++-common/asan/pr98920.c: New test.
+
+2021-03-08  Martin Liska  <mliska@suse.cz>
+
+	PR target/99463
+	* gcc.target/i386/pr99463-2.c: New test.
+	* gcc.target/i386/pr99463.c: New test.
+
+2021-03-08  Ilya Leoshkevich  <iii@linux.ibm.com>
+
+	* gcc.target/s390/vector/long-double-asm-commutative.c: New
+	test.
+	* gcc.target/s390/vector/long-double-asm-earlyclobber.c: New
+	test.
+	* gcc.target/s390/vector/long-double-asm-in-out.c: New test.
+	* gcc.target/s390/vector/long-double-asm-inout.c: New test.
+	* gcc.target/s390/vector/long-double-asm-matching.c: New test.
+	* gcc.target/s390/vector/long-double-asm-regmem.c: New test.
+	* gcc.target/s390/vector/long-double-volatile-from-i64.c: New
+	test.
+
+2021-03-08  Tobias Burnus  <tobias@codesourcery.com>
+
+	PR fortran/97927
+	* gfortran.dg/module_variable_3.f90: New test.
+
+2021-03-07  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/99321
+	* lib/target-supports.exp
+	(check_effective_target_assembler_march_noavx512bw): New effective
+	target.
+	* gcc.target/i386/avx512vl-pr99321-1.c: New test.
+
 2021-03-06  Patrick Palka  <ppalka@redhat.com>
 	    Jakub Jelinek  <jakub@redhat.com>
 

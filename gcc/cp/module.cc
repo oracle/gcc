@@ -2783,11 +2783,7 @@ enum merge_kind
   MK_tmpl_tmpl_mask = 0x1, /* We want TEMPLATE_DECL.  */
 
   MK_type_spec = MK_template_mask,
-  MK_type_tmpl_spec = MK_type_spec | MK_tmpl_tmpl_mask,
-
   MK_decl_spec = MK_template_mask | MK_tmpl_decl_mask,
-  MK_decl_tmpl_spec = MK_decl_spec | MK_tmpl_tmpl_mask,
-
   MK_alias_spec = MK_decl_spec | MK_tmpl_alias_mask,
 
   MK_hwm = 0x20
@@ -7723,18 +7719,35 @@ trees_out::decl_value (tree decl, depset *dep)
 	}
     }
 
-  bool is_typedef = (!type && inner
-		     && TREE_CODE (inner) == TYPE_DECL
-		     && DECL_ORIGINAL_TYPE (inner)
-		     && TYPE_NAME (TREE_TYPE (inner)) == inner);
-  if (is_typedef)
+  bool is_typedef = false;
+  if (!type && inner && TREE_CODE (inner) == TYPE_DECL)
     {
-      /* A typedef type.  */
-      int type_tag = insert (TREE_TYPE (inner));
+      tree t = TREE_TYPE (inner);
+      unsigned tdef_flags = 0;
+      if (DECL_ORIGINAL_TYPE (inner)
+	  && TYPE_NAME (TREE_TYPE (inner)) == inner)
+	{
+	  tdef_flags |= 1;
+	  if (TYPE_STRUCTURAL_EQUALITY_P (t)
+	      && TYPE_DEPENDENT_P_VALID (t)
+	      && TYPE_DEPENDENT_P (t))
+	    tdef_flags |= 2;
+	}
       if (streaming_p ())
-	dump (dumper::TREE)
-	  && dump ("Cloned:%d typedef %C:%N", type_tag,
-		   TREE_CODE (TREE_TYPE (inner)), TREE_TYPE (inner));
+	u (tdef_flags);
+
+      if (tdef_flags & 1)
+	{
+	  /* A typedef type.  */
+	  int type_tag = insert (t);
+	  if (streaming_p ())
+	    dump (dumper::TREE)
+	      && dump ("Cloned:%d %s %C:%N", type_tag,
+		       tdef_flags & 2 ? "depalias" : "typedef",
+		       TREE_CODE (t), t);
+
+	  is_typedef = true;
+	}
     }
 
   if (streaming_p () && DECL_MAYBE_IN_CHARGE_CDTOR_P (decl))
@@ -7997,12 +8010,6 @@ trees_in::decl_value ()
 
   dump (dumper::TREE) && dump ("Read:%d %C:%N", tag, TREE_CODE (decl), decl);
 
-  /* Regular typedefs will have a NULL TREE_TYPE at this point.  */
-  bool is_typedef = (!type && inner
-		     && TREE_CODE (inner) == TYPE_DECL
-		     && DECL_ORIGINAL_TYPE (inner)
-		     && !TREE_TYPE (inner));
-
   existing = back_refs[~tag];
   bool installed = install_entity (existing);
   bool is_new = existing == decl;
@@ -8034,6 +8041,16 @@ trees_in::decl_value ()
 	}
     }
 
+  /* Regular typedefs will have a NULL TREE_TYPE at this point.  */
+  unsigned tdef_flags = 0;
+  bool is_typedef = false;
+  if (!type && inner && TREE_CODE (inner) == TYPE_DECL)
+    {
+      tdef_flags = u ();
+      if (tdef_flags & 1)
+	is_typedef = true;
+    }
+
   if (is_new)
     {
       /* A newly discovered node.  */
@@ -8059,9 +8076,14 @@ trees_in::decl_value ()
 	set_constraints (decl, spec.spec);
       if (mk & MK_template_mask
 	  || mk == MK_partial)
-	/* Add to specialization tables now that constraints etc are
-	   added.  */
-	add_mergeable_specialization (spec.tmpl, spec.args, decl, spec_flags);
+	{
+	  /* Add to specialization tables now that constraints etc are
+	     added.  */
+	  bool is_type = mk == MK_partial || !(mk & MK_tmpl_decl_mask);
+
+	  spec.spec = is_type ? type : mk & MK_tmpl_tmpl_mask ? inner : decl;
+	  add_mergeable_specialization (!is_type, &spec, decl, spec_flags);
+	}
 
       if (TREE_CODE (decl) == INTEGER_CST && !TREE_OVERFLOW (decl))
 	{
@@ -8075,6 +8097,14 @@ trees_in::decl_value ()
 	  TREE_TYPE (inner) = DECL_ORIGINAL_TYPE (inner);
 	  DECL_ORIGINAL_TYPE (inner) = NULL_TREE;
 	  set_underlying_type (inner);
+	  if (tdef_flags & 2)
+	    {
+	      /* Match instantiate_alias_template's handling.  */
+	      tree type = TREE_TYPE (inner);
+	      TYPE_DEPENDENT_P (type) = true;
+	      TYPE_DEPENDENT_P_VALID (type) = true;
+	      SET_TYPE_STRUCTURAL_EQUALITY (type);
+	    }
 	}
 
       if (inner_tag)
@@ -8154,7 +8184,10 @@ trees_in::decl_value ()
     {
       tree e = match_mergeable_specialization (true, &spec);
       if (!e)
-	add_mergeable_specialization (spec.tmpl, spec.args, decl, spec_flags);
+	{
+	  spec.spec = inner;
+	  add_mergeable_specialization (true, &spec, decl, spec_flags);
+	}
       else if (e != existing)
 	set_overrun ();
     }
@@ -10221,7 +10254,6 @@ trees_out::get_merge_kind (tree decl, depset *dep)
     case depset::EK_SPECIALIZATION:
       {
 	gcc_checking_assert (dep->is_special ());
-	spec_entry *entry = reinterpret_cast <spec_entry *> (dep->deps[0]);
 
 	if (TREE_CODE (DECL_CONTEXT (decl)) == FUNCTION_DECL)
 	  /* An block-scope classes of templates are themselves
@@ -10239,13 +10271,8 @@ trees_out::get_merge_kind (tree decl, depset *dep)
 
 	if (TREE_CODE (decl) == TEMPLATE_DECL)
 	  {
-	    tree res = DECL_TEMPLATE_RESULT (decl);
-	    if (!(mk & MK_tmpl_decl_mask))
-	      res = TREE_TYPE (res);
-
-	    if (res == entry->spec)
-	      /* We check we can get back to the template during
-		 streaming.  */
+	    spec_entry *entry = reinterpret_cast <spec_entry *> (dep->deps[0]);
+	    if (TREE_CODE (entry->spec) != TEMPLATE_DECL)
 	      mk = merge_kind (mk | MK_tmpl_tmpl_mask);
 	  }
       }
@@ -10344,25 +10371,24 @@ trees_out::key_mergeable (int tag, merge_kind mk, tree decl, tree inner,
 	{
 	  /* Make sure we can locate the decl.  */
 	  tree existing = match_mergeable_specialization
-	    (bool (mk & MK_tmpl_decl_mask), entry, false);
+	    (bool (mk & MK_tmpl_decl_mask), entry);
 
 	  gcc_assert (existing);
 	  if (mk & MK_tmpl_decl_mask)
 	    {
 	      if (mk & MK_tmpl_alias_mask)
 		/* It should be in both tables.  */
-		gcc_assert (match_mergeable_specialization (false, entry, false)
+		gcc_assert (match_mergeable_specialization (false, entry)
 			    == TREE_TYPE (existing));
 	      else if (mk & MK_tmpl_tmpl_mask)
-		if (tree ti = DECL_TEMPLATE_INFO (existing))
-		  existing = TI_TEMPLATE (ti);
+		existing = DECL_TI_TEMPLATE (existing);
 	    }
 	  else
 	    {
-	      if (!(mk & MK_tmpl_tmpl_mask))
+	      if (mk & MK_tmpl_tmpl_mask)
+		existing = CLASSTYPE_TI_TEMPLATE (existing);
+	      else
 		existing = TYPE_NAME (existing);
-	      else if (tree ti = CLASSTYPE_TEMPLATE_INFO (existing))
-		existing = TI_TEMPLATE (ti);
 	    }
 
 	  /* The walkabout should have found ourselves.  */
@@ -10659,22 +10685,19 @@ trees_in::key_mergeable (int tag, merge_kind mk, tree decl, tree inner,
 
   if (mk & MK_template_mask)
     {
+      // FIXME: We could stream the specialization hash?
       spec_entry spec;
       spec.tmpl = tree_node ();
       spec.args = tree_node ();
+
+      if (get_overrun ())
+	return error_mark_node;
 
       DECL_NAME (decl) = DECL_NAME (spec.tmpl);
       DECL_CONTEXT (decl) = DECL_CONTEXT (spec.tmpl);
       DECL_NAME (inner) = DECL_NAME (decl);
       DECL_CONTEXT (inner) = DECL_CONTEXT (decl);
 
-      spec.spec = decl;
-      if (mk & MK_tmpl_tmpl_mask)
-	{
-	  if (inner == decl)
-	    return error_mark_node;
-	  spec.spec = inner;
-	}
       tree constr = NULL_TREE;
       bool is_decl = mk & MK_tmpl_decl_mask;
       if (is_decl)
@@ -10685,13 +10708,10 @@ trees_in::key_mergeable (int tag, merge_kind mk, tree decl, tree inner,
 	      if (constr)
 		set_constraints (inner, constr);
 	    }
+	  spec.spec = (mk & MK_tmpl_tmpl_mask) ? inner : decl;
 	}
       else
-	{
-	  if (mk == MK_type_spec && inner != decl)
-	    return error_mark_node;
-	  spec.spec = type;
-	}
+	spec.spec = type;
       existing = match_mergeable_specialization (is_decl, &spec);
       if (constr)
 	/* We'll add these back later, if this is the new decl.  */
@@ -10703,24 +10723,15 @@ trees_in::key_mergeable (int tag, merge_kind mk, tree decl, tree inner,
 	{
 	  /* A declaration specialization.  */
 	  if (mk & MK_tmpl_tmpl_mask)
-	    if (tree ti = DECL_TEMPLATE_INFO (existing))
-	      {
-		tree tmpl = TI_TEMPLATE (ti);
-		if (DECL_TEMPLATE_RESULT (tmpl) == existing)
-		  existing = tmpl;
-	      }
+	    existing = DECL_TI_TEMPLATE (existing);
 	}
       else
 	{
 	  /* A type specialization.  */
-	  if (!(mk & MK_tmpl_tmpl_mask))
+	  if (mk & MK_tmpl_tmpl_mask)
+	    existing = CLASSTYPE_TI_TEMPLATE (existing);
+	  else
 	    existing = TYPE_NAME (existing);
-	  else if (tree ti = CLASSTYPE_TEMPLATE_INFO (existing))
-	    {
-	      tree tmpl = TI_TEMPLATE (ti);
-	      if (DECL_TEMPLATE_RESULT (tmpl) == TYPE_NAME (existing))
-		existing = tmpl;
-	    }
 	}
     }
   else if (mk == MK_unique)
@@ -12727,6 +12738,9 @@ depset::hash::add_binding_entity (tree decl, WMB_Flags flags, void *data_)
 	  *slot = data->binding;
 	}
 
+      /* Make sure nobody left a tree visited lying about.  */
+      gcc_checking_assert (!TREE_VISITED (decl));
+
       if (flags & WMB_Using)
 	{
 	  decl = ovl_make (decl, NULL_TREE);
@@ -12869,7 +12883,7 @@ specialization_add (bool decl_p, spec_entry *entry, void *data_)
        /* Only alias templates can appear in both tables (and
 	  if they're in the type table they must also be in the decl table).  */
        gcc_checking_assert
-	 (!match_mergeable_specialization (true, entry, false)
+	 (!match_mergeable_specialization (true, entry)
 	  == (decl_p || !DECL_ALIAS_TEMPLATE_P (entry->tmpl)));
     }
   else if (VAR_OR_FUNCTION_DECL_P (entry->spec))
@@ -13021,6 +13035,8 @@ depset::hash::add_specializations (bool decl_p)
     have_spec:;
 #endif
 
+      /* Make sure nobody left a tree visited lying about.  */
+      gcc_checking_assert (!TREE_VISITED (spec));
       depset *dep = make_dependency (spec, depset::EK_SPECIALIZATION);
       if (dep->is_special ())
 	{
@@ -17185,6 +17201,10 @@ module_state::write_inits (elf_out *to, depset::hash &table, unsigned *crc_ptr)
 static void
 post_load_processing ()
 {
+  /* We mustn't cause a GC, our caller should have arranged for that
+     not to happen.  */
+  gcc_checking_assert (function_depth);
+
   if (!post_load_decls)
     return;
 
@@ -18873,9 +18893,9 @@ lazy_load_pendings (tree decl)
 
       pending_table->remove (key);
       dump.pop (n);
-      function_depth--;
       lazy_snum = 0;
       post_load_processing ();
+      function_depth--;
     }
 
   timevar_stop (TV_MODULE_IMPORT);

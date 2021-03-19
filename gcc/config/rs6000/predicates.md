@@ -992,6 +992,20 @@
   return INTVAL (offset) % 4 == 0;
 })
 
+;; Return 1 if the operand is a memory operand that has a valid address for
+;; a DS-form instruction. I.e. the address has to be either just a register,
+;; or register + const where the two low order bits of const are zero.
+(define_predicate "ds_form_mem_operand"
+  (match_code "subreg,mem")
+{
+  if (!any_memory_operand (op, mode))
+    return false;
+
+  rtx addr = XEXP (op, 0);
+
+  return address_to_insn_form (addr, mode, NON_PREFIXED_DS) == INSN_FORM_DS;
+})
+
 ;; Return 1 if the operand, used inside a MEM, is a SYMBOL_REF.
 (define_predicate "symbol_ref_operand"
   (and (match_code "symbol_ref")
@@ -1194,10 +1208,11 @@
 (define_predicate "branch_comparison_operator"
    (and (match_operand 0 "comparison_operator")
 	(match_test "GET_MODE_CLASS (GET_MODE (XEXP (op, 0))) == MODE_CC")
-	(if_then_else (match_test "GET_MODE (XEXP (op, 0)) == CCFPmode
-				   && !flag_finite_math_only")
-		      (match_code "lt,gt,eq,unordered,unge,unle,ne,ordered")
-		      (match_code "lt,ltu,le,leu,gt,gtu,ge,geu,eq,ne"))
+	(if_then_else (match_test "GET_MODE (XEXP (op, 0)) == CCFPmode")
+	  (if_then_else (match_test "flag_finite_math_only")
+	    (match_code "lt,le,gt,ge,eq,ne,unordered,ordered")
+	    (match_code "lt,gt,eq,unordered,unge,unle,ne,ordered"))
+	  (match_code "lt,ltu,le,leu,gt,gtu,ge,geu,eq,ne"))
 	(match_test "validate_condition_mode (GET_CODE (op),
 					      GET_MODE (XEXP (op, 0))),
 		     1")))

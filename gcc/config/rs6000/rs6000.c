@@ -7855,7 +7855,8 @@ rs6000_special_round_type_align (tree type, unsigned int computed,
       while (TREE_CODE (type) == ARRAY_TYPE)
 	type = TREE_TYPE (type);
 
-      if (type != error_mark_node && TYPE_MODE (type) == DFmode)
+      if (type != error_mark_node
+	  && (TYPE_MODE (type) == DFmode || TYPE_MODE (type) == DCmode))
 	align = MAX (align, 64);
     }
 
@@ -10111,6 +10112,9 @@ rs6000_const_vec (machine_mode mode)
 void
 rs6000_emit_le_vsx_permute (rtx dest, rtx source, machine_mode mode)
 {
+  gcc_assert (!altivec_indexed_or_indirect_operand (dest, mode));
+  gcc_assert (!altivec_indexed_or_indirect_operand (source, mode));
+
   /* Scalar permutations are easier to express in integer modes rather than
      floating-point modes, so cast them here.  We use V1TImode instead
      of TImode to ensure that the values don't go through GPRs.  */
@@ -21274,8 +21278,6 @@ rs6000_xcoff_file_start (void)
 			   main_input_filename, ".ro_");
   rs6000_gen_section_name (&xcoff_tls_data_section_name,
 			   main_input_filename, ".tls_");
-  rs6000_gen_section_name (&xcoff_tbss_section_name,
-			   main_input_filename, ".tbss_[UL]");
 
   fputs ("\t.file\t", asm_out_file);
   output_quoted_string (asm_out_file, main_input_filename);

@@ -9223,12 +9223,15 @@ register_ok_for_ldd (rtx reg)
 int
 memory_ok_for_ldd (rtx op)
 {
-  /* In 64-bit mode, we assume that the address is word-aligned.  */
-  if (TARGET_ARCH32 && !mem_min_alignment (op, 8))
+  if (!mem_min_alignment (op, 8))
     return 0;
 
-  if (! can_create_pseudo_p ()
+  /* We need to perform the job of a memory constraint.  */
+  if ((reload_in_progress || reload_completed)
       && !strict_memory_address_p (Pmode, XEXP (op, 0)))
+    return 0;
+
+  if (lra_in_progress && !memory_address_p (Pmode, XEXP (op, 0)))
     return 0;
 
   return 1;
@@ -13585,23 +13588,18 @@ sparc_expand_vcond (machine_mode mode, rtx *operands, int ccode, int fcode)
   emit_insn (gen_rtx_SET (operands[0], bshuf));
 }
 
-/* On sparc, any mode which naturally allocates into the float
+/* On the SPARC, any mode which naturally allocates into the single float
    registers should return 4 here.  */
 
 unsigned int
 sparc_regmode_natural_size (machine_mode mode)
 {
-  int size = UNITS_PER_WORD;
+  const enum mode_class cl = GET_MODE_CLASS (mode);
 
-  if (TARGET_ARCH64)
-    {
-      enum mode_class mclass = GET_MODE_CLASS (mode);
+  if ((cl == MODE_FLOAT || cl == MODE_VECTOR_INT) && GET_MODE_SIZE (mode) <= 4)
+    return 4;
 
-      if (mclass == MODE_FLOAT || mclass == MODE_VECTOR_INT)
-	size = 4;
-    }
-
-  return size;
+  return UNITS_PER_WORD;
 }
 
 /* Implement TARGET_HARD_REGNO_NREGS.

@@ -572,6 +572,8 @@ cp_debug_parser (FILE *file, cp_parser *parser)
 			      parser->colon_corrects_to_scope_p);
   cp_debug_print_flag (file, "Colon doesn't start a class definition",
 			      parser->colon_doesnt_start_class_def_p);
+  cp_debug_print_flag (file, "Parsing an Objective-C++ message context",
+			      parser->objective_c_message_context_p);
   if (parser->type_definition_forbidden_message)
     fprintf (file, "Error message for forbidden type definitions: %s %s\n",
 	     parser->type_definition_forbidden_message,
@@ -3469,11 +3471,15 @@ cp_parser_diagnose_invalid_type_name (cp_parser *parser, tree id,
       else if (TREE_CODE (id) == IDENTIFIER_NODE
 	       && (id_equal (id, "module") || id_equal (id, "import")))
 	{
-	  if (!modules_p ())
-	    inform (location, "%qE only available with %<-fmodules-ts%>", id);
-	  else
-	    inform (location, "%qE was not recognized as a module control-line",
+	  if (modules_p ())
+	    inform (location, "%qE is not recognized as a module control-line",
 		    id);
+	  else if (cxx_dialect < cxx20)
+	    inform (location, "C++20 %qE only available with %<-fmodules-ts%>",
+		    id);
+	  else
+	    inform (location, "C++20 %qE only available with %<-fmodules-ts%>"
+		    ", which is not yet enabled with %<-std=c++20%>", id);
 	}
       else if (cxx_dialect < cxx11
 	       && TREE_CODE (id) == IDENTIFIER_NODE
@@ -6622,7 +6628,9 @@ cp_parser_nested_name_specifier_opt (cp_parser *parser,
 
 	  if (token->type == CPP_COLON
 	      && parser->colon_corrects_to_scope_p
-	      && cp_lexer_peek_nth_token (parser->lexer, 3)->type == CPP_NAME)
+	      && cp_lexer_peek_nth_token (parser->lexer, 3)->type == CPP_NAME
+	      /* name:name is a valid sequence in an Objective C message.  */
+	      && !parser->objective_c_message_context_p)
 	    {
 	      gcc_rich_location richloc (token->location);
 	      richloc.add_fixit_replace ("::");
@@ -13745,7 +13753,13 @@ cp_parser_module_declaration (cp_parser *parser, module_parse mp_state,
   parser->lexer->in_pragma = true;
   cp_token *token = cp_lexer_consume_token (parser->lexer);
 
-  if (mp_state == MP_FIRST && !exporting
+  if (flag_header_unit)
+    {
+      error_at (token->location,
+		"module-declaration not permitted in header-unit");
+      goto skip_eol;
+    }
+  else if (mp_state == MP_FIRST && !exporting
       && cp_lexer_next_token_is (parser->lexer, CPP_SEMICOLON))
     {
       /* Start global module fragment.  */
@@ -28825,8 +28839,11 @@ cp_parser_requirement_parameter_list (cp_parser *parser)
       if (parm == void_list_node || parm == explicit_void_list_node)
 	break;
       tree decl = TREE_VALUE (parm);
-      DECL_CONTEXT (decl) = NULL_TREE;
-      CONSTRAINT_VAR_P (decl) = true;
+      if (decl != error_mark_node)
+	{
+	  DECL_CONTEXT (decl) = NULL_TREE;
+	  CONSTRAINT_VAR_P (decl) = true;
+	}
     }
 
   return parms;
@@ -33024,6 +33041,7 @@ cp_parser_objc_message_expression (cp_parser* parser)
 {
   tree receiver, messageargs;
 
+  parser->objective_c_message_context_p = true;
   location_t start_loc = cp_lexer_peek_token (parser->lexer)->location;
   cp_lexer_consume_token (parser->lexer);  /* Eat '['.  */
   receiver = cp_parser_objc_message_receiver (parser);
@@ -33040,6 +33058,7 @@ cp_parser_objc_message_expression (cp_parser* parser)
   location_t combined_loc = make_location (start_loc, start_loc, end_loc);
   protected_set_expr_location (result, combined_loc);
 
+  parser->objective_c_message_context_p = false;
   return result;
 }
 

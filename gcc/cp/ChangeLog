@@ -1,3 +1,218 @@
+2021-03-19  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/99500
+	* parser.c (cp_parser_requirement_parameter_list): Handle
+	error_mark_node.
+
+2021-03-18  Marek Polacek  <polacek@redhat.com>
+
+	* pt.c (tsubst_copy_and_build) <case FLOAT_EXPR>: Remove.
+
+2021-03-18  Marek Polacek  <polacek@redhat.com>
+
+	* pt.c (tsubst_copy_and_build): Add assert.
+
+2021-03-18  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR objc++/49070
+	* parser.c (cp_debug_parser): Add Objective-C++ message
+	state flag.
+	(cp_parser_nested_name_specifier_opt): Allow colon to
+	terminate an assignment-expression when parsing Objective-
+	C++ messages.
+	(cp_parser_objc_message_expression): Set and clear message
+	parsing state on entry and exit.
+	* parser.h (struct cp_parser): Add a context flag for
+	Objective-C++ message state.
+
+2021-03-18  Martin Liska  <mliska@suse.cz>
+
+	PR c++/99617
+	* coroutines.cc (struct var_nest_node): Init then_cl and else_cl
+	to NULL.
+
+2021-03-17  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/97973
+	* call.c (conv_unsafe_in_template_p): New.
+	(convert_like): Use it.
+
+2021-03-17  Anthony Sharp  <anthonysharp15@gmail.com>
+	    Jason Merrill  <jason@redhat.com>
+
+	* semantics.c (get_class_access_diagnostic_decl): New
+	function that examines special cases when a parent
+	class causes a private access failure.
+	(enforce_access): Slightly modified to call function
+	above.
+
+2021-03-16  Jason Merrill  <jason@redhat.com>
+
+	* tree.c (cp_tree_equal): Use real_identical.
+
+2021-03-16  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/99613
+	* decl.c (expand_static_init): For thread guards, call __cxa_atexit
+	before calling __cxa_guard_release rather than after it.  Formatting
+	fixes.
+
+2021-03-16  Martin Liska  <mliska@suse.cz>
+	    Jason Merrill  <jason@redhat.com>
+
+	PR c++/99108
+	* call.c (get_function_version_dispatcher): Handle
+	DECL_LOCAL_DECL_P.
+	* decl.c (maybe_version_functions): Likewise.
+	(maybe_mark_function_versioned): New.
+	* name-lookup.c (push_local_extern_decl_alias): No longer static.
+	* name-lookup.h (push_local_extern_decl_alias): Adjust.
+
+2021-03-16  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99496
+	* module.cc (trees_out::decl_value): Adjust typedef streaming,
+	indicate whether it is a dependent alias.
+	(trees_in::decl_value): Likewise.  Set as dependent alias, if it
+	is one.
+
+2021-03-15  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR c++/99047
+	* coroutines.cc (expand_one_await_expression): If the
+	await_ready() expression is not a boolean then convert it
+	as required.
+
+2021-03-15  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR c++/98704
+	* coroutines.cc (build_actor_fn): Make destroy index 1
+	correspond to the abnormal unhandled_exception() exit.
+	Substitute the proxy for the resume index.
+	(coro_rewrite_function_body): Arrange to reset the resume
+	index and make done = true for a rethrown exception from
+	unhandled_exception ().
+	(morph_fn_to_coro): Adjust calls to build_actor_fn and
+	coro_rewrite_function_body.
+
+2021-03-15  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR c++/98480
+	* coroutines.cc (replace_continue): Rewrite continue into
+	'goto label'.
+	(await_statement_walker): Handle await expressions in the
+	initializer, condition and iteration expressions of for
+	loops.
+
+2021-03-15  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR c++/96749
+	* coroutines.cc (flatten_await_stmt): Allow for the case
+	where a target expression variable only has uses in the
+	second part of a compound expression.
+	(maybe_promote_temps): Avoid emiting empty statements.
+
+2021-03-15  Tobias Burnus  <tobias@codesourcery.com>
+
+	PR c++/99509
+	* decl.c (cp_finish_decl): For 'omp declare target implicit' vars,
+	ensure that the varpool node is marked as offloadable.
+
+2021-03-12  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99238
+	* module.cc (depset::hash::add_binding_entity): Assert not
+	visited.
+	(depset::add::add_specializations): Likewise.
+	* name-lookup.c (name_lookup::dedup): New.
+	(name_lookup::~name_lookup): Assert not deduping.
+	(name_lookup::restore_state): Likewise.
+	(name_lookup::add_overload): Replace outlined code with dedup
+	call.
+	(name_lookup::add_value): Likewise.
+	(name_lookup::search_namespace_only): Likewise.
+	(name_lookup::adl_namespace_fns): Likewise.
+	(name_lookup::adl_class_fns): Likewise.
+	(name_lookup::search_adl): Likewise.  Add clearing dedup call.
+	(name_lookup::search_qualified): Likewise.
+	(name_lookup::search_unqualified): Likewise.
+
+2021-03-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/99507
+	* call.c (build_over_call): For immediate evaluation of functions
+	that return references, undo convert_from_reference effects before
+	calling cxx_constant_value and call convert_from_reference
+	afterwards.
+
+2021-03-11  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99248
+	* name-lookup.c (lookup_elaborated_type_1): Access slot not bind
+	when there's a binding vector.
+	* ptree.c (cxx_print_xnode): Lazy flags are no longer a thing.
+
+2021-03-11  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99528
+	* module.cc (enum merge_kind): Delete MK_type_tmpl_spec,
+	MK_decl_tmpl_spec.
+	(trees_in::decl_value): Adjust add_mergeable_specialization call.
+	(trees_out::get_merge_kind): Adjust detecting a partial template
+	instantiation.
+	(trees_out::key_mergeable): Adjust handling same.
+	(trees_in::key_mergeabvle): Likewise.
+
+2021-03-10  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99423
+	* module.cc (post_load_processing): Assert not gcable.
+	(laxy_load_pendings): Extend no-gc region around
+	post_load_processing.
+
+2021-03-10  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99508
+	* decl.c (make_rtl_for_nonlocal_decl): Propagate local-extern's
+	assembler name to the ns alias.
+
+2021-03-09  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/99459
+	* coroutines.cc (build_co_await): Look through NOP_EXPRs in
+	build_special_member_call return value to find the CALL_EXPR.
+	Simplify.
+
+2021-03-09  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99472
+	* parser.c (cp_parser_diagnose_invalid_type_name): Clarify
+	that C++20 does not yet imply modules.
+
+2021-03-08  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99436
+	* name-lookup.c (get_cxx_dialect_name): Add cxx23.
+
+2021-03-08  Nathan Sidwell  <nathan@acm.org>
+
+	* lex.c (module_token_filter::resume): Ignore module-decls inside
+	header-unit.
+	* parser.c (cp_parser_module_declaration): Reject in header-unit.
+
+2021-03-08  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99285
+	* cp-tree.h (match_mergeable_specialization)
+	(add_mergeable_specialization): Adjust parms.
+	* module.cc (trees_in::decl_value): Adjust
+	add_mergeable_specialization calls.
+	(trees_out::key_mergeable): Adjust match_mergeable_specialization
+	calls.
+	(specialization_add): Likewise.
+	* pt.c (match_mergeable_specialization): Do not insert.
+	(add_mergeable_specialization): Add to hash table here.
+
 2021-03-06  Patrick Palka  <ppalka@redhat.com>
 	    Jakub Jelinek  <jakub@redhat.com>
 
