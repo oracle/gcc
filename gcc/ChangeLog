@@ -1,3 +1,312 @@
+2021-03-23  Vladimir N. Makarov  <vmakarov@redhat.com>
+
+	PR target/99581
+	* config/aarch64/constraints.md (Utq, UOb, UOh, UOw, UOd, UOty):
+	Use define_relaxed_memory_constraint for them.
+
+2021-03-23  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR target/99733
+	* config/host-darwin.c (darwin_gt_pch_use_address): Add a
+	colon to the diagnostic message.
+
+2021-03-23  Ilya Leoshkevich  <iii@linux.ibm.com>
+
+	* fwprop.c (fwprop_propagation::fwprop_propagation): Look at
+	set_info's uses.
+	(try_fwprop_subst_note): Use set_info instead of insn_info.
+	(try_fwprop_subst_pattern): Likewise.
+	(try_fwprop_subst_notes): Likewise.
+	(try_fwprop_subst): Likewise.
+	(forward_propagate_subreg): Likewise.
+	(forward_propagate_and_simplify): Likewise.
+	(forward_propagate_into): Likewise.
+	* rtl-ssa/accesses.h (set_info::single_nondebug_use) New
+	method.
+	(set_info::single_nondebug_insn_use): Likewise.
+	(set_info::single_phi_use): Likewise.
+	* rtl-ssa/member-fns.inl (set_info::single_nondebug_use) New
+	method.
+	(set_info::single_nondebug_insn_use): Likewise.
+	(set_info::single_phi_use): Likewise.
+
+2021-03-23  Christophe Lyon  <christophe.lyon@linaro.org>
+
+	* doc/sourcebuild.texi (arm_dsp_ok, arm_dsp): Document.
+
+2021-03-23  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/99540
+	* config/aarch64/aarch64.c (aarch64_add_offset): Tell
+	expand_mult to perform an unsigned rather than a signed
+	multiplication.
+
+2021-03-23  H.J. Lu  <hjl.tools@gmail.com>
+
+	PR target/99704
+	* config/i386/cpuid.h (__cpuid): Add __volatile__.
+	(__cpuid_count): Likewise.
+
+2021-03-23  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/99721
+	* tree-vect-slp.c (vect_slp_analyze_node_operations):
+	Make sure we can schedule the node.
+
+2021-03-23  Marcus Comstedt  <marcus@mc.pp.se>
+
+	* config/riscv/riscv.c (riscv_subword): Take endianness into
+	account when calculating the byte offset.
+
+2021-03-23  Marcus Comstedt  <marcus@mc.pp.se>
+
+	* config/riscv/predicates.md (subreg_lowpart_operator): New predicate
+	* config/riscv/riscv.md (*addsi3_extended2, *subsi3_extended2)
+	(*negsi2_extended2, *mulsi3_extended2, *<optab>si3_mask)
+	(*<optab>si3_mask_1, *<optab>di3_mask, *<optab>di3_mask_1)
+	(*<optab>si3_extend_mask, *<optab>si3_extend_mask_1): Use
+	new predicate "subreg_lowpart_operator"
+
+2021-03-23  Marcus Comstedt  <marcus@mc.pp.se>
+
+	* config/riscv/riscv.c (riscv_swap_instruction): New function
+	to byteswap an SImode rtx containing an instruction.
+	(riscv_trampoline_init): Byteswap the generated instructions
+	when needed.
+
+2021-03-23  Marcus Comstedt  <marcus@mc.pp.se>
+
+	* common/config/riscv/riscv-common.c
+	(TARGET_DEFAULT_TARGET_FLAGS): Set default endianness.
+	* config.gcc (riscv32be-*, riscv64be-*): Set
+	TARGET_BIG_ENDIAN_DEFAULT to 1.
+	* config/riscv/elf.h (LINK_SPEC): Change -melf* value
+	depending on default endianness.
+	* config/riscv/freebsd.h (LINK_SPEC): Likewise.
+	* config/riscv/linux.h (LINK_SPEC): Likewise.
+	* config/riscv/riscv.c (TARGET_DEFAULT_TARGET_FLAGS): Set
+	default endianness.
+	* config/riscv/riscv.h (DEFAULT_ENDIAN_SPEC): New macro.
+
+2021-03-23  Marcus Comstedt  <marcus@mc.pp.se>
+
+	* config/riscv/elf.h (LINK_SPEC): Pass linker endianness flag.
+	* config/riscv/freebsd.h (LINK_SPEC): Likewise.
+	* config/riscv/linux.h (LINK_SPEC): Likewise.
+	* config/riscv/riscv.h (ASM_SPEC): Pass -mbig-endian and
+	-mlittle-endian.
+	(BYTES_BIG_ENDIAN): Handle big endian.
+	(WORDS_BIG_ENDIAN): Define to BYTES_BIG_ENDIAN.
+	* config/riscv/riscv.opt (-mbig-endian, -mlittle-endian): New
+	options.
+	* doc/invoke.texi (-mbig-endian, -mlittle-endian): Document.
+
+2021-03-23  Stefan Schulze Frielinghaus  <stefansf@linux.ibm.com>
+
+	* regcprop.c (find_oldest_value_reg): Ask target whether
+	  different mode is fine for replacement register.
+
+2021-03-23  Aldy Hernandez  <aldyh@redhat.com>
+
+	PR tree-optimization/99296
+	* value-range.cc (irange::irange_set_1bit_anti_range): New.
+	(irange::irange_set_anti_range): Call irange_set_1bit_anti_range
+	* value-range.h (irange::irange_set_1bit_anti_range): New.
+
+2021-03-22  Vladimir N. Makarov  <vmakarov@redhat.com>
+
+	PR target/99581
+	* config/aarch64/constraints.md (UtQ): Use
+	define_relaxed_memory_constraint for it.
+	* doc/md.texi (define_relaxed_memory_constraint): Describe it.
+	* genoutput.c (main): Process DEFINE_RELAXED_MEMORY_CONSTRAINT.
+	* genpreds.c (constraint_data): Add bitfield is_relaxed_memory.
+	(have_relaxed_memory_constraints): New static var.
+	(relaxed_memory_start, relaxed_memory_end): Ditto.
+	(add_constraint): Add arg is_relaxed_memory.  Check name for
+	relaxed memory.  Set up is_relaxed_memory in constraint_data and
+	have_relaxed_memory_constraints.  Adjust calls.
+	(choose_enum_order): Process relaxed memory.
+	(write_tm_preds_h): Ditto.
+	(main): Process DEFINE_RELAXED_MEMORY_CONSTRAINT.
+	* gensupport.c (process_rtx): Process DEFINE_RELAXED_MEMORY_CONSTRAINT.
+	* ira-costs.c (record_reg_classes): Process CT_RELAXED_MEMORY.
+	* ira-lives.c (single_reg_class): Use
+	insn_extra_relaxed_memory_constraint.
+	* ira.c (ira_setup_alts): CT_RELAXED_MEMORY.
+	* lra-constraints.c (valid_address_p): Use
+	insn_extra_relaxed_memory_constraint instead of other memory
+	constraints.
+	(process_alt_operands): Process CT_RELAXED_MEMORY.
+	(curr_insn_transform): Use insn_extra_relaxed_memory_constraint.
+	* recog.c (asm_operand_ok, preprocess_constraints): Process
+	CT_RELAXED_MEMORY.
+	* reload.c (find_reloads): Ditto.
+	* rtl.def (DEFINE_RELAXED_MEMORY_CONSTRAINT): New.
+	* stmt.c (parse_input_constraint): Use
+	insn_extra_relaxed_memory_constraint.
+
+2021-03-22  Segher Boessenkool  <segher@kernel.crashing.org>
+
+	PR target/97926
+	* ubsan.c (ubsan_instrument_float_cast): Don't test for unordered if
+	there are no NaNs.
+
+2021-03-22  Alex Coplan  <alex.coplan@arm.com>
+
+	PR target/97252
+	* config/arm/arm-protos.h (neon_make_constant): Add generate
+	argument to guard emitting insns, default to true.
+	* config/arm/arm.c (arm_legitimate_constant_p_1): Reject
+	CONST_VECTORs which neon_make_constant can't handle.
+	(neon_vdup_constant): Add generate argument, avoid emitting
+	insns if it's not set.
+	(neon_make_constant): Plumb new generate argument through.
+	* config/arm/constraints.md (Ui): New. Use it...
+	* config/arm/mve.md (*mve_mov<mode>): ... here.
+	* config/arm/vec-common.md (movv8hf): Use neon_make_constant to
+	synthesize constants.
+
+2021-03-22  Richard Biener  <rguenther@suse.de>
+
+	* debug.h: Add deprecation warning.
+
+2021-03-22  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/99694
+	* tree-ssa-sccvn.c (visit_phi): Ignore edges with the
+	PHI result.
+
+2021-03-22  Kito Cheng  <kito.cheng@sifive.com>
+
+	PR target/99702
+	* config/riscv/riscv.c (riscv_expand_block_move): Get RTL value
+	after type checking.
+
+2021-03-22  Jakub Jelinek  <jakub@redhat.com>
+
+	PR debug/99562
+	PR debug/66728
+	* dwarf2out.c (get_full_len): Use get_precision rather than
+	min_precision.
+	(add_const_value_attribute): Make sure add_AT_wide argument has
+	precision prec rather than some very wide one.
+
+2021-03-22  Kewen Lin  <linkw@linux.ibm.com>
+
+	* config/rs6000/rs6000.md (*rotldi3_insert_sf,
+	*mov<SFDF:mode><SFDF2:mode>cc_p9, floatsi<mode>2_lfiwax,
+	floatsi<mode>2_lfiwax_mem, floatunssi<mode>2_lfiwzx,
+	floatunssi<mode>2_lfiwzx_mem, *floatsidf2_internal,
+	*floatunssidf2_internal, fix_trunc<mode>si2_stfiwx,
+	fix_trunc<mode>si2_internal, fixuns_trunc<mode>si2_stfiwx,
+	*round32<mode>2_fprs, *roundu32<mode>2_fprs,
+	*fix_trunc<mode>si2_internal): Fix empty split condition.
+	* config/rs6000/vsx.md (*vsx_le_undo_permute_<mode>,
+	vsx_reduc_<VEC_reduc_name>_v2df, vsx_reduc_<VEC_reduc_name>_v4sf,
+	*vsx_reduc_<VEC_reduc_name>_v2df_scalar,
+	*vsx_reduc_<VEC_reduc_name>_v4sf_scalar): Likewise.
+
+2021-03-22  Xionghu Luo  <luoxhu@linux.ibm.com>
+
+	PR target/98914
+	* config/rs6000/rs6000.c (rs6000_expand_vector_set_var_p9):
+	Convert idx to DImode.
+	(rs6000_expand_vector_set_var_p8): Likewise.
+
+2021-03-21  Jakub Jelinek  <jakub@redhat.com>
+
+	PR debug/99388
+	* dwarf2out.c (insert_float): Change return type from void to
+	unsigned, handle GET_MODE_SIZE (mode) == 2 and return element size.
+	(mem_loc_descriptor, loc_descriptor, add_const_value_attribute):
+	Adjust callers.
+
+2021-03-20  H.J. Lu  <hjl.tools@gmail.com>
+
+	PR target/99679
+	* config/i386/i386.c (construct_container): Check cfun != NULL
+	before accessing silent_p.
+
+2021-03-20  Ahamed Husni  <ahamedhusni73@gmail.com>
+
+	* asan.c: Fix typos in comments.
+
+2021-03-20  Vladimir N. Makarov  <vmakarov@redhat.com>
+
+	PR rtl-optimization/99680
+	* lra-constraints.c (skip_contraint_modifiers): Rename to skip_constraint_modifiers.
+	(process_address_1): Check empty constraint before using
+	CONSTRAINT_LEN.
+
+2021-03-19  Pat Haugen  <pthaugen@linux.ibm.com>
+
+	* config/rs6000/rs6000.c (power10_cost): New.
+	(rs6000_option_override_internal): Set Power10 costs.
+	(rs6000_issue_rate): Set Power10 issue rate.
+	* config/rs6000/power10.md: Rewrite for Power10.
+
+2021-03-19  Vladimir N. Makarov  <vmakarov@redhat.com>
+
+	PR target/99663
+	* lra-constraints.c (process_address_1): Don't use unknown
+	constraint for address constraint.
+
+2021-03-19  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR target/99661
+	* config.gcc (powerpc-*-darwin8): Delete the reference to
+	the now removed darwin8.h.
+
+2021-03-19  Olivier Hainque  <hainque@adacore.com>
+
+	PR target/99660
+	* config/vxworksae.h (VX_CPU_PREFIX): Define.
+
+2021-03-19  John David Anglin  <danglin@gcc.gnu.org>
+
+	* config/pa/pa.c (import_milli): Use memcpy instead of strncpy.
+
+2021-03-19  Tamar Christina  <tamar.christina@arm.com>
+
+	PR tree-optimization/99656
+	* tree-vect-slp-patterns.c (linear_loads_p,
+	complex_add_pattern::matches, is_eq_or_top,
+	vect_validate_multiplication, complex_mul_pattern::matches,
+	complex_fms_pattern::matches): Remove complex_perm_kinds_t.
+	* tree-vectorizer.h: (complex_load_perm_t): Removed.
+	(slp_tree_to_load_perm_map_t): Use complex_perm_kinds_t instead of
+	complex_load_perm_t.
+
+2021-03-19  H.J. Lu  <hjl.tools@gmail.com>
+
+	PR target/99652
+	* config/i386/i386-options.c (ix86_init_machine_status): Set
+	silent_p to true.
+	* config/i386/i386.c (init_cumulative_args): Set silent_p to
+	false.
+	(construct_container): Return early for return and argument
+	errors if silent_p is true.
+	* config/i386/i386.h (machine_function): Add silent_p.
+
+2021-03-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/99593
+	* config/arm/constraints.md (Ds): New constraint.
+	* config/arm/vec-common.md (mve_vshlq_<supf><mode>): Use w,Ds
+	constraint instead of w,Dm.
+
+2021-03-19  Andrew Stubbs  <ams@codesourcery.com>
+
+	* config/gcn/gcn.c (gcn_parse_amdgpu_hsa_kernel_attribute): Fix quotes
+	in error message.
+
+2021-03-19  Eric Botcazou  <ebotcazou@adacore.com>
+
+	PR middle-end/99641
+	* fold-const.c (native_encode_initializer) <CONSTRUCTOR>: For an
+	array type, do the computation of the current position in sizetype.
+
 2021-03-18  Vladimir N. Makarov  <vmakarov@redhat.com>
 
 	PR target/99422
