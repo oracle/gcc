@@ -1,3 +1,112 @@
+2021-03-31  Alexandre Oliva  <oliva@adacore.com>
+
+	* testsuite/30_threads/future/members/poll.cc: Use faster
+	after-ready call in the calibration loop.
+
+2021-03-29  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/status_cxx2017.xml: Adjust link for PSTL.
+	* doc/html/manual/status.html: Regenerate.
+
+2021-03-28  François Dumont  <fdumont@gcc.gnu.org>
+
+	* include/debug/forward_list
+	(forward_list(forward_list&&, const allocator_type&)): Add noexcept qualification.
+	* include/debug/list (list(list&&, const allocator_type&)): Likewise and add
+	call to safe container allocator aware move constructor.
+	* include/debug/vector (vector(vector&&, const allocator_type&)):
+	Fix noexcept qualification.
+	* testsuite/23_containers/forward_list/cons/noexcept_move_construct.cc:
+	Add allocator-extended move constructor noexceot qualification check.
+	* testsuite/23_containers/list/cons/noexcept_move_construct.cc: Likewise.
+
+2021-03-26  Jonathan Wakely  <jwakely@redhat.com>
+
+	* src/c++11/random.cc (USE_LCG): Define when a pseudo-random
+	fallback is needed.
+	[USE_LCG] (bad_seed, construct_lcg_at, destroy_lcg_at, __lcg):
+	New helper functions and callback.
+	(random_device::_M_init): Add 'prng' and 'all' enumerators.
+	Replace switch with fallthrough with a series of 'if' statements.
+	[USE_LCG]: Construct an lcg_type engine and use __lcg when cpuid
+	checks fail.
+	(random_device::_M_init_pretr1) [USE_MT19937]: Accept "prng"
+	token.
+	(random_device::_M_getval): Check for callback unconditionally
+	and always pass _M_file pointer.
+	* testsuite/26_numerics/random/random_device/85494.cc: Remove
+	effective-target check. Use new random_device_available helper.
+	* testsuite/26_numerics/random/random_device/94087.cc: Likewise.
+	* testsuite/26_numerics/random/random_device/cons/default-cow.cc:
+	Remove effective-target check.
+	* testsuite/26_numerics/random/random_device/cons/default.cc:
+	Likewise.
+	* testsuite/26_numerics/random/random_device/cons/token.cc: Use
+	new random_device_available helper. Test "prng" token.
+	* testsuite/util/testsuite_random.h (random_device_available):
+	New helper function.
+
+2021-03-25  François Dumont  <fdumont@gcc.gnu.org>
+
+	* include/debug/string
+	(basic_string(const basic_string&, const _Alloc&)): Define even if !_GLIBCXX_USE_CXX11_ABI.
+	(basic_string(basic_string&&, const _Alloc&)): Likewise and add noexcept qualification.
+	(basic_string<>::erase): Adapt to take __const_iterator.
+	(basic_string(const _CharT*, const _Allocator&)): Remove assign call.
+	(basic_string<>::insert(const_iterator, _InputIte, _InputIte)): Try to
+	remove iterator debug layer even if !_GLIBCXX_USE_CXX11_ABI.
+	[_GLIBCXX_USE_CHAR8_T] (__gnu_debug::u8string): New.
+	(__gnu_debug::u16string, __gnu_debug::u32string): New.
+	(std::hash<__gnu_debug::basic_string<>>): New partial specialization.
+	(std::__is_fast_hash<__gnu_debug::basic_string<>>): Likewise.
+	* testsuite/util/exception/safety.h
+	(erase_base<__gnu_debug::basic_string<>>): New partial specialization.
+	(insert_base<__gnu_debug::basic_string<>>): Likewise.
+	* testsuite/util/testsuite_container_traits.h (traits<__gnu_debug::basic_string<>>):
+	New partial specialization.
+	* testsuite/21_strings/basic_string/hash/debug.cc: New test.
+	* testsuite/21_strings/basic_string/requirements/citerators.cc:
+	Add test on __gnu_debug::string.
+	* testsuite/21_strings/basic_string/requirements/dr438/constructor.cc: Likewise.
+	* testsuite/21_strings/basic_string/requirements/exception/basic.cc: Likewise.
+	* testsuite/21_strings/basic_string/requirements/exception/generation_prohibited.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/requirements/exception/propagation_consistent.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/requirements/explicit_instantiation/char/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/requirements/explicit_instantiation/char16_t/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/requirements/explicit_instantiation/char32_t/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/requirements/explicit_instantiation/char8_t/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/requirements/explicit_instantiation/wchar_t/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/requirements/typedefs.cc: Likewise.
+
+2021-03-25  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/99672
+	* testsuite/18_support/source_location/consteval.cc (main): Adjust
+	expected column numbers.
+	* testsuite/18_support/source_location/1.cc (main): Likewise.
+
+2021-03-25  Jonathan Wakely  <jwakely@redhat.com>
+
+	* libsupc++/new_opa.cc [!_GLIBCXX_HOSTED]: Declare malloc.
+
+2021-03-25  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/util/exception/safety.h (setup_base::generate):
+	Support seeding random engine.
+	(erase_point, erase_range): Adjust range of random numbers to
+	ensure dereferenceable iterators are used where required.
+	(generation_prohibited::run): Do not try to erase from empty
+	containers.
+	* testsuite/util/testsuite_containergen.h (test_containers):
+	Support seeding random engine.
+
 2021-03-23  Jonathan Wakely  <jwakely@redhat.com>
 
 	* testsuite/std/ranges/adaptors/reverse.cc: Replace duplicated
@@ -163,7 +272,7 @@
 
 2021-03-11  Jonathan Wakely  <jwakely@redhat.com>
 
-	PR libstdc++/99537
+	PR libstdc++/99533
 	* src/c++17/fs_dir.cc (recursive_directory_iterator): Use new
 	helper function to check for permission denied errors.
 	* src/filesystem/dir.cc (recursive_directory_iterator):
