@@ -5166,6 +5166,56 @@ aarch64_expand_sve_ld1rq (rtx dest, rtx src)
   return true;
 }
 
+/* SRC is an SVE CONST_VECTOR that contains N "foreground" values followed
+   by N "background" values.  Try to move it into TARGET using:
+
+      PTRUE PRED.<T>, VL<N>
+      MOV TRUE.<T>, #<foreground>
+      MOV FALSE.<T>, #<background>
+      SEL TARGET.<T>, PRED.<T>, TRUE.<T>, FALSE.<T>
+
+   The PTRUE is always a single instruction but the MOVs might need a
+   longer sequence.  If the background value is zero (as it often is),
+   the sequence can sometimes collapse to a PTRUE followed by a
+   zero-predicated move.
+
+   Return the target on success, otherwise return null.  */
+
+static rtx
+aarch64_expand_sve_const_vector_sel (rtx target, rtx src)
+{
+  gcc_assert (CONST_VECTOR_NELTS_PER_PATTERN (src) == 2);
+
+  /* Make sure that the PTRUE is valid.  */
+  machine_mode mode = GET_MODE (src);
+  machine_mode pred_mode = aarch64_sve_pred_mode (mode);
+  unsigned int npatterns = CONST_VECTOR_NPATTERNS (src);
+  if (aarch64_svpattern_for_vl (pred_mode, npatterns)
+      == AARCH64_NUM_SVPATTERNS)
+    return NULL_RTX;
+
+  rtx_vector_builder pred_builder (pred_mode, npatterns, 2);
+  rtx_vector_builder true_builder (mode, npatterns, 1);
+  rtx_vector_builder false_builder (mode, npatterns, 1);
+  for (unsigned int i = 0; i < npatterns; ++i)
+    {
+      true_builder.quick_push (CONST_VECTOR_ENCODED_ELT (src, i));
+      pred_builder.quick_push (CONST1_RTX (BImode));
+    }
+  for (unsigned int i = 0; i < npatterns; ++i)
+    {
+      false_builder.quick_push (CONST_VECTOR_ENCODED_ELT (src, i + npatterns));
+      pred_builder.quick_push (CONST0_RTX (BImode));
+    }
+  expand_operand ops[4];
+  create_output_operand (&ops[0], target, mode);
+  create_input_operand (&ops[1], true_builder.build (), mode);
+  create_input_operand (&ops[2], false_builder.build (), mode);
+  create_input_operand (&ops[3], pred_builder.build (), pred_mode);
+  expand_insn (code_for_vcond_mask (mode, mode), 4, ops);
+  return target;
+}
+
 /* Return a register containing CONST_VECTOR SRC, given that SRC has an
    SVE data mode and isn't a legitimate constant.  Use TARGET for the
    result if convenient.
@@ -5299,6 +5349,10 @@ aarch64_expand_sve_const_vector (rtx target, rtx src)
      if we can.  */
   if (GET_MODE_NUNITS (mode).is_constant ())
     return NULL_RTX;
+
+  if (nelts_per_pattern == 2)
+    if (rtx res = aarch64_expand_sve_const_vector_sel (target, src))
+      return res;
 
   /* Expand each pattern individually.  */
   gcc_assert (npatterns > 1);
@@ -5481,12 +5535,12 @@ aarch64_expand_sve_const_pred_trn (rtx target, rtx_vector_builder &builder,
 	}
     }
 
-  /* Emit the TRN1 itself.  */
+  /* Emit the TRN1 itself.  We emit a TRN that operates on VNx16BI
+     operands but permutes them as though they had mode MODE.  */
   machine_mode mode = aarch64_sve_pred_mode (permute_size).require ();
-  target = aarch64_target_reg (target, mode);
-  emit_insn (gen_aarch64_sve (UNSPEC_TRN1, mode, target,
-			      gen_lowpart (mode, a),
-			      gen_lowpart (mode, b)));
+  target = aarch64_target_reg (target, GET_MODE (a));
+  rtx type_reg = CONST0_RTX (mode);
+  emit_insn (gen_aarch64_sve_trn1_conv (mode, target, a, b, type_reg));
   return target;
 }
 
@@ -6283,9 +6337,9 @@ aarch64_vfp_is_call_candidate (cumulative_args_t pcum_v, machine_mode mode,
 
 static unsigned int
 aarch64_function_arg_alignment (machine_mode mode, const_tree type,
-				bool *abi_break)
+				unsigned int *abi_break)
 {
-  *abi_break = false;
+  *abi_break = 0;
   if (!type)
     return GET_MODE_ALIGNMENT (mode);
 
@@ -6327,7 +6381,7 @@ aarch64_function_arg_alignment (machine_mode mode, const_tree type,
 
   if (bitfield_alignment > alignment)
     {
-      *abi_break = true;
+      *abi_break = alignment;
       return bitfield_alignment;
     }
 
@@ -6349,7 +6403,7 @@ aarch64_layout_arg (cumulative_args_t pcum_v, const function_arg_info &arg)
   int ncrn, nvrn, nregs;
   bool allocate_ncrn, allocate_nvrn;
   HOST_WIDE_INT size;
-  bool abi_break;
+  unsigned int abi_break;
 
   /* We need to do this once per argument.  */
   if (pcum->aapcs_arg_processed)
@@ -6667,14 +6721,19 @@ aarch64_function_arg_regno_p (unsigned regno)
 static unsigned int
 aarch64_function_arg_boundary (machine_mode mode, const_tree type)
 {
-  bool abi_break;
+  unsigned int abi_break;
   unsigned int alignment = aarch64_function_arg_alignment (mode, type,
 							   &abi_break);
+  alignment = MIN (MAX (alignment, PARM_BOUNDARY), STACK_BOUNDARY);
   if (abi_break & warn_psabi)
-    inform (input_location, "parameter passing for argument of type "
-	    "%qT changed in GCC 9.1", type);
+    {
+      abi_break = MIN (MAX (abi_break, PARM_BOUNDARY), STACK_BOUNDARY);
+      if (alignment != abi_break)
+	inform (input_location, "parameter passing for argument of type "
+		"%qT changed in GCC 9.1", type);
+    }
 
-  return MIN (MAX (alignment, PARM_BOUNDARY), STACK_BOUNDARY);
+  return alignment;
 }
 
 /* Implement TARGET_GET_RAW_RESULT_MODE and TARGET_GET_RAW_ARG_MODE.  */
@@ -16945,10 +17004,14 @@ aarch64_option_restore (struct gcc_options *opts,
 			struct gcc_options */* opts_set */,
 			struct cl_target_option *ptr)
 {
-  opts->x_explicit_tune_core = ptr->x_explicit_tune_core;
-  selected_tune = aarch64_get_tune_cpu (ptr->x_explicit_tune_core);
   opts->x_explicit_arch = ptr->x_explicit_arch;
   selected_arch = aarch64_get_arch (ptr->x_explicit_arch);
+  opts->x_explicit_tune_core = ptr->x_explicit_tune_core;
+  if (opts->x_explicit_tune_core == aarch64_none
+      && opts->x_explicit_arch != aarch64_no_arch)
+    selected_tune = &all_cores[selected_arch->ident];
+  else
+    selected_tune = aarch64_get_tune_cpu (ptr->x_explicit_tune_core);
   opts->x_aarch64_override_tune_string = ptr->x_aarch64_override_tune_string;
   opts->x_aarch64_branch_protection_string
     = ptr->x_aarch64_branch_protection_string;
@@ -18195,7 +18258,7 @@ aarch64_gimplify_va_arg_expr (tree valist, tree type, gimple_seq *pre_p,
 		  f_stack, NULL_TREE);
   size = int_size_in_bytes (type);
 
-  bool abi_break;
+  unsigned int abi_break;
   align
     = aarch64_function_arg_alignment (mode, type, &abi_break) / BITS_PER_UNIT;
 

@@ -1628,6 +1628,7 @@ write_literal_operator_name (tree identifier)
 static void
 write_compact_number (int num)
 {
+  gcc_checking_assert (num >= 0);
   if (num > 0)
     write_unsigned_number (num - 1);
   write_char ('_');
@@ -2027,15 +2028,7 @@ write_local_name (tree function, const tree local_entity,
   /* For this purpose, parameters are numbered from right-to-left.  */
   if (parm)
     {
-      tree t;
-      int i = 0;
-      for (t = DECL_ARGUMENTS (function); t; t = DECL_CHAIN (t))
-	{
-	  if (t == parm)
-	    i = 1;
-	  else if (i)
-	    ++i;
-	}
+      int i = list_length (parm);
       write_char ('d');
       write_compact_number (i - 1);
     }
@@ -2947,6 +2940,16 @@ write_base_ref (tree expr, tree base = NULL_TREE)
   return true;
 }
 
+/* The number of elements spanned by a RANGE_EXPR.  */
+
+unsigned HOST_WIDE_INT
+range_expr_nelts (tree expr)
+{
+  tree lo = TREE_OPERAND (expr, 0);
+  tree hi = TREE_OPERAND (expr, 1);
+  return tree_to_uhwi (hi) - tree_to_uhwi (lo) + 1;
+}
+
 /* <expression> ::= <unary operator-name> <expression>
 		::= <binary operator-name> <expression> <expression>
 		::= <expr-primary>
@@ -3291,8 +3294,14 @@ write_expression (tree expr)
 	  write_type (etype);
 	}
 
-      bool nontriv = !trivial_type_p (etype);
-      if (nontriv || !zero_init_expr_p (expr))
+      /* If this is an undigested initializer, mangle it as written.
+	 COMPOUND_LITERAL_P doesn't actually distinguish between digested and
+	 undigested braced casts, but it should work to use it to distinguish
+	 between braced casts in a template signature (undigested) and template
+	 parm object values (digested), and all CONSTRUCTORS that get here
+	 should be one of those two cases.  */
+      bool undigested = braced_init || COMPOUND_LITERAL_P (expr);
+      if (undigested || !zero_init_expr_p (expr))
 	{
 	  /* Convert braced initializer lists to STRING_CSTs so that
 	     A<"Foo"> mangles the same as A<{'F', 'o', 'o', 0}> while
@@ -3303,28 +3312,32 @@ write_expression (tree expr)
 	  if (TREE_CODE (expr) == CONSTRUCTOR)
 	    {
 	      vec<constructor_elt, va_gc> *elts = CONSTRUCTOR_ELTS (expr);
-	      unsigned last_nonzero = UINT_MAX, i;
+	      unsigned last_nonzero = UINT_MAX;
 	      constructor_elt *ce;
-	      tree val;
 
-	      if (!nontriv)
-		FOR_EACH_CONSTRUCTOR_VALUE (elts, i, val)
-		  if (!zero_init_expr_p (val))
+	      if (!undigested)
+		for (HOST_WIDE_INT i = 0; vec_safe_iterate (elts, i, &ce); ++i)
+		  if ((TREE_CODE (etype) == UNION_TYPE
+		       && ce->index != first_field (etype))
+		      || !zero_init_expr_p (ce->value))
 		    last_nonzero = i;
 
-	      if (nontriv || last_nonzero != UINT_MAX)
+	      if (undigested || last_nonzero != UINT_MAX)
 		for (HOST_WIDE_INT i = 0; vec_safe_iterate (elts, i, &ce); ++i)
 		  {
 		    if (i > last_nonzero)
 		      break;
-		    /* FIXME handle RANGE_EXPR */
 		    if (TREE_CODE (etype) == UNION_TYPE)
 		      {
 			/* Express the active member as a designator.  */
 			write_string ("di");
 			write_unqualified_name (ce->index);
 		      }
-		    write_expression (ce->value);
+		    unsigned reps = 1;
+		    if (ce->index && TREE_CODE (ce->index) == RANGE_EXPR)
+		      reps = range_expr_nelts (ce->index);
+		    for (unsigned j = 0; j < reps; ++j)
+		      write_expression (ce->value);
 		  }
 	    }
 	  else

@@ -2556,8 +2556,9 @@ duplicate_decls (tree newdecl, tree olddecl, bool hiding, bool was_hidden)
 	  if (!DECL_USE_TEMPLATE (newdecl))
 	    DECL_USE_TEMPLATE (newdecl) = DECL_USE_TEMPLATE (olddecl);
 
-	  DECL_INITIALIZED_IN_CLASS_P (newdecl)
-	    |= DECL_INITIALIZED_IN_CLASS_P (olddecl);
+	  if (!DECL_TEMPLATE_SPECIALIZATION (newdecl))
+	    DECL_INITIALIZED_IN_CLASS_P (newdecl)
+	      |= DECL_INITIALIZED_IN_CLASS_P (olddecl);
 	}
 
       /* Don't really know how much of the language-specific
@@ -4054,6 +4055,12 @@ make_typename_type (tree context, tree name, enum tag_types tag_type,
 	error ("%qD used without template arguments", name);
       return error_mark_node;
     }
+  else if (is_overloaded_fn (name))
+    {
+      if (complain & tf_error)
+	error ("%qD is a function, not a type", name);
+      return error_mark_node;
+    }
   gcc_assert (identifier_p (name));
   gcc_assert (TYPE_P (context));
 
@@ -4065,7 +4072,7 @@ make_typename_type (tree context, tree name, enum tag_types tag_type,
 	error ("%q#T is not a class", context);
       return error_mark_node;
     }
-  
+
   /* When the CONTEXT is a dependent type,  NAME could refer to a
      dependent base class of CONTEXT.  But look inside it anyway
      if CONTEXT is a currently open scope, in case it refers to a
@@ -5004,6 +5011,14 @@ fixup_anonymous_aggr (tree t)
       *prev_p = DECL_CHAIN (probe);
     else
       prev_p = &DECL_CHAIN (probe);
+
+  /* Splice all functions out of CLASSTYPE_MEMBER_VEC.  */
+  vec<tree,va_gc>* vec = CLASSTYPE_MEMBER_VEC (t);
+  unsigned store = 0;
+  for (tree elt : vec)
+    if (!is_overloaded_fn (elt))
+      (*vec)[store++] = elt;
+  vec_safe_truncate (vec, store);
 
   /* Anonymous aggregates cannot have fields with ctors, dtors or complex
      assignment operators (because they cannot have these methods themselves).
@@ -6143,7 +6158,7 @@ struct reshape_iter
 
 static tree reshape_init_r (tree, reshape_iter *, tree, tsubst_flags_t);
 
-/* FIELD is a FIELD_DECL or NULL.  In the former case, the value
+/* FIELD is an element of TYPE_FIELDS or NULL.  In the former case, the value
    returned is the next FIELD_DECL (possibly FIELD itself) that can be
    initialized.  If there are no more such fields, the return value
    will be NULL.  */
@@ -7693,10 +7708,13 @@ cp_finish_decl (tree decl, tree init, bool init_const_expr_p,
   if (asmspec_tree && asmspec_tree != error_mark_node)
     asmspec = TREE_STRING_POINTER (asmspec_tree);
 
-  if (current_class_type
-      && CP_DECL_CONTEXT (decl) == current_class_type
-      && TYPE_BEING_DEFINED (current_class_type)
-      && !CLASSTYPE_TEMPLATE_INSTANTIATION (current_class_type)
+  bool in_class_decl
+    = (current_class_type
+       && CP_DECL_CONTEXT (decl) == current_class_type
+       && TYPE_BEING_DEFINED (current_class_type)
+       && !CLASSTYPE_TEMPLATE_INSTANTIATION (current_class_type));
+
+  if (in_class_decl
       && (DECL_INITIAL (decl) || init))
     DECL_INITIALIZED_IN_CLASS_P (decl) = 1;
 
@@ -8069,6 +8087,13 @@ cp_finish_decl (tree decl, tree init, bool init_const_expr_p,
 	  if (!flag_weak)
 	    /* Check again now that we have an initializer.  */
 	    maybe_commonize_var (decl);
+	  /* A class-scope constexpr variable with an out-of-class declaration.
+	     C++17 makes them implicitly inline, but still force it out.  */
+	  if (DECL_INLINE_VAR_P (decl)
+	      && !DECL_VAR_DECLARED_INLINE_P (decl)
+	      && !DECL_TEMPLATE_INSTANTIATION (decl)
+	      && !in_class_decl)
+	    mark_needed (decl);
 	}
 
       if (var_definition_p
@@ -17981,6 +18006,9 @@ require_deduced_type (tree decl, tsubst_flags_t complain)
 tree
 build_explicit_specifier (tree expr, tsubst_flags_t complain)
 {
+  if (check_for_bare_parameter_packs (expr))
+    return error_mark_node;
+
   if (instantiation_dependent_expression_p (expr))
     /* Wait for instantiation, tsubst_function_decl will handle it.  */
     return expr;

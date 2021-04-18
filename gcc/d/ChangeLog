@@ -1,3 +1,165 @@
+2021-04-17  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	PR d/99914
+	* d-target.def (d_templates_always_comdat): New hook.
+	* d-tree.h (mark_needed): Remove prototype.
+	* decl.cc: Include d-target.h.
+	(mark_needed): Rename to...
+	(d_mark_needed): ...this.  Make static.
+	(set_linkage_for_decl): Put variables in comdat if
+	d_templates_always_comdat.
+
+2021-04-17  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	* d-target.cc (d_handle_target_object_format): New function.
+	(d_language_target_info): Add d_handle_target_object_format as handler
+	for objectFormat key.
+	(Target::getTargetInfo): Continue if handler returned NULL_TREE.
+
+2021-04-14  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	* d-target.cc (Target::_init): Call new targetdm hook to register OS
+	specific target info keys.
+	* d-target.def (d_register_os_target_info): New hook.
+
+2021-04-14  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	* d-builtins.cc (d_add_builtin_version): Remove all setting of
+	target-specific global.params.
+	* typeinfo.cc (create_typeinfo): Don't add argType fields to
+	TypeInfo_Struct.
+
+2021-04-14  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	PR d/99914
+	* decl.cc (DeclVisitor::visit (StructDeclaration *)): Don't set
+	DECL_INSTANTIATED on static initializer declarations.
+	(DeclVisitor::visit (ClassDeclaration *)): Likewise.
+	(DeclVisitor::visit (EnumDeclaration *)): Likewise.
+	(d_finish_decl): Move call to set_linkage_for_decl to...
+	(declare_extern_var): ...here.
+
+2021-04-14  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	* d-target.cc (Target::_init): Call new targetdm hook to register CPU
+	specific target info keys.
+	* d-target.def (d_register_cpu_target_info): New hook.
+
+2021-04-14  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	* d-target.cc (Target::systemLinkage): Return LINKwindows if
+	d_has_stdcall_convention applies to LINKsystem.
+	* d-target.def (d_has_stdcall_convention): New hook.
+	* types.cc (TypeVisitor::visit (TypeFunction *)): Insert "stdcall"
+	function attribute if d_has_stdcall_convention applies to LINKwindows.
+
+2021-04-10  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	* dmd/MERGE: Merge upstream dmd 0450061c8.
+
+2021-04-08  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	* d-attribs.cc: Include fold-const.h and opts.h.
+	(attr_noreturn_exclusions): Add alloc_size.
+	(attr_const_pure_exclusions): Likewise.
+	(attr_inline_exclusions): Add target_clones.
+	(attr_noinline_exclusions): Rename forceinline to always_inline.
+	(attr_target_exclusions): New array.
+	(attr_target_clones_exclusions): New array.
+	(attr_alloc_exclusions): New array.
+	(attr_cold_hot_exclusions): New array.
+	(d_langhook_common_attribute_table): Add new D attribute handlers.
+	(build_attributes): Update to look for gcc.attributes.  Issue warning
+	if not given a struct literal.  Handle void initialized arguments.
+	(handle_always_inline_attribute): Remove function.
+	(d_handle_noinline_attribute): Don't extract TYPE_LANG_FRONTEND.
+	(d_handle_forceinline_attribute): Rename to...
+	(d_handle_always_inline_attribute): ...this.  Remove special handling.
+	(d_handle_flatten_attribute): Don't extract TYPE_LANG_FRONTEND.
+	(d_handle_target_attribute): Likewise.  Warn about empty arguments.
+	(d_handle_target_clones_attribute): New function.
+	(optimize_args): New static variable.
+	(parse_optimize_options): New function.
+	(d_handle_optimize_attribute): New function.
+	(d_handle_noclone_attribute): Don't extract TYPE_LANG_FRONTEND.
+	(d_handle_alias_attribute): Remove function.
+	(d_handle_noicf_attribute): New function.
+	(d_handle_noipa_attribute): New function.
+	(d_handle_section_attribute): Call the handle_generic_attribute target
+	hook after performing target independent processing.
+	(d_handle_symver_attribute): New function.
+	(d_handle_noplt_attribute): New function.
+	(positional_argument): New function.
+	(d_handle_alloc_size_attribute): New function.
+	(d_handle_cold_attribute): New function.
+	(d_handle_restrict_attribute): New function.
+	(d_handle_used_attribute): New function.
+	* decl.cc (gcc_attribute_p): Update to look for gcc.attributes.
+	(get_symbol_decl): Update decl source location of old prototypes to
+	the new declaration being merged.
+	* types.cc (layout_aggregate_members): Apply user defined attributes
+	on fields.
+
+2021-04-06  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	PR d/99917
+	* dmd/MERGE: Merge upstream dmd d16195406.
+
+2021-04-06  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	* d-codegen.cc (build_frame_type): Use Array::find to get index of
+	element.
+
+2021-04-06  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	* d-diagnostic.cc (vwarning): Increment gaggedWarnings if warning
+	message	was suppressed.
+	(vdeprecation): Likewise for deprecation messages.
+
+2021-04-06  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	* dmd/MERGE: Merge upstream dmd 5cc71ff83.
+
+2021-04-05  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	PR d/99914
+	* d-lang.cc (d_init): Disable flag_weak_templates if no support for
+	weak or one-only symbols.
+	* d-tree.h (VAR_OR_FUNCTION_DECL_CHECK): New macro.
+	(DECL_INSTANTIATED): New macro.
+	(d_comdat_linkage): Remove declaration.
+	(d_linkonce_linkage): Remove declaration.
+	(set_linkage_for_decl): New declaration.
+	* decl.cc (DeclVisitor::visit (StructDeclaration *)): Replace call to
+	d_linkonce_linkage with setting DECL_INSTANTIATED.
+	(DeclVisitor::visit (ClassDeclaration *)): Likewise.
+	(DeclVisitor::visit (EnumDeclaration *)): Likewise.
+	(DeclVisitor::visit (InterfaceDeclaration *)): Remove call to
+	d_linkonce_linkage.
+	(get_symbol_decl): Call set_linkage_for_decl instead of
+	d_linkonce_linkage.
+	(d_finish_decl): Call set_linkage_for_decl.
+	(d_comdat_linkage): Made function static.  Only set DECL_COMDAT for
+	DECL_INSTANTIATED decls.
+	(d_linkonce_linkage): Remove function.
+	(d_weak_linkage): New function.
+	(set_linkage_for_decl): New function.
+	* gdc.texi (Runtime Options): Rename -fno-weak to -fno-weak-templates,
+	update documentation of option.
+	* lang.opt (fweak): Rename option to ...
+	(fweak-templates): ... this.  Update help string.
+	* modules.cc (get_internal_fn): Add Prot parameter.  Set generated
+	function flag.
+	(build_internal_fn): Update call to get_internal_fn.
+	(build_dso_cdtor_fn): Likewise.
+	(register_moduleinfo): Call d_finish_decl on dso_slot_node and
+	dso_initialized_node.
+	* typeinfo.cc (TypeInfoVisitor::internal_reference): Call
+	set_linkage_for_decl instead of d_comdat_linkage.
+	(TypeInfoDeclVisitor::visit (TypeInfoDeclaration *)): Remove calls to
+	d_linkonce_linkage and d_comdat_linkage.
+	(get_cpp_typeinfo_decl): Likewise.
+
 2021-04-03  Iain Buclaw  <ibuclaw@gdcproject.org>
 
 	* dmd/MERGE: Merge upstream dmd 3b808e838.

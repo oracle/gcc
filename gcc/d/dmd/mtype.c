@@ -5220,6 +5220,7 @@ static const char *getMatchError(const char *format, ...)
     va_list ap;
     va_start(ap, format);
     buf.vprintf(format, ap);
+    va_end(ap);
     return buf.extractChars();
 }
 
@@ -6806,23 +6807,6 @@ Expression *TypeEnum::dotExp(Scope *sc, Expression *e, Identifier *ident, int fl
 
     if (sym->semanticRun < PASSsemanticdone)
         dsymbolSemantic(sym, NULL);
-    if (!sym->members)
-    {
-        if (sym->isSpecial())
-        {
-            /* Special enums forward to the base type
-             */
-            e = sym->memtype->dotExp(sc, e, ident, flag);
-        }
-        else if (!(flag & 1))
-        {
-            sym->error("is forward referenced when looking for `%s`", ident->toChars());
-            e = new ErrorExp();
-        }
-        else
-            e = NULL;
-        return e;
-    }
 
     Dsymbol *s = sym->search(e->loc, ident);
     if (!s)
@@ -7055,7 +7039,10 @@ Expression *TypeStruct::dotExp(Scope *sc, Expression *e, Identifier *ident, int 
          */
         e = expressionSemantic(e, sc);  // do this before turning on noaccesscheck
 
-        sym->size(e->loc);      // do semantic of type
+        if (!sym->determineFields())
+        {
+            error(e->loc, "unable to determine fields of `%s` because of forward references", toChars());
+        }
 
         Expression *e0 = NULL;
         Expression *ev = e->op == TOKtype ? NULL : e;
@@ -7389,7 +7376,9 @@ bool TypeStruct::hasPointers()
     // Probably should cache this information in sym rather than recompute
     StructDeclaration *s = sym;
 
-    sym->size(Loc());               // give error for forward references
+    if (sym->members && !sym->determineFields() && sym->type != Type::terror)
+        error(sym->loc, "no size because of forward references");
+
     for (size_t i = 0; i < s->fields.length; i++)
     {
         Declaration *d = s->fields[i];

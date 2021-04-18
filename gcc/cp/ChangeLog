@@ -1,3 +1,371 @@
+2021-04-16  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/100111
+	* constexpr.c (cxx_eval_store_expression): Don't add CONSTRUCTORs
+	for empty classes into *valp when types don't match even when *valp
+	is NULL.
+
+2021-04-16  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/99803
+	* decl.c (make_typename_type): Give an error and return when
+	name is is_overloaded_fn.
+	* parser.c (cp_parser_class_name): Don't check is_overloaded_fn
+	before calling make_typename_type.
+
+2021-04-16  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/99700
+	* constexpr.c (reduced_constant_expression_p): For array
+	CONSTRUCTORs, use a dedicated loop that additionally verifies
+	the CONSTRUCTOR spans the entire array.
+
+2021-04-16  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/99850
+	* parser.c (cp_parser_constraint_requires_parens) <case CPP_DEREF>:
+	If lambda_p, return pce_ok instead of pce_maybe_postfix.
+
+2021-04-16  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/99833
+	* pt.c (extract_locals_r): When handling DECL_EXPR of a structured
+	binding, add to data.internal also all corresponding structured
+	binding decls.
+
+2021-04-16  Jason Merrill  <jason@redhat.com>
+
+	PR c++/100079
+	* cp-tree.h (first_field): Declare.
+	* mangle.c (range_expr_nelts): New.
+	(write_expression): Improve class NTTP mangling.
+	* pt.c (get_template_parm_object): Clear TREE_HAS_CONSTRUCTOR.
+	* tree.c (zero_init_expr_p): Improve class NTTP handling.
+	* decl.c: Adjust comment.
+
+2021-04-15  Jason Merrill  <jason@redhat.com>
+
+	PR c++/80456
+	* call.c (build_new_method_call_1): Check again for side-effects
+	with a volatile object.
+
+2021-04-15  Jason Merrill  <jason@redhat.com>
+
+	PR c++/100101
+	PR c++/99583
+	* pt.c (find_parameter_packs_r) [FUNCTION_TYPE]: Walk into
+	TYPE_RAISES_EXCEPTIONS here.
+	* tree.c (cp_walk_subtrees): Not here.
+
+2021-04-15  Jason Merrill  <jason@redhat.com>
+
+	PR c++/100091
+	PR c++/99478
+	* parser.c (cp_parser_default_type_template_argument): Set
+	parser->local_variables_forbidden_p.
+
+2021-04-15  Richard Sandiford  <richard.sandiford@arm.com>
+
+	PR c++/98852
+	* typeck.c (merge_type_attributes_from): New function.
+	(cp_common_type): Use it for vector types.
+
+2021-04-14  Jason Merrill  <jason@redhat.com>
+
+	PR c++/100078
+	PR c++/93085
+	* pt.c (uses_outer_template_parms): Also look at default
+	template argument.
+
+2021-04-14  Jason Merrill  <jason@redhat.com>
+
+	PR c++/93314
+	* semantics.c (finish_id_expression_1): Clear cp_unevaluated_operand
+	for a non-static data member in a constant-expression.
+
+2021-04-14  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/83476
+	PR c++/99885
+	* pt.c (deducible_expression): Look through implicit
+	INDIRECT_REFs as well.
+
+2021-04-14  Jason Merrill  <jason@redhat.com>
+
+	PR c++/99478
+	* parser.c (cp_parser_lambda_expression): Reject lambda
+	in template parameter type.
+
+2021-04-14  Jason Merrill  <jason@redhat.com>
+
+	PR c++/90674
+	* decl.c (duplicate_decls): Don't propagate
+	DECL_INITIALIZED_IN_CLASS_P to a specialization.
+
+2021-04-14  Jason Merrill  <jason@redhat.com>
+
+	PR c++/88742
+	PR c++/49951
+	PR c++/58123
+	* semantics.c (set_cleanup_locs): New.
+	(do_poplevel): Call it.
+	* parser.c (cp_parser_compound_statement): Consume the }
+	before finish_compound_stmt.
+
+2021-04-13  Jason Merrill  <jason@redhat.com>
+
+	PR c++/100032
+	* pt.c (get_underlying_template): Compare TYPE_QUALS.
+
+2021-04-13  Jason Merrill  <jason@redhat.com>
+
+	PR c++/100054
+	PR c++/90479
+	* init.c (get_nsdmi): Do more context adjustment for local classes.
+
+2021-04-13  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/99008
+	* pt.c (do_class_deduction): Reject alias CTAD in C++17 mode
+	rather than issuing a pedwarn.
+	* typeck2.c (build_functional_cast_1): Handle CTAD uniformly
+	for consistent diagnostics.
+
+2021-04-13  Jason Merrill  <jason@redhat.com>
+
+	PR c++/91933
+	* class.c (build_base_path): Shortcut simple non-pointer case.
+
+2021-04-13  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* module.cc (ordinary_loc_of): Test LINEMAPS_MACRO_LOWEST_LOCATION
+	of the linemap.
+	(module_state::write_location): Likewise.
+
+2021-04-13  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/97134
+	* pt.c (do_class_deduction): Look through EXPR_PACK_EXPANSION
+	when checking if the initializer is an equivalent class
+	placeholder template parameter.
+
+2021-04-13  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/99961
+	PR c++/99994
+	* constraint.cc (satisfy_normalized_constraints): Set
+	cp_unevaluated.
+	* parser.c (cp_parser_concept_definition): Likewise.
+	(cp_parser_requires_clause_opt): Likewise.
+
+2021-04-12  Jason Merrill  <jason@redhat.com>
+
+	PR c++/93085
+	* pt.c (uses_outer_template_parms): Handle non-type and template
+	template parameters specifically.
+
+2021-04-11  Jason Merrill  <jason@redhat.com>
+
+	PR c++/97974
+	* decl.c (fixup_anonymous_aggr): Prune all functions from
+	CLASSTYPE_MEMBER_VEC.
+
+2021-04-10  Jason Merrill  <jason@redhat.com>
+
+	PR c++/98800
+	PR c++/97399
+	* parser.c (cp_parser_direct_declarator): Don't
+	inject_this_parameter if static_p.
+	(cp_parser_omp_var_list_no_open): Parse 'this' even if
+	current_class_ptr isn't set for a better diagnostic.
+
+2021-04-10  Jason Merrill  <jason@redhat.com>
+
+	PR c++/99180
+	PR c++/93295
+	PR c++/93867
+	PR c++/99118
+	PR c++/96873
+	* pt.c (alias_ctad_tweaks): Handle failure better.
+
+2021-04-10  Jason Merrill  <jason@redhat.com>
+
+	PR c++/100006
+	* pt.c (find_parameter_packs_r) [TAG_DEFN]: Look into bases.
+
+2021-04-09  Patrick Palka  <ppalka@redhat.com>
+
+	* cp-tree.h (LAMBDA_EXPR_REGENERATED_FROM)
+	(LAMBDA_EXPR_REGENERATING_TARGS): Replace these with ...
+	(LAMBDA_EXPR_REGEN_INFO): ... this.
+	(tree_lambda_expr::regenerated_from)
+	(tree_lambda_expr::regenerating_targs): Replace these with ...
+	(tree_lambda_expr::regen_info): ... this.
+	* constraint.cc (satisfy_declaration_constraints): Adjust
+	accordingly.
+	* lambda.c (build_lambda_expr): Likewise.
+	* pt.c (regenerated_lambda_fn_p): Likewise.
+	(most_general_lambda): Likewise.
+	(tsubst_lambda_expr): Likewise.
+
+2021-04-09  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/99806
+	* parser.c (cp_parser_member_declaration): Call
+	cp_parser_save_default_args even for function templates.  Use
+	STRIP_TEMPLATE on the declaration we're passing.
+
+2021-04-08  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/99874
+	* constraint.cc (get_normalized_constraints_from_decl): Handle
+	regenerated lambdas.
+	(satisfy_declaration_constraints): Likewise.  Check for
+	dependent args later.
+	* cp-tree.h (LAMBDA_EXPR_INSTANTIATED): Replace with ...
+	(LAMBDA_EXPR_REGENERATED_FROM): ... this.
+	(LAMBDA_EXPR_REGENERATING_TARGS): New.
+	(tree_lambda_expr::regenerated_from): New data member.
+	(tree_lambda_expr::regenerating_targs): New data member.
+	(add_to_template_args): Declare.
+	(regenerated_lambda_fn_p): Likewise.
+	(most_general_lambda): Likewise.
+	* lambda.c (build_lambda_expr): Set LAMBDA_EXPR_REGENERATED_FROM
+	and LAMBDA_EXPR_REGENERATING_TARGS.
+	* pt.c (add_to_template_args): No longer static.
+	(tsubst_function_decl): Unconditionally propagate constraints on
+	the substituted function decl.
+	(instantiated_lambda_fn_p): Rename to ...
+	(regenerated_lambda_fn_p): ... this.  Check
+	LAMBDA_EXPR_REGENERATED_FROM instead of
+	LAMBDA_EXPR_INSTANTIATED.
+	(most_general_lambda): Define.
+	(enclosing_instantiation_of): Adjust after renaming
+	instantiated_lambda_fn_p.
+	(tsubst_lambda_expr): Don't set LAMBDA_EXPR_INSTANTIATED.  Set
+	LAMBDA_EXPR_REGENERATED_FROM and LAMBDA_EXPR_REGENERATING_TARGS.
+	Don't substitute or set constraints on the regenerated lambda.
+
+2021-04-08  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/97679
+	* pt.c (build_deduction_guide): Document OUTER_ARGS.  Substitute
+	them into the propagated constraints.
+
+2021-04-08  Jason Merrill  <jason@redhat.com>
+
+	PR c++/91849
+	* call.c (convert_like_internal): Improve reference diagnostic.
+
+2021-04-08  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/99859
+	* constexpr.c (addr_of_non_const_var): New function.
+	(cxx_bind_parameters_in_call): Set *non_constant_args to true
+	even if cp_walk_tree on arg with addr_of_non_const_var callback
+	returns true.
+
+2021-04-08  Jason Merrill  <jason@redhat.com>
+
+	PR c++/94529
+	* pt.c (determine_specialization): Improve diagnostic.
+
+2021-04-08  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/99844
+	* decl.c (build_explicit_specifier): Call
+	check_for_bare_parameter_packs.
+	* except.c (build_noexcept_spec): Likewise.
+
+2021-04-07  Jason Merrill  <jason@redhat.com>
+
+	PR c++/41723
+	* parser.c (cp_parser_class_name): Check dependent_scope_p.
+
+2021-04-07  Jason Merrill  <jason@redhat.com>
+
+	PR c++/52625
+	* pt.c (maybe_process_partial_specialization): Check
+	DECL_SELF_REFERENCE_P.
+
+2021-04-07  Jason Merrill  <jason@redhat.com>
+
+	PR c++/92918
+	* name-lookup.c (push_class_level_binding_1): Do overload a new
+	function with a previous using-declaration.
+
+2021-04-06  Jason Merrill  <jason@redhat.com>
+
+	PR c++/96673
+	* init.c (get_nsdmi): Don't defer access checking.
+
+2021-04-06  Jason Merrill  <jason@redhat.com>
+
+	PR c++/99901
+	* decl.c (cp_finish_decl): mark_needed an implicitly inline
+	static data member with an out-of-class redeclaration.
+
+2021-04-06  Jason Merrill  <jason@redhat.com>
+
+	PR c++/91241
+	* mangle.c (write_compact_number): Add sanity check.
+	(write_local_name): Use list_length for parm number.
+
+2021-04-06  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/99899
+	* pt.c (do_auto_deduction): Don't exit early when deducing the
+	array type of a structured binding.  Also handle adc_decomp_type
+	during constraint checking.
+
+2021-04-05  Jason Merrill  <jason@redhat.com>
+
+	PR c++/96311
+	* typeck.c (check_return_expr): Call mark_exp_read in dependent
+	case.
+
+2021-04-05  Jason Merrill  <jason@redhat.com>
+
+	PR c++/98440
+	* typeck.c (build_reinterpret_cast_1): Don't perform
+	temporary materialization.
+
+2021-04-05  Jason Merrill  <jason@redhat.com>
+
+	PR c++/95317
+	* pt.c (lookup_template_class_1): Do tsubst_enum when
+	tsubsting a generic lambda.
+
+2021-04-05  Jason Merrill  <jason@redhat.com>
+
+	PR c++/95870
+	* pt.c (enclosing_instantiation_of): Compare DECL_SOURCE_LOCATION if
+	there is no enclosing non-lambda function.
+
+2021-04-05  Nathan Sidwell  <nathan@acm.org>
+
+	PR c++/99380
+	* module.cc (name_pending_imports): Drop 'atend' parm.  Don't
+	query export when not needed.
+	(preprocess_module, preprocessed_module): Adjust.
+
+2021-04-05  Jason Merrill  <jason@redhat.com>
+
+	PR c++/99066
+	* pt.c (mark_decl_instantiated): Set DECL_EXTERNAL.
+
+2021-04-05  Jason Merrill  <jason@redhat.com>
+
+	PR c++/99201
+	* pt.c (class el_data): Add visited field.
+	(extract_local_specs): Pass it to cp_walk_tree.
+	(extract_locals_r): Walk into the body of a lambda.
+
+2021-04-05  Jason Merrill  <jason@redhat.com>
+
+	* ptree.c (cxx_print_decl): Check DECL_MODULE_IMPORT_P on
+	template result.
+
 2021-04-04  Jason Merrill  <jason@redhat.com>
 
 	PR c++/99643

@@ -3263,11 +3263,10 @@ pushdecl (tree x)
 	  else
 	    thistype = type;
 	  b->u.type = TREE_TYPE (b->decl);
-	  if (TREE_CODE (b->decl) == FUNCTION_DECL
-	      && fndecl_built_in_p (b->decl))
-	    thistype
-	      = build_type_attribute_variant (thistype,
-					      TYPE_ATTRIBUTES (b->u.type));
+	  /* Propagate the type attributes to the decl.  */
+	  thistype
+	    = build_type_attribute_variant (thistype,
+					    TYPE_ATTRIBUTES (b->u.type));
 	  TREE_TYPE (b->decl) = thistype;
 	  bind (name, b->decl, scope, /*invisible=*/false, /*nested=*/true,
 		locus);
@@ -5402,7 +5401,7 @@ finish_decl (tree decl, location_t init_loc, tree init,
 	  gcc_unreachable ();
 	}
 
-      if (DECL_INITIAL (decl))
+      if (DECL_INITIAL (decl) && DECL_INITIAL (decl) != error_mark_node)
 	TREE_TYPE (DECL_INITIAL (decl)) = type;
 
       relayout_decl (decl);

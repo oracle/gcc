@@ -46,6 +46,7 @@ do {									\
 
 static HOST_WIDE_INT find_array_ctor_elt (tree ary, tree dindex,
 					  bool insert = false);
+static int array_index_cmp (tree key, tree index);
 
 /* Returns true iff FUN is an instantiation of a constexpr function
    template or a defaulted constexpr function.  */
@@ -1555,6 +1556,32 @@ free_constructor (tree t)
     }
 }
 
+/* Helper function of cxx_bind_parameters_in_call.  Return non-NULL
+   if *TP is address of a static variable (or part of it) currently being
+   constructed or of a heap artificial variable.  */
+
+static tree
+addr_of_non_const_var (tree *tp, int *walk_subtrees, void *data)
+{
+  if (TREE_CODE (*tp) == ADDR_EXPR)
+    if (tree var = get_base_address (TREE_OPERAND (*tp, 0)))
+      if (VAR_P (var) && TREE_STATIC (var))
+	{
+	  if (DECL_NAME (var) == heap_uninit_identifier
+	      || DECL_NAME (var) == heap_identifier
+	      || DECL_NAME (var) == heap_vec_uninit_identifier
+	      || DECL_NAME (var) == heap_vec_identifier)
+	    return var;
+
+	  constexpr_global_ctx *global = (constexpr_global_ctx *) data;
+	  if (global->values.get (var))
+	    return var;
+	}
+  if (TYPE_P (*tp))
+    *walk_subtrees = false;
+  return NULL_TREE;
+}
+
 /* Subroutine of cxx_eval_call_expression.
    We are processing a call expression (either CALL_EXPR or
    AGGR_INIT_EXPR) in the context of CTX.  Evaluate
@@ -1615,6 +1642,15 @@ cxx_bind_parameters_in_call (const constexpr_ctx *ctx, tree t,
 	  else if (TYPE_HAS_NONTRIVIAL_DESTRUCTOR (type))
 	    /* The destructor needs to see any modifications the callee makes
 	       to the argument.  */
+	    *non_constant_args = true;
+	    /* If arg is or contains address of a heap artificial variable or
+	       of a static variable being constructed, avoid caching the
+	       function call, as those variables might be modified by the
+	       function, or might be modified by the callers in between
+	       the cached function and just read by the function.  */
+	  else if (!*non_constant_args
+		   && cp_walk_tree (&arg, addr_of_non_const_var, ctx->global,
+				    NULL))
 	    *non_constant_args = true;
 
 	  /* For virtual calls, adjust the this argument, so that it is
@@ -2875,9 +2911,27 @@ reduced_constant_expression_p (tree t)
 	    /* An initialized vector would have a VECTOR_CST.  */
 	    return false;
 	  else if (cxx_dialect >= cxx20
-		   /* An ARRAY_TYPE doesn't have any TYPE_FIELDS.  */
 		   && TREE_CODE (TREE_TYPE (t)) == ARRAY_TYPE)
-	    field = NULL_TREE;
+	    {
+	      /* There must be a valid constant initializer at every array
+		 index.  */
+	      tree min = TYPE_MIN_VALUE (TYPE_DOMAIN (TREE_TYPE (t)));
+	      tree max = TYPE_MAX_VALUE (TYPE_DOMAIN (TREE_TYPE (t)));
+	      tree cursor = min;
+	      FOR_EACH_CONSTRUCTOR_ELT (CONSTRUCTOR_ELTS (t), i, idx, val)
+		{
+		  if (!reduced_constant_expression_p (val))
+		    return false;
+		  if (array_index_cmp (cursor, idx) != 0)
+		    return false;
+		  if (TREE_CODE (idx) == RANGE_EXPR)
+		    cursor = TREE_OPERAND (idx, 1);
+		  cursor = int_const_binop (PLUS_EXPR, cursor, size_one_node);
+		}
+	      if (find_array_ctor_elt (t, max) == -1)
+		return false;
+	      goto ok;
+	    }
 	  else if (cxx_dialect >= cxx20
 		   && TREE_CODE (TREE_TYPE (t)) == UNION_TYPE)
 	    {
@@ -2911,6 +2965,7 @@ reduced_constant_expression_p (tree t)
       for (; field; field = next_initializable_field (DECL_CHAIN (field)))
 	if (!is_really_empty_class (TREE_TYPE (field), /*ignore_vptr*/false))
 	  return false;
+ok:
       if (CONSTRUCTOR_NO_CLEARING (t))
 	/* All the fields are initialized.  */
 	CONSTRUCTOR_NO_CLEARING (t) = false;
@@ -5482,6 +5537,14 @@ cxx_eval_store_expression (const constexpr_ctx *ctx, tree t,
       TREE_SIDE_EFFECTS (*valp) = TREE_SIDE_EFFECTS (init);
       CONSTRUCTOR_NO_CLEARING (*valp)
 	= CONSTRUCTOR_NO_CLEARING (init);
+    }
+  else if (TREE_CODE (init) == CONSTRUCTOR
+	   && !same_type_ignoring_top_level_qualifiers_p (TREE_TYPE (init),
+							  type))
+    {
+      /* See above on initialization of empty bases.  */
+      gcc_assert (is_empty_class (TREE_TYPE (init)) && !lval);
+      return init;
     }
   else
     *valp = init;

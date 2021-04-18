@@ -59,6 +59,7 @@ along with GCC; see the file COPYING3.  If not see
 #include "symtab-thunks.h"
 
 #include "d-tree.h"
+#include "d-target.h"
 
 
 /* Return identifier for the external mangled name of DECL.  */
@@ -108,7 +109,7 @@ gcc_attribute_p (Dsymbol *decl)
   if (md && md->packages && md->packages->length == 1)
     {
       if (!strcmp ((*md->packages)[0]->toChars (), "gcc")
-	  && !strcmp (md->id->toChars (), "attribute"))
+	  && !strcmp (md->id->toChars (), "attributes"))
 	return true;
     }
 
@@ -387,7 +388,6 @@ public:
     /* Generate static initializer.  */
     d->sinit = aggregate_initializer_decl (d);
     DECL_INITIAL (d->sinit) = layout_struct_initializer (d);
-    DECL_INSTANTIATED (d->sinit) = (d->isInstantiated () != NULL);
     d_finish_decl (d->sinit);
 
     /* Put out the members.  There might be static constructors in the members
@@ -500,7 +500,6 @@ public:
 
     /* Generate static initializer.  */
     DECL_INITIAL (d->sinit) = layout_class_initializer (d);
-    DECL_INSTANTIATED (d->sinit) = (d->isInstantiated () != NULL);
     d_finish_decl (d->sinit);
 
     /* Put out the TypeInfo.  */
@@ -611,7 +610,6 @@ public:
 	/* Generate static initializer.  */
 	d->sinit = enum_initializer_decl (d);
 	DECL_INITIAL (d->sinit) = build_expr (tc->sym->defaultval, true);
-	DECL_INSTANTIATED (d->sinit) = (d->isInstantiated () != NULL);
 	d_finish_decl (d->sinit);
       }
 
@@ -1124,6 +1122,10 @@ get_symbol_decl (Declaration *decl)
 	  tree olddecl = decl->csym;
 	  decl->csym = get_symbol_decl (other);
 
+	  /* Update the symbol location to the current definition.  */
+	  if (DECL_EXTERNAL (decl->csym) && !DECL_INITIAL (decl->csym))
+	    DECL_SOURCE_LOCATION (decl->csym) = DECL_SOURCE_LOCATION (olddecl);
+
 	  /* The current declaration is a prototype or marked extern, merge
 	     applied user attributes and return.  */
 	  if (DECL_EXTERNAL (olddecl) && !DECL_INITIAL (olddecl))
@@ -1375,6 +1377,8 @@ declare_extern_var (tree ident, tree type)
   /* The decl has not been defined -- yet.  */
   DECL_EXTERNAL (decl) = 1;
 
+  set_linkage_for_decl (decl);
+
   return decl;
 }
 
@@ -1536,7 +1540,6 @@ d_finish_decl (tree decl)
     set_decl_tls_model (decl, decl_default_tls_model (decl));
 
   relayout_decl (decl);
-  set_linkage_for_decl (decl);
 
   if (flag_checking && DECL_INITIAL (decl))
     {
@@ -1958,8 +1961,8 @@ finish_function (tree old_context)
 /* Mark DECL, which is a VAR_DECL or FUNCTION_DECL as a symbol that
    must be emitted in this, output module.  */
 
-void
-mark_needed (tree decl)
+static void
+d_mark_needed (tree decl)
 {
   TREE_USED (decl) = 1;
 
@@ -2377,6 +2380,18 @@ set_linkage_for_decl (tree decl)
      translation units.  */
   if (TREE_CODE (decl) == FUNCTION_DECL && DECL_DECLARED_INLINE_P (decl))
     return d_comdat_linkage (decl);
+
+  /* If all instantiations must go in COMDAT, give them that linkage.
+     This also applies to other extern declarations, so that it is possible
+     for them to override template declarations.  */
+  if (targetdm.d_templates_always_comdat)
+    {
+      /* Make sure that instantiations are not removed.  */
+      if (flag_weak_templates && DECL_INSTANTIATED (decl))
+	d_mark_needed (decl);
+
+      return d_comdat_linkage (decl);
+    }
 
   /* Instantiated variables and functions need to be overridable by any other
      symbol with the same name, so give them weak linkage.  */

@@ -7898,8 +7898,19 @@ convert_like_internal (conversion *convs, tree expr, tree fn, int argnum,
                         "lvalue of type %qI", totype, extype);
 	    else if (!TYPE_REF_IS_RVALUE (ref_type) && !lvalue_p (expr)
 		     && !CP_TYPE_CONST_NON_VOLATILE_P (TREE_TYPE (ref_type)))
-	      error_at (loc, "cannot bind non-const lvalue reference of "
-			"type %qH to an rvalue of type %qI", totype, extype);
+	      {
+		conversion *next = next_conversion (convs);
+		if (next->kind == ck_std)
+		  {
+		    next = next_conversion (next);
+		    error_at (loc, "cannot bind non-const lvalue reference of "
+			      "type %qH to a value of type %qI",
+			      totype, next->type);
+		  }
+		else
+		  error_at (loc, "cannot bind non-const lvalue reference of "
+			    "type %qH to an rvalue of type %qI", totype, extype);
+	      }
 	    else if (!reference_compatible_p (TREE_TYPE (totype), extype))
 	      {
 		/* If we're converting from T[] to T[N], don't talk
@@ -10782,7 +10793,8 @@ build_new_method_call_1 (tree instance, tree fns, vec<tree, va_gc> **args,
 		  tree a = instance;
 		  if (TREE_THIS_VOLATILE (a))
 		    a = build_this (a);
-		  call = build2 (COMPOUND_EXPR, TREE_TYPE (call), a, call);
+		  if (TREE_SIDE_EFFECTS (a))
+		    call = build2 (COMPOUND_EXPR, TREE_TYPE (call), a, call);
 		}
 	      else if (call != error_mark_node
 		       && DECL_DESTRUCTOR_P (cand->fn)
