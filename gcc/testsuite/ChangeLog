@@ -1,3 +1,172 @@
+2021-05-11  Alex Coplan  <alex.coplan@arm.com>
+
+	PR target/99988
+	* gcc.target/aarch64/pr99988.c: New test.
+
+2021-05-10  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	Backported from master:
+	2021-05-10  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	* gdc.test/compilable/test21898.d: New test.
+
+2021-05-07  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-05-07  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c/100450
+	* c-c++-common/gomp/pr100450.c: New test.
+
+2021-05-06  Marius Hillenbrand  <mhillen@linux.ibm.com>
+
+	Backported from master:
+	2021-05-06  Marius Hillenbrand  <mhillen@linux.ibm.com>
+
+	* gcc.target/s390/zvector/imm-range-error-1.c: Fix test for
+	__builtin_s390_vpdi.
+	* gcc.target/s390/zvector/vec-permi.c: New test for builtin
+	vec_permi.
+
+2021-05-06  Roman Zhuykov  <zhroma@ispras.ru>
+
+	Backported from master:
+	2021-04-30  Roman Zhuykov  <zhroma@ispras.ru>
+
+	PR rtl-optimization/100225
+	PR rtl-optimization/84878
+	* gcc.dg/pr100225.c: New test.
+
+2021-05-06  Ilya Leoshkevich  <iii@linux.ibm.com>
+
+	PR target/100217
+	* gcc.target/s390/vector/long-double-asm-in-out-hard-fp-reg.c: New test.
+	* gcc.target/s390/vector/long-double-asm-inout-hard-fp-reg.c: New test.
+
+2021-05-05  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* gcc.c-torture/execute/20210505-1.c: New test.
+
+2021-05-05  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2021-05-05  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/100274
+	* gfortran.dg/argument_checking_25.f90: New test.
+
+2021-05-05  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2021-04-29  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/100253
+	* g++.dg/pr100253.C: New testcase.
+
+2021-05-05  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2021-04-27  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/100278
+	* gcc.dg/tree-ssa/pr100278.c: New testcase.
+
+2021-05-05  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2021-05-04  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/100414
+	* gcc.dg/pr100414.c: New testcase.
+
+2021-05-05  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2021-05-04  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/100329
+	* gcc.dg/torture/pr100329.c: New testcase.
+
+2021-05-03  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-05-03  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/100362
+	* g++.dg/cpp1y/lambda-generic-100362.C: New test.
+
+2021-04-30  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2021-04-30  Richard Biener  <rguenther@suse.de>
+
+	PR c++/98032
+	* g++.dg/pr98032.C: New testcase.
+
+2021-04-30  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/96513
+	* gcc.dg/torture/pr96513.c: New testcase.
+
+2021-04-29  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-04-29  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/100305
+	* gcc.c-torture/compile/pr100305.c: Remove dg-options.  Add PR line.
+
+2021-04-29  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-04-29  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/100302
+	* gcc.target/aarch64/sve/pr100302.c: New test.
+
+2021-04-29  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-04-29  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/100319
+	* c-c++-common/gomp/task-detach-3.c: New test.
+
+2021-04-29  Richard Sandiford  <richard.sandiford@arm.com>
+
+	Backported from master:
+	2021-04-28  Richard Sandiford  <richard.sandiford@arm.com>
+
+	PR target/100305
+	* gcc.c-torture/compile/pr100305.c: New test.
+
+2021-04-29  Richard Sandiford  <richard.sandiford@arm.com>
+
+	Backported from master:
+	2021-04-27  Richard Sandiford  <richard.sandiford@arm.com>
+
+	PR target/100270
+	* gcc.target/aarch64/sve/acle/general-c/pr100270_1.c: New test.
+	* gcc.target/aarch64/sve/acle/general-c/sizeless-2.c: Change
+	expected error message when subtracting pointers to different
+	vector types.  Expect warnings when mixing them elsewhere.
+	* gcc.target/aarch64/sve/acle/general/attributes_7.c: Remove
+	XFAILs.  Tweak error messages for some cases.
+
+2021-04-29  Tobias Burnus  <tobias@codesourcery.com>
+
+	Backported from master:
+	2021-04-28  Tobias Burnus  <tobias@codesourcery.com>
+
+	* gfortran.dg/gomp/map-5.f90: New test.
+
+2021-04-28  Uroš Bizjak  <ubizjak@gmail.com>
+
+	PR target/100182
+	* gcc.target/i386/pr100182.c: New test.
+	* gcc.target/i386/pr71245-1.c (dg-final): Xfail scan-assembler-not.
+	* gcc.target/i386/pr71245-2.c (dg-final): Ditto.
+
 2021-04-27  Patrick Palka  <ppalka@redhat.com>
 
 	Backported from master:

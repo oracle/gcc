@@ -4736,7 +4736,7 @@ aarch64_mov128_immediate (rtx imm)
 static unsigned int
 aarch64_add_offset_1_temporaries (HOST_WIDE_INT offset)
 {
-  return abs_hwi (offset) < 0x1000000 ? 0 : 1;
+  return absu_hwi (offset) < 0x1000000 ? 0 : 1;
 }
 
 /* A subroutine of aarch64_add_offset.  Set DEST to SRC + OFFSET for
@@ -25172,6 +25172,10 @@ aarch64_comp_type_attributes (const_tree type1, const_tree type2)
   if (!check_attr ("aarch64_vector_pcs"))
     return 0;
   if (!check_attr ("Advanced SIMD type"))
+    return 0;
+  if (!check_attr ("SVE type"))
+    return 0;
+  if (!check_attr ("SVE sizeless type"))
     return 0;
   return 1;
 }
