@@ -1,3 +1,29 @@
+2021-05-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	* gcc-changelog/git_email.py: Remove use of non-strict mode.
+
+2021-05-17  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2021-05-17  Richard Biener  <rguenther@suse.de>
+
+	* download_prerequisites: Update mpfr version to 3.1.6.
+	* prerequisites.md5: Update.
+	* prerequisites.sha512: Likewise.
+
+2021-05-14  Martin Liska  <mliska@suse.cz>
+
+	* gcc-changelog/git_check_commit.py: Sync from master.
+	* gcc-changelog/git_commit.py: Likewise.
+	* gcc-changelog/git_email.py: Likewise.
+	* gcc-changelog/git_repository.py: Likewise.
+	* gcc-changelog/git_update_version.py: Likewise.
+	* gcc-changelog/test_email.py: Likewise.
+	* gcc-changelog/test_patches.txt: Likewise.
+
 2021-04-27  Jakub Jelinek  <jakub@redhat.com>
 
 	Backported from master:

@@ -1,3 +1,111 @@
+2021-05-28  David Edelsohn  <dje.gcc@gmail.com>
+
+	Backported from master:
+	2021-04-24  David Edelsohn  <dje.gcc@gmail.com>
+
+	* testsuite/lib/dg-options.exp (atomic_link_flags): New.
+	(add_options_for_libatomic): Use atomic_link_flags.
+
+2021-05-28  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-04-30  Patrick Palka  <ppalka@redhat.com>
+
+	* include/std/ranges (__detail::__non_propating_cache): Define
+	as per P2328.
+	(join_view): Remove constraints on the value and reference types
+	of the wrapped iterator type as per P2328.
+	(join_view::_Iterator::_M_satisfy): Adjust as per P2328.
+	(join_view::_Iterator::operator++): Likewise.
+	(join_view::_M_inner): Use __non_propating_cache as per P2328.
+	Remove now-redundant use of __maybe_present_t.
+	* testsuite/std/ranges/adaptors/join.cc: Include <array>.
+	(test10): New test.
+
+2021-05-28  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-05-24  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/100479
+	* include/std/ranges (__detail::__non_propagating_cache): Move
+	definition up to before that of _CachedPosition.  Make base
+	class _Optional_base protected instead of private.  Add const
+	overload for operator*.
+	(__detail::_CachedPosition): Rewrite the partial specialization
+	for forward ranges as a derived class of __non_propagating_cache.
+	Remove the size constraint on the partial specialization for
+	random access ranges.  Add copy/move/copy-assignment/move-assignment
+	members to the offset partial specialization for random
+	access ranges that propagate the cached value but additionally
+	invalidate it in the source object on move.
+	* testsuite/std/ranges/adaptors/100479.cc: New test.
+
+2021-05-20  Joern Rennecke  <joern.rennecke@riscy-ip.com>
+
+	PR libstdc++/100361
+	* include/std/charconv (to_chars): Hide the overloads for
+	floating-point types for 16 bit targets.
+	* src/c++17/floating_to_chars.cc: Don't compile for 16 bit targets.
+	* testsuite/20_util/to_chars/double.cc: Run this test only on
+	size32plus targets.
+	* testsuite/20_util/to_chars/float.cc: Likewise.
+	* testsuite/20_util/to_chars/long_double.cc: Likewise.
+
+2021-05-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/100630
+	* include/experimental/bits/fs_path.h (__is_constructible_from):
+	Test construction from a const lvalue, not an rvalue.
+	* testsuite/27_io/filesystem/path/construct/100630.cc: New test.
+	* testsuite/experimental/filesystem/path/construct/100630.cc:
+	New test.
+
+2021-05-17  Thomas Rodgers  <rodgert@twrodgers.com>
+
+	Backported from master:
+	2021-05-17  Thomas Rodgers  <rodgert@twrodgers.com>
+
+	* include/bits/atomic_wait.h (__waiter::_M_do_wait_v): loop
+	until value change observed.
+	(__waiter_base::_M_laundered): New member.
+	(__waiter_base::_M_notify): Check _M_laundered to determine
+	whether to wake one or all.
+	(__detail::__atomic_compare): Return true if call to
+	__builtin_memcmp() == 0.
+	(__waiter_base::_S_do_spin_v): Adjust predicate.
+	* testsuite/29_atomics/atomic/wait_notify/100334.cc: New
+	test.
+
+2021-05-12  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-04-30  Patrick Palka  <ppalka@redhat.com>
+
+	* include/bits/ranges_util.h (subrange::subrange): Avoid
+	list-initialization in delegating constructor.
+	* include/std/ranges (single_view): Replace implicit guide
+	with explicit deduction guide that decays its argument.
+	(_Single::operator()): Avoid CTAD when constructing the
+	single_view object.
+	(_Iota::operator()): Avoid list-initialization.
+	(__detail::__can_filter_view, _Filter::operator()): Likewise.
+	(__detail::__can_transform_view, _Transform::operator()): Likewise.
+	(take_view::begin): Likewise.
+	(__detail::__can_take_view, _Take::operator()): Likewise.
+	(__detail::__can_take_while_view, _TakeWhile::operator()): Likewise.
+	(__detail::__can_drop_view, _Drop::operator()): Likewise.
+	(__detail::__can_drop_while_view, _DropWhile::operator()): Likewise.
+	(split_view::split_view): Use views::single when initializing
+	_M_pattern.
+	(__detail::__can_split_view, _Split::operator()): Avoid
+	list-initialization.
+	(_Counted::operator()): Likewise.
+	* testsuite/std/ranges/p2367.cc: New test.
+
 2021-05-11  Jonathan Wakely  <jwakely@redhat.com>
 
 	Backported from master:

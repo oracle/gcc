@@ -5892,6 +5892,11 @@ perfect_candidate_p (z_candidate *cand)
 {
   if (cand->viable < 1)
     return false;
+  /* CWG1402 makes an implicitly deleted move op worse than other
+     candidates.  */
+  if (DECL_DELETED_FN (cand->fn) && DECL_DEFAULTED_FN (cand->fn)
+      && move_fn_p (cand->fn))
+    return false;
   int len = cand->num_convs;
   for (int i = 0; i < len; ++i)
     if (!perfect_conversion_p (cand->convs[i]))
@@ -8173,7 +8178,10 @@ convert_arg_to_ellipsis (tree arg, tsubst_flags_t complain)
     {
       arg = mark_rvalue_use (arg);
       if (TREE_SIDE_EFFECTS (arg))
-	arg = cp_build_compound_expr (arg, null_pointer_node, complain);
+	{
+	  warning_sentinel w(warn_unused_result);
+	  arg = cp_build_compound_expr (arg, null_pointer_node, complain);
+	}
       else
 	arg = null_pointer_node;
     }

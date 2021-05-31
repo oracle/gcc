@@ -1,3 +1,241 @@
+2021-05-28  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2021-05-17  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/98411
+	* gfortran.dg/pr98411.f90: New test.
+
+2021-05-28  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2021-05-27  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/100656
+	* gfortran.dg/bounds_check_22.f90: New test.
+
+2021-05-28  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2021-05-27  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/100602
+	* gfortran.dg/pointer_check_14.f90: New test.
+
+2021-05-28  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-05-26  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/100502
+	* g++.dg/template/access37.C: New test.
+	* g++.dg/template/access37a.C: New test.
+
+2021-05-27  Alex Coplan  <alex.coplan@arm.com>
+
+	Backported from master:
+	2021-05-11  Alex Coplan  <alex.coplan@arm.com>
+
+	PR target/99725
+	* gcc.target/arm/cmse/pr99725.c: New test.
+
+2021-05-25  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2021-05-23  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/100551
+	* gfortran.dg/pr100551.f90: New test.
+
+2021-05-25  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2021-05-12  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/100519
+	* gcc.dg/torture/pr100519.c: New testcase.
+
+2021-05-25  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2021-05-11  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/100509
+	* gcc.dg/pr100509.c: New testcase.
+
+2021-05-25  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2021-05-10  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/100492
+	* gcc.dg/torture/pr100492.c: New testcase.
+
+2021-05-24  Alex Coplan  <alex.coplan@arm.com>
+
+	Backported from master:
+	2021-05-10  Alex Coplan  <alex.coplan@arm.com>
+
+	PR target/99960
+	* gcc.target/arm/mve/intrinsics/vldrdq_gather_base_wb_s64.c:
+	Update now that we're (correctly) using full 128-bit vector
+	loads/stores.
+	* gcc.target/arm/mve/intrinsics/vldrdq_gather_base_wb_u64.c:
+	Likewise.
+	* gcc.target/arm/mve/intrinsics/vldrdq_gather_base_wb_z_s64.c:
+	Likewise.
+	* gcc.target/arm/mve/intrinsics/vldrdq_gather_base_wb_z_u64.c:
+	Likewise.
+	* gcc.target/arm/mve/intrinsics/vuninitializedq_int.c: Likewise.
+	* gcc.target/arm/mve/intrinsics/vuninitializedq_int1.c:
+	Likewise.
+
+2021-05-21  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* gnat.dg/derived_type7.adb, gnat.dg/derived_type7.ads: New test.
+
+2021-05-20  Jason Merrill  <jason@redhat.com>
+
+	PR c++/100489
+	* g++.dg/cpp2a/desig18.C: New test.
+
+2021-05-20  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	Backported from master:
+	2021-05-18  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	PR c++/100281
+	* g++.target/s390/pr100281-1.C: New test.
+	* g++.target/s390/pr100281-2.C: New test.
+
+2021-05-20  Eric Botcazou  <ebotcazou@adacore.com>
+
+	PR testsuite/96488
+	* gnat.dg/unchecked_convert5.adb: Do not run on PowerPC64 LE.
+	* gnat.dg/unchecked_convert6.adb: Likewise.
+
+2021-05-20  Tobias Burnus  <tobias@codesourcery.com>
+
+	Backported from master:
+	2021-05-20  Tobias Burnus  <tobias@codesourcery.com>
+
+	PR fortran/96983
+	* gfortran.dg/pr96711.f90: Use 2**digit(x) instead of a hard-coded value;
+	add comments regarding what the code does.
+
+2021-05-20  Jason Merrill  <jason@redhat.com>
+
+	PR c++/100634
+	* g++.dg/cpp2a/nontype-complex1.C: New test.
+
+2021-05-20  Jason Merrill  <jason@redhat.com>
+
+	PR c++/100659
+	* g++.dg/parse/access13.C: New test.
+
+2021-05-19  Bill Schmidt  <wschmidt@linux.ibm.com>
+
+	* gcc.target/powerpc/rop-1.c: New.
+	* gcc.target/powerpc/rop-2.c: New.
+	* gcc.target/powerpc/rop-3.c: New.
+	* gcc.target/powerpc/rop-4.c: New.
+	* gcc.target/powerpc/rop-5.c: New.
+
+2021-05-19  Jason Merrill  <jason@redhat.com>
+
+	PR c++/100367
+	PR c++/96299
+	* g++.dg/cpp2a/spaceship-fallback1.C: New test.
+
+2021-05-19  Christophe Lyon  <christophe.lyon@linaro.org>
+
+	PR target/99977
+	* gcc.target/arm/pr99977.c: Require arm_arch_v8m_base.
+
+2021-05-19  Jason Merrill  <jason@redhat.com>
+
+	PR c++/100261
+	* g++.dg/dfp/mangle-6.C: New test.
+
+2021-05-19  Jason Merrill  <jason@redhat.com>
+
+	PR c++/100372
+	* g++.dg/cpp0x/alias-decl-ttp1.C: New test.
+
+2021-05-18  Jason Merrill  <jason@redhat.com>
+
+	* g++.dg/cpp0x/implicit-delete1.C: New test.
+
+2021-05-18  Jason Merrill  <jason@redhat.com>
+
+	PR c++/100205
+	PR c++/93314
+	* g++.dg/cpp0x/decltype-nonstatic1.C: New test.
+
+2021-05-18  Tobias Burnus  <tobias@codesourcery.com>
+
+	Backported from master:
+	2021-05-17  Tobias Burnus  <tobias@codesourcery.com>
+
+	PR fortran/100633
+	* gfortran.dg/gomp/workshare-59.f90: New test.
+
+2021-05-17  Alex Coplan  <alex.coplan@arm.com>
+
+	Backported from master:
+	2021-04-27  Alex Coplan  <alex.coplan@arm.com>
+
+	PR target/99977
+	* gcc.target/arm/pr99977.c: New test.
+
+2021-05-17  Tobias Burnus  <tobias@codesourcery.com>
+
+	Backported from master:
+	2021-05-14  Tobias Burnus  <tobias@codesourcery.com>
+
+	* gfortran.dg/gomp/implicit-save.f90: New test.
+
+2021-05-14  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-05-14  Jakub Jelinek  <jakub@redhat.com>
+
+	* g++.dg/cpp1y/pr88872.C: New test.
+
+2021-05-13  Martin Sebor  <msebor@redhat.com>
+
+	PR c/100550
+	* gcc.dg/Wvla-parameter-9.c: New test.
+
+2021-05-13  Richard Earnshaw  <rearnsha@arm.com>
+
+	* gcc.dg/pr100563.c: New test.
+
+2021-05-12  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2021-05-12  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/100566
+	* gcc.dg/torture/pr100566.c: New testcase.
+
+2021-05-12  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-05-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR preprocessor/100392
+	* gcc.dg/cpp/pr100392.c: New test.
+	* gcc.dg/cpp/pr100392.h: New file.
+
+2021-05-12  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-05-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/100508
+	* gcc.dg/gomp/pr100508.c: New test.
+
 2021-05-11  Alex Coplan  <alex.coplan@arm.com>
 
 	PR target/99988
