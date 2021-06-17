@@ -1,3 +1,305 @@
+2021-06-16  Jason Merrill  <jason@redhat.com>
+
+	PR c++/101078
+	* g++.dg/template/access39.C: New test.
+
+2021-06-16  Jason Merrill  <jason@redhat.com>
+
+	PR c++/100796
+	PR preprocessor/96391
+	* g++.dg/plugin/location-overflow-test-pr100796.c: New test.
+	* g++.dg/plugin/plugin.exp: Run it.
+
+2021-06-16  Jason Merrill  <jason@redhat.com>
+
+	PR c++/101029
+	* g++.dg/ext/array4.C: New test.
+
+2021-06-16  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2021-06-11  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/101009
+	* gcc.dg/torture/pr101009.c: New testcase.
+
+2021-06-16  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/100981
+	* gfortran.dg/vect/pr100981-1.f90: New testcase.
+
+2021-06-16  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2021-06-14  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/100934
+	* gcc.dg/torture/pr100934.c: New testcase.
+
+2021-06-16  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2021-05-28  Richard Biener  <rguenther@suse.de>
+
+	PR ipa/100791
+	* gcc.dg/pr100791.c: New testcase.
+
+2021-06-16  José Rui Faustino de Sousa  <jrfsousa@gmail.com>
+
+	PR fortran/82376
+	* gfortran.dg/PR82376.f90: New test.
+
+2021-06-14  Aaron Sawdey  <acsawdey@linux.ibm.com>
+
+	* gcc.target/powerpc/fusion-p10-addadd.c: New file.
+
+2021-06-14  Aaron Sawdey  <acsawdey@linux.ibm.com>
+
+	* gcc.dg/sms-1.c: Remove scan-rtl-dump-times check.
+	* gcc.dg/sms-2.c: Remove scan-rtl-dump-times check.
+	* gcc.dg/sms-3.c: Remove scan-rtl-dump-times check.
+	* gcc.dg/sms-4.c: Remove scan-rtl-dump-times check.
+	* gcc.dg/sms-6.c: Remove scan-rtl-dump-times check.
+	* gcc.dg/sms-8.c: Remove scan-rtl-dump-times check.
+	* gcc.dg/sms-10.c: Remove scan-rtl-dump-times check.
+
+2021-06-11  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	Backported from master:
+	2021-06-11  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	PR d/100999
+	* gdc.test/compilable/staticforeach.d: Add new tests.
+	* gdc.test/fail_compilation/diag16976.d: Likewise.
+	* gdc.test/fail_compilation/fail117.d: Likewise.
+	* gdc.test/fail_compilation/fail238_m32.d: Likewise.
+	* gdc.test/fail_compilation/fail238_m64.d: Likewise.
+	* gdc.test/fail_compilation/fail7424b.d: Likewise.
+	* gdc.test/fail_compilation/fail7424c.d: Likewise.
+	* gdc.test/fail_compilation/fail7424d.d: Likewise.
+	* gdc.test/fail_compilation/fail7424e.d: Likewise.
+	* gdc.test/fail_compilation/fail7424f.d: Likewise.
+	* gdc.test/fail_compilation/fail7424g.d: Likewise.
+	* gdc.test/fail_compilation/fail7424h.d: Likewise.
+	* gdc.test/fail_compilation/fail7424i.d: Likewise.
+	* gdc.test/fail_compilation/fail9766.d: Likewise.
+	* gdc.test/fail_compilation/ice9406.d: Likewise.
+	* gdc.test/compilable/extra-files/minimal/object.d: New file.
+	* gdc.test/compilable/interpret5.d: New test.
+	* gdc.test/compilable/minimal3.d: New test.
+	* gdc.test/compilable/test21742.d: New test.
+	* gdc.test/compilable/test22006.d: New test.
+	* gdc.test/fail_compilation/b12504.d: New test.
+	* gdc.test/fail_compilation/fail22006.d: New test.
+	* gdc.test/fail_compilation/test21927.d: New test.
+	* gdc.test/fail_compilation/test21939.d: New test.
+
+2021-06-11  Aaron Sawdey  <acsawdey@linux.ibm.com>
+
+	Backported from master:
+	2021-05-21  Aaron Sawdey  <acsawdey@linux.ibm.com>
+
+	* gcc.target/powerpc/fusion-p10-ldcmpi.c: New file.
+	* gcc.target/powerpc/fusion-p10-2logical.c: New file.
+
+2021-06-11  Aaron Sawdey  <acsawdey@linux.ibm.com>
+
+	* gcc.dg/sms-4.c: Xfail for powerpc because changes in
+	instruction latency cause SMS to work or fail.
+
+2021-06-10  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-06-10  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/100946
+	* g++.dg/cpp2a/concepts-return-req3.C: New test.
+
+2021-06-10  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	Backported from master:
+	2021-06-10  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	PR d/100967
+	* gdc.dg/pr100967.d: New test.
+
+2021-06-09  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	Backported from master:
+	2021-06-09  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	PR d/100964
+	* gdc.test/compilable/betterCarray.d: Add test cases.
+
+2021-06-09  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	Backported from master:
+	2021-06-09  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	PR d/100935
+	* gdc.test/compilable/aggr_alignment.d: Add test cases.
+
+2021-06-09  Marek Polacek  <polacek@redhat.com>
+
+	Backported from master:
+	2021-06-08  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/100065
+	* g++.dg/cpp2a/explicit18.C: New test.
+
+2021-06-09  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* gcc.dg/sso-14.c: New test.
+
+2021-06-08  Jason Merrill  <jason@redhat.com>
+
+	PR c++/100963
+	* g++.dg/cpp0x/initlist124.C: New test.
+
+2021-06-08  Jason Merrill  <jason@redhat.com>
+
+	PR c++/91706
+	* g++.dg/template/lookup17.C: New test.
+
+2021-06-07  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-06-03  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/100862
+	* g++.dg/cpp2a/using-enum-9.C: New test.
+
+2021-06-07  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-06-04  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/100102
+	* g++.dg/cpp0x/alias-decl-72.C: New test.
+	* g++.dg/cpp0x/alias-decl-72a.C: New test.
+
+2021-06-07  H.J. Lu  <hjl.tools@gmail.com>
+
+	Backported from master:
+	2021-06-07  H.J. Lu  <hjl.tools@gmail.com>
+
+	PR target/100885
+	* g++.target/i386/pr100885.C (_mm_set_epi64): Cast __m64 to long
+	long.
+
+2021-06-07  liuhongt  <hongtao.liu@intel.com>
+
+	PR target/100885
+	* g++.target/i386/pr100885.C: New test.
+
+2021-06-04  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	Backported from master:
+	2021-06-04  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	PR d/100882
+	* gdc.dg/pr100882a.d: New test.
+	* gdc.dg/pr100882b.d: New test.
+	* gdc.dg/pr100882c.d: New test.
+	* gdc.dg/torture/pr100882.d: New test.
+
+2021-06-04  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2021-06-04  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/99839
+	* gfortran.dg/inline_matmul_25.f90: New test.
+
+2021-06-03  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* gnat.dg/bit_packed_array6.adb: New test.
+	* gnat.dg/bit_packed_array6_pkg.ads: New helper.
+
+2021-06-03  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* gnat.dg/inline22.adb: New test.
+
+2021-06-03  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* gnat.dg/specs/opt5.ads: New test.
+	* gnat.dg/specs/opt5_pkg.ads: New helper.
+
+2021-06-03  Alex Coplan  <alex.coplan@arm.com>
+
+	Backported from master:
+	2021-05-19  Alex Coplan  <alex.coplan@arm.com>
+
+	PR target/100333
+	* gcc.target/arm/cmse/pr100333.c: New test.
+
+2021-06-01  Bill Schmidt  <wschmidt@linux.ibm.com>
+
+	PR testsuite/100750
+	* gcc.target/powerpc/rop-5.c: Require ELFv2 ABI.
+
+2021-06-01  Jason Merrill  <jason@redhat.com>
+
+	PR c++/91859
+	* g++.dg/cpp2a/destroying-delete5.C: New test.
+
+2021-06-01  Jason Merrill  <jason@redhat.com>
+
+	PR c++/100797
+	PR c++/95719
+	* g++.dg/inherit/virtual15.C: New test.
+	* g++.dg/inherit/virtual15a.C: New file.
+
+2021-05-31  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-05-25  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/100666
+	* g++.dg/cpp1z/nodiscard8.C: New test.
+	* g++.dg/cpp1z/nodiscard9.C: New test.
+
+2021-05-31  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-05-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR preprocessor/100646
+	* gcc.dg/cpp/pr100646-1.c: New test.
+	* gcc.dg/cpp/pr100646-2.c: New test.
+
+2021-05-31  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-05-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/100576
+	* gcc.c-torture/compile/pr100576.c: New test.
+
+2021-05-31  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-05-18  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/100590
+	* gcc.dg/pr100590.c: New test.
+
+2021-05-31  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-05-18  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/100580
+	* g++.dg/other/pr100580.C: New test.
+
+2021-05-31  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-05-15  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/100342
+	* gcc.target/i386/pr100342.c: New test.
+
 2021-05-28  Harald Anlauf  <anlauf@gmx.de>
 
 	Backported from master:

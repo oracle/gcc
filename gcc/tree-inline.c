@@ -2093,27 +2093,29 @@ copy_bb (copy_body_data *id, basic_block bb,
 	      tree p;
 	      gcall *new_call;
 	      vec<tree> argarray;
-	      size_t nargs = gimple_call_num_args (id->call_stmt);
-	      size_t n;
+	      size_t nargs_caller = gimple_call_num_args (id->call_stmt);
+	      size_t nargs = nargs_caller;
 
 	      for (p = DECL_ARGUMENTS (id->src_fn); p; p = DECL_CHAIN (p))
 		nargs--;
 
 	      /* Create the new array of arguments.  */
-	      n = nargs + gimple_call_num_args (call_stmt);
+	      size_t nargs_callee = gimple_call_num_args (call_stmt);
+	      size_t n = nargs + nargs_callee;
 	      argarray.create (n);
 	      argarray.safe_grow_cleared (n, true);
 
 	      /* Copy all the arguments before '...'  */
-	      memcpy (argarray.address (),
-		      gimple_call_arg_ptr (call_stmt, 0),
-		      gimple_call_num_args (call_stmt) * sizeof (tree));
+	      if (nargs_callee)
+		memcpy (argarray.address (),
+			gimple_call_arg_ptr (call_stmt, 0),
+			nargs_callee * sizeof (tree));
 
 	      /* Append the arguments passed in '...'  */
-	      memcpy (argarray.address () + gimple_call_num_args (call_stmt),
-		      gimple_call_arg_ptr (id->call_stmt, 0)
-		      + (gimple_call_num_args (id->call_stmt) - nargs),
-		      nargs * sizeof (tree));
+	      if (nargs)
+		memcpy (argarray.address () + nargs_callee,
+			gimple_call_arg_ptr (id->call_stmt, 0)
+			+ (nargs_caller - nargs), nargs * sizeof (tree));
 
 	      new_call = gimple_build_call_vec (gimple_call_fn (call_stmt),
 						argarray);
@@ -2124,6 +2126,7 @@ copy_bb (copy_body_data *id, basic_block bb,
 		 GF_CALL_VA_ARG_PACK.  */
 	      gimple_call_copy_flags (new_call, call_stmt);
 	      gimple_call_set_va_arg_pack (new_call, false);
+	      gimple_call_set_fntype (new_call, gimple_call_fntype (call_stmt));
 	      /* location includes block.  */
 	      gimple_set_location (new_call, gimple_location (stmt));
 	      gimple_call_set_lhs (new_call, gimple_call_lhs (call_stmt));
@@ -4022,17 +4025,10 @@ inline_forbidden_p (tree fndecl)
   wi.info = (void *) fndecl;
   wi.pset = &visited_nodes;
 
-  /* We cannot inline a function with a VLA typed argument or result since
-     we have no implementation materializing a variable of such type in
-     the caller.  */
-  if (COMPLETE_TYPE_P (TREE_TYPE (TREE_TYPE (fndecl)))
-      && !poly_int_tree_p (TYPE_SIZE (TREE_TYPE (TREE_TYPE (fndecl)))))
-    {
-      inline_forbidden_reason
-	= G_("function %q+F can never be inlined because "
-	     "it has a VLA return argument");
-      return true;
-    }
+  /* We cannot inline a function with a variable-sized parameter because we
+     cannot materialize a temporary of such a type in the caller if need be.
+     Note that the return case is not symmetrical because we can guarantee
+     that a temporary is not needed by means of CALL_EXPR_RETURN_SLOT_OPT.  */
   for (tree parm = DECL_ARGUMENTS (fndecl); parm; parm = DECL_CHAIN (parm))
     if (!poly_int_tree_p (DECL_SIZE (parm)))
       {

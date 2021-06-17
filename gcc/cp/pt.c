@@ -190,7 +190,6 @@ static tree tsubst_arg_types (tree, tree, tree, tsubst_flags_t, tree);
 static tree tsubst_function_type (tree, tree, tsubst_flags_t, tree);
 static bool check_specialization_scope (void);
 static tree process_partial_specialization (tree);
-static void set_current_access_from_decl (tree);
 static enum template_base_result get_template_base (tree, tree, tree, tree,
 						    bool , tree *);
 static tree try_class_unification (tree, tree, tree, tree, bool);
@@ -13954,45 +13953,6 @@ tsubst_function_decl (tree t, tree args, tsubst_flags_t complain,
 	  if (tree spec = retrieve_specialization (gen_tmpl, argvec, hash))
 	    return spec;
 	}
-
-      /* We can see more levels of arguments than parameters if
-	 there was a specialization of a member template, like
-	 this:
-
-	 template <class T> struct S { template <class U> void f(); }
-	 template <> template <class U> void S<int>::f(U);
-
-	 Here, we'll be substituting into the specialization,
-	 because that's where we can find the code we actually
-	 want to generate, but we'll have enough arguments for
-	 the most general template.
-
-	 We also deal with the peculiar case:
-
-	 template <class T> struct S {
-	   template <class U> friend void f();
-	 };
-	 template <class U> void f() {}
-	 template S<int>;
-	 template void f<double>();
-
-	 Here, the ARGS for the instantiation of will be {int,
-	 double}.  But, we only need as many ARGS as there are
-	 levels of template parameters in CODE_PATTERN.  We are
-	 careful not to get fooled into reducing the ARGS in
-	 situations like:
-
-	 template <class T> struct S { template <class U> void f(U); }
-	 template <class T> template <> void S<T>::f(int) {}
-
-	 which we can spot because the pattern will be a
-	 specialization in this case.  */
-      int args_depth = TMPL_ARGS_DEPTH (args);
-      int parms_depth =
-	TMPL_PARMS_DEPTH (DECL_TEMPLATE_PARMS (DECL_TI_TEMPLATE (t)));
-
-      if (args_depth > parms_depth && !DECL_TEMPLATE_SPECIALIZATION (t))
-	args = get_innermost_template_args (args, parms_depth);
     }
   else
     {
@@ -16353,8 +16313,19 @@ tsubst_baselink (tree baselink, tree object_type,
 	fns = BASELINK_FUNCTIONS (baselink);
     }
   else
-    /* We're going to overwrite pieces below, make a duplicate.  */
-    baselink = copy_node (baselink);
+    {
+      /* We're going to overwrite pieces below, make a duplicate.  */
+      baselink = copy_node (baselink);
+
+      if (qualifying_scope != BINFO_TYPE (BASELINK_ACCESS_BINFO (baselink)))
+	{
+	  /* The decl we found was from non-dependent scope, but we still need
+	     to update the binfos for the instantiated qualifying_scope.  */
+	  BASELINK_ACCESS_BINFO (baselink) = TYPE_BINFO (qualifying_scope);
+	  BASELINK_BINFO (baselink) = lookup_base (qualifying_scope, binfo_type,
+						   ba_unique, nullptr, complain);
+	}
+    }
 
   /* If lookup found a single function, mark it as used at this point.
      (If lookup found multiple functions the one selected later by
@@ -26480,19 +26451,6 @@ tsubst_initializer_list (tree t, tree argvec)
         }
     }
   return inits;
-}
-
-/* Set CURRENT_ACCESS_SPECIFIER based on the protection of DECL.  */
-
-static void
-set_current_access_from_decl (tree decl)
-{
-  if (TREE_PRIVATE (decl))
-    current_access_specifier = access_private_node;
-  else if (TREE_PROTECTED (decl))
-    current_access_specifier = access_protected_node;
-  else
-    current_access_specifier = access_public_node;
 }
 
 /* Instantiate an enumerated type.  TAG is the template type, NEWTAG

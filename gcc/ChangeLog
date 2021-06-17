@@ -1,3 +1,181 @@
+2021-06-16  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2021-06-11  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/101009
+	* tree-data-ref.c (build_classic_dist_vector_1): Make sure
+	to set *init_b to true when we encounter a constant equal
+	index pair.
+	(compute_affine_dependence): Also dump the actual DR_REF.
+
+2021-06-16  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/100981
+	* tree-vect-loop.c (vect_create_epilog_for_reduction): Use
+	gimple_get_lhs to also handle calls.
+	* tree-vect-slp-patterns.c (complex_pattern::build): Transfer
+	reduction info.
+
+2021-06-16  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2021-06-14  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/100934
+	* tree-ssa-dom.c (pass_dominator::execute): Properly
+	mark irreducible regions.
+
+2021-06-16  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2021-05-28  Richard Biener  <rguenther@suse.de>
+
+	PR ipa/100791
+	* tree-inline.c (copy_bb): When processing __builtin_va_arg_pack
+	copy fntype from original call.
+
+2021-06-14  Aaron Sawdey  <acsawdey@linux.ibm.com>
+
+	* config/rs6000/genfusion.pl (gen_addadd): New function.
+	* config/rs6000/fusion.md: Regenerate file.
+	* config/rs6000/rs6000-cpus.def: Add
+	OPTION_MASK_P10_FUSION_2ADD to masks.
+	* config/rs6000/rs6000.c (rs6000_option_override_internal):
+	Handle default value of OPTION_MASK_P10_FUSION_2ADD.
+	* config/rs6000/rs6000.opt: Add -mpower10-fusion-2add.
+
+2021-06-11  Aaron Sawdey  <acsawdey@linux.ibm.com>
+
+	* config/rs6000/rs6000.md (define_attr "type"): Add types for fusion.
+	* config/rs6000/genfusion.pl (gen_ld_cmpi_p10): Use new fusion types.
+	(gen_2logical): Use new fusion types.
+	* config/rs6000/fusion.md: Regenerate.
+
+2021-06-09  Claudiu Zissulescu  <claziss@synopsys.com>
+
+	Backported from master:
+	2021-06-09  Claudiu Zissulescu  <claziss@synopsys.com>
+
+	* config/arc/arc.md (loop_end): Change it to
+	define_insn_and_split.
+
+2021-06-09  Claudiu Zissulescu  <claziss@synopsys.com>
+
+	Backported from master:
+	2021-06-09  Claudiu Zissulescu  <claziss@synopsys.com>
+
+	* config/arc/arc.md (maddhisi4): Use VMAC2H instruction.
+	(machi): New pattern.
+	(umaddhisi4): Use VMAC2HU instruction.
+	(umachi): New pattern.
+
+2021-06-09  Claudiu Zissulescu  <claziss@synopsys.com>
+
+	Backported from master:
+	2021-06-09  Claudiu Zissulescu  <claziss@synopsys.com>
+
+	* config/arc/arc-protos.h (arc_split_move_p): New prototype.
+	* config/arc/arc.c (arc_split_move_p): New function.
+	(arc_split_move): Clean up.
+	* config/arc/arc.md (movdi_insn): Clean up, use arc_split_move_p.
+	(movdf_insn): Likewise.
+	* config/arc/simdext.md (mov<VWH>_insn): Likewise.
+
+2021-06-08  Pat Haugen  <pthaugen@linux.ibm.com>
+
+	* config/rs6000/rs6000-logue.c (rs6000_emit_prologue): Use
+	gen_frame_store.
+
+2021-06-07  liuhongt  <hongtao.liu@intel.com>
+
+	PR target/100885
+	* config/i386/sse.md (*sse4_1_zero_extendv8qiv8hi2_3): Refine
+	constraints.
+	(<insn>v4siv4di2): Delete constraints for define_expand.
+
+2021-06-03  Eric Botcazou  <ebotcazou@adacore.com>
+
+	PR ipa/99122
+	* tree-inline.c (inline_forbidden_p): Remove test on return type.
+
+2021-06-03  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* range-op.cc (get_bool_state): Adjust head comment.
+	(operator_not_equal::op1_range): Fix comment.
+	(operator_bitwise_xor::op1_range): Remove call to gcc_unreachable.
+
+2021-06-03  Alex Coplan  <alex.coplan@arm.com>
+
+	Backported from master:
+	2021-05-19  Alex Coplan  <alex.coplan@arm.com>
+
+	PR target/100333
+	* config/arm/arm.md (nonsecure_call_internal): Always ensure
+	callee's address is in a register.
+
+2021-06-03  Claudiu Zissulescu  <claziss@synopsys.com>
+
+	Backported from master:
+	2021-06-02  Vineet Gupta  <vgupta@synopsys.com>
+
+	* config/arc/arc.h (TARGET_CPU_DEFAULT): Change to hs38_linux.
+
+2021-06-02  Uroš Bizjak  <ubizjak@gmail.com>
+
+	* config/i386/sse.md (abs<MMXMODEI:mode>2):
+	Change define_insn to define_expand.
+
+2021-06-02  Uros Bizjak  <ubizjak@gmail.com>
+
+	Backported from master:
+	2021-05-18  Uroš Bizjak  <ubizjak@gmail.com>
+
+	* config/i386/sse.md (<any_extend:insn>v4qiv4di2):
+	Fix a mode mismatch with operand 1.
+
+2021-06-01  Jason Merrill  <jason@redhat.com>
+
+	PR c++/91859
+	* tree.h (CALL_FROM_NEW_OR_DELETE_P): Adjust comment.
+
+2021-05-31  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-05-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/100576
+	* builtins.c (check_read_access): Convert bound to size_type_node if
+	non-NULL.
+
+2021-05-31  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-05-18  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/100590
+	* regcprop.c (copyprop_hardreg_forward_1): Only DCE dead sets if
+	they are NONJUMP_INSN_P.
+
+2021-05-31  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-05-18  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/100580
+	* function.c (push_dummy_function): Set DECL_ARTIFICIAL and
+	DECL_ASSEMBLER_NAME on the fn_decl.
+
+2021-05-31  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-05-15  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/100342
+	* regcprop.c (copy_value): When copying a source reg in a wider
+	mode than it has recorded for the value, adjust recorded destination
+	mode too or punt if !REG_CAN_CHANGE_MODE_P.
+
 2021-05-28  David Edelsohn  <dje.gcc@gmail.com>
 
 	PR target/94177

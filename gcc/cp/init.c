@@ -4222,6 +4222,14 @@ build_vec_init (tree base, tree maxindex, tree init,
   else
     ptype = atype;
 
+  if (integer_all_onesp (maxindex))
+    {
+      /* Shortcut zero element case to avoid unneeded constructor synthesis.  */
+      if (init && TREE_SIDE_EFFECTS (init))
+	base = build2 (COMPOUND_EXPR, ptype, init, base);
+      return base;
+    }
+
   /* The code we are generating looks like:
      ({
        T* t1 = (T*) base;
@@ -4881,7 +4889,10 @@ build_delete (location_t loc, tree otype, tree addr,
 			    complain);
     }
 
-  if (!destroying_delete && type_build_dtor_call (type))
+  if (destroying_delete)
+    /* The operator delete will call the destructor.  */
+    expr = addr;
+  else if (type_build_dtor_call (type))
     expr = build_dtor_call (cp_build_fold_indirect_ref (addr),
 			    auto_delete, flags, complain);
   else

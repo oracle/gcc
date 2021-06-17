@@ -17425,7 +17425,7 @@
    (set (attr "prefix_rex") (symbol_ref "x86_extended_reg_mentioned_p (insn)"))
    (set_attr "mode" "DI,TI")])
 
-(define_insn "abs<mode>2"
+(define_expand "abs<mode>2"
   [(set (match_operand:MMXMODEI 0 "register_operand")
 	(abs:MMXMODEI
 	  (match_operand:MMXMODEI 1 "register_operand")))]
@@ -17974,10 +17974,10 @@
   "operands[1] = adjust_address_nv (operands[1], V8QImode, 0);")
 
 (define_insn_and_split "*sse4_1_zero_extendv8qiv8hi2_3"
-  [(set (match_operand:V16QI 0 "register_operand" "=Yr,*x,v")
+  [(set (match_operand:V16QI 0 "register_operand" "=Yr,*x,Yw")
 	(vec_select:V16QI
 	  (vec_concat:V32QI
-	    (match_operand:V16QI 1 "vector_operand" "YrBm,*xBm,vm")
+	    (match_operand:V16QI 1 "vector_operand" "YrBm,*xBm,Ywm")
 	    (match_operand:V16QI 2 "const0_operand" "C,C,C"))
 	  (match_parallel 3 "pmovzx_parallel"
 	    [(match_operand 4 "const_int_operand" "n,n,n")])))]
@@ -18431,8 +18431,8 @@
 {
   if (!MEM_P (operands[1]))
     {
-      operands[1] = force_reg (V8QImode, operands[1]);
-      operands[1] = simplify_gen_subreg (V16QImode, operands[1], V8QImode, 0);
+      operands[1] = force_reg (V4QImode, operands[1]);
+      operands[1] = simplify_gen_subreg (V16QImode, operands[1], V4QImode, 0);
       emit_insn (gen_avx2_<code>v4qiv4di2 (operands[0], operands[1]));
       DONE;
     }
@@ -18662,9 +18662,9 @@
 })
 
 (define_expand "<insn>v4siv4di2"
-  [(set (match_operand:V4DI 0 "register_operand" "=v")
+  [(set (match_operand:V4DI 0 "register_operand")
 	(any_extend:V4DI
-	    (match_operand:V4SI 1 "nonimmediate_operand" "vm")))]
+	    (match_operand:V4SI 1 "nonimmediate_operand")))]
   "TARGET_AVX2")
 
 (define_insn "sse4_1_<code>v2siv2di2<mask_name>"
