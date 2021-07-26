@@ -6000,7 +6000,8 @@ finish_omp_reduction_clause (tree c, bool *need_default_ctor, bool *need_dtor)
       if (!processing_template_decl)
 	{
 	  t = require_complete_type (t);
-	  if (t == error_mark_node)
+	  if (t == error_mark_node
+	      || !complete_type_or_else (oatype, NULL_TREE))
 	    return true;
 	  tree size = size_binop (EXACT_DIV_EXPR, TYPE_SIZE_UNIT (oatype),
 				  TYPE_SIZE_UNIT (type));
@@ -6030,6 +6031,8 @@ finish_omp_reduction_clause (tree c, bool *need_default_ctor, bool *need_dtor)
       case PLUS_EXPR:
       case MULT_EXPR:
       case MINUS_EXPR:
+      case TRUTH_ANDIF_EXPR:
+      case TRUTH_ORIF_EXPR:
 	predefined = true;
 	break;
       case MIN_EXPR:
@@ -6042,12 +6045,6 @@ finish_omp_reduction_clause (tree c, bool *need_default_ctor, bool *need_dtor)
       case BIT_IOR_EXPR:
       case BIT_XOR_EXPR:
 	if (FLOAT_TYPE_P (type) || TREE_CODE (type) == COMPLEX_TYPE)
-	  break;
-	predefined = true;
-	break;
-      case TRUTH_ANDIF_EXPR:
-      case TRUTH_ORIF_EXPR:
-	if (FLOAT_TYPE_P (type))
 	  break;
 	predefined = true;
 	break;

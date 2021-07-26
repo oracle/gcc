@@ -7802,7 +7802,13 @@ omp_check_private (struct gimplify_omp_ctx *ctx, tree decl, bool copyprivate)
 
       if ((ctx->region_type & (ORT_TARGET | ORT_TARGET_DATA)) != 0
 	  && (n == NULL || (n->value & GOVD_DATA_SHARE_CLASS) == 0))
-	continue;
+	{
+	  if ((ctx->region_type & ORT_TARGET_DATA) != 0
+	      || n == NULL
+	      || (n->value & GOVD_MAP) == 0)
+	    continue;
+	  return false;
+	}
 
       if (n != NULL)
 	{
@@ -7811,11 +7817,16 @@ omp_check_private (struct gimplify_omp_ctx *ctx, tree decl, bool copyprivate)
 	    return false;
 	  return (n->value & GOVD_SHARED) == 0;
 	}
+
+      if (ctx->region_type == ORT_WORKSHARE
+	  || ctx->region_type == ORT_TASKGROUP
+	  || ctx->region_type == ORT_SIMD
+	  || ctx->region_type == ORT_ACC)
+	continue;
+
+      break;
     }
-  while (ctx->region_type == ORT_WORKSHARE
-	 || ctx->region_type == ORT_TASKGROUP
-	 || ctx->region_type == ORT_SIMD
-	 || ctx->region_type == ORT_ACC);
+  while (1);
   return false;
 }
 
@@ -15114,24 +15125,11 @@ gimplify_expr (tree *expr_p, gimple_seq *pre_p, gimple_seq *post_p,
 	       bool (*gimple_test_f) (tree), fallback_t fallback,
 	       bool allow_ssa)
 {
-  bool was_ssa_name_p = TREE_CODE (*expr_p) == SSA_NAME;
   enum gimplify_status ret = gimplify_expr (expr_p, pre_p, post_p,
 					    gimple_test_f, fallback);
   if (! allow_ssa
       && TREE_CODE (*expr_p) == SSA_NAME)
-    {
-      tree name = *expr_p;
-      if (was_ssa_name_p)
-	*expr_p = get_initialized_tmp_var (*expr_p, pre_p, NULL, false);
-      else
-	{
-	  /* Avoid the extra copy if possible.  */
-	  *expr_p = create_tmp_reg (TREE_TYPE (name));
-	  if (!gimple_nop_p (SSA_NAME_DEF_STMT (name)))
-	    gimple_set_lhs (SSA_NAME_DEF_STMT (name), *expr_p);
-	  release_ssa_name (name);
-	}
-    }
+    *expr_p = get_initialized_tmp_var (*expr_p, pre_p, NULL, false);
   return ret;
 }
 
