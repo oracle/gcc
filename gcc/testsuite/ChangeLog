@@ -1,3 +1,295 @@
+2021-08-19  Thomas Schwinge  <thomas@codesourcery.com>
+
+	Backported from master:
+	2021-08-19  Thomas Schwinge  <thomas@codesourcery.com>
+
+	PR testsuite/101969
+	* gcc.dg/pr78213.c: Fix up for '--enable-checking=release' etc.
+
+2021-08-18  Christophe Lyon  <christophe.lyon@foss.st.com>
+
+	Backported from master:
+	2021-08-06  Christophe Lyon  <christophe.lyon@foss.st.com>
+
+	PR target/101723
+	* gcc.target/arm/pr69245.c: Make sure to emit code for fn1, fix
+	typo.
+
+2021-08-18  Christophe Lyon  <christophe.lyon@foss.st.com>
+
+	Backported from master:
+	2021-08-06  Christophe Lyon  <christophe.lyon@foss.st.com>
+
+	PR target/101723
+	* gcc.target/arm/attr-neon3.c: Fix typo.
+	* gcc.target/arm/pragma_fpu_attribute_2.c: Fix typo.
+
+2021-08-18  Richard Earnshaw  <rearnsha@arm.com>
+
+	Backported from master:
+	2021-08-05  Richard Earnshaw  <rearnsha@arm.com>
+
+	PR target/101723
+	* gcc.target/arm/cortex-m55-nofp-flag-hard.c: Update expected output.
+	* gcc.target/arm/cortex-m55-nofp-flag-softfp.c: Likewise.
+	* gcc.target/arm/cortex-m55-nofp-nomve-flag-softfp.c: Likewise.
+	* gcc.target/arm/mve/intrinsics/mve_fpu1.c: Convert to dg-do assemble.
+	Add a non-no-op function body.
+	* gcc.target/arm/mve/intrinsics/mve_fpu2.c: Likewise.
+	* gcc.target/arm/pr98636.c (dg-options): Add -mfloat-abi=softfp.
+	* gcc.target/arm/attr-neon.c: Tighten scan-assembler tests.
+	* gcc.target/arm/attr-neon2.c: Use -Ofast, convert test to use
+	check-function-bodies.
+	* gcc.target/arm/attr-neon3.c: Likewise.
+	* gcc.target/arm/pr69245.c: Tighten scan-assembler match, but allow
+	multiple instances.
+	* gcc.target/arm/pragma_fpu_attribute.c: Likewise.
+	* gcc.target/arm/pragma_fpu_attribute_2.c: Likewise.
+
+2021-08-17  Thomas Schwinge  <thomas@codesourcery.com>
+
+	Backported from master:
+	2021-08-17  Thomas Schwinge  <thomas@codesourcery.com>
+
+	* gcc.dg/pr78213.c: Restore testing.
+
+2021-08-17  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/101373
+	PR tree-optimization/101868
+	* gcc.dg/lto/pr101868_0.c: New testcase.
+	* gcc.dg/lto/pr101868_1.c: Likewise.
+	* gcc.dg/lto/pr101868_2.c: Likewise.
+	* gcc.dg/lto/pr101868_3.c: Likewise.
+
+2021-08-16  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2021-08-15  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/99351
+	* gfortran.dg/coarray_sync.f90: New test.
+	* gfortran.dg/coarray_3.f90: Adjust error messages.
+
+2021-08-16  Martin Liska  <mliska@suse.cz>
+
+	PR ipa/100600
+	* gcc.dg/ipa/pr100600.c: New test.
+
+2021-08-16  Martin Liska  <mliska@suse.cz>
+
+	PR ipa/101261
+	* gcc.target/i386/pr101261.c: New test.
+
+2021-08-13  Martin Liska  <mliska@suse.cz>
+
+	PR gcov-profile/100788
+	* gcc.dg/pr100788.c: New test.
+
+2021-08-12  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-08-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR preprocessor/101638
+	* gcc.dg/cpp/pr101638.c: New test.
+
+2021-08-12  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-08-04  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/101759
+	* g++.dg/gomp/pr101759.C: New test.
+	* g++.dg/goacc/pr101759.C: New test.
+
+2021-08-12  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-07-28  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/101624
+	* gfortran.dg/ubsan/ubsan.exp: New file.
+	* gfortran.dg/ubsan/pr101624.f90: New test.
+
+2021-08-12  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-08-12  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/101663
+	* g++.dg/cpp2a/construct_at.h: New convenience header file that
+	defines minimal implementations of std::construct_at/destroy_at,
+	split out from ...
+	* g++.dg/cpp2a/constexpr-new5.C: ... here.
+	* g++.dg/cpp2a/constexpr-new6.C: Use the header.
+	* g++.dg/cpp2a/constexpr-new14.C: Likewise.
+	* g++.dg/cpp2a/constexpr-new20.C: New test.
+
+2021-08-11  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-08-11  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/101725
+	DR 2082
+	* g++.dg/DRs/dr2082.C: New test.
+	* g++.dg/cpp2a/concepts-uneval4.C: New test.
+
+2021-08-11  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2021-07-28  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/101564
+	* gfortran.dg/allocate_stat_3.f90: New test.
+	* gfortran.dg/allocate_stat.f90: Adjust error messages.
+	* gfortran.dg/implicit_11.f90: Likewise.
+	* gfortran.dg/inquiry_type_ref_3.f90: Likewise.
+
+2021-08-06  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2021-07-19  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/101505
+	* gcc.dg/vect/pr101505.c: New testcase.
+
+2021-08-06  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2021-07-29  Richard Biener  <rguenther@suse.de>
+
+	PR c/101512
+	* gcc.dg/torture/pr101512.c: New testcase.
+
+2021-07-30  Xi Ruoyao  <xry111@mengyan1223.wang>
+
+	Backported from master:
+	2021-07-30  Xi Ruoyao  <xry111@mengyan1223.wang>
+
+	PR target/101132
+	* gcc.target/mips/pr101132.c: New test.
+
+2021-07-29  Bill Schmidt  <wschmidt@linux.ibm.com>
+
+	PR target/101531
+	* gcc.target/powerpc/pr101129.c: Adjust.
+
+2021-07-29  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	Backported from master:
+	2021-07-29  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	PR d/101664
+	* gdc.dg/extern-c++/extern-c++.exp: New.
+	* gdc.dg/extern-c++/pr101664.d: New test.
+	* gdc.dg/extern-c++/pr101664_1.cc: New test.
+
+2021-07-29  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	Backported from master:
+	2021-07-29  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	PR d/96435
+	* gdc.dg/torture/pr96435.d: New test.
+
+2021-07-28  Martin Uecker  <muecker@gwdg.de>
+
+	* gcc.dg/Wnonnull-4.c: Correct argument numbers in warnings.
+
+2021-07-28  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2021-07-23  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/101536
+	* gfortran.dg/pr101536.f90: New test.
+
+2021-07-28  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2021-07-21  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/101514
+	* gfortran.dg/pr101514.f90: New test.
+
+2021-07-28  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2021-07-18  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/101084
+	* gfortran.dg/fmt_nonchar_3.f90: New test.
+
+2021-07-28  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	Backported from master:
+	2021-07-28  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	PR d/101640
+	* gdc.dg/pr96429.d: Update test.
+	* gdc.dg/pr101640.d: New test.
+
+2021-07-28  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	Backported from master:
+	2021-07-28  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	PR d/101490
+	* gdc.dg/pr101490.d: New test.
+	* gdc.test/fail_compilation/fail22144.d: New test.
+
+2021-07-28  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	Backported from master:
+	2021-07-28  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	PR d/101441
+	* gdc.test/compilable/b19002.d: New test.
+
+2021-07-28  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	Backported from master:
+	2021-07-28  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	PR d/101127
+	* gdc.dg/pr101127a.d: New test.
+	* gdc.dg/pr101127b.d: New test.
+
+2021-07-28  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	Backported from master:
+	2021-07-28  Iain Buclaw  <ibuclaw@gdcproject.org>
+
+	PR d/101619
+	* gdc.test/fail_compilation/fail7424b.d: Update test.
+	* gdc.test/fail_compilation/fail7424c.d: Update test.
+	* gdc.test/fail_compilation/fail7424d.d: Update test.
+	* gdc.test/fail_compilation/fail7424e.d: Update test.
+	* gdc.test/fail_compilation/fail7424f.d: Update test.
+	* gdc.test/fail_compilation/fail7424g.d: Update test.
+	* gdc.test/fail_compilation/fail7424h.d: Update test.
+	* gdc.test/fail_compilation/fail7424i.d: Update test.
+	* gdc.test/compilable/test22133.d: New test.
+	* gdc.test/fail_compilation/fail22133.d: New test.
+
+2021-07-28  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-07-27  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/101586
+	* g++.dg/torture/builtin-clear-padding-4.C: New test.
+
+2021-07-28  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-07-23  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/101562
+	* gcc.c-torture/compile/pr101562.c: New test.
+
 2021-07-28  Release Manager
 
 	* GCC 11.2.0 released.

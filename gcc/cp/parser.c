@@ -5948,7 +5948,10 @@ cp_parser_primary_expression (cp_parser *parser,
 	    /* Check to see if DECL is a local variable in a context
 	       where that is forbidden.  */
 	    if ((parser->local_variables_forbidden_p & LOCAL_VARS_FORBIDDEN)
-		&& local_variable_p (decl))
+		&& local_variable_p (decl)
+		/* DR 2082 permits local variables in unevaluated contexts
+		   within a default argument.  */
+		&& !cp_unevaluated_operand)
 	      {
 		const char *msg
 		  = (TREE_CODE (decl) == PARM_DECL
@@ -24043,6 +24046,8 @@ cp_parser_default_argument (cp_parser *parser, bool template_parm_p)
      set correctly.  */
   saved_greater_than_is_operator_p = parser->greater_than_is_operator_p;
   parser->greater_than_is_operator_p = !template_parm_p;
+  auto odsd = make_temp_override (parser->omp_declare_simd, NULL);
+  auto ord = make_temp_override (parser->oacc_routine, NULL);
   /* Local variable names (and the `this' keyword) may not
      appear in a default argument.  */
   saved_local_variables_forbidden_p = parser->local_variables_forbidden_p;
