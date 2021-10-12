@@ -1,3 +1,269 @@
+2021-10-08  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-10-08  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/102640
+	* parser.c (handle_omp_declare_target_clause): New function.
+	(cp_parser_omp_declare_target): Use it.
+
+2021-10-07  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-10-07  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/99904
+	* pt.c (is_compatible_template_arg): Set processing_template_decl
+	around tsubst_constraint_info.
+
+2021-10-06  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-10-05  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/102547
+	* constexpr.c (potential_constant_expression_1): Handle
+	NONTYPE_ARGUMENT_PACK.
+
+2021-10-06  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-09-30  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/102535
+	* method.c (is_xible_helper): Don't exit early for multi-arg
+	ctors in C++20.
+
+2021-10-06  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-09-30  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/95567
+	* method.c (build_comparison_op): Skip DECL_VIRTUAL_P fields.
+
+2021-10-06  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-09-22  Patrick Palka  <ppalka@redhat.com>
+
+	DR 2446
+	PR c++/102412
+	* constexpr.c (cxx_eval_constant_expression)
+	<case TEMPLATE_ID_EXPR>: Check value_dependent_expression_p
+	instead of processing_template_decl.
+	* pt.c (value_dependent_expression_p) <case TEMPLATE_ID_EXPR>:
+	Return true only if any_dependent_template_arguments_p.
+	(instantiation_dependent_r) <case CALL_EXPR>: Remove this case.
+	<case TEMPLATE_ID_EXPR>: Likewise.
+
+2021-10-06  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-09-16  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/98486
+	* constraint.cc (get_normalized_constraints_from_decl): Always
+	look up constraints using the most general template.
+	* decl.c (grokdeclarator): Set constraints on a static data
+	member template.
+	* pt.c (determine_specialization): Check constraints on a
+	variable template.
+
+2021-10-06  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-09-14  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/102163
+	* constexpr.c (cxx_eval_call_expression): After evaluating a
+	subobject constructor call for an empty union member, produce a
+	side effect that makes sure the member gets activated.
+
+2021-10-06  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-08-18  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/101344
+	PR c++/101803
+	* cp-tree.h (CONSTRUCTOR_BRACES_ELIDED_P): Define.
+	* decl.c (reshape_init_r): Set it.
+	* pt.c (collect_ctor_idx_types): Recurse into a sub-CONSTRUCTOR
+	iff CONSTRUCTOR_BRACES_ELIDED_P.
+
+2021-10-06  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-08-18  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/101883
+	* pt.c (convert_template_argument): Pass LOOKUP_IMPLICIT to
+	do_auto_deduction.
+
+2021-10-05  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-10-05  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/102548
+	* tree.c (apply_identity_attributes): Fix handling of the
+	case where an attribute in the list doesn't affect type
+	identity but some attribute before it does.
+
+2021-10-05  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-10-01  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/102496
+	* name-lookup.c (push_local_extern_decl_alias): Return early even for
+	tls vars with non-dependent type when processing_template_decl.  For
+	CP_DECL_THREAD_LOCAL_P vars call set_decl_tls_model on alias.
+
+2021-10-03  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backported from master:
+	2021-09-28  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR c++/102454
+	* coroutines.cc (analyze_fn_parms): Clean up synthetic names for
+	unnamed function params.
+	(morph_fn_to_coro): Do not try to set a guard variable for param
+	DTORs in the ramp, unless we have exceptions active.
+
+2021-10-03  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backported from master:
+	2021-09-14  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* coroutines.cc (struct param_info): Add copy_var.
+	(build_actor_fn): Use simplified param references.
+	(register_param_uses): Likewise.
+	(rewrite_param_uses): Likewise.
+	(analyze_fn_parms): New function.
+	(coro_rewrite_function_body): Add proxies for the fn
+	parameters to the outer bind scope of the rewritten code.
+	(morph_fn_to_coro): Use simplified version of param ref.
+
+2021-10-03  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backported from master:
+	2021-09-14  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* coroutines.cc (coro_resume_fn_id, coro_destroy_fn_id,
+	coro_promise_id, coro_frame_needs_free_id, coro_resume_index_id,
+	coro_self_handle_id, coro_actor_continue_id,
+	coro_frame_i_a_r_c_id): New.
+	(coro_init_identifiers): Initialize new name identifiers.
+	(coro_promise_type_found_p): Use pre-built identifiers.
+	(struct await_xform_data): Remove unused fields.
+	(transform_await_expr): Delete code that is now unused.
+	(build_actor_fn): Simplify interface, use pre-built identifiers and
+	remove transforms that are no longer needed.
+	(build_destroy_fn): Use revised field names.
+	(register_local_var_uses): Use pre-built identifiers.
+	(coro_rewrite_function_body): Simplify interface, use pre-built
+	identifiers.  Generate proxy vars in the outer bind expr scope for the
+	implementation state that we wish to expose.
+	(morph_fn_to_coro): Adjust comments for new variable names, use pre-
+	built identifiers.  Remove unused code to generate frame entries for
+	the implementation state.  Adjust call for build_actor_fn.
+
+2021-10-03  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backported from master:
+	2021-09-03  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* coroutines.cc (register_local_var_uses): Do not mangle
+	frame entries for the outermost scope.  Record the outer
+	scope as nesting depth 0.
+
+2021-10-03  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backported from master:
+	2021-09-03  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* coroutines.cc (coro_build_artificial_var): New.
+	(build_actor_fn): Use var builder, rename vars to use
+	implementation namespace.
+	(coro_rewrite_function_body): Likewise.
+	(morph_fn_to_coro): Likewise.
+
+2021-10-03  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backported from master:
+	2021-09-03  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* coroutines.cc (transform_local_var_uses): Record
+	frame offset expressions as DECL_VALUE_EXPRs instead of
+	rewriting them.
+
+2021-10-03  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backported from master:
+	2021-09-01  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* coroutines.cc (build_actor_fn): Add begin/finish clauses
+	to the initial test in the actor function.
+
+2021-10-03  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backported from master:
+	2021-09-01  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* coroutines.cc (await_statement_walker): Use build_stmt and
+	add_stmt instead of build1 and finish_expr_stmt.
+
+2021-10-03  Jason Merrill  <jason@redhat.com>
+
+	Backported from master:
+	2021-05-07  Jason Merrill  <jason@redhat.com>
+
+	* coroutines.cc (build_co_await): Don't call 'rvalue'.
+	(flatten_await_stmt): Simplify initialization.
+	(morph_fn_to_coro): Change 'rvalue' to 'move'.  Simplify.
+
+2021-09-15  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-09-15  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/88578
+	PR c++/102295
+	* typeck2.c (split_nonconstant_init_1): Don't throw away empty
+	initializers of flexible array members if they have non-zero type
+	size.
+
+2021-09-15  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-09-14  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/102295
+	* decl.c (layout_var_decl): For aggregates ending with a flexible
+	array member, add the size of the initializer for that member to
+	DECL_SIZE and DECL_SIZE_UNIT.
+
+2021-09-15  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-09-14  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/102305
+	* method.c (is_xible_helper): Call complete_type on to.
+
+2021-09-07  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-09-07  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/100495
+	* constexpr.c (maybe_save_constexpr_fundef): Save body even for
+	constexpr deleting dtors.
+	(cxx_eval_call_expression): Don't use DECL_CLONED_FUNCTION for
+	deleting dtors.
+
 2021-08-12  Jakub Jelinek  <jakub@redhat.com>
 
 	Backported from master:

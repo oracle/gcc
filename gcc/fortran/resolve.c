@@ -804,6 +804,15 @@ resolve_entries (gfc_namespace *ns)
 	     the same string length, i.e. both len=*, or both len=4.
 	     Having both len=<variable> is also possible, but difficult to
 	     check at compile time.  */
+	  else if (ts->type == BT_CHARACTER
+		   && (el->sym->result->attr.allocatable
+		       != ns->entries->sym->result->attr.allocatable))
+	    {
+	      gfc_error ("Function %s at %L has entry %s with mismatched "
+			 "characteristics", ns->entries->sym->name,
+			 &ns->entries->sym->declared_at, el->sym->name);
+	      goto cleanup;
+	    }
 	  else if (ts->type == BT_CHARACTER && ts->u.cl && fts->u.cl
 		   && (((ts->u.cl->length && !fts->u.cl->length)
 			||(!ts->u.cl->length && fts->u.cl->length))
@@ -908,6 +917,8 @@ resolve_entries (gfc_namespace *ns)
 	    }
 	}
     }
+
+cleanup:
   proc->attr.access = ACCESS_PRIVATE;
   proc->attr.entry_master = 1;
 
@@ -7821,8 +7832,9 @@ resolve_allocate_expr (gfc_expr *e, gfc_code *code, bool *array_alloc_wo_spec)
 	}
     }
 
-  /* Check for F08:C628.  */
-  if (allocatable == 0 && pointer == 0 && !unlimited)
+  /* Check for F08:C628 (F2018:C932).  Each allocate-object shall be a data
+     pointer or an allocatable variable.  */
+  if (allocatable == 0 && pointer == 0)
     {
       gfc_error ("Allocate-object at %L must be ALLOCATABLE or a POINTER",
 		 &e->where);
@@ -12297,7 +12309,7 @@ resolve_values (gfc_symbol *sym)
   if (sym->value == NULL)
     return;
 
-  if (sym->attr.ext_attr & (1 << EXT_ATTR_DEPRECATED))
+  if (sym->attr.ext_attr & (1 << EXT_ATTR_DEPRECATED) && sym->attr.referenced)
     gfc_warning (OPT_Wdeprecated_declarations,
 		 "Using parameter %qs declared at %L is deprecated",
 		 sym->name, &sym->declared_at);

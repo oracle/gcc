@@ -553,7 +553,7 @@ ix86_can_inline_p (tree caller, tree callee)
 
   /* Changes of those flags can be tolerated for always inlines. Lets hope
      user knows what he is doing.  */
-  const unsigned HOST_WIDE_INT always_inline_safe_mask
+  unsigned HOST_WIDE_INT always_inline_safe_mask
 	 = (MASK_USE_8BIT_IDIV | MASK_ACCUMULATE_OUTGOING_ARGS
 	    | MASK_NO_ALIGN_STRINGOPS | MASK_AVX256_SPLIT_UNALIGNED_LOAD
 	    | MASK_AVX256_SPLIT_UNALIGNED_STORE | MASK_CLD
@@ -577,6 +577,10 @@ ix86_can_inline_p (tree caller, tree callee)
     = (DECL_DISREGARD_INLINE_LIMITS (callee)
        && lookup_attribute ("always_inline",
 			    DECL_ATTRIBUTES (callee)));
+
+  /* If callee only uses GPRs, ignore MASK_80387.  */
+  if (TARGET_GENERAL_REGS_ONLY_P (callee_opts->x_ix86_target_flags))
+    always_inline_safe_mask |= MASK_80387;
 
   cgraph_node *callee_node = cgraph_node::get (callee);
   /* Callee's isa options should be a subset of the caller's, i.e. a SSE4
@@ -4959,7 +4963,8 @@ standard_80387_constant_p (rtx x)
   /* For XFmode constants, try to find a special 80387 instruction when
      optimizing for size or on those CPUs that benefit from them.  */
   if (mode == XFmode
-      && (optimize_function_for_size_p (cfun) || TARGET_EXT_80387_CONSTANTS))
+      && (optimize_function_for_size_p (cfun) || TARGET_EXT_80387_CONSTANTS)
+      && !flag_rounding_math)
     {
       int i;
 
@@ -10562,23 +10567,18 @@ legitimate_pic_address_disp_p (rtx disp)
 	      if (is_imported_p (op0))
 		return true;
 
-	      if (SYMBOL_REF_FAR_ADDR_P (op0)
-		  || !SYMBOL_REF_LOCAL_P (op0))
+	      if (SYMBOL_REF_FAR_ADDR_P (op0) || !SYMBOL_REF_LOCAL_P (op0))
 		break;
 
-	      /* Function-symbols need to be resolved only for
-	         large-model.
-	         For the small-model we don't need to resolve anything
-	         here.  */
+	      /* Non-external-weak function symbols need to be resolved only
+		 for the large model.  Non-external symbols don't need to be
+		 resolved for large and medium models.  For the small model,
+		 we don't need to resolve anything here.  */
 	      if ((ix86_cmodel != CM_LARGE_PIC
-	           && SYMBOL_REF_FUNCTION_P (op0))
+		   && SYMBOL_REF_FUNCTION_P (op0)
+		   && !(SYMBOL_REF_EXTERNAL_P (op0) && SYMBOL_REF_WEAK (op0)))
+		  || !SYMBOL_REF_EXTERNAL_P (op0)
 		  || ix86_cmodel == CM_SMALL_PIC)
-		return true;
-	      /* Non-external symbols don't need to be resolved for
-	         large, and medium-model.  */
-	      if ((ix86_cmodel == CM_LARGE_PIC
-		   || ix86_cmodel == CM_MEDIUM_PIC)
-		  && !SYMBOL_REF_EXTERNAL_P (op0))
 		return true;
 	    }
 	  else if (!SYMBOL_REF_FAR_ADDR_P (op0)

@@ -6006,6 +6006,38 @@ layout_var_decl (tree decl)
 	  error_at (DECL_SOURCE_LOCATION (decl),
 		    "storage size of %qD isn%'t constant", decl);
 	  TREE_TYPE (decl) = error_mark_node;
+	  type = error_mark_node;
+	}
+    }
+
+  /* If the final element initializes a flexible array field, add the size of
+     that initializer to DECL's size.  */
+  if (type != error_mark_node
+      && DECL_INITIAL (decl)
+      && TREE_CODE (DECL_INITIAL (decl)) == CONSTRUCTOR
+      && !vec_safe_is_empty (CONSTRUCTOR_ELTS (DECL_INITIAL (decl)))
+      && DECL_SIZE (decl) != NULL_TREE
+      && TREE_CODE (DECL_SIZE (decl)) == INTEGER_CST
+      && TYPE_SIZE (type) != NULL_TREE
+      && TREE_CODE (TYPE_SIZE (type)) == INTEGER_CST
+      && tree_int_cst_equal (DECL_SIZE (decl), TYPE_SIZE (type)))
+    {
+      constructor_elt &elt = CONSTRUCTOR_ELTS (DECL_INITIAL (decl))->last ();
+      if (elt.index)
+	{
+	  tree itype = TREE_TYPE (elt.index);
+	  tree vtype = TREE_TYPE (elt.value);
+	  if (TREE_CODE (itype) == ARRAY_TYPE
+	      && TYPE_DOMAIN (itype) == NULL
+	      && TREE_CODE (vtype) == ARRAY_TYPE
+	      && COMPLETE_TYPE_P (vtype))
+	    {
+	      DECL_SIZE (decl)
+		= size_binop (PLUS_EXPR, DECL_SIZE (decl), TYPE_SIZE (vtype));
+	      DECL_SIZE_UNIT (decl)
+		= size_binop (PLUS_EXPR, DECL_SIZE_UNIT (decl),
+			      TYPE_SIZE_UNIT (vtype));
+	    }
 	}
     }
 }
@@ -6573,7 +6605,8 @@ reshape_init_r (tree type, reshape_iter *d, tree first_initializer_p,
   /* A non-aggregate type is always initialized with a single
      initializer.  */
   if (!CP_AGGREGATE_TYPE_P (type)
-      /* As is an array with dependent bound.  */
+      /* As is an array with dependent bound, which we can see
+	 during C++20 aggregate CTAD.  */
       || (cxx_dialect >= cxx20
 	  && TREE_CODE (type) == ARRAY_TYPE
 	  && uses_template_parms (TYPE_DOMAIN (type))))
@@ -6688,6 +6721,7 @@ reshape_init_r (tree type, reshape_iter *d, tree first_initializer_p,
      initializer already, and there is not a CONSTRUCTOR, it means that there
      is a missing set of braces (that is, we are processing the case for
      which reshape_init exists).  */
+  bool braces_elided_p = false;
   if (!first_initializer_p)
     {
       if (TREE_CODE (stripped_init) == CONSTRUCTOR)
@@ -6723,17 +6757,25 @@ reshape_init_r (tree type, reshape_iter *d, tree first_initializer_p,
 	warning (OPT_Wmissing_braces,
 		 "missing braces around initializer for %qT",
 		 type);
+      braces_elided_p = true;
     }
 
   /* Dispatch to specialized routines.  */
+  tree new_init;
   if (CLASS_TYPE_P (type))
-    return reshape_init_class (type, d, first_initializer_p, complain);
+    new_init = reshape_init_class (type, d, first_initializer_p, complain);
   else if (TREE_CODE (type) == ARRAY_TYPE)
-    return reshape_init_array (type, d, first_initializer_p, complain);
+    new_init = reshape_init_array (type, d, first_initializer_p, complain);
   else if (VECTOR_TYPE_P (type))
-    return reshape_init_vector (type, d, complain);
+    new_init = reshape_init_vector (type, d, complain);
   else
     gcc_unreachable();
+
+  if (braces_elided_p
+      && TREE_CODE (new_init) == CONSTRUCTOR)
+    CONSTRUCTOR_BRACES_ELIDED_P (new_init) = true;
+
+  return new_init;
 }
 
 /* Undo the brace-elision allowed by [dcl.init.aggr] in a
@@ -13788,6 +13830,17 @@ grokdeclarator (const cp_declarator *declarator,
 		      set_decl_tls_model (decl, decl_default_tls_model (decl));
 		    if (declspecs->gnu_thread_keyword_p)
 		      SET_DECL_GNU_TLS_P (decl);
+		  }
+
+		/* Set the constraints on the declaration.  */
+		bool memtmpl = (processing_template_decl
+				> template_class_depth (current_class_type));
+		if (memtmpl)
+		  {
+		    tree tmpl_reqs
+		      = TEMPLATE_PARMS_CONSTRAINTS (current_template_parms);
+		    tree ci = build_constraints (tmpl_reqs, NULL_TREE);
+		    set_constraints (decl, ci);
 		  }
 	      }
 	    else

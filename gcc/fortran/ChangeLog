@@ -1,3 +1,187 @@
+2021-10-06  Tobias Burnus  <tobias@codesourcery.com>
+
+	Backported from master:
+	2021-10-06  Tobias Burnus  <tobias@codesourcery.com>
+
+	* resolve.c (resolve_values): Only show
+	deprecated warning if attr.referenced.
+
+2021-10-03  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2021-09-30  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/102458
+	* simplify.c (simplify_size): Resolve expressions used in array
+	specifications so that SIZE can be simplified.
+
+2021-10-03  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2021-09-24  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/102458
+	* expr.c (is_non_constant_intrinsic): Check for intrinsics
+	excluded in constant expressions (F2018:10.1.12).
+	(gfc_is_constant_expr): Use that check.
+
+2021-09-30  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2021-09-29  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/102520
+	* array.c (expand_constructor): Do not dereference NULL pointer.
+
+2021-09-21  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2021-09-17  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/102366
+	* trans-decl.c (gfc_finish_var_decl): Disable the warning message
+	for variables moved from stack to static storange if they are
+	declared in the main, but allow the move to happen.
+
+2021-09-20  Tobias Burnus  <tobias@codesourcery.com>
+
+	* trans-openmp.c (gfc_split_omp_clauses): Don't put 'order(concurrent)'
+	on 'distribute' for combined directives, matching OpenMP 5.0
+
+2021-09-19  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2021-09-16  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/102287
+	* trans-expr.c (gfc_conv_procedure_call): Wrap deallocation of
+	allocatable components of optional allocatable derived type
+	procedure arguments with INTENT(OUT) into a presence check.
+
+2021-09-19  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2021-09-14  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/102311
+	* resolve.c (resolve_entries): Attempt to recover cleanly after
+	rejecting mismatched function entries.
+
+2021-09-16  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2021-09-13  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/85130
+	* expr.c (find_substring_ref): Handle given substring start and
+	end indices as signed integers, not unsigned.
+
+2021-09-16  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2021-09-13  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/82314
+	* decl.c (add_init_expr_to_sym): For proper initialization of
+	array-valued named constants the array bounds need to be
+	simplified before adding the initializer.
+
+2021-09-11  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2021-09-09  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/98490
+	* trans-expr.c (gfc_conv_substring): Do not generate substring
+	bounds check for implied do loop index variable before it actually
+	becomes defined.
+
+2021-09-11  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2021-09-07  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/101327
+	* expr.c (find_array_element): When bounds cannot be determined as
+	constant, return error instead of aborting.
+
+2021-09-05  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2021-08-31  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/100950
+	* simplify.c (substring_has_constant_len): Minimize checks for
+	substring expressions being allowed.
+
+2021-09-05  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2021-08-19  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/100950
+	* simplify.c (substring_has_constant_len): New.
+	(gfc_simplify_len): Handle case of substrings with constant
+	bounds.
+
+2021-09-03  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2021-08-30  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/101349
+	* resolve.c (resolve_allocate_expr): An unlimited polymorphic
+	argument to ALLOCATE must be ALLOCATABLE or a POINTER.  Fix the
+	corresponding check.
+
+2021-09-03  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2021-08-30  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/102113
+	* match.c (gfc_match_goto): Allow for whitespace in parsing list
+	of labels.
+
+2021-08-30  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2021-08-28  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/87737
+	* resolve.c (resolve_entries): For functions of type CHARACTER
+	tighten the checks for matching characteristics.
+
+2021-08-28  Paul Thomas  <pault@gcc.gnu.org>
+
+	Backported from master:
+	2021-05-06  Paul Thomas  <pault@gcc.gnu.org>
+
+	PR fortran/46691
+	PR fortran/99819
+	* class.c (gfc_build_class_symbol): Remove the error that
+	disables assumed size class arrays. Class array types that are
+	not deferred shape or assumed rank are given a unique name and
+	placed in the procedure namespace.
+	* trans-array.c (gfc_trans_g77_array): Obtain the data pointer
+	for class arrays.
+	(gfc_trans_dummy_array_bias): Suppress the runtime error for
+	extent violations in explicit shape class arrays because it
+	always fails.
+	* trans-expr.c (gfc_conv_procedure_call): Handle assumed size
+	class actual arguments passed to non-descriptor formal args by
+	using the data pointer, stored as the symbol's backend decl.
+
+2021-08-26  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2021-08-24  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/98411
+	* trans-decl.c (gfc_finish_var_decl): Adjust check to handle
+	implicit SAVE as well as variables in the main program.  Improve
+	warning message text.
+
 2021-08-16  Harald Anlauf  <anlauf@gmx.de>
 
 	Backported from master:

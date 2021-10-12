@@ -802,6 +802,7 @@ Objective-C and Objective-C++ Dialects}.
 -mverbose-cost-dump @gol
 -mpure-code @gol
 -mcmse @gol
+-mfix-cmse-cve-2021-35465 @gol
 -mfdpic}
 
 @emph{AVR Options}
@@ -1371,7 +1372,7 @@ See RS/6000 and PowerPC Options.
 -mno-wide-multiply  -mrtd  -malign-double @gol
 -mpreferred-stack-boundary=@var{num} @gol
 -mincoming-stack-boundary=@var{num} @gol
--mcld  -mcx16  -msahf  -mmovbe  -mcrc32 @gol
+-mcld  -mcx16  -msahf  -mmovbe  -mcrc32 -mmwait @gol
 -mrecip  -mrecip=@var{opt} @gol
 -mvzeroupper  -mprefer-avx128  -mprefer-vector-width=@var{opt} @gol
 -mmmx  -msse  -msse2  -msse3  -mssse3  -msse4.1  -msse4.2  -msse4  -mavx @gol
@@ -14836,7 +14837,8 @@ The option cannot be combined with @option{-fsanitize=thread}.
 @opindex fsanitize=undefined
 Enable UndefinedBehaviorSanitizer, a fast undefined behavior detector.
 Various computations are instrumented to detect undefined behavior
-at runtime.  Current suboptions are:
+at runtime.  See @uref{https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html} for more details.   The run-time behavior can be influenced using the
+@env{UBSAN_OPTIONS} environment variable.  Current suboptions are:
 
 @table @gcctabopt
 
@@ -20490,6 +20492,14 @@ is only available when generating non-pic code for M-profile targets.
 Generate secure code as per the "ARMv8-M Security Extensions: Requirements on
 Development Tools Engineering Specification", which can be found on
 @url{https://developer.arm.com/documentation/ecm0359818/latest/}.
+
+@item -mfix-cmse-cve-2021-35465
+@opindex mfix-cmse-cve-2021-35465
+Mitigate against a potential security issue with the @code{VLLDM} instruction
+in some M-profile devices when using CMSE (CVE-2021-365465).  This option is
+enabled by default when the option @option{-mcpu=} is used with
+@code{cortex-m33}, @code{cortex-m35p} or @code{cortex-m55}.  The option
+@option{-mno-fix-cmse-cve-2021-35465} can be used to disable the mitigation.
 
 @item -mfdpic
 @itemx -mno-fdpic
@@ -29210,10 +29220,11 @@ so @option{-mno-lra} needs to be passed to get old Reload.
 Set the instruction set, register set, and instruction scheduling parameters
 for machine type @var{cpu_type}.  Supported values for @var{cpu_type} are
 @samp{v7}, @samp{cypress}, @samp{v8}, @samp{supersparc}, @samp{hypersparc},
-@samp{leon}, @samp{leon3}, @samp{leon3v7}, @samp{sparclite}, @samp{f930},
-@samp{f934}, @samp{sparclite86x}, @samp{sparclet}, @samp{tsc701}, @samp{v9},
-@samp{ultrasparc}, @samp{ultrasparc3}, @samp{niagara}, @samp{niagara2},
-@samp{niagara3}, @samp{niagara4}, @samp{niagara7} and @samp{m8}.
+@samp{leon}, @samp{leon3}, @samp{leon3v7}, @samp{leon5}, @samp{sparclite},
+@samp{f930}, @samp{f934}, @samp{sparclite86x}, @samp{sparclet}, @samp{tsc701},
+@samp{v9}, @samp{ultrasparc}, @samp{ultrasparc3}, @samp{niagara},
+@samp{niagara2}, @samp{niagara3}, @samp{niagara4}, @samp{niagara7} and
+@samp{m8}.
 
 Native Solaris and GNU/Linux toolchains also support the value @samp{native},
 which selects the best architecture option for the host processor.
@@ -29232,7 +29243,7 @@ implementations.
 cypress, leon3v7
 
 @item v8
-supersparc, hypersparc, leon, leon3
+supersparc, hypersparc, leon, leon3, leon5
 
 @item sparclite
 f930, f934, sparclite86x
@@ -29299,7 +29310,7 @@ The same values for @option{-mcpu=@var{cpu_type}} can be used for
 @option{-mtune=@var{cpu_type}}, but the only useful values are those
 that select a particular CPU implementation.  Those are
 @samp{cypress}, @samp{supersparc}, @samp{hypersparc}, @samp{leon},
-@samp{leon3}, @samp{leon3v7}, @samp{f930}, @samp{f934},
+@samp{leon3}, @samp{leon3v7}, @samp{leon5}, @samp{f930}, @samp{f934},
 @samp{sparclite86x}, @samp{tsc701}, @samp{ultrasparc},
 @samp{ultrasparc3}, @samp{niagara}, @samp{niagara2}, @samp{niagara3},
 @samp{niagara4}, @samp{niagara7} and @samp{m8}.  With native Solaris
@@ -31177,6 +31188,12 @@ from x86 Control-flow Enforcement Technology (CET).
 This option enables built-in functions @code{__builtin_ia32_crc32qi},
 @code{__builtin_ia32_crc32hi}, @code{__builtin_ia32_crc32si} and
 @code{__builtin_ia32_crc32di} to generate the @code{crc32} machine instruction.
+
+@item -mmwait
+@opindex mmwait
+This option enables built-in functions @code{__builtin_ia32_monitor},
+and @code{__builtin_ia32_mwait} to generate the @code{monitor} and
+@code{mwait} machine instructions.
 
 @item -mrecip
 @opindex mrecip
