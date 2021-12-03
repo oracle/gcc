@@ -2109,6 +2109,9 @@ gfc_simplify_cshift (gfc_expr *array, gfc_expr *shift, gfc_expr *dim)
   else
     which = 0;
 
+  if (array->shape == NULL)
+    return NULL;
+
   gfc_array_size (array, &size);
   arraysize = mpz_get_ui (size);
   mpz_clear (size);
@@ -4261,6 +4264,12 @@ simplify_bound (gfc_expr *array, gfc_expr *dim, gfc_expr *kind, int upper)
 
   if (as && (as->type == AS_DEFERRED || as->type == AS_ASSUMED_RANK
 	     || (as->type == AS_ASSUMED_SHAPE && upper)))
+    return NULL;
+
+  /* 'array' shall not be an unallocated allocatable variable or a pointer that
+     is not associated.  */
+  if (array->expr_type == EXPR_VARIABLE
+      && (gfc_expr_attr (array).allocatable || gfc_expr_attr (array).pointer))
     return NULL;
 
   gcc_assert (!as
@@ -8167,6 +8176,9 @@ gfc_simplify_transpose (gfc_expr *matrix)
     return NULL;
 
   gcc_assert (matrix->rank == 2);
+
+  if (matrix->shape == NULL)
+    return NULL;
 
   result = gfc_get_array_expr (matrix->ts.type, matrix->ts.kind,
 			       &matrix->where);

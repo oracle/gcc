@@ -1865,7 +1865,8 @@ named @file{dir/bar.*}, combining the given @var{dumppfx} with the
 default @var{dumpbase} derived from the primary output name.  Dump
 outputs also take the input name suffix: @file{dir/bar.c.*}.
 
-It defaults to the location of the output file; options
+It defaults to the location of the output file, unless the output
+file is a special file like @code{/dev/null}. Options
 @option{-save-temps=cwd} and @option{-save-temps=obj} override this
 default, just like an explicit @option{-dumpdir} option.  In case
 multiple such options are given, the last one prevails:
@@ -15123,7 +15124,8 @@ which functions and calls should be skipped from instrumentation
 (@pxref{Function Attributes}).
 
 Currently the x86 GNU/Linux target provides an implementation based
-on Intel Control-flow Enforcement Technology (CET).
+on Intel Control-flow Enforcement Technology (CET) which works for
+i686 processor or newer.
 
 @item -fstack-protector
 @opindex fstack-protector
@@ -18241,7 +18243,7 @@ performance of the code.  Permissible values for this option are:
 @samp{cortex-a57.cortex-a53}, @samp{cortex-a72.cortex-a53},
 @samp{cortex-a73.cortex-a35}, @samp{cortex-a73.cortex-a53},
 @samp{cortex-a75.cortex-a55}, @samp{cortex-a76.cortex-a55},
-@samp{cortex-r82}, @samp{cortex-x1}, @samp{native}.
+@samp{cortex-r82}, @samp{cortex-x1}, @samp{ampere1}, @samp{native}.
 
 The values @samp{cortex-a57.cortex-a53}, @samp{cortex-a72.cortex-a53},
 @samp{cortex-a73.cortex-a35}, @samp{cortex-a73.cortex-a53},
@@ -27038,7 +27040,7 @@ Supported values for @var{cpu_type} are @samp{401}, @samp{403},
 @samp{e6500}, @samp{ec603e}, @samp{G3}, @samp{G4}, @samp{G5},
 @samp{titan}, @samp{power3}, @samp{power4}, @samp{power5}, @samp{power5+},
 @samp{power6}, @samp{power6x}, @samp{power7}, @samp{power8},
-@samp{power9}, @samp{future}, @samp{powerpc}, @samp{powerpc64},
+@samp{power9}, @samp{power10}, @samp{powerpc}, @samp{powerpc64},
 @samp{powerpc64le}, @samp{rs64}, and @samp{native}.
 
 @option{-mcpu=powerpc}, @option{-mcpu=powerpc64}, and
@@ -27220,10 +27222,9 @@ Enable/disable the @var{__float128} keyword for IEEE 128-bit floating point
 and use either software emulation for IEEE 128-bit floating point or
 hardware instructions.
 
-The VSX instruction set (@option{-mvsx}, @option{-mcpu=power7},
-@option{-mcpu=power8}), or @option{-mcpu=power9} must be enabled to
-use the IEEE 128-bit floating point support.  The IEEE 128-bit
-floating point support only works on PowerPC Linux systems.
+The VSX instruction set (@option{-mvsx}) must be enabled to use the IEEE
+128-bit floating point support.  The IEEE 128-bit floating point is only
+supported on Linux.
 
 The default for @option{-mfloat128} is enabled on PowerPC Linux
 systems using the VSX instruction set, and disabled on other systems.
@@ -28053,24 +28054,25 @@ the offset with a symbol reference to a canary in the TLS block.
 @itemx -mno-pcrel
 @opindex mpcrel
 @opindex mno-pcrel
-Generate (do not generate) pc-relative addressing when the option
-@option{-mcpu=future} is used.  The @option{-mpcrel} option requires
-that the medium code model (@option{-mcmodel=medium}) and prefixed
-addressing (@option{-mprefixed}) options are enabled.
+Generate (do not generate) pc-relative addressing.  The @option{-mpcrel}
+option requires that the medium code model (@option{-mcmodel=medium})
+and prefixed addressing (@option{-mprefixed}) options are enabled.
 
 @item -mprefixed
 @itemx -mno-prefixed
 @opindex mprefixed
 @opindex mno-prefixed
 Generate (do not generate) addressing modes using prefixed load and
-store instructions when the option @option{-mcpu=future} is used.
+store instructions.  The @option{-mprefixed} option requires that
+the option @option{-mcpu=power10} (or later) is enabled.
 
 @item -mmma
 @itemx -mno-mma
 @opindex mmma
 @opindex mno-mma
-Generate (do not generate) the MMA instructions when the option
-@option{-mcpu=future} is used.
+Generate (do not generate) the MMA instructions.  The @option{-mma}
+option requires that the option @option{-mcpu=power10} (or later)
+is enabled.
 
 @item -mrop-protect
 @itemx -mno-rop-protect
@@ -32339,8 +32341,7 @@ Substitute the contents of spec string @var{name} at this point.
 Accumulate an option for @samp{%X}.
 
 @item %X
-Output the accumulated linker options specified by @option{-Wl} or a @samp{%x}
-spec string.
+Output the accumulated linker options specified by a @samp{%x} spec string.
 
 @item %Y
 Output the accumulated assembler options specified by @option{-Wa}.

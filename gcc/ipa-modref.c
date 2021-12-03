@@ -2396,10 +2396,10 @@ read_modref_records (lto_input_block *ib, struct data_in *data_in,
 	  size_t every_access = streamer_read_uhwi (ib);
 	  size_t naccesses = streamer_read_uhwi (ib);
 
-	  if (nolto_ref_node)
-	    nolto_ref_node->every_access = every_access;
-	  if (lto_ref_node)
-	    lto_ref_node->every_access = every_access;
+	  if (nolto_ref_node && every_access)
+	    nolto_ref_node->collapse ();
+	  if (lto_ref_node && every_access)
+	    lto_ref_node->collapse ();
 
 	  for (size_t k = 0; k < naccesses; k++)
 	    {
@@ -3203,6 +3203,7 @@ ipa_merge_modref_summary_after_inlining (cgraph_edge *edge)
 	    fprintf (dump_file, "Removed mod-ref summary for %s\n",
 		     to->dump_name ());
 	  summaries_lto->remove (to);
+	  to_info_lto = NULL;
 	}
       else if (to_info_lto && dump_file)
 	{
@@ -3210,7 +3211,6 @@ ipa_merge_modref_summary_after_inlining (cgraph_edge *edge)
 	    fprintf (dump_file, "Updated mod-ref summary for %s\n",
 		     to->dump_name ());
 	  to_info_lto->dump (dump_file);
-	  to_info_lto = NULL;
 	}
       if (callee_info_lto)
 	summaries_lto->remove (edge->callee);

@@ -1,3 +1,51 @@
+2021-12-02  Marek Polacek  <polacek@redhat.com>
+
+	Backported from master:
+	2021-12-02  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/94490
+	* pt.c (expand_integer_pack): Call
+	instantiate_non_dependent_expr_sfinae.
+
+2021-12-01  Jason Merrill  <jason@redhat.com>
+
+	* semantics.c (is_this_parameter): Check DECL_HAS_VALUE_EXPR_P
+	instead of is_capture_proxy.
+
+2021-11-29  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-11-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/70796
+	* cp-gimplify.c (cp_gimplify_arg): New function.
+	(cp_gimplify_expr): Use cp_gimplify_arg instead of gimplify_arg,
+	pass true as last argument to it if there are any following
+	arguments in strong evaluation order with side-effects.
+
+2021-11-29  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-10-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/102786
+	* constexpr.c (cxx_eval_constant_expression): Don't reject
+	INTEGER_CSTs with type POINTER_TYPE to METHOD_TYPE.
+
+2021-10-20  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-10-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/102642
+	* name-lookup.c (push_local_extern_decl_alias): Don't call
+	set_decl_tls_model on error_mark_node.
+	* decl.c (make_rtl_for_nonlocal_decl): Don't call
+	set_user_assembler_name on error_mark_node.
+	* parser.c (cp_parser_oacc_declare): Ignore DECL_LOCAL_DECL_ALIAS
+	if it is error_mark_node.
+	(cp_parser_omp_declare_target): Likewise.
+
 2021-10-08  Jakub Jelinek  <jakub@redhat.com>
 
 	Backported from master:

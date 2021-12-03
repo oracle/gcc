@@ -1005,15 +1005,17 @@ ptr_parm_has_nonarg_uses (cgraph_node *node, function *fun, tree parm,
       if (gimple_assign_single_p (stmt))
 	{
 	  tree rhs = gimple_assign_rhs1 (stmt);
-	  while (handled_component_p (rhs))
-	    rhs = TREE_OPERAND (rhs, 0);
-	  if (TREE_CODE (rhs) == MEM_REF
-	      && TREE_OPERAND (rhs, 0) == name
-	      && integer_zerop (TREE_OPERAND (rhs, 1))
-	      && types_compatible_p (TREE_TYPE (rhs),
-				     TREE_TYPE (TREE_TYPE (name)))
-	      && !TREE_THIS_VOLATILE (rhs))
-	    uses_ok++;
+	  if (!TREE_THIS_VOLATILE (rhs))
+	    {
+	      while (handled_component_p (rhs))
+		rhs = TREE_OPERAND (rhs, 0);
+	      if (TREE_CODE (rhs) == MEM_REF
+		  && TREE_OPERAND (rhs, 0) == name
+		  && integer_zerop (TREE_OPERAND (rhs, 1))
+		  && types_compatible_p (TREE_TYPE (rhs),
+					 TREE_TYPE (TREE_TYPE (name))))
+		uses_ok++;
+	    }
 	}
       else if (is_gimple_call (stmt))
 	{
@@ -1047,15 +1049,17 @@ ptr_parm_has_nonarg_uses (cgraph_node *node, function *fun, tree parm,
 		  continue;
 		}
 
-	      while (handled_component_p (arg))
-		arg = TREE_OPERAND (arg, 0);
-	      if (TREE_CODE (arg) == MEM_REF
-		  && TREE_OPERAND (arg, 0) == name
-		  && integer_zerop (TREE_OPERAND (arg, 1))
-		  && types_compatible_p (TREE_TYPE (arg),
-					 TREE_TYPE (TREE_TYPE (name)))
-		  && !TREE_THIS_VOLATILE (arg))
-		uses_ok++;
+	      if (!TREE_THIS_VOLATILE (arg))
+		{
+		  while (handled_component_p (arg))
+		    arg = TREE_OPERAND (arg, 0);
+		  if (TREE_CODE (arg) == MEM_REF
+		      && TREE_OPERAND (arg, 0) == name
+		      && integer_zerop (TREE_OPERAND (arg, 1))
+		      && types_compatible_p (TREE_TYPE (arg),
+					     TREE_TYPE (TREE_TYPE (name))))
+		    uses_ok++;
+		}
 	    }
 	}
 
@@ -1927,7 +1931,8 @@ scan_function (cgraph_node *node, struct function *fun)
 		if (lhs)
 		  scan_expr_access (lhs, stmt, ISRA_CTX_STORE, bb);
 		int flags = gimple_call_flags (stmt);
-		if ((flags & (ECF_CONST | ECF_PURE)) == 0)
+		if (((flags & (ECF_CONST | ECF_PURE)) == 0)
+		    || (flags & ECF_LOOPING_CONST_OR_PURE))
 		  bitmap_set_bit (final_bbs, bb->index);
 	      }
 	      break;

@@ -1,3 +1,28 @@
+2021-11-27  John David Anglin  <danglin@gcc.gnu.org>
+
+	* config/pa/t-dimode (lib2difuncs): Fix typo.
+
+2021-11-05  John David Anglin  <danglin@gcc.gnu.org>
+
+	PR libgomp/96661
+	* config.host (hppa*64*-*-linux*): Revise tmake_file.
+	(hppa*64*-*-hpux11*): Likewise.
+	* config/pa/sfp-exceptions.c: New.
+	* config/pa/sfp-machine.h: New.
+	* config/pa/t-dimode: New.
+	* config/pa/t-softfp-sfdftf: New.
+
+2021-10-27  John David Anglin  <danglin@gcc.gnu.org>
+
+	* config.host (hppa*64*-*-linux*): Don't add pa/t-linux to
+	tmake_file.
+	* config/pa/linux-atomic.c: Define u8, u16 and u64 types.
+	Use them in FETCH_AND_OP_2, OP_AND_FETCH_2, COMPARE_AND_SWAP_2,
+	SYNC_LOCK_TEST_AND_SET_2 and SYNC_LOCK_RELEASE_1 macros.
+	* config/pa/t-linux64 (LIB1ASMSRC): New define.
+	(LIB1ASMFUNCS): Revise.
+	(HOST_LIBGCC2_CFLAGS): Add "-DLINUX=1".
+
 2021-08-31  Richard Sandiford  <richard.sandiford@arm.com>
 
 	Backported from master:
