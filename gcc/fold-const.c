@@ -3506,11 +3506,26 @@ operand_compare::operand_equal_p (const_tree arg0, const_tree arg1,
 
     case tcc_declaration:
       /* Consider __builtin_sqrt equal to sqrt.  */
-      return (TREE_CODE (arg0) == FUNCTION_DECL
-	      && fndecl_built_in_p (arg0) && fndecl_built_in_p (arg1)
-	      && DECL_BUILT_IN_CLASS (arg0) == DECL_BUILT_IN_CLASS (arg1)
-	      && (DECL_UNCHECKED_FUNCTION_CODE (arg0)
-		  == DECL_UNCHECKED_FUNCTION_CODE (arg1)));
+      if (TREE_CODE (arg0) == FUNCTION_DECL)
+	return (fndecl_built_in_p (arg0) && fndecl_built_in_p (arg1)
+		&& DECL_BUILT_IN_CLASS (arg0) == DECL_BUILT_IN_CLASS (arg1)
+		&& (DECL_UNCHECKED_FUNCTION_CODE (arg0)
+		    == DECL_UNCHECKED_FUNCTION_CODE (arg1)));
+
+      if (DECL_P (arg0)
+	  && (flags & OEP_DECL_NAME)
+	  && (flags & OEP_LEXICOGRAPHIC))
+	{
+	  /* Consider decls with the same name equal.  The caller needs
+	     to make sure they refer to the same entity (such as a function
+	     formal parameter).  */
+	  tree a0name = DECL_NAME (arg0);
+	  tree a1name = DECL_NAME (arg1);
+	  const char *a0ns = a0name ? IDENTIFIER_POINTER (a0name) : NULL;
+	  const char *a1ns = a1name ? IDENTIFIER_POINTER (a1name) : NULL;
+	  return a0ns && a1ns && strcmp (a0ns, a1ns) == 0;
+	}
+      return false;
 
     case tcc_exceptional:
       if (TREE_CODE (arg0) == CONSTRUCTOR)
@@ -3921,14 +3936,14 @@ bool
 operand_compare::verify_hash_value (const_tree arg0, const_tree arg1,
 				    unsigned int flags, bool *ret)
 {
-  /* When checking, verify at the outermost operand_equal_p call that
-     if operand_equal_p returns non-zero then ARG0 and ARG1 has the same
-     hash value.  */
+  /* When checking and unless comparing DECL names, verify that if
+     the outermost operand_equal_p call returns non-zero then ARG0
+     and ARG1 have the same hash value.  */
   if (flag_checking && !(flags & OEP_NO_HASH_CHECK))
     {
       if (operand_equal_p (arg0, arg1, flags | OEP_NO_HASH_CHECK))
 	{
-	  if (arg0 != arg1)
+	  if (arg0 != arg1 && !(flags & OEP_DECL_NAME))
 	    {
 	      inchash::hash hstate0 (0), hstate1 (0);
 	      hash_operand (arg0, hstate0, flags | OEP_HASH_CHECK);
@@ -6430,15 +6445,19 @@ fold_truth_andor_1 (location_t loc, enum tree_code code, tree truth_type,
 			 size_int (xll_bitpos));
   rl_mask = const_binop (LSHIFT_EXPR, fold_convert_loc (loc, lntype, rl_mask),
 			 size_int (xrl_bitpos));
+  if (ll_mask == NULL_TREE || rl_mask == NULL_TREE)
+    return 0;
 
   if (l_const)
     {
       l_const = fold_convert_loc (loc, lntype, l_const);
       l_const = unextend (l_const, ll_bitsize, ll_unsignedp, ll_and_mask);
       l_const = const_binop (LSHIFT_EXPR, l_const, size_int (xll_bitpos));
+      if (l_const == NULL_TREE)
+	return 0;
       if (! integer_zerop (const_binop (BIT_AND_EXPR, l_const,
 					fold_build1_loc (loc, BIT_NOT_EXPR,
-						     lntype, ll_mask))))
+							 lntype, ll_mask))))
 	{
 	  warning (0, "comparison is always %d", wanted_code == NE_EXPR);
 
@@ -6450,9 +6469,11 @@ fold_truth_andor_1 (location_t loc, enum tree_code code, tree truth_type,
       r_const = fold_convert_loc (loc, lntype, r_const);
       r_const = unextend (r_const, rl_bitsize, rl_unsignedp, rl_and_mask);
       r_const = const_binop (LSHIFT_EXPR, r_const, size_int (xrl_bitpos));
+      if (r_const == NULL_TREE)
+	return 0;
       if (! integer_zerop (const_binop (BIT_AND_EXPR, r_const,
 					fold_build1_loc (loc, BIT_NOT_EXPR,
-						     lntype, rl_mask))))
+							 lntype, rl_mask))))
 	{
 	  warning (0, "comparison is always %d", wanted_code == NE_EXPR);
 
@@ -6497,6 +6518,8 @@ fold_truth_andor_1 (location_t loc, enum tree_code code, tree truth_type,
       rr_mask = const_binop (LSHIFT_EXPR, fold_convert_loc (loc,
 							    rntype, rr_mask),
 			     size_int (xrr_bitpos));
+      if (lr_mask == NULL_TREE || rr_mask == NULL_TREE)
+	return 0;
 
       /* Make a mask that corresponds to both fields being compared.
 	 Do this for both items being compared.  If the operands are the
@@ -6556,6 +6579,8 @@ fold_truth_andor_1 (location_t loc, enum tree_code code, tree truth_type,
 				 size_int (MIN (xll_bitpos, xrl_bitpos)));
 	  lr_mask = const_binop (RSHIFT_EXPR, lr_mask,
 				 size_int (MIN (xlr_bitpos, xrr_bitpos)));
+	  if (ll_mask == NULL_TREE || lr_mask == NULL_TREE)
+	    return 0;
 
 	  /* Convert to the smaller type before masking out unwanted bits.  */
 	  type = lntype;

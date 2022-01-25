@@ -11023,10 +11023,12 @@ cp_parser_lambda_introducer (cp_parser* parser, tree lambda_expr)
       if (cp_lexer_next_token_is_keyword (parser->lexer, RID_THIS))
 	{
 	  location_t loc = cp_lexer_peek_token (parser->lexer)->location;
-	  if (cxx_dialect < cxx20
+	  if (cxx_dialect < cxx20 && pedantic
 	      && LAMBDA_EXPR_DEFAULT_CAPTURE_MODE (lambda_expr) == CPLD_COPY)
-	    pedwarn (loc, 0, "explicit by-copy capture of %<this%> redundant "
-		     "with by-copy capture default");
+	    pedwarn (loc, 0,
+		     "explicit by-copy capture of %<this%> "
+		     "with by-copy capture default only available with "
+		     "%<-std=c++20%> or %<-std=gnu++20%>");
 	  cp_lexer_consume_token (parser->lexer);
 	  if (LAMBDA_EXPR_THIS_CAPTURE (lambda_expr))
 	    pedwarn (input_location, 0,
@@ -15052,7 +15054,7 @@ cp_parser_decl_specifier_seq (cp_parser* parser,
       if (found_decl_spec
 	  && (flags & CP_PARSER_FLAGS_ONLY_TYPE_OR_CONSTEXPR)
 	  && token->keyword != RID_CONSTEXPR)
-	error ("%<decl-specifier%> invalid in condition");
+	error ("%qD invalid in condition", ridpointers[token->keyword]);
 
       if (found_decl_spec
 	  && (flags & CP_PARSER_FLAGS_ONLY_MUTABLE_OR_CONSTEXPR)
@@ -18766,7 +18768,7 @@ cp_parser_simple_type_specifier (cp_parser* parser,
 	  else if (!flag_concepts)
 	    pedwarn (token->location, 0,
 		     "use of %<auto%> in parameter declaration "
-		     "only available with %<-fconcepts-ts%>");
+		     "only available with %<-std=c++20%> or %<-fconcepts%>");
 	}
       else
 	type = make_auto ();
@@ -19108,7 +19110,7 @@ cp_parser_simple_type_specifier (cp_parser* parser,
   Note that the Concepts TS allows the auto or decltype(auto) to be
   omitted in a constrained-type-specifier.  */
 
-tree
+static tree
 cp_parser_placeholder_type_specifier (cp_parser *parser, location_t loc,
 				      tree tmpl, bool tentative)
 {
@@ -19124,7 +19126,7 @@ cp_parser_placeholder_type_specifier (cp_parser *parser, location_t loc,
       args = TREE_OPERAND (tmpl, 1);
       tmpl = TREE_OPERAND (tmpl, 0);
     }
-  if (args == NULL_TREE)
+  else
     /* A concept-name with no arguments can't be an expression.  */
     tentative = false;
 
@@ -19162,8 +19164,11 @@ cp_parser_placeholder_type_specifier (cp_parser *parser, location_t loc,
       if (!flag_concepts_ts
 	  || !processing_template_parmlist)
 	{
-	  error_at (loc, "%qE does not constrain a type", DECL_NAME (con));
-	  inform (DECL_SOURCE_LOCATION (con), "concept defined here");
+	  if (!tentative)
+	    {
+	      error_at (loc, "%qE does not constrain a type", DECL_NAME (con));
+	      inform (DECL_SOURCE_LOCATION (con), "concept defined here");
+	    }
 	  return error_mark_node;
 	}
     }
@@ -32432,7 +32437,7 @@ class_decl_loc_t::diag_mismatched_tags (tree type_decl)
   class_decl_loc_t *cdlguide = this;
 
   tree type = TREE_TYPE (type_decl);
-  if (CLASSTYPE_IMPLICIT_INSTANTIATION (type))
+  if (CLASS_TYPE_P (type) && CLASSTYPE_IMPLICIT_INSTANTIATION (type))
     {
       /* For implicit instantiations of a primary template look up
 	 the primary or partial specialization and use it as

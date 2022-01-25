@@ -7992,6 +7992,15 @@ vectorizable_induction (loop_vec_info loop_vinfo,
       return false;
     }
 
+  step_expr = STMT_VINFO_LOOP_PHI_EVOLUTION_PART (stmt_info);
+  gcc_assert (step_expr != NULL_TREE);
+  tree step_vectype = get_same_sized_vectype (TREE_TYPE (step_expr), vectype);
+
+  /* Check for backend support of PLUS/MINUS_EXPR. */
+  if (!target_supports_op_p (step_vectype, PLUS_EXPR, optab_default)
+      || !target_supports_op_p (step_vectype, MINUS_EXPR, optab_default))
+    return false;
+
   if (!vec_stmt) /* transformation not required.  */
     {
       unsigned inside_cost = 0, prologue_cost = 0;
@@ -8050,10 +8059,6 @@ vectorizable_induction (loop_vec_info loop_vinfo,
 
   if (dump_enabled_p ())
     dump_printf_loc (MSG_NOTE, vect_location, "transform induction phi.\n");
-
-  step_expr = STMT_VINFO_LOOP_PHI_EVOLUTION_PART (stmt_info);
-  gcc_assert (step_expr != NULL_TREE);
-  tree step_vectype = get_same_sized_vectype (TREE_TYPE (step_expr), vectype);
 
   pe = loop_preheader_edge (iv_loop);
   /* Find the first insertion point in the BB.  */

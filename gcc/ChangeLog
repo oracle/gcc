@@ -1,3 +1,234 @@
+2022-01-24  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2022-01-21  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/102478
+	* optabs.c (prepare_cmp_insn): If !can_create_pseudo_p (), don't
+	force_reg constants and for -fnon-call-exceptions fail if copy_to_reg
+	would be needed.
+
+2022-01-24  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2022-01-20  Jakub Jelinek  <jakub@redhat.com>
+
+	PR debug/103874
+	* dwarf2out.c (index_rnglists): For !HAVE_AS_LEB128 and
+	block_num > 0, index entry even if !have_multiple_function_sections.
+
+2022-01-24  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2022-01-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/102860
+	* match.pd (x %[fl] y -> x % y): New simplification for
+	unsigned integral types.
+	* optabs-tree.c (optab_for_tree_code): Return unknown_optab
+	for {CEIL,FLOOR,ROUND}_{DIV,MOD}_EXPR with VECTOR_TYPE.
+
+2022-01-24  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2022-01-19  Jakub Jelinek  <jakub@redhat.com>
+
+	* config/i386/sse.md (*aes<aeswideklvariant>u*): Use %0 instead of
+	{%0}.
+
+2022-01-24  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2022-01-06  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/103908
+	* ifcvt.c (bb_valid_for_noce_process_p): Punt on bbs ending with
+	asm goto.
+
+2022-01-24  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-12-30  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/103012
+	* config/i386/i386-c.c (ix86_pragma_target_parse): Perform
+	cpp_define/cpp_undef calls with forced token locations
+	BUILTINS_LOCATION.
+	* config/arm/arm-c.c (arm_pragma_target_parse): Likewise.
+	* config/aarch64/aarch64-c.c (aarch64_pragma_target_parse): Likewise.
+	* config/s390/s390-c.c (s390_pragma_target_parse): Likewise.
+
+2022-01-24  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-12-30  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/103860
+	* shrink-wrap.c (try_shrink_wrapping): Make sure can_get_prologue is
+	called on pro even if nothing further is pushed into vec.
+
+2022-01-24  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-12-28  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/103813
+	* fold-const.c (fold_truth_andor_1): Punt of const_binop LSHIFT_EXPR
+	or RSHIFT_EXPR returns NULL.  Formatting fix.
+
+2022-01-24  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-12-28  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/103837
+	* loop-invariant.c (can_move_invariant_reg): Ignore DEBUG_INSNs in
+	the decisions whether to return false or continue and right before
+	returning true reset those debug insns that previously caused
+	returning false.
+
+2022-01-24  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2021-12-28  Jakub Jelinek  <jakub@redhat.com>
+
+	PR debug/103838
+	* optabs.c (expand_doubleword_mod, expand_doubleword_divmod): Only
+	check newly added insns for CALL_P, not the last insn of previous
+	code.
+
+2022-01-24  H.J. Lu  <hjl.tools@gmail.com>
+
+	Backported from master:
+	2022-01-24  H.J. Lu  <hjl.tools@gmail.com>
+
+	PR target/104188
+	* config/i386/predicates.md (bcst_mem_operand): Also check mode
+	of memory broadcast.
+
+2022-01-18  Martin Liska  <mliska@suse.cz>
+
+	Backported from master:
+	2021-08-13  Martin Liska  <mliska@suse.cz>
+
+	PR ipa/101354
+	* attribs.c (decl_attributes): Make naked functions "noipa"
+	  functions.
+
+2022-01-14  Eric Botcazou  <ebotcazou@adacore.com>
+
+	* ipa-param-manipulation.c (ipa_dump_adjusted_parameters): Dump
+	reverse flag as "reverse" for the sake of consistency.
+	* ipa-sra.c: Fix copyright year.
+	(ipa_sra_function_summaries::duplicate): Copy the reverse flag.
+	(dump_isra_access): Tweak dump line.
+	(isra_write_node_summary): Write the reverse flag.
+	(isra_read_node_info): Read it.
+	(pull_accesses_from_callee): Test its consistency and copy it.
+
+2022-01-13  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/101615
+	PR tree-optimization/103995
+	* tree-vect-slp.c (vect_optimize_slp): Materialize permutes
+	at CTOR SLP graph entries.
+
+2022-01-12  liuhongt  <hongtao.liu@intel.com>
+
+	PR target/98348
+	* config/i386/sse.md (*<avx512>_ucmp<mode>3_1): Change from
+	define_split to define_insn_and_split.
+	(*avx2_eq<mode>3): Removed.
+	(<avx512>_eq<mode>3<mask_scalar_merge_name>): Adjust pattern
+	(<avx512>_eq<mode>3<mask_scalar_merge_name>_1): Rename to ..
+	(*<avx512>_eq<mode>3<mask_scalar_merge_name>_1): .. this, and
+	adjust pattern.
+	(*avx2_gt<mode>3): Removed.
+	(<avx512>_gt<mode>3<mask_scalar_merge_name>): Change from
+	define_insn to define_expand, and adjust pattern.
+	(UNSPEC_MASKED_EQ, UNSPEC_MASKED_GT): Removed.
+
+2022-01-11  Andrew MacLeod  <amacleod@redhat.com>
+
+	PR tree-optimization/103603
+	* gimple-range.cc (gimple_ranger::gimple_ranger): Create stmt stack.
+	(gimple_ranger::~gimple_ranger): New.
+	(gimple_ranger::range_of_stmt): Process dependencies if they have no
+	global cache entry.
+	(gimple_ranger::prefill_name): New.
+	(gimple_ranger::prefill_stmt_dependencies): New.
+	* gimple-range.h (class gimple_ranger): Add prototypes.
+
+2022-01-10  Eric Botcazou  <ebotcazou@adacore.com>
+
+	PR target/103465
+	* coretypes.h (unwind_info_type): Swap UI_SEH and UI_TARGET.
+
+2022-01-02  John David Anglin  <danglin@gcc.gnu.org>
+
+	* config/pa/pa.md (atomic_storeq): Use optab_libfunc to access
+	sync_lock_test_and_set libfunc. Call convert_memory_address to
+	convert memory address to Pmode.
+	(atomic_storehi, atomic_storesi, atomic_storedi): Likewise.
+
+2021-12-27  John David Anglin  <danglin@gcc.gnu.org>
+
+	* config/pa/pa-protos.h: Delete
+	pa_maybe_emit_compare_and_swap_exchange_loop() declaration.
+	* config/pa/pa.c (pa_expand_compare_and_swap_loop): Delete.
+	(pa_maybe_emit_compare_and_swap_exchange_loop): Delete.
+	* config/pa/pa.md (atomic_storeq): Use __sync_lock_test_and_set
+	instead of pa_maybe_emit_compare_and_swap_exchange_loop.
+	(atomic_storehi, atomic_storesi, atomic_storedi): Likewise.
+
+2021-12-16  Martin Sebor  <msebor@redhat.com>
+
+	PR middle-end/101751
+	* doc/extend.texi (attribute access): Adjust.
+	* calls.c (maybe_warn_rdwr_sizes): Treat access mode none on a void*
+	argument as expecting as few as zero bytes.
+
+2021-12-16  Martin Sebor  <msebor@redhat.com>
+
+	PR c/101289
+	PR c/97548
+	* fold-const.c (operand_compare::operand_equal_p): Handle OEP_DECL_NAME.
+	(operand_compare::verify_hash_value): Same.
+	* tree-core.h (OEP_DECL_NAME): New.
+
+2021-12-16  Martin Liska  <mliska@suse.cz>
+
+	Backported from master:
+	2021-12-15  Martin Liska  <mliska@suse.cz>
+
+	PR target/103661
+	* config/i386/i386-builtins.c (fold_builtin_cpu): Compare to 0
+	as API expects that non-zero values are returned (do that
+	it mask == 31).
+	For "avx512vbmi2" argument, we return now 1 << 31, which is a
+	negative integer value.
+
+2021-12-15  Kewen Lin  <linkw@linux.ibm.com>
+
+	Backported from master:
+	2021-11-30  Kewen Lin  <linkw@linux.ibm.com>
+
+	PR target/102347
+	* config/rs6000/rs6000-call.c (rs6000_builtin_decl): Remove builtin mask
+	check.
+
+2021-12-14  Joel Hutton  <joel.hutton@arm.com>
+
+	PR bootstrap/103688
+	* tree-vect-loop.c (vectorizable_induction): Rework to avoid
+	directly_supported_p.
+
+2021-12-13  Joel Hutton  <joel.hutton@arm.com>
+
+	PR tree-optimization/103523
+	* tree-vect-loop.c (vectorizable_induction): Check for
+	PLUS_EXPR/MINUS_EXPR support.
+
 2021-12-02  Rasmus Villemoes  <rasmus.villemoes@prevas.dk>
 
 	Backported from master:

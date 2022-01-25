@@ -4878,6 +4878,9 @@ gfc_simplify_maskr (gfc_expr *i, gfc_expr *kind_arg)
   bool fail = gfc_extract_int (i, &arg);
   gcc_assert (!fail);
 
+  if (!gfc_check_mask (i, kind_arg))
+    return &gfc_bad_expr;
+
   result = gfc_get_constant_expr (BT_INTEGER, kind, &i->where);
 
   /* MASKR(n) = 2^n - 1 */
@@ -4908,6 +4911,9 @@ gfc_simplify_maskl (gfc_expr *i, gfc_expr *kind_arg)
 
   bool fail = gfc_extract_int (i, &arg);
   gcc_assert (!fail);
+
+  if (!gfc_check_mask (i, kind_arg))
+    return &gfc_bad_expr;
 
   result = gfc_get_constant_expr (BT_INTEGER, kind, &i->where);
 
@@ -5278,6 +5284,9 @@ simplify_minmaxloc_nodim (gfc_expr *result, gfc_expr *extremum,
   if (mask
       && mask->expr_type == EXPR_CONSTANT
       && !mask->value.logical)
+    goto finish;
+
+  if (array->shape == NULL)
     goto finish;
 
   for (i = 0; i < array->rank; i++)
@@ -6849,7 +6858,13 @@ gfc_simplify_reshape (gfc_expr *source, gfc_expr *shape_exp,
       gfc_extract_int (e, &shape[rank]);
 
       gcc_assert (rank >= 0 && rank < GFC_MAX_DIMENSIONS);
-      gcc_assert (shape[rank] >= 0);
+      if (shape[rank] < 0)
+	{
+	  gfc_error ("The SHAPE array for the RESHAPE intrinsic at %L has a "
+		     "negative value %d for dimension %d",
+		     &shape_exp->where, shape[rank], rank+1);
+	  return &gfc_bad_expr;
+	}
 
       rank++;
     }

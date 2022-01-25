@@ -2216,10 +2216,9 @@ gfc_simplify_expr (gfc_expr *p, int type)
 	  && gfc_intrinsic_func_interface (p, 1) == MATCH_ERROR)
 	return false;
 
-      if (p->expr_type == EXPR_FUNCTION)
+      if (p->symtree && (p->value.function.isym || p->ts.type == BT_UNKNOWN))
 	{
-	  if (p->symtree)
-	    isym = gfc_find_function (p->symtree->n.sym->name);
+	  isym = gfc_find_function (p->symtree->n.sym->name);
 	  if (isym && isym->elemental)
 	    scalarize_intrinsic_call (p, false);
 	}
@@ -2325,6 +2324,31 @@ gfc_simplify_expr (gfc_expr *p, int type)
     }
 
   return true;
+}
+
+
+/* Try simplification of an expression via gfc_simplify_expr.
+   When an error occurs (arithmetic or otherwise), roll back.  */
+
+bool
+gfc_try_simplify_expr (gfc_expr *e, int type)
+{
+  gfc_expr *n;
+  bool t, saved_div0;
+
+  if (e == NULL || e->expr_type == EXPR_CONSTANT)
+    return true;
+
+  saved_div0 = gfc_seen_div0;
+  gfc_seen_div0 = false;
+  n = gfc_copy_expr (e);
+  t = gfc_simplify_expr (n, type) && !gfc_seen_div0;
+  if (t)
+    gfc_replace_expr (e, n);
+  else
+    gfc_free_expr (n);
+  gfc_seen_div0 = saved_div0;
+  return t;
 }
 
 
@@ -4315,6 +4339,7 @@ gfc_check_pointer_assign (gfc_expr *lvalue, gfc_expr *rvalue,
     {
       gfc_symbol *sym;
       bool target;
+      gfc_ref *ref;
 
       if (gfc_is_size_zero_array (rvalue))
 	{
@@ -4343,6 +4368,39 @@ gfc_check_pointer_assign (gfc_expr *lvalue, gfc_expr *rvalue,
 		     "does not have the TARGET attribute at %L",
 		     &rvalue->where);
 	  return false;
+	}
+
+      for (ref = rvalue->ref; ref; ref = ref->next)
+	{
+	  switch (ref->type)
+	    {
+	    case REF_ARRAY:
+	      for (int n = 0; n < ref->u.ar.dimen; n++)
+		if (!gfc_is_constant_expr (ref->u.ar.start[n])
+		    || !gfc_is_constant_expr (ref->u.ar.end[n])
+		    || !gfc_is_constant_expr (ref->u.ar.stride[n]))
+		  {
+		    gfc_error ("Every subscript of target specification "
+			       "at %L must be a constant expression",
+			       &ref->u.ar.where);
+		    return false;
+		  }
+	      break;
+
+	    case REF_SUBSTRING:
+	      if (!gfc_is_constant_expr (ref->u.ss.start)
+		  || !gfc_is_constant_expr (ref->u.ss.end))
+		{
+		  gfc_error ("Substring starting and ending points of target "
+			     "specification at %L must be constant expressions",
+			     &ref->u.ss.start->where);
+		  return false;
+		}
+	      break;
+
+	    default:
+	      break;
+	    }
 	}
     }
   else
@@ -5138,7 +5196,8 @@ gfc_get_variable_expr (gfc_symtree *var)
 
   if (var->n.sym->attr.flavor != FL_PROCEDURE
       && ((var->n.sym->as != NULL && var->n.sym->ts.type != BT_CLASS)
-	   || (var->n.sym->ts.type == BT_CLASS && CLASS_DATA (var->n.sym)
+	   || (var->n.sym->ts.type == BT_CLASS && var->n.sym->ts.u.derived
+	       && CLASS_DATA (var->n.sym)
 	       && CLASS_DATA (var->n.sym)->as)))
     {
       e->rank = var->n.sym->ts.type == BT_CLASS
@@ -6226,10 +6285,13 @@ gfc_check_vardef_context (gfc_expr* e, bool pointer, bool alloc_obj,
     {
       if (ptr_component && ref->type == REF_COMPONENT)
 	check_intentin = false;
-      if (ref->type == REF_COMPONENT && ref->u.c.component->attr.pointer)
+      if (ref->type == REF_COMPONENT)
 	{
-	  ptr_component = true;
-	  if (!pointer)
+	  gfc_component *comp = ref->u.c.component;
+	  ptr_component = (comp->ts.type == BT_CLASS && comp->attr.class_ok)
+			? CLASS_DATA (comp)->attr.class_pointer
+			: comp->attr.pointer;
+	  if (ptr_component && !pointer)
 	    check_intentin = false;
 	}
       if (ref->type == REF_INQUIRY

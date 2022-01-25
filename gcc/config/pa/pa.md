@@ -10366,10 +10366,12 @@ add,l %2,%3,%3\;bv,n %%r0(%3)"
 {
   if (TARGET_SYNC_LIBCALL)
     {
-      rtx mem = operands[0];
-      rtx val = operands[1];
-      if (pa_maybe_emit_compare_and_swap_exchange_loop (NULL_RTX, mem, val))
-	DONE;
+      rtx libfunc = optab_libfunc (sync_lock_test_and_set_optab, QImode);
+      rtx addr = convert_memory_address (Pmode, XEXP (operands[0], 0));
+
+      emit_library_call (libfunc, LCT_NORMAL, VOIDmode, addr, Pmode,
+			 operands[1], QImode);
+      DONE;
     }
   FAIL;
 })
@@ -10384,10 +10386,12 @@ add,l %2,%3,%3\;bv,n %%r0(%3)"
 {
   if (TARGET_SYNC_LIBCALL)
     {
-      rtx mem = operands[0];
-      rtx val = operands[1];
-      if (pa_maybe_emit_compare_and_swap_exchange_loop (NULL_RTX, mem, val))
-	DONE;
+      rtx libfunc = optab_libfunc (sync_lock_test_and_set_optab, HImode);
+      rtx addr = convert_memory_address (Pmode, XEXP (operands[0], 0));
+
+      emit_library_call (libfunc, LCT_NORMAL, VOIDmode, addr, Pmode,
+			 operands[1], HImode);
+      DONE;
     }
   FAIL;
 })
@@ -10402,10 +10406,12 @@ add,l %2,%3,%3\;bv,n %%r0(%3)"
 {
   if (TARGET_SYNC_LIBCALL)
     {
-      rtx mem = operands[0];
-      rtx val = operands[1];
-      if (pa_maybe_emit_compare_and_swap_exchange_loop (NULL_RTX, mem, val))
-	DONE;
+      rtx libfunc = optab_libfunc (sync_lock_test_and_set_optab, SImode);
+      rtx addr = convert_memory_address (Pmode, XEXP (operands[0], 0));
+
+      emit_library_call (libfunc, LCT_NORMAL, VOIDmode, addr, Pmode,
+			 operands[1], SImode);
+      DONE;
     }
   FAIL;
 })
@@ -10453,10 +10459,12 @@ add,l %2,%3,%3\;bv,n %%r0(%3)"
 
   if (TARGET_SYNC_LIBCALL)
     {
-      rtx mem = operands[0];
-      rtx val = operands[1];
-      if (pa_maybe_emit_compare_and_swap_exchange_loop (NULL_RTX, mem, val))
-	DONE;
+      rtx libfunc = optab_libfunc (sync_lock_test_and_set_optab, DImode);
+      rtx addr = convert_memory_address (Pmode, XEXP (operands[0], 0));
+
+      emit_library_call (libfunc, LCT_NORMAL, VOIDmode, addr, Pmode,
+			 operands[1], DImode);
+      DONE;
     }
 
   if (TARGET_64BIT || TARGET_SOFT_FLOAT)
