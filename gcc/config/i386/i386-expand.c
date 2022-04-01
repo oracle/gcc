@@ -1156,6 +1156,9 @@ ix86_split_idivmod (machine_mode mode, rtx operands[],
   rtx scratch, tmp0, tmp1, tmp2;
   rtx (*gen_divmod4_1) (rtx, rtx, rtx, rtx);
 
+  operands[2] = force_reg (mode, operands[2]);
+  operands[3] = force_reg (mode, operands[3]);
+
   switch (mode)
     {
     case E_SImode:
@@ -12323,6 +12326,9 @@ rdseed_step:
       return target;
 
     case IX86_BUILTIN_READ_FLAGS:
+      if (ignore)
+	return const0_rtx;
+
       emit_insn (gen_push (gen_rtx_REG (word_mode, FLAGS_REG)));
 
       if (optimize

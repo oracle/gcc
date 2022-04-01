@@ -1304,6 +1304,17 @@ const_binop (enum tree_code code, tree arg1, tree arg2)
       real_convert (&result, mode, &value);
 
       /* Don't constant fold this floating point operation if
+	 both operands are not NaN but the result is NaN, and
+	 flag_trapping_math.  Such operations should raise an
+	 invalid operation exception.  */
+      if (flag_trapping_math
+	  && MODE_HAS_NANS (mode)
+	  && REAL_VALUE_ISNAN (result)
+	  && !REAL_VALUE_ISNAN (d1)
+	  && !REAL_VALUE_ISNAN (d2))
+	return NULL_TREE;
+
+      /* Don't constant fold this floating point operation if
 	 the result has overflowed and flag_trapping_math.  */
       if (flag_trapping_math
 	  && MODE_HAS_INFINITIES (mode)
@@ -3326,8 +3337,11 @@ operand_compare::operand_equal_p (const_tree arg0, const_tree arg1,
 		    tree field0 = TREE_OPERAND (arg0, 1);
 		    tree field1 = TREE_OPERAND (arg1, 1);
 
-		    if (!operand_equal_p (DECL_FIELD_OFFSET (field0),
-					  DECL_FIELD_OFFSET (field1), flags)
+		    /* Non-FIELD_DECL operands can appear in C++ templates.  */
+		    if (TREE_CODE (field0) != FIELD_DECL
+			|| TREE_CODE (field1) != FIELD_DECL
+			|| !operand_equal_p (DECL_FIELD_OFFSET (field0),
+					     DECL_FIELD_OFFSET (field1), flags)
 			|| !operand_equal_p (DECL_FIELD_BIT_OFFSET (field0),
 					     DECL_FIELD_BIT_OFFSET (field1),
 					     flags))

@@ -1741,6 +1741,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     constexpr
     common_iterator()
     noexcept(is_nothrow_default_constructible_v<_It>)
+    requires default_initializable<_It>
     : _M_it(), _M_index(0)
     { }
 
@@ -2118,7 +2119,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       // iterator_concept defined in __counted_iter_concept
       // iterator_category defined in __counted_iter_cat
 
-      constexpr counted_iterator() = default;
+      constexpr counted_iterator() requires default_initializable<_It> = default;
 
       constexpr
       counted_iterator(_It __i, iter_difference_t<_It> __n)
@@ -2337,6 +2338,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   /// @} group iterators
 
   template<typename _Iterator>
+    _GLIBCXX20_CONSTEXPR
     auto
     __niter_base(move_iterator<_Iterator> __it)
     -> decltype(make_move_iterator(__niter_base(__it.base())))
@@ -2350,6 +2352,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     };
 
   template<typename _Iterator>
+    _GLIBCXX20_CONSTEXPR
     auto
     __miter_base(move_iterator<_Iterator> __it)
     -> decltype(__miter_base(__it.base()))

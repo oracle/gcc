@@ -7271,7 +7271,7 @@ convert_nontype_argument (tree type, tree expr, tsubst_flags_t complain)
   if (non_dep)
     expr = instantiate_non_dependent_expr_internal (expr, complain);
 
-  const bool val_dep_p = value_dependent_expression_p (expr);
+  bool val_dep_p = value_dependent_expression_p (expr);
   if (val_dep_p)
     expr = canonicalize_expr_argument (expr, complain);
 
@@ -7310,6 +7310,8 @@ convert_nontype_argument (tree type, tree expr, tsubst_flags_t complain)
 	  expr = maybe_constant_value (expr, NULL_TREE,
 				       /*manifestly_const_eval=*/true);
 	  expr = convert_from_reference (expr);
+	  /* EXPR may have become value-dependent.  */
+	  val_dep_p = value_dependent_expression_p (expr);
 	}
       else if (TYPE_PTR_OR_PTRMEM_P (type))
 	{
@@ -7684,8 +7686,8 @@ coerce_template_template_parm (tree parm,
 	 template <template <template <class> class> class TT>
 	 class C;  */
       {
-	tree parmparm = DECL_INNERMOST_TEMPLATE_PARMS (parm);
-	tree argparm = DECL_INNERMOST_TEMPLATE_PARMS (arg);
+	tree parmparm = DECL_TEMPLATE_PARMS (parm);
+	tree argparm = DECL_TEMPLATE_PARMS (arg);
 
 	if (!coerce_template_template_parms
 	    (parmparm, argparm, complain, in_decl, outer_args))
@@ -7954,8 +7956,8 @@ unify_bound_ttp_args (tree tparms, tree targs, tree parm, tree& arg,
    the parameters to A, and OUTER_ARGS contains A.  */
 
 static int
-coerce_template_template_parms (tree parm_parms,
-				tree arg_parms,
+coerce_template_template_parms (tree parm_parms_full,
+				tree arg_parms_full,
 				tsubst_flags_t complain,
 				tree in_decl,
 				tree outer_args)
@@ -7963,6 +7965,9 @@ coerce_template_template_parms (tree parm_parms,
   int nparms, nargs, i;
   tree parm, arg;
   int variadic_p = 0;
+
+  tree parm_parms = INNERMOST_TEMPLATE_PARMS (parm_parms_full);
+  tree arg_parms = INNERMOST_TEMPLATE_PARMS (arg_parms_full);
 
   gcc_assert (TREE_CODE (parm_parms) == TREE_VEC);
   gcc_assert (TREE_CODE (arg_parms) == TREE_VEC);
@@ -7998,7 +8003,24 @@ coerce_template_template_parms (tree parm_parms,
 	 args and the converted args.  If that succeeds, A is at least as
 	 specialized as P, so they match.*/
       tree pargs = template_parms_level_to_args (parm_parms);
-      pargs = add_outermost_template_args (outer_args, pargs);
+
+      /* PARM, and thus the context in which we are passing ARG to it, may be
+	 at a deeper level than ARG; when trying to coerce to ARG_PARMS, we
+	 want to provide the right number of levels, so we reduce the number of
+	 levels in OUTER_ARGS before prepending them.  This is most important
+	 when ARG is a namespace-scope template, as in alias-decl-ttp2.C.
+
+	 ARG might also be deeper than PARM (ttp23).  In that case, we include
+	 all of OUTER_ARGS.  The missing levels seem potentially problematic,
+	 but I can't come up with a testcase that breaks.  */
+      if (int arg_outer_levs = TMPL_PARMS_DEPTH (arg_parms_full) - 1)
+	{
+	  auto x = make_temp_override (TREE_VEC_LENGTH (outer_args));
+	  if (TMPL_ARGS_DEPTH (outer_args) > arg_outer_levs)
+	    TREE_VEC_LENGTH (outer_args) = arg_outer_levs;
+	  pargs = add_to_template_args (outer_args, pargs);
+	}
+
       ++processing_template_decl;
       pargs = coerce_template_parms (arg_parms, pargs, NULL_TREE, tf_none,
 				     /*require_all*/true, /*use_default*/true);
@@ -8139,16 +8161,16 @@ template_template_parm_bindings_ok_p (tree tparms, tree targs)
 	      /* Extract the template parameters from the template
 		 argument.  */
 	      if (TREE_CODE (targ) == TEMPLATE_DECL)
-		targ_parms = DECL_INNERMOST_TEMPLATE_PARMS (targ);
+		targ_parms = DECL_TEMPLATE_PARMS (targ);
 	      else if (TREE_CODE (targ) == TEMPLATE_TEMPLATE_PARM)
-		targ_parms = DECL_INNERMOST_TEMPLATE_PARMS (TYPE_NAME (targ));
+		targ_parms = DECL_TEMPLATE_PARMS (TYPE_NAME (targ));
 
 	      /* Verify that we can coerce the template template
 		 parameters from the template argument to the template
 		 parameter.  This requires an exact match.  */
 	      if (targ_parms
 		  && !coerce_template_template_parms
-		       (DECL_INNERMOST_TEMPLATE_PARMS (tparm),
+		       (DECL_TEMPLATE_PARMS (tparm),
 			targ_parms,
 			tf_none,
 			tparm,
@@ -8442,13 +8464,13 @@ convert_template_argument (tree parm,
 	    val = orig_arg;
 	  else
 	    {
-	      tree parmparm = DECL_INNERMOST_TEMPLATE_PARMS (parm);
+	      tree parmparm = DECL_TEMPLATE_PARMS (parm);
 	      tree argparm;
 
 	      /* Strip alias templates that are equivalent to another
 		 template.  */
 	      arg = get_underlying_template (arg);
-              argparm = DECL_INNERMOST_TEMPLATE_PARMS (arg);
+	      argparm = DECL_TEMPLATE_PARMS (arg);
 
 	      if (coerce_template_template_parms (parmparm, argparm,
 						  complain, in_decl,
@@ -13578,6 +13600,14 @@ tsubst_aggr_type (tree t,
   if (t == NULL_TREE)
     return NULL_TREE;
 
+  /* If T is an alias template specialization, we want to substitute that
+     rather than strip it, especially if it's dependent_alias_template_spec_p.
+     It should be OK not to handle entering_scope in this case, since
+     DECL_CONTEXT will never be an alias template specialization.  We only get
+     here with an alias when tsubst calls us for TYPENAME_TYPE.  */
+  if (alias_template_specialization_p (t, nt_transparent))
+    return tsubst (t, args, complain, in_decl);
+
   switch (TREE_CODE (t))
     {
     case RECORD_TYPE:
@@ -13651,7 +13681,28 @@ tsubst_aggr_type (tree t,
     }
 }
 
-static GTY((cache)) decl_tree_cache_map *defarg_inst;
+/* Map from a FUNCTION_DECL to a vec of default argument instantiations,
+   indexed in reverse order of the parameters.  */
+
+static GTY((cache)) hash_table<tree_vec_map_cache_hasher> *defarg_inst;
+
+/* Return a reference to the vec* of defarg insts for FN.  */
+
+static vec<tree,va_gc> *&
+defarg_insts_for (tree fn)
+{
+  if (!defarg_inst)
+    defarg_inst = hash_table<tree_vec_map_cache_hasher>::create_ggc (13);
+  tree_vec_map in = { fn, nullptr };
+  tree_vec_map **slot
+    = defarg_inst->find_slot_with_hash (&in, DECL_UID (fn), INSERT);
+  if (!*slot)
+    {
+      *slot = ggc_alloc<tree_vec_map> ();
+      **slot = in;
+    }
+  return (*slot)->to;
+}
 
 /* Substitute into the default argument ARG (a default argument for
    FN), which has the indicated TYPE.  */
@@ -13681,9 +13732,16 @@ tsubst_default_argument (tree fn, int parmnum, tree type, tree arg,
 
   gcc_assert (same_type_ignoring_top_level_qualifiers_p (type, parmtype));
 
-  tree *slot;
-  if (defarg_inst && (slot = defarg_inst->get (parm)))
-    return *slot;
+  /* Remember the location of the pointer to the vec rather than the location
+     of the particular element, in case the vec grows in tsubst_expr.  */
+  vec<tree,va_gc> *&defs = defarg_insts_for (fn);
+  /* Index in reverse order to avoid allocating space for initial parameters
+     that don't have default arguments.  */
+  unsigned ridx = list_length (parm);
+  if (vec_safe_length (defs) < ridx)
+    vec_safe_grow_cleared (defs, ridx);
+  else if (tree inst = (*defs)[ridx - 1])
+    return inst;
 
   /* This default argument came from a template.  Instantiate the
      default argument here, not in tsubst.  In the case of
@@ -13728,11 +13786,7 @@ tsubst_default_argument (tree fn, int parmnum, tree type, tree arg,
   pop_from_top_level ();
 
   if (arg != error_mark_node && !cp_unevaluated_operand)
-    {
-      if (!defarg_inst)
-	defarg_inst = decl_tree_cache_map::create_ggc (37);
-      defarg_inst->put (parm, arg);
-    }
+    (*defs)[ridx - 1] = arg;
 
   return arg;
 }
@@ -16847,6 +16901,9 @@ tsubst_copy (tree t, tree args, tsubst_flags_t complain, tree in_decl)
 	      /* When rewriting a constructor into a deduction guide, a
 		 non-dependent name can become dependent, so memtmpl<args>
 		 becomes context::template memtmpl<args>.  */
+	      if (DECL_TYPE_TEMPLATE_P (t))
+		return make_unbound_class_template (context, DECL_NAME (t),
+						    NULL_TREE, complain);
 	      tree type = tsubst (TREE_TYPE (t), args, complain, in_decl);
 	      return build_qualified_name (type, context, DECL_NAME (t),
 					   /*template*/true);
@@ -26951,6 +27008,10 @@ value_dependent_expression_p (tree expression)
 
 	if (TREE_CODE (expression) == TREE_LIST)
 	  return any_value_dependent_elements_p (expression);
+
+	if (TREE_CODE (type) == REFERENCE_TYPE
+	    && has_value_dependent_address (expression))
+	  return true;
 
 	return value_dependent_expression_p (expression);
       }

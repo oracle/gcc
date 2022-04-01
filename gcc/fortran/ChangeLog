@@ -1,3 +1,95 @@
+2022-03-19  Tobias Burnus  <tobias@codesourcery.com>
+
+	Backported from master:
+	2022-03-07  Tobias Burnus  <tobias@codesourcery.com>
+
+	PR fortran/99585
+	PR fortran/104430
+	* trans-expr.c (conv_parent_component_references): Fix comment;
+	simplify comparison.
+	(gfc_maybe_dereference_var): Avoid d referencing a nonpointer.
+
+2022-03-17   Michael Meissner  <meissner@linux.ibm.com>
+
+	PR fortran/96983
+	* trans-intrinsic.c (build_round_expr): If int type is larger than
+	long long, do the round and convert to the integer type.  Do not
+	try to find a floating point type the exact size of the integer
+	type.  Backport patch from 2021-04-22 on the trunk.
+
+2022-03-13  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2022-03-08  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/104811
+	* frontend-passes.c (optimize_minmaxloc): Do not attempt
+	frontend-optimization of MINLOC/MAXLOC for character arrays, as
+	there is no suitable code yet for inline expansion.
+
+2022-02-23  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2022-02-22  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/104619
+	* resolve.c (resolve_structure_cons): Skip shape check if shape
+	of constructor cannot be determined at compile time.
+
+2022-02-20  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2022-02-09  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/66193
+	* arith.c (reduce_binary_ac): When reducing binary expressions,
+	try simplification.  Handle case of empty constructor.
+	(reduce_binary_ca): Likewise.
+
+2022-02-16  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2022-02-14  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/104211
+	* expr.c (find_array_section): Replace assertion by error
+	recovery when encountering bad array constructor.
+
+2022-02-14  Andre Vehreschild  <vehre@gcc.gnu.org>
+
+	PR fortran/100337
+	Backport from master.
+	* trans-intrinsic.c (conv_co_collective): Check stat for null ptr
+	before dereferrencing.
+
+2022-02-14  Andre Vehreschild  <vehre@gcc.gnu.org>
+
+	PR fortran/103790
+	Backported from master.
+	* trans-array.c (structure_alloc_comps): Prevent descriptor
+	stacking for non-array data; do not broadcast caf-tokens.
+	* trans-intrinsic.c (conv_co_collective): Prevent generation
+	of unused descriptor.
+
+2022-02-04  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2022-02-03  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/104311
+	* check.c (gfc_calculate_transfer_sizes): Checks for case when
+	storage size of SOURCE is greater than zero while the storage size
+	of MOLD is zero and MOLD is an array shall not depend on SIZE.
+
+2022-02-02  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2022-02-01  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/104331
+	* simplify.c (gfc_simplify_eoshift): Avoid NULL pointer
+	dereference when shape is not set.
+
 2022-01-26  Harald Anlauf  <anlauf@gmx.de>
 
 	Backported from master:

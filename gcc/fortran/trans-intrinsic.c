@@ -386,30 +386,20 @@ build_round_expr (tree arg, tree restype)
   argprec = TYPE_PRECISION (argtype);
   resprec = TYPE_PRECISION (restype);
 
-  /* Depending on the type of the result, choose the int intrinsic
-     (iround, available only as a builtin, therefore cannot use it for
-     __float128), long int intrinsic (lround family) or long long
-     intrinsic (llround).  We might also need to convert the result
-     afterwards.  */
+  /* Depending on the type of the result, choose the int intrinsic (iround,
+     available only as a builtin, therefore cannot use it for _Float128), long
+     int intrinsic (lround family) or long long intrinsic (llround).  If we
+     don't have an appropriate function that converts directly to the integer
+     type (such as kind == 16), just use ROUND, and then convert the result to
+     an integer.  We might also need to convert the result afterwards.  */
   if (resprec <= INT_TYPE_SIZE && argprec <= LONG_DOUBLE_TYPE_SIZE)
     fn = builtin_decl_for_precision (BUILT_IN_IROUND, argprec);
   else if (resprec <= LONG_TYPE_SIZE)
     fn = builtin_decl_for_precision (BUILT_IN_LROUND, argprec);
   else if (resprec <= LONG_LONG_TYPE_SIZE)
     fn = builtin_decl_for_precision (BUILT_IN_LLROUND, argprec);
-  else if (resprec >= argprec && resprec == 128)
-    {
-      /* Search for a real kind suitable as temporary for conversion.  */
-      int kind = -1;
-      for (int i = 0; kind < 0 && gfc_real_kinds[i].kind != 0; i++)
-	if (gfc_real_kinds[i].mode_precision >= resprec)
-	  kind = gfc_real_kinds[i].kind;
-      if (kind < 0)
-	gfc_internal_error ("Could not find real kind with at least %d bits",
-			    resprec);
-      arg = fold_convert (gfc_get_real_type (kind), arg);
-      fn = gfc_builtin_decl_for_float_kind (BUILT_IN_ROUND, kind);
-    }
+  else if (resprec >= argprec)
+    fn = builtin_decl_for_precision (BUILT_IN_ROUND, argprec);
   else
     gcc_unreachable ();
 
@@ -11267,29 +11257,56 @@ conv_co_collective (gfc_code *code)
   if (flag_coarray == GFC_FCOARRAY_SINGLE)
     {
       if (stat != NULL_TREE)
-	gfc_add_modify (&block, stat,
-			fold_convert (TREE_TYPE (stat), integer_zero_node));
+	{
+	  /* For optional stats, check the pointer is valid before zero'ing.  */
+	  if (gfc_expr_attr (stat_expr).optional)
+	    {
+	      tree tmp;
+	      stmtblock_t ass_block;
+	      gfc_start_block (&ass_block);
+	      gfc_add_modify (&ass_block, stat,
+			      fold_convert (TREE_TYPE (stat),
+					    integer_zero_node));
+	      tmp = fold_build2 (NE_EXPR, logical_type_node,
+				 gfc_build_addr_expr (NULL_TREE, stat),
+				 null_pointer_node);
+	      tmp = fold_build3 (COND_EXPR, void_type_node, tmp,
+				 gfc_finish_block (&ass_block),
+				 build_empty_stmt (input_location));
+	      gfc_add_expr_to_block (&block, tmp);
+	    }
+	  else
+	    gfc_add_modify (&block, stat,
+			    fold_convert (TREE_TYPE (stat), integer_zero_node));
+	}
       return gfc_finish_block (&block);
     }
 
+  gfc_symbol *derived = code->ext.actual->expr->ts.type == BT_DERIVED
+    ? code->ext.actual->expr->ts.u.derived : NULL;
+
   /* Handle the array.  */
   gfc_init_se (&argse, NULL);
-  if (code->ext.actual->expr->rank == 0)
+  if (!derived || !derived->attr.alloc_comp
+      || code->resolved_isym->id != GFC_ISYM_CO_BROADCAST)
     {
-      symbol_attribute attr;
-      gfc_clear_attr (&attr);
-      gfc_init_se (&argse, NULL);
-      gfc_conv_expr (&argse, code->ext.actual->expr);
-      gfc_add_block_to_block (&block, &argse.pre);
-      gfc_add_block_to_block (&post_block, &argse.post);
-      array = gfc_conv_scalar_to_descriptor (&argse, argse.expr, attr);
-      array = gfc_build_addr_expr (NULL_TREE, array);
-    }
-  else
-    {
-      argse.want_pointer = 1;
-      gfc_conv_expr_descriptor (&argse, code->ext.actual->expr);
-      array = argse.expr;
+      if (code->ext.actual->expr->rank == 0)
+	{
+	  symbol_attribute attr;
+	  gfc_clear_attr (&attr);
+	  gfc_init_se (&argse, NULL);
+	  gfc_conv_expr (&argse, code->ext.actual->expr);
+	  gfc_add_block_to_block (&block, &argse.pre);
+	  gfc_add_block_to_block (&post_block, &argse.post);
+	  array = gfc_conv_scalar_to_descriptor (&argse, argse.expr, attr);
+	  array = gfc_build_addr_expr (NULL_TREE, array);
+	}
+      else
+	{
+	  argse.want_pointer = 1;
+	  gfc_conv_expr_descriptor (&argse, code->ext.actual->expr);
+	  array = argse.expr;
+	}
     }
 
   gfc_add_block_to_block (&block, &argse.pre);
@@ -11349,9 +11366,6 @@ conv_co_collective (gfc_code *code)
     default:
       gcc_unreachable ();
     }
-
-  gfc_symbol *derived = code->ext.actual->expr->ts.type == BT_DERIVED
-    ? code->ext.actual->expr->ts.u.derived : NULL;
 
   if (derived && derived->attr.alloc_comp
       && code->resolved_isym->id == GFC_ISYM_CO_BROADCAST)
