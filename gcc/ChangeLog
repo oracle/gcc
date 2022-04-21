@@ -1,3 +1,482 @@
+2022-04-21  Release Manager
+
+	* GCC 11.3.0 released.
+
+2022-04-19  Hans-Peter Nilsson  <hp@axis.com>
+
+	Backported from master:
+	2022-04-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* doc/install.texi <CRIS>: Remove references to removed websites and
+	adjust for cris-*-elf being the only remaining toolchain.
+
+2022-04-19  Hans-Peter Nilsson  <hp@axis.com>
+
+	Backported from master:
+	2022-04-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* doc/invoke.texi <CRIS>: Remove references to options for removed
+	subtarget cris-axis-linux-gnu and tweak wording accordingly.
+
+2022-04-14  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	Backported from master:
+	2022-04-12  Andreas Krebbel  <krebbel@linux.ibm.com>
+
+	* common/config/s390/s390-common.c: Rename PF_ARCH14 to PF_Z16.
+	* config.gcc: Add z16 as march/mtune switch.
+	* config/s390/driver-native.c (s390_host_detect_local_cpu):
+	Recognize z16 with -march=native.
+	* config/s390/s390-opts.h (enum processor_type): Rename
+	PROCESSOR_ARCH14 to PROCESSOR_3931_Z16.
+	* config/s390/s390.c (PROCESSOR_ARCH14): Rename to ...
+	(PROCESSOR_3931_Z16): ... throughout the file.
+	(s390_processor processor_table): Add z16 as cpu string.
+	* config/s390/s390.h (enum processor_flags): Rename PF_ARCH14 to
+	PF_Z16.
+	(TARGET_CPU_ARCH14): Rename to ...
+	(TARGET_CPU_Z16): ... this.
+	(TARGET_CPU_ARCH14_P): Rename to ...
+	(TARGET_CPU_Z16_P): ... this.
+	(TARGET_ARCH14): Rename to ...
+	(TARGET_Z16): ... this.
+	(TARGET_ARCH14_P): Rename to ...
+	(TARGET_Z16_P): ... this.
+	* config/s390/s390.md (cpu_facility): Rename arch14 to z16 and
+	check TARGET_Z16 instead of TARGET_ARCH14.
+	* config/s390/s390.opt: Add z16 to processor_type.
+	* doc/invoke.texi: Document z16 and arch14.
+
+2022-04-14  Iain Sandoe  <iain@sandoe.co.uk>
+	    Vladimir Makarov  <vmakarov@redhat.com>
+
+	PR target/104117
+	* config/rs6000/rs6000.c (darwin_rs6000_legitimate_lo_sum_const_p):
+	Check for UNSPEC_MACHOPIC_OFFSET wrappers on symbolic addresses when
+	emitting PIC code.
+	(legitimate_lo_sum_address_p): Likewise.
+	(rs6000_legitimize_address): Do not apply the TLS processing to
+	Darwin.
+	* config/rs6000/darwin.md (@machopic_high_<mode>): New.
+	(@machopic_low_<mode>): New.
+	* config/rs6000/predicates.md (macho_pic_address): New.
+
+2022-04-14  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR target/80556
+	* config/darwin-driver.c (darwin_driver_init): Handle exported
+	symbols and symbol lists (suppress automatic export of the TLS
+	symbols).
+	* config/darwin.c (darwin_rename_builtins): Remove workaround.
+	* config/darwin.h (LINK_GCC_C_SEQUENCE_SPEC): Likewise.
+	(REAL_LIBGCC_SPEC): Handle revised library uses.
+	* config/darwin.opt (nodefaultexport): New.
+	* config/i386/darwin.h (PR80556_WORKAROUND): Remove.
+	* config/i386/darwin32-biarch.h (PR80556_WORKAROUND): Likewise.
+	* config/i386/darwin64-biarch.h (PR80556_WORKAROUND): Likewise.
+
+2022-04-14  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin-driver.c (darwin_driver_init): Revise comments, handle
+	filelist and framework options in specs instead of code. Exit from the
+	option handling early if the command line is definitely enpty.
+	* config/darwin.h (SUBTARGET_DRIVER_SELF_SPECS): Update to handle link
+	specs that are really driver ones. Remove setting for the default content
+	of weak_reference_mismatches
+	(DARWIN_CC1_SPEC): Likewise.
+	(CPP_SPEC): Likewise.
+	(SYSROOT_SPEC): Append space.
+	(LINK_SYSROOT_SPEC): Remove most driver link specs.
+	(STANDARD_STARTFILE_PREFIX_2): Update link-related specs.
+	(STARTFILE_SPEC): Likewise.
+	(ASM_MMACOSX_VERSION_MIN_SPEC): Fix line wrap.
+	(ASM_SPEC): Update driver-related specs.
+	(ASM_FINAL_SPEC): Likewise.
+	(LINK_COMMAND_SPEC_A): Update 'r' handling to skip gomp and itm when r
+	or nodefaultlibs is given.
+	(DSYMUTIL_SPEC): Do not call dsymutil for '-r' link lines.
+	Update ordering of exclusions, remove duplicate 'v' addition
+	(collect2 will add this from the main command line).
+	* config/darwin.opt: Remove now unused option aliases.
+	* config/i386/darwin.h (EXTRA_ASM_OPTS): Ensure space after opt.
+	(ASM_SPEC): Update driver-related specs.
+
+2022-04-14  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backported from master:
+	2021-11-15  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR fortran/102992
+	* config/darwin.h (TARGET_DTORS_FROM_CXA_ATEXIT): New.
+	* doc/tm.texi: Regenerated.
+	* doc/tm.texi.in: Add TARGET_DTORS_FROM_CXA_ATEXIT hook.
+	* ipa.c (cgraph_build_static_cdtor_1): Return the built
+	function decl.
+	(build_cxa_atexit_decl): New.
+	(build_dso_handle_decl): New.
+	(build_cxa_dtor_registrations): New.
+	(compare_cdtor_tu_order): New.
+	(build_cxa_atexit_fns): New.
+	(ipa_cdtor_merge): If dtors_from_cxa_atexit is set,
+	process the DTORs/CTORs accordingly.
+	(pass_ipa_cdtor_merge::gate): Also run if
+	dtors_from_cxa_atexit is set.
+	* target.def (dtors_from_cxa_atexit): New hook.
+
+2022-04-14  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backported from master:
+	2021-11-05  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin.h (ASM_GENERATE_INTERNAL_LABEL): Add LTRAMP
+	to the list of symbol prefixes that must be made linker-
+	visible.
+
+2022-04-14  Saagar Jha  <saagar@saagarjha.com>
+
+	* config.gcc: Adjust for Darwin21.
+	* config/darwin-c.c (macosx_version_as_macro): Likewise.
+	* config/darwin-driver.c (validate_macosx_version_min):
+	Likewise.
+	(darwin_find_version_from_kernel): Likewise.
+
+2022-04-14  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backported from master:
+	2021-10-13  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* collect2.c (is_lto_object_file): Release simple-object
+	resources, close files.
+
+2022-04-14  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backported from master:
+	2021-09-28  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/rs6000/darwin.h (FIXED_R13): Add for PPC64.
+	(FIRST_SAVED_GP_REGNO): Save from R13 even when it is one
+	of the fixed regs.
+
+2022-04-14  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backported from master:
+	2021-09-19  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin.h (LINK_COMMAND_SPEC_A): Use Darwin10
+	unwinder shim as a convenience library.
+
+2022-04-14  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backported from master:
+	2021-09-14  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* Makefile.in: Remove variables related to applying no-PIE
+	to the exes on $build.
+	* configure: Regenerate.
+	* configure.ac: Remove configuration related to applying
+	no-PIE to the exes on $build.
+
+2022-04-14  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backported from master:
+	2021-08-27  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin.c (finalize_ctors): Add a section-start linker-
+	visible symbol.
+	(finalize_dtors): Likewise.
+	* config/darwin.h (MIN_LD64_INIT_TERM_START_LABELS): New.
+
+2022-04-14  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backported from master:
+	2021-08-17  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/darwin.c (darwin_file_end): Reset and reclaim the
+	section names table at the end of compile.
+
+2022-04-14  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* configure.ac: Handle --with-dsymutil in the same way as we
+	do for the assembler and linker.  (DEFAULT_DSYMUTIL): New.
+	Extract the type and version for the dsymutil configured or
+	found by the default searches.
+	* config.in: Regenerated.
+	* configure: Regenerated.
+	* collect2.c (do_dsymutil): Handle locating dsymutil in the
+	same way as for the assembler and  linker.
+	* config/darwin.h (DSYMUTIL): Delete.
+	* gcc.c: Report a configured dsymutil correctly.
+	* exec-tool.in: Allow for dsymutil.
+	* doc/install.texi: Document --with-dsymutil.
+
+2022-04-13  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2022-04-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/105214
+	* config/i386/i386-expand.c (ix86_emit_i387_log1p): Call
+	do_pending_stack_adjust.
+
+2022-04-13  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2022-04-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/105211
+	* builtins.c (expand_builtin_int_roundingfn_2): If mathfn_built_in_1
+	fails for TREE_TYPE (arg), retry it with
+	TREE_VALUE (TYPE_ARG_TYPES (TREE_TYPE (fndecl))) and if even that
+	fails, emit call normally.
+
+2022-04-13  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2022-04-08  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/105189
+	* fold-const.c (make_range_step): Fix up handling of
+	(unsigned) x +[low, -] ranges for signed x if low fits into
+	typeof (x).
+
+2022-04-13  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2022-04-06  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/104985
+	* combine.c (struct undo): Add where.regno member.
+	(do_SUBST_MODE): Rename to ...
+	(subst_mode): ... this.  Change first argument from rtx * into int,
+	operate on regno_reg_rtx[regno] and save regno into where.regno.
+	(SUBST_MODE): Remove.
+	(try_combine): Use subst_mode instead of SUBST_MODE, change first
+	argument from regno_reg_rtx[whatever] to whatever.  For UNDO_MODE, use
+	regno_reg_rtx[undo->where.regno] instead of *undo->where.r.
+	(undo_to_marker): For UNDO_MODE, use regno_reg_rtx[undo->where.regno]
+	instead of *undo->where.r.
+	(simplify_set): Use subst_mode instead of SUBST_MODE, change first
+	argument from regno_reg_rtx[whatever] to whatever.
+
+2022-04-12  Peter Bergner  <bergner@linux.ibm.com>
+
+	Backported from master:
+	2022-04-11  Peter Bergner  <bergner@linux.ibm.com>
+
+	PR target/104894
+	* config/rs6000/rs6000.c (rs6000_sibcall_aix): Handle pcrel sibcalls
+	to longcall functions.
+
+2022-04-12  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2022-04-12  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/105235
+	* tree-ssa-math-opts.c (execute_cse_conv_1): Clean EH and
+	return whether the CFG changed.
+	(execute_cse_sincos_1): Adjust.
+
+2022-04-12  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2022-04-12  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/105232
+	* tree.c (component_ref_size): Bail out for too large
+	or non-constant sizes.
+
+2022-04-12  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2022-04-12  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/105226
+	* tree-vect-loop-manip.c (vect_loop_versioning): Verify
+	we can split the exit of an outer loop we choose to version.
+
+2022-04-11  Kito Cheng  <kito.cheng@sifive.com>
+
+	Backported from master:
+	2022-04-11  Kito Cheng  <kito.cheng@sifive.com>
+
+	PR target/104853
+	* config.gcc: Pass -misa-spec to arch-canonicalize and
+	multilib-generator.
+	* config/riscv/arch-canonicalize: Adding -misa-spec option.
+	(SUPPORTED_ISA_SPEC): New.
+	(arch_canonicalize): New argument `isa_spec`.
+	Handle multiple ISA spec versions.
+	* config/riscv/multilib-generator: Adding -misa-spec option.
+
+2022-04-11  Kito Cheng  <kito.cheng@sifive.com>
+
+	Backported from master:
+	2021-08-16  Kito Cheng  <kito.cheng@sifive.com>
+
+	* config/riscv/multilib-generator: Support code model option for
+	multi-lib.
+	* doc/install.texi: Add document of new option for
+	--with-multilib-generator.
+
+2022-04-08  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2022-04-08  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/105198
+	* tree-predcom.c (find_looparound_phi): Check whether
+	the found memory location of the entry value is clobbered
+	inbetween the value we want to use and loop entry.
+
+2022-04-07  Jan Hubicka  <jh@suse.cz>
+
+	Backported from master:
+	2021-11-26  Jan Hubicka  <jh@suse.cz>
+
+	PR ipa/103432
+	* ipa-modref.c (update_escape_summary_1): Fix handling of min_flags.
+
+2022-04-07  Jan Hubicka  <jh@suse.cz>
+
+	Backported from master:
+	2021-08-11  Jan Hubicka  <hubicka@ucw.cz>
+		    Alexandre Oliva  <oliva@adacore.com>
+
+	* ipa-modref.c (modref_lattice::dump): Fix escape_point's min_flags
+	dumping.
+	(modref_lattice::merge_deref): Fix handling of indirect scape points.
+	(update_escape_summary_1): Likewise.
+	(update_escape_summary): Likewise.
+	(ipa_merge_modref_summary_after_inlining): Likewise.
+
+2022-04-07  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/99121
+	* gimple-array-bounds.cc (array_bounds_checker::check_mem_ref):
+	Bail out for non-constant type size.
+
+2022-04-07  Bernd Edlinger  <bernd.edlinger@hotmail.de>
+
+	Backported from master:
+	2021-04-27  Bernd Edlinger  <bernd.edlinger@hotmail.de>
+
+	PR target/100106
+	* simplify-rtx.c (simplify_context::simplify_subreg): Check the
+	memory alignment for the outer mode.
+
+2022-04-07  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/104497
+	* gimplify.c (gimplify_compound_lval): Make sure the
+	base is a non-register if needed and possible.
+
+2022-04-07  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/105053
+	* tree-vect-loop.c (vect_create_epilog_for_reduction): Pick
+	the correct live-out stmt for a reduction chain.
+
+2022-04-07  Andrew Pinski  <apinski@marvell.com>
+
+	Backported from master:
+	2022-02-10  Andrew Pinski  <apinski@marvell.com>
+
+	PR target/104474
+	* config/aarch64/aarch64.c
+	(aarch64_sve_expand_vector_init_handle_trailing_constants):
+	Use CONST0_RTX instead of const0_rtx for the non-constant elements.
+
+2022-04-07  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2022-03-28  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/105070
+	* tree-switch-conversion.h
+	(bit_test_cluster::hoist_edge_and_branch_if_true): Add location
+	argument.
+	* tree-switch-conversion.c
+	(bit_test_cluster::hoist_edge_and_branch_if_true): Annotate
+	cond with location.
+	(bit_test_cluster::emit): Annotate all generated expressions
+	with location.
+
+2022-04-07  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2022-03-23  Richard Biener  <rguenther@suse.de>
+
+	PR rtl-optimization/105028
+	* ira-color.c (form_threads_from_copies): Remove unnecessary
+	copying of the sorted_copies tail.
+
+2022-04-07  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2022-03-11  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/104880
+	* tree-ssa.c (execute_update_address_taken): Remember if we
+	optimistically made something not addressable and
+	prepare to undo it.
+
+2022-04-07  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2022-04-07  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/105165
+	* tree-complex.c (expand_complex_asm): Sorry for asm goto
+	_Complex outputs.
+
+2022-04-04  Martin Jambor  <mjambor@suse.cz>
+
+	Backported from master:
+	2022-03-31  Martin Jambor  <mjambor@suse.cz>
+
+	PR ipa/103083
+	* ipa-prop.h (ipa_ancestor_jf_data): New flag keep_null;
+	(ipa_get_jf_ancestor_keep_null): New function.
+	* ipa-prop.c (ipa_set_ancestor_jf): Initialize keep_null field of the
+	ancestor function.
+	(compute_complex_assign_jump_func): Pass false to keep_null
+	parameter of ipa_set_ancestor_jf.
+	(compute_complex_ancestor_jump_func): Pass true to keep_null
+	parameter of ipa_set_ancestor_jf.
+	(update_jump_functions_after_inlining): Carry over keep_null from the
+	original ancestor jump-function or merge them.
+	(ipa_write_jump_function): Stream keep_null flag.
+	(ipa_read_jump_function): Likewise.
+	(ipa_print_node_jump_functions_for_edge): Print the new flag.
+	* ipa-cp.c (class ipcp_bits_lattice): Make various getters const.  New
+	member function known_nonzero_p.
+	(ipcp_bits_lattice::known_nonzero_p): New.
+	(ipcp_bits_lattice::meet_with_1): New parameter drop_all_ones,
+	observe it.
+	(ipcp_bits_lattice::meet_with): Likewise.
+	(propagate_bits_across_jump_function): Simplify.  Pass true in
+	drop_all_ones when it is necessary.
+	(propagate_aggs_across_jump_function): Take care of keep_null
+	flag.
+	(ipa_get_jf_ancestor_result): Propagate NULL accross keep_null
+	jump functions.
+
+2022-04-03  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2022-04-03  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/105123
+	* config/i386/i386-expand.c (ix86_expand_vector_init_general): Avoid
+	using word as target for expand_simple_binop when doing ASHIFT and
+	IOR.
+
+2022-04-01  Vladimir N. Makarov  <vmakarov@redhat.com>
+
+	PR middle-end/105032
+	* lra-assigns.c (find_reload_regno_insns): Modify loop condition.
+
 2022-03-30  H.J. Lu  <hjl.tools@gmail.com>
 
 	Backported from master:

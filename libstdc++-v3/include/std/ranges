@@ -461,7 +461,10 @@ namespace ranges
 	friend constexpr _Iterator
 	operator+(_Iterator __i, difference_type __n)
 	  requires __detail::__advanceable<_Winc>
-	{ return __i += __n; }
+	{
+	  __i += __n;
+	  return __i;
+	}
 
 	friend constexpr _Iterator
 	operator+(difference_type __n, _Iterator __i)
@@ -471,7 +474,10 @@ namespace ranges
 	friend constexpr _Iterator
 	operator-(_Iterator __i, difference_type __n)
 	  requires __detail::__advanceable<_Winc>
-	{ return __i -= __n; }
+	{
+	  __i -= __n;
+	  return __i;
+	}
 
 	friend constexpr difference_type
 	operator-(const _Iterator& __x, const _Iterator& __y)
@@ -496,6 +502,7 @@ namespace ranges
       private:
 	_Winc _M_value = _Winc();
 
+	friend iota_view;
         friend _Sentinel;
       };
 
@@ -532,6 +539,8 @@ namespace ranges
 	operator-(const _Sentinel& __x, const _Iterator& __y)
 	  requires sized_sentinel_for<_Bound, _Winc>
 	{ return __x._M_distance_from(__y); }
+
+	friend iota_view;
       };
 
       _Winc _M_value = _Winc();
@@ -553,6 +562,24 @@ namespace ranges
 	if constexpr (totally_ordered_with<_Winc, _Bound>)
 	  __glibcxx_assert( bool(__value <= __bound) );
       }
+
+      constexpr
+      iota_view(_Iterator __first, _Iterator __last)
+	requires same_as<_Winc, _Bound>
+	: iota_view(__first._M_value, __last._M_value)
+      { }
+
+      constexpr
+      iota_view(_Iterator __first, unreachable_sentinel_t __last)
+	requires same_as<_Bound, unreachable_sentinel_t>
+	: iota_view(__first._M_value, __last)
+      { }
+
+      constexpr
+      iota_view(_Iterator __first, _Sentinel __last)
+	requires (!same_as<_Winc, _Bound>) && (!same_as<_Bound, unreachable_sentinel_t>)
+	: iota_view(__first._M_value, __last._M_bound)
+      { }
 
       constexpr _Iterator
       begin() const { return _Iterator{_M_value}; }
@@ -2444,7 +2471,8 @@ namespace views::__adaptor
 	    using _OuterCat = typename iterator_traits<_Outer_iter>::iterator_category;
 	    using _InnerCat = typename iterator_traits<_Inner_iter>::iterator_category;
 	    if constexpr (derived_from<_OuterCat, bidirectional_iterator_tag>
-			  && derived_from<_InnerCat, bidirectional_iterator_tag>)
+			  && derived_from<_InnerCat, bidirectional_iterator_tag>
+			  && common_range<range_reference_t<_Base<_Const>>>)
 	      return bidirectional_iterator_tag{};
 	    else if constexpr (derived_from<_OuterCat, forward_iterator_tag>
 			       && derived_from<_InnerCat, forward_iterator_tag>)
@@ -2496,7 +2524,8 @@ namespace views::__adaptor
 	  {
 	    if constexpr (_S_ref_is_glvalue
 			  && bidirectional_range<_Base>
-			  && bidirectional_range<range_reference_t<_Base>>)
+			  && bidirectional_range<range_reference_t<_Base>>
+			  && common_range<range_reference_t<_Base>>)
 	      return bidirectional_iterator_tag{};
 	    else if constexpr (_S_ref_is_glvalue
 			       && forward_range<_Base>
@@ -3043,7 +3072,7 @@ namespace views::__adaptor
 	  { return _M_i_current(); }
 
 	  constexpr iterator_t<_Base>
-	  base() &&
+	  base() && requires forward_range<_Vp>
 	  { return std::move(_M_i_current()); }
 
 	  constexpr decltype(auto)
@@ -3137,8 +3166,11 @@ namespace views::__adaptor
       begin()
       {
 	if constexpr (forward_range<_Vp>)
-	  return _OuterIter<__detail::__simple_view<_Vp>>{
-	      this, ranges::begin(_M_base)};
+	  {
+	    constexpr bool __simple
+	      = __detail::__simple_view<_Vp> && __detail::__simple_view<_Pattern>;
+	    return _OuterIter<__simple>{this, ranges::begin(_M_base)};
+	  }
 	else
 	  {
 	    _M_current = ranges::begin(_M_base);
@@ -3155,8 +3187,9 @@ namespace views::__adaptor
       constexpr auto
       end() requires forward_range<_Vp> && common_range<_Vp>
       {
-	return _OuterIter<__detail::__simple_view<_Vp>>{
-	    this, ranges::end(_M_base)};
+	constexpr bool __simple
+	  = __detail::__simple_view<_Vp> && __detail::__simple_view<_Pattern>;
+	return _OuterIter<__simple>{this, ranges::end(_M_base)};
       }
 
       constexpr auto

@@ -3767,6 +3767,41 @@ argument_pack_select_arg (tree t)
   return arg;
 }
 
+/* Return a modification of ARGS that's suitable for preserving inside a hash
+   table.  In particular, this replaces each ARGUMENT_PACK_SELECT with its
+   underlying argument.  ARGS is copied (upon modification) iff COW_P.  */
+
+static tree
+preserve_args (tree args, bool cow_p = true)
+{
+  if (!args)
+    return NULL_TREE;
+
+  for (int i = 0, len = TREE_VEC_LENGTH (args); i < len; ++i)
+    {
+      tree t = TREE_VEC_ELT (args, i);
+      tree r;
+      if (!t)
+	r = NULL_TREE;
+      else if (TREE_CODE (t) == ARGUMENT_PACK_SELECT)
+	r = argument_pack_select_arg (t);
+      else if (TREE_CODE (t) == TREE_VEC)
+	r = preserve_args (t, cow_p);
+      else
+	r = t;
+      if (r != t)
+	{
+	  if (cow_p)
+	    {
+	      args = copy_template_args (args);
+	      cow_p = false;
+	    }
+	  TREE_VEC_ELT (args, i) = r;
+	}
+    }
+
+  return args;
+}
 
 /* True iff FN is a function representing a built-in variadic parameter
    pack.  */
@@ -6453,10 +6488,7 @@ alias_template_specialization_p (const_tree t,
   return NULL_TREE;
 }
 
-/* An alias template is complex from a SFINAE perspective if a template-id
-   using that alias can be ill-formed when the expansion is not, as with
-   the void_t template.  We determine this by checking whether the
-   expansion for the alias template uses all its template parameters.  */
+/* Data structure for complex_alias_template_*.  */
 
 struct uses_all_template_parms_data
 {
@@ -6464,31 +6496,36 @@ struct uses_all_template_parms_data
   bool *seen;
 };
 
-static int
-uses_all_template_parms_r (tree t, void *data_)
+/* walk_tree callback for complex_alias_template_p.  */
+
+static tree
+complex_alias_template_r (tree *tp, int *walk_subtrees, void *data_)
 {
-  struct uses_all_template_parms_data &data
-    = *(struct uses_all_template_parms_data*)data_;
-  tree idx = get_template_parm_index (t);
+  tree t = *tp;
+  auto &data = *(struct uses_all_template_parms_data*)data_;
 
-  if (TEMPLATE_PARM_LEVEL (idx) == data.level)
-    data.seen[TEMPLATE_PARM_IDX (idx)] = true;
-  return 0;
-}
+  switch (TREE_CODE (t))
+    {
+    case TEMPLATE_TYPE_PARM:
+    case TEMPLATE_PARM_INDEX:
+    case TEMPLATE_TEMPLATE_PARM:
+    case BOUND_TEMPLATE_TEMPLATE_PARM:
+      {
+	tree idx = get_template_parm_index (t);
+	if (TEMPLATE_PARM_LEVEL (idx) == data.level)
+	  data.seen[TEMPLATE_PARM_IDX (idx)] = true;
+      }
 
-/* for_each_template_parm any_fn callback for complex_alias_template_p.  */
+    default:;
+    }
 
-static int
-complex_pack_expansion_r (tree t, void *data_)
-{
+  if (!PACK_EXPANSION_P (t))
+    return 0;
+
   /* An alias template with a pack expansion that expands a pack from the
      enclosing class needs to be considered complex, to avoid confusion with
      the same pack being used as an argument to the alias's own template
      parameter (91966).  */
-  if (!PACK_EXPANSION_P (t))
-    return 0;
-  struct uses_all_template_parms_data &data
-    = *(struct uses_all_template_parms_data*)data_;
   for (tree pack = PACK_EXPANSION_PARAMETER_PACKS (t); pack;
        pack = TREE_CHAIN (pack))
     {
@@ -6498,10 +6535,33 @@ complex_pack_expansion_r (tree t, void *data_)
       int idx, level;
       template_parm_level_and_index (parm_pack, &level, &idx);
       if (level < data.level)
-	return 1;
+	return t;
+
+      /* Consider the expanded packs to be used outside the expansion...  */
+      data.seen[idx] = true;
     }
+
+  /* ...but don't walk into the pattern.  Consider PR104008:
+
+     template <typename T, typename... Ts>
+     using IsOneOf = disjunction<is_same<T, Ts>...>;
+
+     where IsOneOf seemingly uses all of its template parameters in its
+     expansion (and does not expand a pack from the enclosing class), so the
+     alias was not marked as complex.  However, if it is used like
+     "IsOneOf<T>", the empty pack for Ts means that T no longer appears in the
+     expansion.  So only Ts is considered used by the pack expansion.  */
+  *walk_subtrees = false;
+
   return 0;
 }
+
+/* An alias template is complex from a SFINAE perspective if a template-id
+   using that alias can be ill-formed when the expansion is not, as with
+   the void_t template.
+
+   Returns 1 if always complex, 0 if not complex, -1 if complex iff any of the
+   template arguments are empty packs.  */
 
 static bool
 complex_alias_template_p (const_tree tmpl)
@@ -6523,8 +6583,7 @@ complex_alias_template_p (const_tree tmpl)
   for (int i = 0; i < len; ++i)
     data.seen[i] = false;
 
-  if (for_each_template_parm (pat, uses_all_template_parms_r, &data,
-			      NULL, true, complex_pack_expansion_r))
+  if (cp_walk_tree_without_duplicates (&pat, complex_alias_template_r, &data))
     return true;
   for (int i = 0; i < len; ++i)
     if (!data.seen[i])
@@ -12948,7 +13007,7 @@ build_extra_args (tree pattern, tree args, tsubst_flags_t complain)
 {
   /* Make a copy of the extra arguments so that they won't get changed
      out from under us.  */
-  tree extra = copy_template_args (args);
+  tree extra = preserve_args (copy_template_args (args), /*cow_p=*/false);
   if (local_specializations)
     if (tree locals = extract_local_specs (pattern, complain))
       extra = tree_cons (NULL_TREE, extra, locals);
@@ -14445,6 +14504,21 @@ most_general_lambda (tree t)
   while (tree ti = LAMBDA_EXPR_REGEN_INFO (t))
     t = TI_TEMPLATE (ti);
   return t;
+}
+
+/* Return the set of template arguments used to regenerate the lambda T
+   from its most general lambda.  */
+
+tree
+lambda_regenerating_args (tree t)
+{
+  if (LAMBDA_FUNCTION_P (t))
+    t = CLASSTYPE_LAMBDA_EXPR (DECL_CONTEXT (t));
+  gcc_assert (TREE_CODE (t) == LAMBDA_EXPR);
+  if (tree ti = LAMBDA_EXPR_REGEN_INFO (t))
+    return TI_ARGS (ti);
+  else
+    return NULL_TREE;
 }
 
 /* We're instantiating a variable from template function TCTX.  Return the
@@ -16478,12 +16552,20 @@ tsubst_qualified_id (tree qualified_id, tree args,
 
   if (dependent_scope_p (scope))
     {
-      if (is_template)
-	expr = build_min_nt_loc (loc, TEMPLATE_ID_EXPR, expr, template_args);
-      tree r = build_qualified_name (NULL_TREE, scope, expr,
-				     QUALIFIED_NAME_IS_TEMPLATE (qualified_id));
-      REF_PARENTHESIZED_P (r) = REF_PARENTHESIZED_P (qualified_id);
-      return r;
+      if (TREE_CODE (expr) == SCOPE_REF)
+	/* We built one in tsubst_baselink.  */
+	gcc_checking_assert (same_type_p (scope, TREE_OPERAND (expr, 0)));
+      else
+	{
+	  if (is_template)
+	    expr = build_min_nt_loc (loc, TEMPLATE_ID_EXPR, expr,
+				     template_args);
+	  expr = build_qualified_name (NULL_TREE, scope, expr,
+				       QUALIFIED_NAME_IS_TEMPLATE
+				       (qualified_id));
+	}
+      REF_PARENTHESIZED_P (expr) = REF_PARENTHESIZED_P (qualified_id);
+      return expr;
     }
 
   if (!BASELINK_P (name) && !DECL_P (expr))
@@ -19371,10 +19453,11 @@ tsubst_lambda_expr (tree t, tree args, tsubst_flags_t complain, tree in_decl)
   LAMBDA_EXPR_MUTABLE_P (r) = LAMBDA_EXPR_MUTABLE_P (t);
   if (tree ti = LAMBDA_EXPR_REGEN_INFO (t))
     LAMBDA_EXPR_REGEN_INFO (r)
-      = build_template_info (t, add_to_template_args (TI_ARGS (ti), args));
+      = build_template_info (t, add_to_template_args (TI_ARGS (ti),
+						      preserve_args (args)));
   else
     LAMBDA_EXPR_REGEN_INFO (r)
-      = build_template_info (t, args);
+      = build_template_info (t, preserve_args (args));
 
   gcc_assert (LAMBDA_EXPR_THIS_CAPTURE (t) == NULL_TREE
 	      && LAMBDA_EXPR_PENDING_PROXIES (t) == NULL);
@@ -26677,6 +26760,24 @@ invalid_nontype_parm_type_p (tree type, tsubst_flags_t complain)
   return true;
 }
 
+/* Returns true iff the noexcept-specifier for TYPE is value-dependent.  */
+
+static bool
+value_dependent_noexcept_spec_p (tree type)
+{
+  if (tree spec = TYPE_RAISES_EXCEPTIONS (type))
+    if (tree noex = TREE_PURPOSE (spec))
+      /* Treat DEFERRED_NOEXCEPT as non-dependent, since it doesn't
+	 affect overload resolution and treating it as dependent breaks
+	 things.  Same for an unparsed noexcept expression.  */
+      if (TREE_CODE (noex) != DEFERRED_NOEXCEPT
+	  && TREE_CODE (noex) != DEFERRED_PARSE
+	  && value_dependent_expression_p (noex))
+	return true;
+
+  return false;
+}
+
 /* Returns TRUE if TYPE is dependent, in the sense of [temp.dep.type].
    Assumes that TYPE really is a type, and not the ERROR_MARK_NODE.*/
 
@@ -26729,17 +26830,10 @@ dependent_type_p_r (tree type)
 	   arg_type = TREE_CHAIN (arg_type))
 	if (dependent_type_p (TREE_VALUE (arg_type)))
 	  return true;
-      if (cxx_dialect >= cxx17)
+      if (cxx_dialect >= cxx17
+	  && value_dependent_noexcept_spec_p (type))
 	/* A value-dependent noexcept-specifier makes the type dependent.  */
-	if (tree spec = TYPE_RAISES_EXCEPTIONS (type))
-	  if (tree noex = TREE_PURPOSE (spec))
-	    /* Treat DEFERRED_NOEXCEPT as non-dependent, since it doesn't
-	       affect overload resolution and treating it as dependent breaks
-	       things.  Same for an unparsed noexcept expression.  */
-	    if (TREE_CODE (noex) != DEFERRED_NOEXCEPT
-		&& TREE_CODE (noex) != DEFERRED_PARSE
-		&& value_dependent_expression_p (noex))
-	      return true;
+	return true;
       return false;
     }
   /* -- an array type constructed from any dependent type or whose
@@ -26903,6 +26997,7 @@ instantiation_dependent_scope_ref_p (tree t)
 {
   if (DECL_P (TREE_OPERAND (t, 1))
       && CLASS_TYPE_P (TREE_OPERAND (t, 0))
+      && !dependent_scope_p (TREE_OPERAND (t, 0))
       && !unknown_base_ref_p (t)
       && accessible_in_template_p (TREE_OPERAND (t, 0),
 				   TREE_OPERAND (t, 1)))
@@ -27542,6 +27637,17 @@ instantiation_dependent_r (tree *tp, int *walk_subtrees,
 
     case CONSTRUCTOR:
       if (CONSTRUCTOR_IS_DEPENDENT (*tp))
+	return *tp;
+      break;
+
+    case TEMPLATE_DECL:
+    case FUNCTION_DECL:
+      /* Before C++17, a noexcept-specifier isn't part of the function type
+	 so it doesn't affect type dependence, but we still want to consider it
+	 for instantiation dependence.  */
+      if (cxx_dialect < cxx17
+	  && DECL_DECLARES_FUNCTION_P (*tp)
+	  && value_dependent_noexcept_spec_p (TREE_TYPE (*tp)))
 	return *tp;
       break;
 
@@ -29545,7 +29651,7 @@ do_class_deduction (tree ptype, tree tmpl, tree init,
 
   /* If CTAD succeeded but the type doesn't have any explicit deduction
      guides, this deduction might not be what the user intended.  */
-  if (call != error_mark_node && !any_dguides_p)
+  if (call != error_mark_node && !any_dguides_p && (complain & tf_warning))
     {
       tree fndecl = cp_get_callee_fndecl_nofold (call);
       if (fndecl != NULL_TREE
@@ -29734,12 +29840,24 @@ do_auto_deduction (tree type, tree init, tree auto_node,
 	    return type;
 	}
 
-      if ((context == adc_return_type
-	   || context == adc_variable_type
-	   || context == adc_decomp_type)
-	  && current_function_decl
-	  && DECL_TEMPLATE_INFO (current_function_decl))
-	outer_targs = DECL_TI_ARGS (current_function_decl);
+      if (context == adc_return_type
+	  || context == adc_variable_type
+	  || context == adc_decomp_type)
+	if (tree fn = current_function_decl)
+	  if (DECL_TEMPLATE_INFO (fn) || LAMBDA_FUNCTION_P (fn))
+	    {
+	      outer_targs = DECL_TEMPLATE_INFO (fn)
+		? DECL_TI_ARGS (fn) : NULL_TREE;
+	      if (LAMBDA_FUNCTION_P (fn))
+		{
+		  /* As in satisfy_declaration_constraints.  */
+		  tree regen_args = lambda_regenerating_args (fn);
+		  if (outer_targs)
+		    outer_targs = add_to_template_args (regen_args, outer_targs);
+		  else
+		    outer_targs = regen_args;
+		}
+	    }
 
       tree full_targs = add_to_template_args (outer_targs, targs);
 

@@ -704,9 +704,9 @@ case ${target} in
       *-*-darwin[4-9]* | *-*-darwin1[0-9]*)
         macos_min=`expr $darwin_maj - 4`
         ;;
-      *-*-darwin20*)
-        # Darwin 20 corresponds to macOS 11.
-        macos_maj=11
+      *-*-darwin2*)
+        # Darwin 20 corresponds to macOS 11, Darwin 21 to macOS 12.
+        macos_maj=`expr $darwin_maj - 9`
         def_ld64=609.0
         ;;
       *-*-darwin)
@@ -4692,7 +4692,7 @@ case "${target}" in
 		esac
 		PYTHON=`which python || which python3 || which python2`
 		if test "x${PYTHON}" != x; then
-			with_arch=`${PYTHON} ${srcdir}/config/riscv/arch-canonicalize ${with_arch}`
+			with_arch=`${PYTHON} ${srcdir}/config/riscv/arch-canonicalize -misa-spec=${with_isa_spec} ${with_arch}`
 		fi
 		tm_defines="${tm_defines} TARGET_RISCV_DEFAULT_ARCH=${with_arch}"
 
@@ -4741,6 +4741,7 @@ case "${target}" in
 			case "${target}" in
 			riscv*-*-elf*)
 				if ${srcdir}/config/riscv/multilib-generator \
+					-misa-spec=${with_isa_spec} \
 					`echo ${with_multilib_generator} | sed 's/;/ /g'`\
 					> t-multilib-config;
 				then
@@ -5149,7 +5150,7 @@ case "${target}" in
 		for which in arch tune; do
 			eval "val=\$with_$which"
 			case ${val} in
-			"" | native | z900 | z990 | z9-109 | z9-ec | z10 | z196 | zEC12 | z13 | z14 | z15 | arch5 | arch6 | arch7 | arch8 | arch9 | arch10 | arch11 | arch12 | arch13 | arch14 )
+			"" | native | z900 | z990 | z9-109 | z9-ec | z10 | z196 | zEC12 | z13 | z14 | z15 | z16 | arch5 | arch6 | arch7 | arch8 | arch9 | arch10 | arch11 | arch12 | arch13 | arch14 )
 				# OK
 				;;
 			*)

@@ -1,3 +1,408 @@
+2022-04-21  Release Manager
+
+	* GCC 11.3.0 released.
+
+2022-04-20  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2022-04-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/105256
+	* g++.dg/cpp0x/pr105256.C: New test.
+
+2022-04-19  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2022-04-19  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/104880
+	* g++.dg/opt/pr104880.cc: Rename to ...
+	* g++.dg/opt/pr104880.C: ... this.
+
+2022-04-14  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* gcc.dg/torture/fp-int-convert-timode-3.c: Remove XFAIL.
+	* gcc.dg/torture/fp-int-convert-timode-4.c: Likewise.
+
+2022-04-14  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backported from master:
+	2021-09-19  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* jit.dg/jit.exp (fixed_local_execute): Amend the match and
+	exit conditions to cater for more platforms.
+
+2022-04-14  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backported from master:
+	2021-08-29  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* gcc.dg/analyzer/strndup-1.c: Skip for Darwin versions
+	without strndup support in libc.
+
+2022-04-14  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backported from master:
+	2021-08-19  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* jit.dg/test-asm.c: Provide Mach-O fragment.
+	* jit.dg/test-asm.cc: Likewise.
+
+2022-04-14  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backported from master:
+	2021-08-19  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* jit.dg/harness.h: Include jit-dejagnu.h.
+	* jit.dg/jit.exp: Use -rdynamic conditionally on target
+	support, instead of unconditional -Wl,--export-dynamic.
+
+2022-04-13  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2022-04-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/105214
+	* gcc.dg/asan/pr105214.c: New test.
+
+2022-04-13  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2022-04-12  Jakub Jelinek  <jakub@redhat.com>
+
+	PR rtl-optimization/105211
+	* gcc.dg/pr105211.c: New test.
+
+2022-04-13  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2022-04-11  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/105186
+	* c-c++-common/pr105186.c: New test.
+
+2022-04-13  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2022-04-08  Jakub Jelinek  <jakub@redhat.com>
+
+	PR tree-optimization/105189
+	* g++.dg/torture/pr105189.C: New test.
+
+2022-04-12  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2022-02-16  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/104507
+	* g++.dg/template/non-dependent21.C: New test.
+
+2022-04-12  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2022-02-08  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/103706
+	* g++.dg/cpp2a/concepts-lambda18.C: New test.
+
+2022-04-12  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2022-01-28  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/103341
+	* g++.dg/cpp2a/concepts-class4.C: New test.
+	* g++.dg/cpp2a/concepts-var-templ2.C: New test.
+
+2022-04-12  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2022-01-25  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/101532
+	PR c++/104225
+	* g++.dg/cpp0x/nsdmi-template21.C: New test.
+	* g++.dg/cpp0x/nsdmi-template21a.C: New test.
+
+2022-04-12  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2022-04-12  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/103105
+	* g++.dg/cpp2a/concepts-requires29.C: New test.
+	* g++.dg/cpp2a/concepts-requires29a.C: New test.
+
+2022-04-12  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2022-02-08  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/103706
+	* g++.dg/cpp2a/concepts-lambda19.C: New test.
+
+2022-04-12  Peter Bergner  <bergner@linux.ibm.com>
+
+	Backported from master:
+	2022-04-11  Peter Bergner  <bergner@linux.ibm.com>
+
+	PR target/104894
+	* gcc.target/powerpc/pr104894.c: New test.
+	* gcc.target/powerpc/pr104894-2.c: New test.
+
+2022-04-12  Jason Merrill  <jason@redhat.com>
+
+	PR c++/98249
+	* g++.dg/lookup/new3.C: New test.
+
+2022-04-12  Jason Merrill  <jason@redhat.com>
+
+	PR c++/100608
+	* g++.dg/warn/Wshadow-compatible-local-3.C: New test.
+
+2022-04-12  Jason Merrill  <jason@redhat.com>
+
+	PR c++/101677
+	* g++.dg/cpp2a/concepts-pr67178.C: Adjust error.
+	* g++.dg/cpp2a/concepts-requires28.C: New test.
+
+2022-04-12  Jason Merrill  <jason@redhat.com>
+
+	PR c++/105003
+	PR c++/104008
+	PR c++/102869
+	* g++.dg/cpp0x/variadic-alias6.C: New test.
+	* g++.dg/cpp0x/variadic-alias7.C: New test.
+
+2022-04-12  Jason Merrill  <jason@redhat.com>
+
+	PR c++/101894
+	* g++.dg/lookup/friend22.C: New test.
+
+2022-04-12  Jason Merrill  <jason@redhat.com>
+
+	PR c++/103943
+	* g++.dg/cpp1z/class-deduction109.C: New test.
+
+2022-04-12  Jason Merrill  <jason@redhat.com>
+
+	PR c++/101717
+	* g++.dg/cpp1y/lambda-generic-this4.C: New test.
+
+2022-04-12  Jason Merrill  <jason@redhat.com>
+
+	PR c++/101051
+	* g++.dg/cpp0x/trailing15.C: New test.
+
+2022-04-12  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2022-04-12  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/105235
+	* g++.dg/opt/pr105235-1.C: New testcase.
+
+2022-04-12  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2022-04-12  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/105226
+	* gcc.dg/pr105226.c: New testcase.
+
+2022-04-11  Alexandre Oliva  <oliva@adacore.com>
+
+	Backported from master:
+	2022-04-11  Alexandre Oliva  <oliva@adacore.com>
+
+	PR target/104253
+	* gcc.target/powerpc/pr104253.c: Add missing dg- before
+	require-effective-target.  Prune warning about -mfloat128
+	possibly not being fully supported.
+
+2022-04-10  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2022-04-05  Harald Anlauf  <anlauf@gmx.de>
+		    Steven G. Kargl  <kargl@gcc.gnu.org>
+
+	PR fortran/105138
+	* gfortran.dg/recursive_reference_3.f90: New test.
+
+2022-04-10  Mikael Morin  <mikael@gcc.gnu.org>
+
+	Backported from master:
+	2022-03-19  Mikael Morin  <mikael@gcc.gnu.org>
+
+	PR fortran/104228
+	PR fortran/104570
+	* gfortran.dg/associate_58.f90: New test.
+
+2022-04-10  Mikael Morin  <mikael@gcc.gnu.org>
+
+	Backported from master:
+	2022-02-13  Mikael Morin  <mikael@gcc.gnu.org>
+
+	PR fortran/104228
+	* gfortran.dg/asan/associate_58.f90: New test.
+	* gfortran.dg/asan/associate_59.f90: New test.
+
+2022-04-08  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-05-27  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/99893
+	PR c++/103885
+	* g++.dg/cpp0x/static_assert17.C: New test.
+
+2022-04-08  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2022-04-08  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/105198
+	* gcc.dg/torture/pr105198.c: New testcase.
+
+2022-04-07  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2022-04-06  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/105143
+	* g++.dg/cpp2a/nodiscard1.C: New test.
+	* g++.dg/warn/Wctad-maybe-unsupported4.C: New test.
+
+2022-04-07  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2022-03-28  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/105064
+	* g++.dg/cpp2a/concepts-friend9.C: New test.
+
+2022-04-07  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2022-02-17  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/104565
+	* g++.dg/template/non-dependent22.C: New test.
+
+2022-04-07  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2022-02-03  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/104079
+	* g++.dg/cpp0x/noexcept74.C: New test.
+	* g++.dg/cpp0x/noexcept74a.C: New test.
+
+2022-04-07  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2022-03-26  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/103455
+	* g++.dg/overload/builtin6.C: New test.
+
+2022-04-07  Harald Anlauf  <anlauf@gmx.de>
+
+	Backported from master:
+	2022-04-05  Harald Anlauf  <anlauf@gmx.de>
+
+	PR fortran/104210
+	* gfortran.dg/pr104210.f90: New test.
+
+2022-04-07  Jan Hubicka  <jh@suse.cz>
+
+	Backported from master:
+	2021-08-11  Jan Hubicka  <jh@suse.cz>
+
+	* c-c++-common/modref-dse.c: New test.
+
+2022-04-07  Benno Evers  <benno.evers@tenzir.com>
+
+	Backported from master:
+	2022-04-03  Benno Evers  <benno.evers@tenzir.com>
+		    Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR c++/103328
+	* g++.dg/coroutines/pr103328.C: New test.
+
+2022-04-07  Martin Sebor  <msebor@redhat.com>
+
+	Backported from master:
+	2021-07-27  Martin Sebor  <msebor@redhat.com>
+
+	PR c/101585
+	* gcc.dg/Wvla-parameter-13.c: New test.
+
+2022-04-07  Bernd Edlinger  <bernd.edlinger@hotmail.de>
+
+	Backported from master:
+	2021-04-27  Bernd Edlinger  <bernd.edlinger@hotmail.de>
+
+	PR target/100106
+	* gcc.c-torture/compile/pr100106.c: New testcase.
+
+2022-04-07  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/104497
+	* c-c++-common/torture/pr104497.c: New testcase.
+
+2022-04-07  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/105053
+	* g++.dg/vect/pr105053.cc: New testcase.
+
+2022-04-07  Andrew Pinski  <apinski@marvell.com>
+
+	Backported from master:
+	2022-02-10  Andrew Pinski  <apinski@marvell.com>
+
+	PR target/104474
+	* gcc.target/aarch64/sve/pr104474-1.c: New test.
+	* gcc.target/aarch64/sve/pr104474-2.c: New test.
+	* gcc.target/aarch64/sve/pr104474-3.c: New test.
+
+2022-04-07  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2022-03-11  Richard Biener  <rguenther@suse.de>
+
+	PR tree-optimization/104880
+	* g++.dg/opt/pr104880.cc: New testcase.
+
+2022-04-07  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2022-04-07  Richard Biener  <rguenther@suse.de>
+
+	PR middle-end/105165
+	* gcc.dg/pr105165.c: New testcase.
+
+2022-04-04  Martin Jambor  <mjambor@suse.cz>
+
+	Backported from master:
+	2022-03-31  Martin Jambor  <mjambor@suse.cz>
+
+	* gcc.dg/ipa/pr103083-1.c: New test.
+	* gcc.dg/ipa/pr103083-2.c: Likewise.
+
+2022-04-03  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2022-04-03  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/105123
+	* gcc.target/i386/pr105123.c: New test.
+
+2022-04-01  Vladimir N. Makarov  <vmakarov@redhat.com>
+
+	PR middle-end/105032
+	* gcc.target/i386/pr105032.c: New.
+
 2022-03-30  Marek Polacek  <polacek@redhat.com>
 
 	Backported from master:

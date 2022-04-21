@@ -1288,20 +1288,15 @@ remove_constraints (tree t)
    for declaration matching.  */
 
 tree
-maybe_substitute_reqs_for (tree reqs, const_tree decl_)
+maybe_substitute_reqs_for (tree reqs, const_tree decl)
 {
   if (reqs == NULL_TREE)
     return NULL_TREE;
 
-  tree decl = CONST_CAST_TREE (decl_);
-  tree result = STRIP_TEMPLATE (decl);
-
-  if (DECL_UNIQUE_FRIEND_P (result))
+  decl = STRIP_TEMPLATE (decl);
+  if (DECL_UNIQUE_FRIEND_P (decl) && DECL_TEMPLATE_INFO (decl))
     {
-      tree tmpl = decl;
-      if (TREE_CODE (decl) != TEMPLATE_DECL)
-	tmpl = DECL_TI_TEMPLATE (result);
-
+      tree tmpl = DECL_TI_TEMPLATE (decl);
       tree gargs = generic_targs_for (tmpl);
       processing_template_decl_sentinel s;
       if (uses_template_parms (gargs))
@@ -3212,12 +3207,11 @@ satisfy_declaration_constraints (tree t, sat_info info)
 	 set of template arguments.  Augment this with the outer template
 	 arguments that were used to regenerate the lambda.  */
       gcc_assert (!args || TMPL_ARGS_DEPTH (args) == 1);
-      tree lambda = CLASSTYPE_LAMBDA_EXPR (DECL_CONTEXT (t));
-      tree outer_args = TI_ARGS (LAMBDA_EXPR_REGEN_INFO (lambda));
+      tree regen_args = lambda_regenerating_args (t);
       if (args)
-	args = add_to_template_args (outer_args, args);
+	args = add_to_template_args (regen_args, args);
       else
-	args = outer_args;
+	args = regen_args;
     }
 
   /* If any arguments depend on template parameters, we can't

@@ -1,3 +1,201 @@
+2022-04-21  Release Manager
+
+	* GCC 11.3.0 released.
+
+2022-04-20  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2022-04-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/105256
+	* typeck2.c (process_init_constructor_array,
+	process_init_constructor_record, process_init_constructor_union): Move
+	CONSTRUCTOR_PLACEHOLDER_BOUNDARY flag from CONSTRUCTOR elements to the
+	containing CONSTRUCTOR.
+
+2022-04-12  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2022-02-16  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/104507
+	* constexpr.c (potential_constant_expression_1)
+	<case NON_DEPENDENT_EXPR>: Return false instead of recursing.
+	Assert tf_error isn't set.
+
+2022-04-12  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2022-02-08  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/103706
+	* constraint.cc (satisfy_declaration_constraints): Use
+	lambda_regenerating_args instead.
+	* cp-tree.h (lambda_regenerating_args): Declare.
+	* pt.c (lambda_regenerating_args): Define, split out from
+	satisfy_declaration_constraints.
+	(do_auto_deduction): Use lambda_regenerating_args to obtain the
+	full set of outer template arguments for satisfaction when
+	inside a lambda.
+
+2022-04-12  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2022-01-28  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/103341
+	* decl.c (cp_finish_decl): Pass the template arguments of a
+	variable template specialization or a templated static data
+	member to do_auto_deduction when the auto is constrained.
+
+2022-04-12  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2022-01-25  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/101532
+	PR c++/104225
+	* decl2.c (mark_used): Don't consider maybe_instantiate_noexcept
+	on a deleted function.
+
+2022-04-12  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2022-04-12  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/103105
+	* pt.c (build_extra_args): Call preserve_args.
+
+2022-04-12  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2022-02-08  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/103706
+	* pt.c (preserve_args): New function.
+	(tsubst_lambda_expr): Use it when setting LAMBDA_EXPR_REGEN_INFO.
+
+2022-04-12  Jason Merrill  <jason@redhat.com>
+
+	PR c++/98249
+	* call.c (build_operator_new_call): Just look in ::.
+
+2022-04-12  Jason Merrill  <jason@redhat.com>
+
+	PR c++/100608
+	* name-lookup.c (check_local_shadow): Use -Wshadow=local
+	if exactly one of 'old' and 'decl' is a type.
+
+2022-04-12  Jason Merrill  <jason@redhat.com>
+
+	PR c++/101677
+	* name-lookup.h (struct cp_binding_level): Add requires_expression
+	bit-field.
+	* parser.c (cp_parser_requires_expression): Set it.
+	(synthesize_implicit_template_parm): Check it.
+
+2022-04-12  Jason Merrill  <jason@redhat.com>
+
+	PR c++/105003
+	PR c++/104008
+	PR c++/102869
+	* pt.c (complex_alias_template_r): walk_tree callback,	replacing
+	uses_all_template_parms_r, complex_pack_expansion_r.
+	(complex_alias_template_p): Adjust.
+
+2022-04-12  Jason Merrill  <jason@redhat.com>
+
+	PR c++/101894
+	* decl.c (duplicate_decls): Copy DECL_FRIEND_CONTEXT.
+
+2022-04-12  Jason Merrill  <jason@redhat.com>
+
+	PR c++/103943
+	* pt.c (tsubst_qualified_id): Handle getting SCOPE_REF from
+	tsubst_baselink.
+	(instantiation_dependent_scope_ref_p): Check dependent_scope_p.
+
+2022-04-12  Jason Merrill  <jason@redhat.com>
+
+	PR c++/101717
+	* lambda.c (lambda_expr_this_capture): Check all enclosing
+	lambdas for completeness.
+
+2022-04-12  Jason Merrill  <jason@redhat.com>
+
+	PR c++/101051
+	* decl.c (grokdeclarator): Reject conversion with trailing return
+	sooner.
+
+2022-04-08  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-05-27  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/99893
+	PR c++/103885
+	* tree.c (cp_walk_subtrees) <case STATIC_ASSERT>: New case.
+
+2022-04-07  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2022-04-06  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/105143
+	* pt.c (do_class_deduction): Check complain before attempting
+	to issue a -Wctad-maybe-unsupported warning.
+
+2022-04-07  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2022-03-28  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/105064
+	* constraint.cc (maybe_substitute_reqs_for): Don't assume
+	DECL_TEMPLATE_INFO is available.
+
+2022-04-07  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2022-02-17  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/104565
+	* semantics.c (finish_compound_literal): Don't perform
+	non-dependent expr folding before calling check_narrowing.
+
+2022-04-07  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2022-02-03  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/104079
+	* pt.c (value_dependent_noexcept_spec_p): New predicate split
+	out from ...
+	(dependent_type_p_r): ... here.
+	(instantiation_dependent_r): Use value_dependent_noexcept_spec_p
+	to consider dependence of a noexcept-spec before C++17.
+	* tree.c (fixup_deferred_exception_variants): Clear
+	TYPE_DEPENDENT_P_VALID.
+
+2022-04-07  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2022-03-26  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/103455
+	* call.c (add_builtin_candidate) <case MEMBER_REF>: Test
+	CLASS_TYPE_P instead of MAYBE_CLASS_TYPE_P.
+
+2022-04-07  Benno Evers  <benno.evers@tenzir.com>
+
+	Backported from master:
+	2022-04-03  Benno Evers  <benno.evers@tenzir.com>
+		    Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR c++/103328
+	* coroutines.cc (morph_fn_to_coro): Reset
+	current_binding_level->blocks.
+
 2022-03-30  Jakub Jelinek  <jakub@redhat.com>
 
 	Backported from master:

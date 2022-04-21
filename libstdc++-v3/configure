@@ -1624,7 +1624,7 @@ Optional Features:
   --enable-concept-checks use Boost-derived template checks [default=no]
   --enable-libstdcxx-debug-flags=FLAGS
                           pass compiler FLAGS when building debug library
-                          [default="-gdwarf-4 -g3 -O0 -D_GLIBCXX_ASSERTIONS"]
+                          [default="-g3 -O0 -D_GLIBCXX_ASSERTIONS"]
   --enable-libstdcxx-debug
                           build extra debug library [default=no]
   --enable-cxx-flags=FLAGS
@@ -16425,13 +16425,16 @@ fi
       CSTDIO_H=config/io/c_io_stdio.h
       BASIC_FILE_H=config/io/basic_file_stdio.h
       BASIC_FILE_CC=config/io/basic_file_stdio.cc
-      { $as_echo "$as_me:${as_lineno-$LINENO}: result: stdio" >&5
-$as_echo "stdio" >&6; }
 
       if test "x$enable_cstdio" = "xstdio_pure" ; then
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: stdio (without POSIX read/write)" >&5
+$as_echo "stdio (without POSIX read/write)" >&6; }
 
 $as_echo "#define _GLIBCXX_USE_STDIO_PURE 1" >>confdefs.h
 
+      else
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: stdio (with POSIX read/write)" >&5
+$as_echo "stdio (with POSIX read/write)" >&6; }
       fi
       ;;
   esac
@@ -18598,7 +18601,7 @@ if test "${enable_libstdcxx_debug_flags+set}" = set; then :
       *)          as_fn_error $? "--enable-libstdcxx-debug-flags needs compiler flags as arguments" "$LINENO" 5 ;;
      esac
 else
-  enable_libstdcxx_debug_flags="-gdwarf-4 -g3 -O0 -D_GLIBCXX_ASSERTIONS"
+  enable_libstdcxx_debug_flags="-g3 -O0 -D_GLIBCXX_ASSERTIONS"
 fi
 
 

@@ -93,7 +93,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
    * @{
    */
 
-#if __cplusplus > 201703L && __cpp_lib_concepts
+#if __cpp_lib_concepts
   namespace __detail
   {
     // Weaken iterator_category _Cat to _Limit if it is derived from that,
@@ -150,7 +150,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     public:
       typedef _Iterator					iterator_type;
       typedef typename __traits_type::pointer		pointer;
-#if __cplusplus <= 201703L
+#if ! __cpp_lib_concepts
       typedef typename __traits_type::difference_type	difference_type;
       typedef typename __traits_type::reference		reference;
 #else
@@ -1711,14 +1711,15 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     {
       iter_value_t<_It> _M_keep;
 
+      constexpr
       __arrow_proxy(iter_reference_t<_It>&& __x)
       : _M_keep(std::move(__x)) { }
 
       friend class common_iterator;
 
     public:
-      const iter_value_t<_It>*
-      operator->() const
+      constexpr const iter_value_t<_It>*
+      operator->() const noexcept
       { return std::__addressof(_M_keep); }
     };
 
@@ -1726,14 +1727,15 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     {
       iter_value_t<_It> _M_keep;
 
+      constexpr
       __postfix_proxy(iter_reference_t<_It>&& __x)
       : _M_keep(std::forward<iter_reference_t<_It>>(__x)) { }
 
       friend class common_iterator;
 
     public:
-      const iter_value_t<_It>&
-      operator*() const
+      constexpr const iter_value_t<_It>&
+      operator*() const noexcept
       { return _M_keep; }
     };
 

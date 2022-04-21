@@ -2804,6 +2804,10 @@ fixup_deferred_exception_variants (tree type, tree raises)
 	  }
 	else
 	  TYPE_RAISES_EXCEPTIONS (variant) = raises;
+
+	if (!TYPE_DEPENDENT_P (variant))
+	  /* We no longer know that it's not type-dependent.  */
+	  TYPE_DEPENDENT_P_VALID (variant) = false;
       }
 }
 
@@ -5455,6 +5459,11 @@ cp_walk_subtrees (tree *tp, int *walk_subtrees_p, walk_tree_fn func,
 	       arguments.  */
 	    WALK_SUBTREE (TREE_OPERAND (*tp, 1));
 	}
+      break;
+
+    case STATIC_ASSERT:
+      WALK_SUBTREE (STATIC_ASSERT_CONDITION (*tp));
+      WALK_SUBTREE (STATIC_ASSERT_MESSAGE (*tp));
       break;
 
     default:
