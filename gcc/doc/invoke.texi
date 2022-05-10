@@ -607,7 +607,7 @@ Objective-C and Objective-C++ Dialects}.
 -msign-return-address=@var{scope} @gol
 -march=@var{name}  -mcpu=@var{name}  -mtune=@var{name}  @gol
 -moverride=@var{string}  -mverbose-cost-dump @gol
--moutline-atomics }
+-mindirect-branch=@var{choice}  -moutline-atomics}
 
 @emph{Adapteva Epiphany Options}
 @gccoptlist{-mhalf-reg-file  -mprefer-short-insn-regs @gol
@@ -14967,6 +14967,24 @@ different hardware SVE vector lengths.
 
 The default is @samp{-msve-vector-bits=scalable}, which produces
 vector-length agnostic code.
+
+@item -mindirect-branch=@var{choice}
+@opindex -mindirect-branch
+Convert indirect branch-and-link-register and branch-register with @var{choice}.
+The default is @samp{keep}, which keeps indirect branch-and-link-register and
+branch-register instructions unmodified.
+@samp{thunk} converts indirect branch-and-link-register/branch-register
+instructions to a branch-and-link/branch to a function containing a retpoline
+(to stop speculative execution) followed by a branch-register to the target.
+@samp{thunk-inline} similar to @samp{thunk}, but inlines the retpoline
+before the branch-and-link-register/branch-register instruction.
+@samp{thunk-extern} similar to @samp{thunk}, but does not insert the functions
+containing the retpoline.  When using this option, these functions need to be
+provided in a separate object file.  The retpoline functions exist for each
+register and are named __aarch64_indirect_thunk_xN (N being the register number).
+You can control this behavior for a specific function by using the
+function attribute @code{indirect_branch}.  @xref{Function Attributes}.
+
 @end table
 
 @subsubsection @option{-march} and @option{-mcpu} Feature Modifiers
