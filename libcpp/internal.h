@@ -576,6 +576,13 @@ struct cpp_reader
   /* If non-null, the lexer will use this location for the next token
      instead of getting a location from the linemap.  */
   source_location *forced_token_location_p;
+
+  /* Returns true iff we should warn about UTF-8 bidirectional control
+     characters.  */
+  bool warn_bidi_p () const
+  {
+    return CPP_OPTION (this, cpp_warn_bidirectional) != bidirectional_none;
+  }
 };
 
 /* Character classes.  Based on the more primitive macros in safe-ctype.h.
