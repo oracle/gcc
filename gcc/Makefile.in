@@ -1416,6 +1416,7 @@ OBJS = \
 	mode-switching.o \
 	modulo-sched.o \
 	multiple_target.o \
+	noloopalias.o \
 	omp-offload.o \
 	omp-expand.o \
 	omp-general.o \
