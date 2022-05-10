@@ -820,8 +820,6 @@ control_options_for_live_patching (struct gcc_options *opts,
       /* FIXME: disable unreachable code removal.  */
 
       /* discovery of functions/variables with no address taken.  */
-// GCC 8 doesn't have these options.
-#if 0
       if (opts_set->x_flag_ipa_reference_addressable
 	  && opts->x_flag_ipa_reference_addressable)
 	error_at (loc,
@@ -838,8 +836,6 @@ control_options_for_live_patching (struct gcc_options *opts,
 		  "%<-flive-patching=inline-only-static|inline-clone%>");
       else
 	opts->x_flag_ipa_stack_alignment = 0;
-#endif
-
       break;
     default:
       gcc_unreachable ();
