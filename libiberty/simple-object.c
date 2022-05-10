@@ -299,6 +299,9 @@ handle_lto_debug_sections (const char *name)
   /* Copy over .ctf section under the same name if present.  */
   else if (strcmp (name, ".ctf") == 0)
     return strcpy (newname, name);
+  /* Copy over .BTF section under the same name if present.  */
+  else if (strcmp (name, ".BTF") == 0)
+    return strcpy (newname, name);
 
   return NULL;
 }
