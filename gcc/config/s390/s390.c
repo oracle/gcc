@@ -10606,6 +10606,18 @@ s390_hard_regno_mode_ok (unsigned int regno, machine_mode mode)
   return false;
 }
 
+/* Implement TARGET_NARROW_MODE_REFERS_LOW_PART_P.  */
+
+static bool
+s390_narrow_mode_refers_low_part_p (unsigned int regno)
+{
+  if (reg_classes_intersect_p (VEC_REGS, REGNO_REG_CLASS (regno)))
+    return false;
+
+  return true;
+}
+
+
 /* Implement TARGET_MODES_TIEABLE_P.  */
 
 static bool
@@ -16955,6 +16967,9 @@ s390_case_values_threshold (void)
 
 #undef TARGET_CASE_VALUES_THRESHOLD
 #define TARGET_CASE_VALUES_THRESHOLD s390_case_values_threshold
+
+#undef TARGET_NARROW_MODE_REFERS_LOW_PART_P
+#define TARGET_NARROW_MODE_REFERS_LOW_PART_P s390_narrow_mode_refers_low_part_p
 
 struct gcc_target targetm = TARGET_INITIALIZER;
 
