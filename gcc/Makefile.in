@@ -1570,6 +1570,7 @@ OBJS = \
 	tree-ssa-uninit.o \
 	tree-ssa.o \
 	tree-ssanames.o \
+	tree-ssa-list-find-pipeline.o \
 	tree-stdarg.o \
 	tree-streamer.o \
 	tree-streamer-in.o \

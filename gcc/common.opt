@@ -1798,6 +1798,10 @@ fleading-underscore
 Common Report Var(flag_leading_underscore) Init(-1)
 Give external symbols a leading underscore.
 
+flist-find-pipeline
+Common Report Var(list_find_pipe) Optimization
+Pipeline the find operation in a linked list.
+
 floop-optimize
 Common Ignore
 Does nothing.  Preserved for backward compatibility.
