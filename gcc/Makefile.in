@@ -1058,7 +1058,7 @@ BUILD_LIBDEPS= $(BUILD_LIBIBERTY)
 # and the system's installed libraries.
 LIBS = @LIBS@ libcommon.a $(CPPLIB) $(LIBINTL) $(LIBICONV) $(LIBBACKTRACE) \
 	$(LIBIBERTY) $(LIBDECNUMBER) $(HOST_LIBS)
-BACKENDLIBS = $(ISLLIBS) $(GMPLIBS) $(PLUGINLIBS) $(HOST_LIBS) \
+BACKENDLIBS = $(if $(ISLLIBS),-ldl) $(GMPLIBS) $(PLUGINLIBS) $(HOST_LIBS) \
 	$(ZLIB)
 # Any system libraries needed just for GNAT.
 SYSLIBS = @GNAT_LIBEXC@
@@ -2265,6 +2265,15 @@ $(out_object_file): $(out_file)
 $(common_out_object_file): $(common_out_file)
 	$(COMPILE) $<
 	$(POSTCOMPILE)
+
+graphite%.o : \
+  ALL_CFLAGS := -O $(filter-out -fkeep-inline-functions, $(ALL_CFLAGS))
+graphite.o : \
+  ALL_CFLAGS := -O $(filter-out -fkeep-inline-functions, $(ALL_CFLAGS))
+graphite%.o : \
+  ALL_CXXFLAGS := -O $(filter-out -fkeep-inline-functions, $(ALL_CXXFLAGS))
+graphite.o : \
+  ALL_CXXFLAGS := -O $(filter-out -fkeep-inline-functions, $(ALL_CXXFLAGS))
 #
 # Generate header and source files from the machine description,
 # and compile them.
