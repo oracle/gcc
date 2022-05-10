@@ -48,7 +48,7 @@ void InitializeSancovFlags() {
   RegisterSancovFlags(&parser, f);
 
   parser.ParseString(MaybeCallSancovDefaultOptions());
-  parser.ParseString(GetEnv("SANCOV_OPTIONS"));
+  parser.ParseStringFromEnv("SANCOV_OPTIONS");
 
   ReportUnrecognizedFlags();
   if (f->help) parser.PrintFlagDescriptions();
