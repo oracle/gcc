@@ -3246,8 +3246,6 @@ create_iso_definition (cpp_reader *pfile, cpp_macro *macro)
   cpp_token *token;
   const cpp_token *ctoken;
   bool following_paste_op = false;
-  const char *paste_op_error_msg =
-    N_("'##' cannot appear at either end of a macro expansion");
   unsigned int num_extra_tokens = 0;
 
   /* Get the first token of the expansion (or the '(' of a
@@ -3361,7 +3359,8 @@ create_iso_definition (cpp_reader *pfile, cpp_macro *macro)
 	     function-like macros, but not at the end.  */
 	  if (following_paste_op)
 	    {
-	      cpp_error (pfile, CPP_DL_ERROR, paste_op_error_msg);
+	      cpp_error (pfile, CPP_DL_ERROR,
+			 "'##' cannot appear at either end of a macro expansion");
 	      return false;
 	    }
 	  break;
@@ -3374,7 +3373,8 @@ create_iso_definition (cpp_reader *pfile, cpp_macro *macro)
 	     function-like macros, but not at the beginning.  */
 	  if (macro->count == 1)
 	    {
-	      cpp_error (pfile, CPP_DL_ERROR, paste_op_error_msg);
+	      cpp_error (pfile, CPP_DL_ERROR,
+			 "'##' cannot appear at either end of a macro expansion");
 	      return false;
 	    }
 
