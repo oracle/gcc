@@ -2949,6 +2949,12 @@ Record DW_AT_decl_column and DW_AT_call_column in DWARF.
 
 ; The CTF generation process feeds off DWARF dies.  This option implicitly
 ; updates the debug_info_level to DINFO_LEVEL_NORMAL.
+gt
+Common Driver RejectNegative JoinedOrMissing
+Generate CTF debug information at default level.
+
+; The CTF generation process feeds off DWARF dies.  This option implicitly
+; updates the debug_info_level to DINFO_LEVEL_NORMAL.
 gctf
 Common Driver RejectNegative JoinedOrMissing
 Generate CTF debug information at default level.
