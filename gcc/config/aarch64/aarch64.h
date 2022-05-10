@@ -159,6 +159,9 @@ extern unsigned aarch64_architecture_version;
 #define AARCH64_FL_F16FML     (1 << 19)  /* Has ARMv8.4-a FP16 extensions.  */
 #define AARCH64_FL_RNG        (1 << 23)  /* ARMv8.5-A Random Number Insns.  */
 
+/* Statistical Profiling extensions.  */
+#define AARCH64_FL_PROFILE    (1 << 20)
+
 /* Has FP and SIMD.  */
 #define AARCH64_FL_FPSIMD     (AARCH64_FL_FP | AARCH64_FL_SIMD)
 
