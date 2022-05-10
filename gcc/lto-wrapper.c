@@ -250,6 +250,10 @@ merge_and_complain (struct cl_decoded_option **decoded_options,
 	case OPT_SPECIAL_input_file:
 	  break;
 
+	case OPT_Wa_:
+	  append_option (decoded_options, decoded_options_count, foption);
+	  break;
+
 	default:
 	  if (!(cl_options[foption->opt_index].flags & CL_TARGET))
 	    break;
@@ -571,6 +575,37 @@ parse_env_var (const char *str, char ***pvalues, const char *append)
   return num;
 }
 
+/* Append options OPTS from -Wa, options to ARGV_OBSTACK.  */
+
+static void
+append_compiler_wa_options (obstack *argv_obstack,
+			    struct cl_decoded_option *opts,
+			    unsigned int count)
+{
+  static const char *collect_as;
+  for (unsigned int j = 1; j < count; ++j)
+    {
+      struct cl_decoded_option *option = &opts[j];
+      if (j == 1)
+	collect_as = NULL;
+      const char *args_text = option->orig_option_with_args_text;
+      switch (option->opt_index)
+	{
+	case OPT_Wa_:
+	  break;
+	default:
+	  continue;
+	}
+      /* We expect all the -Wa, options to be same.  */
+      if (collect_as && strcmp (collect_as, args_text) != 0)
+	fatal_error (input_location, "-Wa, options does not match");
+      if (!collect_as)
+	{
+	  obstack_ptr_grow (argv_obstack, args_text);
+	  collect_as = args_text;
+	}
+    }
+}
 /* Append options OPTS from lto or offload_lto sections to ARGV_OBSTACK.  */
 
 static void
@@ -834,6 +869,8 @@ compile_offload_image (const char *target, const char *compiler_path,
 
       /* Append options from offload_lto sections.  */
       append_compiler_options (&argv_obstack, compiler_opts,
+			       compiler_opt_count);
+      append_compiler_wa_options (&argv_obstack, compiler_opts,
 			       compiler_opt_count);
       append_diag_options (&argv_obstack, linker_opts, linker_opt_count);
 
@@ -1210,6 +1247,8 @@ run_gcc (unsigned argc, char *argv[])
 
   append_compiler_options (&argv_obstack, fdecoded_options,
 			   fdecoded_options_count);
+  append_compiler_wa_options (&argv_obstack, fdecoded_options,
+			      fdecoded_options_count);
   append_linker_options (&argv_obstack, decoded_options, decoded_options_count);
 
   /* Scan linker driver arguments for things that are of relevance to us.  */
