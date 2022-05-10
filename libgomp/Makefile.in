@@ -90,7 +90,7 @@ DIST_COMMON = $(top_srcdir)/plugin/Makefrag.am ChangeLog \
 	$(srcdir)/libgomp.spec.in $(srcdir)/../depcomp
 @PLUGIN_NVPTX_TRUE@am__append_1 = libgomp-plugin-nvptx.la
 @PLUGIN_HSA_TRUE@am__append_2 = libgomp-plugin-hsa.la
-@USE_FORTRAN_TRUE@am__append_3 = openacc.f90
+@USE_FORTRAN_TRUE@am__append_3 = openacc2.f90
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/../config/acx.m4 \
@@ -172,7 +172,7 @@ libgomp_plugin_nvptx_la_LINK = $(LIBTOOL) --tag=CC \
 @PLUGIN_NVPTX_TRUE@am_libgomp_plugin_nvptx_la_rpath = -rpath \
 @PLUGIN_NVPTX_TRUE@	$(toolexeclibdir)
 libgomp_la_LIBADD =
-@USE_FORTRAN_TRUE@am__objects_1 = openacc.lo
+@USE_FORTRAN_TRUE@am__objects_1 = openacc2.lo
 am_libgomp_la_OBJECTS = alloc.lo atomic.lo barrier.lo critical.lo \
 	env.lo error.lo icv.lo icv-device.lo iter.lo iter_ull.lo \
 	loop.lo loop_ull.lo ordered.lo parallel.lo sections.lo \
@@ -180,7 +180,8 @@ am_libgomp_la_OBJECTS = alloc.lo atomic.lo barrier.lo critical.lo \
 	sem.lo bar.lo ptrlock.lo time.lo fortran.lo affinity.lo \
 	target.lo splay-tree.lo libgomp-plugin.lo oacc-parallel.lo \
 	oacc-host.lo oacc-init.lo oacc-mem.lo oacc-async.lo \
-	oacc-plugin.lo oacc-cuda.lo priority_queue.lo $(am__objects_1)
+	oacc-plugin.lo oacc-cuda.lo priority_queue.lo affinity-fmt.lo \
+	teams.lo $(am__objects_1)
 libgomp_la_OBJECTS = $(am_libgomp_la_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
@@ -380,6 +381,7 @@ mkdir_p = @mkdir_p@
 multi_basedir = @multi_basedir@
 offload_additional_lib_paths = @offload_additional_lib_paths@
 offload_additional_options = @offload_additional_options@
+offload_plugins = @offload_plugins@
 offload_targets = @offload_targets@
 oldincludedir = @oldincludedir@
 pdfdir = @pdfdir@
@@ -436,7 +438,7 @@ libgomp_la_SOURCES = alloc.c atomic.c barrier.c critical.c env.c \
 	affinity.c target.c splay-tree.c libgomp-plugin.c \
 	oacc-parallel.c oacc-host.c oacc-init.c oacc-mem.c \
 	oacc-async.c oacc-plugin.c oacc-cuda.c priority_queue.c \
-	$(am__append_3)
+	affinity-fmt.c teams.c $(am__append_3)
 
 # Nvidia PTX OpenACC plugin.
 @PLUGIN_NVPTX_TRUE@libgomp_plugin_nvptx_version_info = -version-info $(libtool_VERSION)
@@ -599,6 +601,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/affinity-fmt.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/affinity.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/alloc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/atomic.Plo@am__quote@
@@ -638,6 +641,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/target.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/task.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/team.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/teams.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/time.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/work.Plo@am__quote@
 
@@ -1291,8 +1295,6 @@ vpath % $(strip $(search_path))
 omp_lib_kinds.mod: omp_lib.mod
 	:
 openacc_kinds.mod: openacc.mod
-	:
-openacc.mod: openacc.lo
 	:
 %.mod: %.f90
 	$(FC) $(FCFLAGS) -fsyntax-only $<
