@@ -5677,7 +5677,7 @@ push_fields_onto_fieldstack (tree type, vec<fieldoff_s> *fieldstack,
 		e.only_restrict_pointers
 		  = (!has_unknown_size
 		     && POINTER_TYPE_P (field_type)
-		     && TYPE_RESTRICT (field_type));
+		     && (TYPE_RESTRICT (field_type) || flag_noalias));
 		if (e.only_restrict_pointers)
 		  e.restrict_pointed_type = TREE_TYPE (field_type);
 		fieldstack->safe_push (e);
@@ -6035,7 +6035,7 @@ create_variable_info_for_1 (tree decl, const char *name, bool add_id,
       vi->size = vi->fullsize;
       vi->is_full_var = true;
       if (POINTER_TYPE_P (decl_type)
-	  && TYPE_RESTRICT (decl_type))
+	  && (TYPE_RESTRICT (decl_type) || flag_noalias))
 	vi->only_restrict_pointers = 1;
       if (vi->only_restrict_pointers
 	  && !type_contains_placeholder_p (TREE_TYPE (decl_type))
@@ -6149,7 +6149,7 @@ create_variable_info_for (tree decl, const char *name, bool add_id)
 
       /* Mark global restrict qualified pointers.  */
       if ((POINTER_TYPE_P (TREE_TYPE (decl))
-	   && TYPE_RESTRICT (TREE_TYPE (decl)))
+	   && (TYPE_RESTRICT (TREE_TYPE (decl)) || flag_noalias))
 	  || vi->only_restrict_pointers)
 	{
 	  varinfo_t rvi

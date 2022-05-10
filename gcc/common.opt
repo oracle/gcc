@@ -2735,6 +2735,10 @@ funroll-more
 Common Report Var(flag_unroll_more) Optimization
 Unroll a bit more.
 
+fnoalias
+Common Report Var(flag_noalias) Optimization
+Assume no aliasing in the whole program.
+
 funwind-tables
 Common Report Var(flag_unwind_tables) Optimization
 Just generate unwind tables for exception handling.
