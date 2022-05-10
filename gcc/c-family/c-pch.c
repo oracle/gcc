@@ -263,11 +263,15 @@ c_common_valid_pch (cpp_reader *pfile, const char *name, int fd)
   if (v.pch_write_symbols != write_symbols
       && write_symbols != NO_DEBUG)
     {
+      char *created_str = xstrdup (debug_set_names (v.pch_write_symbols));
+      char *used_str = xstrdup (debug_set_names (write_symbols));
+
       if (cpp_get_options (pfile)->warn_invalid_pch)
 	cpp_error (pfile, CPP_DL_WARNING,
 		   "%s: created with '%s' debug info, but used with '%s'", name,
-		   debug_set_names (v.pch_write_symbols),
-		   debug_set_names (write_symbols));
+		   created_str, used_str);
+      free (created_str);
+      free (used_str);
       return 2;
     }
 
