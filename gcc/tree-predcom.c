@@ -3190,6 +3190,15 @@ tree_predictive_commoning_loop (struct loop *loop)
   bool unroll = false, loop_closed_ssa = false;
   edge exit;
 
+  unroll_factor = 4;
+  unroll = can_unroll_loop_p (loop, unroll_factor, &desc);
+  exit = single_dom_exit (loop);
+
+  if (unroll && flag_unroll_more)
+    {
+      tree_unroll_loop (loop, unroll_factor, exit, &desc);
+    }
+
   if (dump_file && (dump_flags & TDF_DETAILS))
     fprintf (dump_file, "Processing loop %d\n",  loop->num);
 
@@ -3275,7 +3284,7 @@ tree_predictive_commoning_loop (struct loop *loop)
 
   /* Execute the predictive commoning transformations, and possibly unroll the
      loop.  */
-  if (unroll)
+  if (unroll && flag_unroll_more)
     {
       struct epcc_data dta;
 
@@ -3342,6 +3351,8 @@ tree_predictive_commoning (void)
 
       ret = TODO_cleanup_cfg;
     }
+
+  ret = TODO_cleanup_cfg;
 
   return ret;
 }
