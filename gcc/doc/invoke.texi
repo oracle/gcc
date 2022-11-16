@@ -7160,6 +7160,11 @@ eBPF target.  On other targets, like x86, BTF debug information can be
 generated along with DWARF debug information when both of the debug formats are
 enabled explicitly via their respective command line options.
 
+@item -gt
+@itemx -gt@var{level}
+@opindex gt
+Deprecated.  To generate CTF debug information, use @option{-gctf} instead.
+
 @item -gctf
 @itemx -gctf@var{level}
 @opindex gctf
