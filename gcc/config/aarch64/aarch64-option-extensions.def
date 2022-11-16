@@ -117,4 +117,7 @@ AARCH64_OPT_EXTENSION("sve", AARCH64_FL_SVE, AARCH64_FL_FP | AARCH64_FL_SIMD | A
 /* Enabling/Disabling "rng" only changes "rng".  */
 AARCH64_OPT_EXTENSION("rng", AARCH64_FL_RNG, 0, 0, false, "rng")
 
+/* Enabling/Disabling "profile" does not enable/disable any other feature.  */
+AARCH64_OPT_EXTENSION("profile", AARCH64_FL_PROFILE, 0, 0, false, "")
+
 #undef AARCH64_OPT_EXTENSION
