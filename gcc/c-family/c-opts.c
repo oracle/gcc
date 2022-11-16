@@ -1052,8 +1052,9 @@ c_common_post_options (const char **pfilename)
 	     debug formats we warn here and refuse to load any PCH files.  */
 	  if (write_symbols != NO_DEBUG && write_symbols != DWARF2_DEBUG)
 	    warning (OPT_Wdeprecated,
-		     "the \"%s\" debug format cannot be used with "
-		     "pre-compiled headers", debug_type_names[write_symbols]);
+		     "the %qs debug info cannot be used with "
+		     "pre-compiled headers",
+		     debug_set_names (write_symbols & ~DWARF2_DEBUG));
 	}
       else if (write_symbols != NO_DEBUG && write_symbols != DWARF2_DEBUG)
 	c_common_no_more_pch ();
