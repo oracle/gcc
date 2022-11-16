@@ -1,6 +1,5 @@
-/* Copyright (C) 2014-2018 Free Software Foundation, Inc.
-
-   Contributed by Mentor Embedded.
+/* Copyright (C) 2015-2019 Free Software Foundation, Inc.
+   Contributed by Alexander Monakov <amonakov@ispras.ru>
 
    This file is part of the GNU Offloading and Multi Processing Library
    (libgomp).
@@ -24,11 +23,35 @@
    see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
    <http://www.gnu.org/licenses/>.  */
 
-#ifndef OACC_PLUGIN_H
-#define OACC_PLUGIN_H 1
+/* This file defines OpenMP API entry points that accelerator targets are
+   expected to replace.  */
 
-extern void GOMP_PLUGIN_async_unmap_vars (void *, int);
-extern void *GOMP_PLUGIN_acc_thread (void);
-extern int GOMP_PLUGIN_acc_default_dim (unsigned int);
+#include "libgomp.h"
 
-#endif
+void
+GOMP_teams_reg (void (*fn) (void *), void *data, unsigned int num_teams,
+		unsigned int thread_limit, unsigned int flags)
+{
+  (void) fn;
+  (void) data;
+  (void) flags;
+  (void) num_teams;
+  (void) thread_limit;
+}
+
+int
+omp_get_num_teams (void)
+{
+  return gomp_num_teams_var + 1;
+}
+
+int
+omp_get_team_num (void)
+{
+  int ctaid;
+  asm ("mov.u32 %0, %%ctaid.x;" : "=r" (ctaid));
+  return ctaid;
+}
+
+ialias (omp_get_num_teams)
+ialias (omp_get_team_num)
