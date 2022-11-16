@@ -2681,6 +2681,12 @@ Common Var(flag_unconstrained_commons) Optimization
 Assume common declarations may be overridden with ones with a larger
 trailing array.
 
+funcse
+Common Report Var(flag_uncse) Init(0) Optimization
+Undoing of CSE (common subexpression elimination).
+This allows to merge the common subexpression into
+its consuming instruction.
+
 funit-at-a-time
 Common Report Var(flag_unit_at_a_time) Init(1)
 Compile whole compilation unit at a time.
