@@ -23,7 +23,8 @@ along with GCC; see the file COPYING3.  If not see
 enum
 {
   CP_SIMPLE_PREHEADERS = 1,
-  CP_FALLTHRU_PREHEADERS = 2
+  CP_FALLTHRU_PREHEADERS = 2,
+  CP_FORCE_PREHEADERS = 4
 };
 
 #define DLTHE_FLAG_UPDATE_FREQ	1	/* Update frequencies in

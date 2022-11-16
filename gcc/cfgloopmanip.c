@@ -1511,6 +1511,9 @@ create_preheader (struct loop *loop, int flags)
                    && (JUMP_P (BB_END (single_entry->src))
                        || has_preds_from_loop (single_entry->src, loop)))
             need_forwarder_block = true;
+          /* If we really want it, we get it.  */
+	  else if (flags & CP_FORCE_PREHEADERS)
+            need_forwarder_block = true;
         }
       if (! need_forwarder_block)
 	return NULL;
