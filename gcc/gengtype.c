@@ -1739,7 +1739,8 @@ open_base_files (void)
       "tree-dfa.h", "tree-ssa.h", "reload.h", "cpp-id-data.h", "tree-chrec.h",
       "except.h", "output.h",  "cfgloop.h", "target.h", "lto-streamer.h",
       "target-globals.h", "ipa-ref.h", "cgraph.h", "symbol-summary.h",
-      "ipa-prop.h", "ipa-fnsummary.h", "dwarf2out.h", "omp-offload.h", NULL
+      "ipa-prop.h", "ipa-fnsummary.h", "dwarf2out.h", "omp-offload.h",
+      "ctfc.h", NULL
     };
     const char *const *ifp;
     outf_p gtype_desc_c;
@@ -5230,6 +5231,7 @@ main (int argc, char **argv)
       POS_HERE (do_scalar_typedef ("int64_t", &pos));
       POS_HERE (do_scalar_typedef ("poly_int64", &pos));
       POS_HERE (do_scalar_typedef ("uint64_t", &pos));
+      POS_HERE (do_scalar_typedef ("uint32_t", &pos));
       POS_HERE (do_scalar_typedef ("uint8", &pos));
       POS_HERE (do_scalar_typedef ("uintptr_t", &pos));
       POS_HERE (do_scalar_typedef ("jword", &pos));
