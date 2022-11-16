@@ -382,6 +382,8 @@ void aarch64_split_add_offset (scalar_int_mode, rtx, rtx, rtx, rtx, rtx);
 bool aarch64_mov_operand_p (rtx, machine_mode);
 rtx aarch64_reverse_mask (machine_mode, unsigned int);
 bool aarch64_offset_7bit_signed_scaled_p (machine_mode, poly_int64);
+const char *aarch64_output_branch_register (rtx);
+const char *aarch64_output_branch_and_link_register (rtx);
 char *aarch64_output_sve_cnt_immediate (const char *, const char *, rtx);
 char *aarch64_output_sve_addvl_addpl (rtx, rtx, rtx);
 char *aarch64_output_sve_inc_dec_immediate (const char *, rtx);
