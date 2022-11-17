@@ -10977,6 +10977,9 @@ output_indirect_thunk (enum indirect_thunk_prefix need_prefix,
     fputs ("\tbnd ret\n", asm_out_file);
   else
     fputs ("\tret\n", asm_out_file);
+
+  if ((ix86_harden_sls & harden_sls_return))
+    fputs ("\tint3\n", asm_out_file);
 }
 
 /* Output a funtion with a call and return thunk for indirect branch.
@@ -28728,6 +28731,8 @@ ix86_output_jmp_thunk_or_indirect (const char *thunk_name,
 	fprintf (asm_out_file, "\tjmp\t");
       assemble_name (asm_out_file, thunk_name);
       putc ('\n', asm_out_file);
+      if ((ix86_harden_sls & harden_sls_indirect_branch))
+	fputs ("\tint3\n", asm_out_file);
     }
   else
     output_indirect_thunk (need_prefix, regno);
@@ -28973,10 +28978,10 @@ ix86_output_indirect_jmp (rtx call_op)
 	gcc_unreachable ();
 
       ix86_output_indirect_branch (call_op, "%0", true);
-      return "";
     }
   else
-    return "%!jmp\t%A0";
+    output_asm_insn ("%!jmp\t%A0", &call_op);
+  return (ix86_harden_sls & harden_sls_indirect_branch) ? "int3" : "";
 }
 
 /* Output function return.  CALL_OP is the jump target.  Add a REP
@@ -29018,9 +29023,11 @@ ix86_output_function_return (bool long_p)
     }
 
   if (!long_p || ix86_bnd_prefixed_insn_p (current_output_insn))
-    return "%!ret";
+    output_asm_insn ("%!ret", NULL);
+  else
+    output_asm_insn ("rep%; ret", NULL);
 
-  return "rep%; ret";
+  return (ix86_harden_sls & harden_sls_return) ? "int3" : "";
 }
 
 /* Output indirect function return.  RET_OP is the function return
@@ -29158,7 +29165,12 @@ ix86_output_call_insn (rtx_insn *insn, rtx call_op)
       if (output_indirect_p && !direct_p)
 	ix86_output_indirect_branch (call_op, xasm, true);
       else
-	output_asm_insn (xasm, &call_op);
+	{
+	  output_asm_insn (xasm, &call_op);
+	  if (!direct_p
+	      && (ix86_harden_sls & harden_sls_indirect_branch))
+	    return "int3";
+	}
       return "";
     }
 

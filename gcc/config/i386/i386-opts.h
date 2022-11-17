@@ -119,4 +119,11 @@ enum indirect_branch {
   indirect_branch_thunk_extern
 };
 
+enum harden_sls {
+  harden_sls_none = 0,
+  harden_sls_return = 1 << 0,
+  harden_sls_indirect_branch = 1 << 1,
+  harden_sls_all = harden_sls_return | harden_sls_indirect_branch
+};
+
 #endif

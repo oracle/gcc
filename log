@@ -15129,3 +15129,18 @@ patching file gcc/doc/invoke.texi
 Hunk #1 succeeded at 8689 (offset -678 lines).
 Hunk #2 succeeded at 8717 (offset -678 lines).
 Hunk #3 succeeded at 8728 (offset -678 lines).
+[oracle/gcc/ol8-u7-x86 532a633f13a] gcc8-rh1668903-3.patch
+ 2 files changed, 26 insertions(+), 16 deletions(-)
+33 gcc8-harden-1.patch -p1
+------- APPLYING gcc8-harden-1.patch ---------
+patching file gcc/config/i386/i386-opts.h
+patching file gcc/config/i386/i386.c
+patching file gcc/config/i386/i386.opt
+patching file gcc/doc/invoke.texi
+Hunk #1 succeeded at 1286 (offset 2 lines).
+Hunk #2 succeeded at 28138 (offset 102 lines).
+patching file gcc/testsuite/gcc.target/i386/harden-sls-1.c
+patching file gcc/testsuite/gcc.target/i386/harden-sls-2.c
+patching file gcc/testsuite/gcc.target/i386/harden-sls-3.c
+patching file gcc/testsuite/gcc.target/i386/harden-sls-4.c
+patching file gcc/testsuite/gcc.target/i386/harden-sls-5.c
