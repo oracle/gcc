@@ -15304,3 +15304,16 @@ patching file gcc/coverage.c
 patching file gcc/gcc.c
 patching file gcc/lto-opts.c
 patching file gcc/lto-wrapper.c
+[oracle/gcc/ol8-u7-x86 18db5f04ab8] gcc8-Fix-Wa-with-flto.patch
+ 4 files changed, 90 insertions(+), 2 deletions(-)
+3025 gcc9-pr89832.patch -p1
+------- APPLYING gcc9-pr89832.patch ---------
+patching file libsanitizer/asan/asan_flags.cc
+patching file libsanitizer/lsan/lsan.cc
+patching file libsanitizer/sanitizer_common/sancov_flags.cc
+patching file libsanitizer/sanitizer_common/sanitizer_flag_parser.cc
+patching file libsanitizer/sanitizer_common/sanitizer_flag_parser.h
+patching file libsanitizer/tsan/tsan_flags.cc
+patching file libsanitizer/tsan/tsan_flags.h
+patching file libsanitizer/tsan/tsan_rtl.cc
+patching file libsanitizer/ubsan/ubsan_flags.cc
