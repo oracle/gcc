@@ -14703,3 +14703,16 @@ patching file gcc/config/alpha/elf.h
 patching file gcc/config/ia64/linux.h
 patching file gcc/config/gnu-user.h
 patching file gcc/config/rs6000/sysv4.h
+[oracle/gcc/ol8-u7-x86 c3e94b7a34b] gcc8-no-add-needed.patch
+ 5 files changed, 12 insertions(+), 4 deletions(-)
+9 gcc8-foffload-default.patch -p0
+------- APPLYING gcc8-foffload-default.patch ---------
+patching file gcc/gcc.c
+Hunk #1 succeeded at 291 (offset 1 line).
+Hunk #2 succeeded at 4487 (offset 26 lines).
+Hunk #3 succeeded at 7769 (offset 69 lines).
+patching file gcc/lto-wrapper.c
+Hunk #2 succeeded at 872 (offset 81 lines).
+Hunk #3 succeeded at 888 (offset 81 lines).
+patching file libgomp/target.c
+Hunk #1 succeeded at 2514 (offset 158 lines).
