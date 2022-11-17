@@ -15245,3 +15245,25 @@ patching file gcc/testsuite/gcc.target/i386/ipa-stack-alignment-2.c
 3005 gcc9-ipa-stack-alignment-386-test.patch -p1
 ------- APPLYING gcc9-ipa-stack-alignment-386-test.patch ---------
 patching file gcc/testsuite/gcc.target/i386/ipa-stack-alignment-2.c
+[oracle/gcc/ol8-u7-x86 7ea4c5b678f] gcc9-ipa-stack-alignment-386-test.patch
+ 2 files changed, 8 insertions(+), 1 deletion(-)
+3006 gcc9-opt-info-inline.patch -p1
+------- APPLYING gcc9-opt-info-inline.patch ---------
+patching file gcc/doc/invoke.texi
+Hunk #1 succeeded at 13816 (offset 19 lines).
+Hunk #2 succeeded at 13837 (offset 19 lines).
+patching file gcc/ipa-inline.c
+patching file gcc/testsuite/g++.dg/ipa/devirt-12.C
+patching file gcc/testsuite/g++.dg/ipa/imm-devirt-1.C
+patching file gcc/testsuite/g++.dg/tree-prof/inline_mismatch_args.C
+patching file gcc/testsuite/g++.dg/tree-ssa/inline-1.C
+patching file gcc/testsuite/g++.dg/tree-ssa/inline-2.C
+patching file gcc/testsuite/g++.dg/tree-ssa/inline-3.C
+patching file gcc/testsuite/gcc.dg/ipa/fopt-info-inline-1.c
+patching file gcc/testsuite/gcc.dg/ipa/inline-4.c
+patching file gcc/testsuite/gcc.dg/ipa/inline-7.c
+patching file gcc/testsuite/gcc.dg/tree-ssa/inline-11.c
+patching file gcc/testsuite/gcc.dg/tree-ssa/inline-3.c
+patching file gcc/testsuite/gcc.dg/tree-ssa/inline-4.c
+patching file gcc/testsuite/gcc.dg/tree-ssa/inline-8.c
+patching file gcc/tree-inline.c
