@@ -15035,3 +15035,15 @@ patching file gcc/doc/invoke.texi
 Hunk #1 succeeded at 14794 (offset 22 lines).
 Hunk #2 succeeded at 14807 (offset 22 lines).
 Hunk #3 succeeded at 14845 (offset 22 lines).
+[oracle/gcc/ol8-u7-x86 f9d2e869166] gcc8-aarch64-mtune-neoverse-512tvb.patch
+ 4 files changed, 34 insertions(+), 4 deletions(-)
+26 gcc8-rh2028609.patch -p1
+------- APPLYING gcc8-rh2028609.patch ---------
+patching file gcc/config/s390/s390.c
+Hunk #1 succeeded at 10606 (offset 118 lines).
+patching file gcc/regcprop.c
+Hunk #1 succeeded at 402 (offset -24 lines).
+patching file gcc/target.def
+Hunk #1 succeeded at 5259 (offset -187 lines).
+patching file gcc/hooks.h
+patching file gcc/hooks.c
