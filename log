@@ -15297,3 +15297,10 @@ patching file gcc/gcov.c
 3013 gcc10-pr91971.patch -p1
 ------- APPLYING gcc10-pr91971.patch ---------
 patching file gcc/coverage.c
+[oracle/gcc/ol8-u7-x86 22844746adf] gcc10-pr91971.patch
+ 2 files changed, 13 insertions(+)
+3014 gcc8-Fix-Wa-with-flto.patch -p1
+------- APPLYING gcc8-Fix-Wa-with-flto.patch ---------
+patching file gcc/gcc.c
+patching file gcc/lto-opts.c
+patching file gcc/lto-wrapper.c
