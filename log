@@ -14896,3 +14896,14 @@ Hunk #6 succeeded at 1399 (offset -6 lines).
 patching file gcc/cp/call.c
 patching file gcc/cp/tree.c
 patching file gcc/testsuite/g++.dg/cpp1y/pr95226.C
+[oracle/gcc/ol8-u7-x86 dcbd56f4fa1] gcc8-rh1960701.patch
+ 4 files changed, 36 insertions(+), 5 deletions(-)
+ create mode 100644 gcc/testsuite/g++.dg/cpp1y/pr95226.C
+20 gcc8-pr100797.patch -p0
+------- APPLYING gcc8-pr100797.patch ---------
+patching file gcc/cp/call.c
+Hunk #1 succeeded at 7914 (offset -395 lines).
+Hunk #2 succeeded at 7923 (offset -395 lines).
+Hunk #3 succeeded at 7937 (offset -395 lines).
+patching file gcc/testsuite/g++.dg/inherit/virtual15.C
+patching file gcc/testsuite/g++.dg/inherit/virtual15a.C
