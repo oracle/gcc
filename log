@@ -15214,3 +15214,14 @@ patching file gcc/ipa-visibility.c
 patching file gcc/ipa.c
 patching file gcc/opts.c
 patching file gcc/testsuite/gcc.dg/tree-ssa/writeonly-2.c
+[oracle/gcc/ol8-u7-x86 6eacc7a3211] gcc9-fipa-reference-addressable.patch
+ 9 files changed, 60 insertions(+), 10 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.dg/tree-ssa/writeonly-2.c
+3002 gcc9-fipa-stack-alignment.patch -p1
+------- APPLYING gcc9-fipa-stack-alignment.patch ---------
+patching file gcc/common.opt
+patching file gcc/doc/invoke.texi
+Hunk #1 succeeded at 389 (offset 1 line).
+Hunk #2 succeeded at 8634 (offset 19 lines).
+patching file gcc/final.c
+patching file gcc/testsuite/gcc.target/i386/ipa-stack-alignment.c
