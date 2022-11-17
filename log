@@ -15397,3 +15397,9 @@ patching file gcc/flags.h
 patching file gcc/opts.c
 patching file gcc/targhooks.c
 patching file gcc/toplev.c
+[oracle/gcc/ol8-u7-x86 ce8adb0c30c] ctf-prep-2-dwarf-new-dwarf_debuginfo_p-predicate.patch
+ 16 files changed, 62 insertions(+), 30 deletions(-)
+3102 ctf-prep-3-pr100749-gcc.dg-pch-valid-1.c-fails-after.patch -p1
+------- APPLYING ctf-prep-3-pr100749-gcc.dg-pch-valid-1.c-fails-after.patch ---------
+patching file gcc/c-family/c-pch.c
+Hunk #1 succeeded at 263 (offset -2 lines).
