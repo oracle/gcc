@@ -15335,3 +15335,12 @@ patching file libcpp/include/cpplib.h
 Hunk #1 succeeded at 563 (offset 15 lines).
 patching file libcpp/init.c
 patching file libcpp/internal.h
+[oracle/gcc/ol8-u7-x86 4ec421aea44] gcc9-pr90581.patch
+ 12 files changed, 48 insertions(+), 6 deletions(-)
+ create mode 100644 gcc/testsuite/c-c++-common/cpp/fmax-include-depth-1a.h
+ create mode 100644 gcc/testsuite/c-c++-common/cpp/fmax-include-depth-1b.h
+ create mode 100644 gcc/testsuite/c-c++-common/cpp/fmax-include-depth.c
+3027 gcc9-pr88994.patch -p1
+------- APPLYING gcc9-pr88994.patch ---------
+patching file gcc/gcov.c
+patching file gcc/gcov-io.c
