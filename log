@@ -14971,3 +14971,57 @@ Hunk #1 succeeded at 235 (offset -1 lines).
 Hunk #2 succeeded at 270 (offset -1 lines).
 Hunk #4 succeeded at 574 (offset -47 lines).
 patching file gcc/testsuite/gcc.c-torture/compile/pr96796.c
+[oracle/gcc/ol8-u7-x86 baef96ae0b2] gcc8-pr96796.patch
+ 3 files changed, 125 insertions(+), 10 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.c-torture/compile/pr96796.c
+24 gcc8-pch-tweaks.patch -p1
+------- APPLYING gcc8-pch-tweaks.patch ---------
+patching file gcc/c-family/c-pch.c
+patching file gcc/config/avr/avr.c
+Hunk #1 succeeded at 10245 (offset 131 lines).
+patching file gcc/config/darwin.c
+Hunk #1 succeeded at 122 (offset -12 lines).
+patching file gcc/config/pa/pa.c
+Hunk #1 succeeded at 9875 (offset -134 lines).
+Hunk #2 succeeded at 9919 (offset -134 lines).
+patching file gcc/config/rs6000/rs6000.c
+Hunk #1 succeeded at 33442 (offset 12843 lines).
+Hunk #2 succeeded at 34313 (offset 13010 lines).
+Hunk #3 succeeded at 34372 (offset 13010 lines).
+patching file gcc/doc/gty.texi
+Hunk #1 succeeded at 197 (offset -8 lines).
+patching file gcc/gengtype-state.c
+patching file gcc/gengtype.c
+Hunk #1 succeeded at 167 (offset -5 lines).
+Hunk #2 succeeded at 198 (offset -5 lines).
+Hunk #3 succeeded at 216 (offset -5 lines).
+Hunk #4 succeeded at 496 (offset -5 lines).
+Hunk #5 succeeded at 1469 (offset -5 lines).
+Hunk #6 succeeded at 1483 (offset -5 lines).
+Hunk #7 succeeded at 1533 (offset -5 lines).
+Hunk #8 succeeded at 1549 (offset -5 lines).
+Hunk #9 succeeded at 1562 (offset -5 lines).
+Hunk #10 succeeded at 2523 (offset -11 lines).
+Hunk #11 succeeded at 2724 (offset -11 lines).
+Hunk #12 succeeded at 2751 (offset -11 lines).
+Hunk #13 succeeded at 3283 (offset -11 lines).
+Hunk #14 succeeded at 3829 (offset -11 lines).
+Hunk #15 succeeded at 3916 (offset -11 lines).
+Hunk #16 succeeded at 4451 (offset -11 lines).
+Hunk #17 succeeded at 4746 (offset -11 lines).
+Hunk #18 succeeded at 4915 (offset -11 lines).
+patching file gcc/gengtype.h
+Hunk #1 succeeded at 149 (offset -5 lines).
+Hunk #2 succeeded at 329 (offset -5 lines).
+patching file gcc/ggc-common.c
+patching file gcc/ggc.h
+patching file gcc/output.h
+patching file gcc/tree-core.h
+Hunk #1 succeeded at 1811 (offset -150 lines).
+patching file gcc/varasm.c
+Hunk #1 succeeded at 245 (offset -5 lines).
+Hunk #2 succeeded at 7377 (offset -401 lines).
+patching file libcpp/include/line-map.h
+patching file gcc/config/avr/avr.c
+Hunk #1 succeeded at 10220 (offset 131 lines).
+Hunk #2 succeeded at 10233 (offset 131 lines).
