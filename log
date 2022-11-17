@@ -14888,3 +14888,11 @@ Hunk #5 succeeded at 114 (offset -11 lines).
 patching file libiberty/cplus-dem.c
 patching file libiberty/testsuite/demangle-expected
 Hunk #6 succeeded at 1399 (offset -6 lines).
+[oracle/gcc/ol8-u7-x86 b4d8567a394] gcc8-remove-old-demangle.patch
+ 4 files changed, 555 insertions(+), 8453 deletions(-)
+ rewrite libiberty/cplus-dem.c (89%)
+19 gcc8-rh1960701.patch -p0
+------- APPLYING gcc8-rh1960701.patch ---------
+patching file gcc/cp/call.c
+patching file gcc/cp/tree.c
+patching file gcc/testsuite/g++.dg/cpp1y/pr95226.C

@@ -6904,7 +6904,7 @@ convert_like_real (conversion *convs, tree expr, tree fn, int argnum,
 	elttype = cp_build_qualified_type
 	  (elttype, cp_type_quals (elttype) | TYPE_QUAL_CONST);
 	array = build_array_of_n_type (elttype, len);
-	array = finish_compound_literal (array, new_ctor, complain, fcl_c99);
+	array = finish_compound_literal (array, new_ctor, complain);
 	/* Take the address explicitly rather than via decay_conversion
 	   to avoid the error about taking the address of a temporary.  */
 	array = cp_build_addr_expr (array, complain);
@@ -10984,13 +10984,11 @@ set_up_extended_ref_temp (tree decl, tree expr, vec<tree, va_gc> **cleanups,
 	     lvalue-rvalue conversion applied to "a glvalue of literal type
 	     that refers to a non-volatile temporary object initialized
 	     with a constant expression".  Rather than try to communicate
-	     that this VAR_DECL is a temporary, just mark it constexpr.
-
-	     Currently this is only useful for initializer_list temporaries,
-	     since reference vars can't appear in constant expressions.  */
+	     that this VAR_DECL is a temporary, just mark it constexpr.  */
 	  DECL_DECLARED_CONSTEXPR_P (var) = true;
 	  DECL_INITIALIZED_BY_CONSTANT_EXPRESSION_P (var) = true;
 	  TREE_CONSTANT (var) = true;
+	  TREE_READONLY (var) = true;
 	}
       DECL_INITIAL (var) = init;
       init = NULL_TREE;
