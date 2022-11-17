@@ -15549,3 +15549,101 @@ patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-variables-1.c
 patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-variables-2.c
 patching file gcc/testsuite/gcc.dg/debug/ctf/ctf.exp
 patching file gcc/testsuite/lib/gcc-dg.exp
+[oracle/gcc/ol8-u7-x86 9e28503a400] ctf-2-add-ctf-btf-testsuites.patch
+ 92 files changed, 2481 insertions(+), 15 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.dg/debug/btf/btf-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/btf/btf-2.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/btf/btf-anonymous-struct-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/btf/btf-anonymous-union-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/btf/btf-array-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/btf/btf-bitfields-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/btf/btf-bitfields-2.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/btf/btf-bitfields-3.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/btf/btf-bitfields-4.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/btf/btf-cvr-quals-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/btf/btf-datasec-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/btf/btf-enum-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/btf/btf-forward-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/btf/btf-function-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/btf/btf-function-2.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/btf/btf-function-3.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/btf/btf-int-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/btf/btf-pointers-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/btf/btf-pointers-2.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/btf/btf-struct-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/btf/btf-struct-2.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/btf/btf-typedef-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/btf/btf-union-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/btf/btf-variables-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/btf/btf-variables-2.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/btf/btf-variables-3.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/btf/btf.exp
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-2.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-anonymous-struct-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-anonymous-union-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-array-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-array-2.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-array-3.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-array-4.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-attr-mode-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-attr-used-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-bitfields-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-bitfields-2.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-bitfields-3.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-bitfields-4.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-complex-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-cvr-quals-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-cvr-quals-2.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-cvr-quals-3.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-cvr-quals-4.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-debug-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-debug-2.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-enum-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-enum-2.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-file-scope-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-float-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-forward-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-forward-2.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-func-index-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-function-pointers-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-function-pointers-2.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-function-pointers-3.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-function-pointers-4.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-functions-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-int-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-objt-index-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-pointers-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-pointers-2.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-preamble-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-skip-types-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-skip-types-2.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-skip-types-3.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-skip-types-4.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-skip-types-5.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-skip-types-6.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-skip-types-7.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-skip-types-8.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-str-table-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-struct-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-struct-2.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-struct-array-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-struct-array-2.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-struct-pointer-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-struct-pointer-2.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-typedef-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-typedef-2.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-typedef-3.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-typedef-struct-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-typedef-struct-2.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-typedef-struct-3.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-union-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-variables-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf-variables-2.c
+ create mode 100644 gcc/testsuite/gcc.dg/debug/ctf/ctf.exp
+3202 ctf-3-add-ctf-btf-documentation.patch -p1
+------- APPLYING ctf-3-add-ctf-btf-documentation.patch ---------
+patching file gcc/doc/invoke.texi
+Hunk #1 succeeded at 345 (offset 1 line).
+Hunk #2 succeeded at 7090 (offset 20 lines).
+Hunk #3 succeeded at 7151 (offset 20 lines).
