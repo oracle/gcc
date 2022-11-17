@@ -15275,3 +15275,10 @@ patching file gcc/tree-inline.c
 patching file gcc/doc/invoke.texi
 Hunk #1 succeeded at 11396 (offset 19 lines).
 patching file libgcc/libgcov-driver-system.c
+[oracle/gcc/ol8-u7-x86 a36813b939a] gcc9-pr47618.patch
+ 3 files changed, 92 insertions(+)
+3011 gcc9-pr86057.patch -p1
+------- APPLYING gcc9-pr86057.patch ---------
+patching file libgcc/libgcov-driver-system.c
+patching file libgcc/libgcov-driver.c
+patching file libgcc/libgcov-util.c
