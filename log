@@ -15092,3 +15092,20 @@ patching file libstdc++-v3/include/bits/regex_compiler.tcc
 Hunk #1 succeeded at 580 (offset -6 lines).
 patching file libstdc++-v3/testsuite/17_intro/names.cc
 patching file libstdc++-v3/include/bits/c++config
+[oracle/gcc/ol8-u7-x86 75bb973e779] gcc8-rh2001788.patch
+ 6 files changed, 179 insertions(+), 72 deletions(-)
+30 gcc8-rh1668903-1.patch -p0
+------- APPLYING gcc8-rh1668903-1.patch ---------
+patching file gcc/cif-code.def
+patching file gcc/common.opt
+Hunk #1 succeeded at 2127 (offset -54 lines).
+patching file gcc/doc/invoke.texi
+Hunk #1 succeeded at 390 (offset 1 line).
+Hunk #2 succeeded at 8687 (offset -605 lines).
+patching file gcc/flag-types.h
+patching file gcc/ipa-inline.c
+Hunk #1 succeeded at 380 (offset 1 line).
+patching file gcc/opts.c
+patching file gcc/testsuite/gcc.dg/live-patching-1.c
+patching file gcc/testsuite/gcc.dg/live-patching-2.c
+patching file gcc/testsuite/gcc.dg/live-patching-3.c
