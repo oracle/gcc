@@ -14876,3 +14876,15 @@ patching file include/gomp-constants.h
 patching file libgomp/testsuite/libgomp-test-support.exp.in
 patching file libgomp/testsuite/lib/libgomp.exp
 Hunk #3 succeeded at 368 (offset 6 lines).
+[oracle/gcc/ol8-u7-x86 e61cda7195a] gcc8-libgomp-testsuite.patch
+ 3 files changed, 23 insertions(+), 5 deletions(-)
+18 gcc8-remove-old-demangle.patch -p0
+------- APPLYING gcc8-remove-old-demangle.patch ---------
+patching file include/demangle.h
+Hunk #2 succeeded at 74 (offset -11 lines).
+Hunk #3 succeeded at 85 (offset -11 lines).
+Hunk #4 succeeded at 95 (offset -11 lines).
+Hunk #5 succeeded at 114 (offset -11 lines).
+patching file libiberty/cplus-dem.c
+patching file libiberty/testsuite/demangle-expected
+Hunk #6 succeeded at 1399 (offset -6 lines).
