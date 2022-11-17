@@ -14945,3 +14945,29 @@ patching file libcpp/include/cpplib.h
 patching file libcpp/init.c
 patching file libcpp/internal.h
 patching file libcpp/lex.c
+[oracle/gcc/ol8-u7-x86 4d0b2aea6e8] gcc8-Wbidi-chars.patch
+ 24 files changed, 1273 insertions(+), 7 deletions(-)
+ create mode 100644 gcc/testsuite/c-c++-common/Wbidi-chars-1.c
+ create mode 100644 gcc/testsuite/c-c++-common/Wbidi-chars-10.c
+ create mode 100644 gcc/testsuite/c-c++-common/Wbidi-chars-11.c
+ create mode 100644 gcc/testsuite/c-c++-common/Wbidi-chars-12.c
+ create mode 100644 gcc/testsuite/c-c++-common/Wbidi-chars-13.c
+ create mode 100644 gcc/testsuite/c-c++-common/Wbidi-chars-14.c
+ create mode 100644 gcc/testsuite/c-c++-common/Wbidi-chars-15.c
+ create mode 100644 gcc/testsuite/c-c++-common/Wbidi-chars-16.c
+ create mode 100644 gcc/testsuite/c-c++-common/Wbidi-chars-17.c
+ create mode 100644 gcc/testsuite/c-c++-common/Wbidi-chars-2.c
+ create mode 100644 gcc/testsuite/c-c++-common/Wbidi-chars-3.c
+ create mode 100644 gcc/testsuite/c-c++-common/Wbidi-chars-4.c
+ create mode 100644 gcc/testsuite/c-c++-common/Wbidi-chars-5.c
+ create mode 100644 gcc/testsuite/c-c++-common/Wbidi-chars-6.c
+ create mode 100644 gcc/testsuite/c-c++-common/Wbidi-chars-7.c
+ create mode 100644 gcc/testsuite/c-c++-common/Wbidi-chars-8.c
+ create mode 100644 gcc/testsuite/c-c++-common/Wbidi-chars-9.c
+23 gcc8-pr96796.patch -p1
+------- APPLYING gcc8-pr96796.patch ---------
+patching file gcc/lra-constraints.c
+Hunk #1 succeeded at 235 (offset -1 lines).
+Hunk #2 succeeded at 270 (offset -1 lines).
+Hunk #4 succeeded at 574 (offset -47 lines).
+patching file gcc/testsuite/gcc.c-torture/compile/pr96796.c
