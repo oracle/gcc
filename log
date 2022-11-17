@@ -15047,3 +15047,34 @@ patching file gcc/target.def
 Hunk #1 succeeded at 5259 (offset -187 lines).
 patching file gcc/hooks.h
 patching file gcc/hooks.c
+[oracle/gcc/ol8-u7-x86 831857ac616] gcc8-rh2028609.patch
+ 6 files changed, 48 insertions(+), 1 deletion(-)
+27 gcc8-libgfortran-default-values.patch -p1
+------- APPLYING gcc8-libgfortran-default-values.patch ---------
+patching file gcc/fortran/io.c
+Hunk #1 succeeded at 903 (offset -6 lines).
+Hunk #2 succeeded at 1034 (offset -3 lines).
+Hunk #3 succeeded at 1110 (offset -3 lines).
+patching file gcc/testsuite/gfortran.dg/fmt_f_default_field_width.f90
+patching file gcc/testsuite/gfortran.dg/fmt_g_default_field_width.f90
+patching file gcc/testsuite/gfortran.dg/fmt_i_default_field_width.f90
+patching file libgfortran/io/format.c
+Hunk #2 succeeded at 1121 (offset 1 line).
+Hunk #3 succeeded at 1136 (offset 1 line).
+patching file libgfortran/io/io.h
+Hunk #1 succeeded at 986 (offset 5 lines).
+patching file libgfortran/io/read.c
+Hunk #1 succeeded at 633 (offset 4 lines).
+patching file libgfortran/io/write.c
+Hunk #1 succeeded at 685 (offset 1 line).
+Hunk #2 succeeded at 719 (offset 1 line).
+Hunk #3 succeeded at 848 (offset 1 line).
+Hunk #4 succeeded at 1210 (offset 19 lines).
+Hunk #5 succeeded at 1231 (offset 19 lines).
+Hunk #6 succeeded at 1251 (offset 19 lines).
+Hunk #7 succeeded at 1491 (offset -17 lines).
+patching file libgfortran/io/write_float.def
+Hunk #3 succeeded at 971 (offset 2 lines).
+Hunk #4 succeeded at 1051 (offset 2 lines).
+Hunk #5 succeeded at 1062 (offset 2 lines).
+Hunk #6 succeeded at 1077 (offset 2 lines).
