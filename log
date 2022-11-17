@@ -14688,3 +14688,10 @@ patching file gcc/graphite.c
 patching file gcc/toplev.c
 Hunk #1 succeeded at 97 (offset 3 lines).
 Hunk #2 succeeded at 671 (offset -13 lines).
+[oracle/gcc/ol8-u7-x86 bf9ff798adf] gcc8-isl-dl.patch
+ 5 files changed, 656 insertions(+), 2 deletions(-)
+7 gcc8-libstdc++-docs.patch -p0
+------- APPLYING gcc8-libstdc++-docs.patch ---------
+patching file libstdc++-v3/doc/html/index.html
+Hunk #1 succeeded at 4 (offset -1 lines).
+patching file libstdc++-v3/doc/html/api.html
