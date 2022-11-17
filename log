@@ -14774,3 +14774,88 @@ patching file gcc/doc/invoke.texi
 Hunk #1 succeeded at 12268 (offset -342 lines).
 patching file gcc/opts.c
 Hunk #1 succeeded at 2489 (offset -68 lines).
+[oracle/gcc/ol8-u7-x86 4ef79f770e1] gcc8-rh1670535.patch
+ 5 files changed, 33 insertions(+), 3 deletions(-)
+16 gcc8-libgomp-20190503.patch -p0
+------- APPLYING gcc8-libgomp-20190503.patch ---------
+patching file libgomp/loop.c
+patching file libgomp/oacc-plugin.c
+patching file libgomp/libgomp_g.h
+patching file libgomp/affinity.c
+patching file libgomp/sections.c
+patching file libgomp/config/linux/affinity.c
+patching file libgomp/config/linux/ia64/futex.h
+patching file libgomp/config/nvptx/teams.c
+patching file libgomp/config/nvptx/team.c
+patching file libgomp/config/nvptx/oacc-parallel.c
+patching file libgomp/config/nvptx/target.c
+patching file libgomp/config/nvptx/icv-device.c
+patching file libgomp/config/nvptx/affinity-fmt.c
+patching file libgomp/config/mingw32/affinity-fmt.c
+patching file libgomp/config/rtems/bar.c
+patching file libgomp/config/rtems/affinity-fmt.c
+patching file libgomp/config.h.in
+Hunk #5 succeeded at 143 (offset -3 lines).
+patching file libgomp/teams.c
+patching file libgomp/libgomp.map
+patching file libgomp/oacc-async.c
+patching file libgomp/loop_ull.c
+patching file libgomp/oacc-int.h
+patching file libgomp/testsuite/Makefile.in
+patching file libgomp/task.c
+patching file libgomp/team.c
+patching file libgomp/libgomp.h
+patching file libgomp/oacc-parallel.c
+patching file libgomp/openacc2.f90
+patching file libgomp/taskloop.c
+patching file libgomp/parallel.c
+patching file libgomp/oacc-plugin.h
+patching file libgomp/target.c
+patching file libgomp/ordered.c
+patching file libgomp/alloc.c
+patching file libgomp/configure.ac
+patching file libgomp/icv.c
+patching file libgomp/configure
+Hunk #9 succeeded at 15403 (offset -11 lines).
+Hunk #10 succeeded at 15418 (offset -11 lines).
+Hunk #11 succeeded at 15448 (offset -11 lines).
+Hunk #12 succeeded at 15485 (offset 17 lines).
+Hunk #13 succeeded at 15503 (offset 17 lines).
+Hunk #14 succeeded at 15520 (offset 17 lines).
+Hunk #15 succeeded at 15546 (offset 17 lines).
+Hunk #16 succeeded at 15596 (offset 7 lines).
+Hunk #17 succeeded at 15823 (offset 7 lines).
+patching file libgomp/Makefile.am
+patching file libgomp/oacc-mem.c
+patching file libgomp/env.c
+patching file libgomp/fortran.c
+patching file libgomp/configure.tgt
+patching file libgomp/icv-device.c
+patching file libgomp/Makefile.in
+patching file libgomp/plugin/cuda/cuda.h
+patching file libgomp/plugin/cuda-lib.def
+patching file libgomp/plugin/plugin-nvptx.c
+Hunk #12 succeeded at 908 (offset -9 lines).
+Hunk #13 succeeded at 970 (offset -9 lines).
+Hunk #14 succeeded at 1154 (offset -9 lines).
+Hunk #15 succeeded at 1179 (offset -9 lines).
+Hunk #16 succeeded at 1229 (offset -9 lines).
+Hunk #17 succeeded at 1417 (offset -9 lines).
+Hunk #18 succeeded at 1435 (offset -9 lines).
+Hunk #19 succeeded at 1597 (offset -9 lines).
+Hunk #20 succeeded at 1653 (offset -9 lines).
+Hunk #21 succeeded at 1667 (offset -9 lines).
+Hunk #22 succeeded at 1811 (offset -9 lines).
+Hunk #23 succeeded at 1927 (offset -9 lines).
+patching file libgomp/plugin/configfrag.ac
+Hunk #5 succeeded at 152 (offset -10 lines).
+Hunk #6 succeeded at 167 (offset -10 lines).
+Hunk #7 succeeded at 223 (offset 17 lines).
+Hunk #8 succeeded at 241 (offset 17 lines).
+Hunk #9 succeeded at 258 (offset 17 lines).
+Hunk #10 succeeded at 282 (offset 17 lines).
+patching file libgomp/affinity-fmt.c
+patching file libgomp/single.c
+patching file libgomp/oacc-cuda.c
+patching file libgomp/work.c
+patching file include/gomp-constants.h

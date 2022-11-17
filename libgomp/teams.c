@@ -1,4 +1,4 @@
-/* Copyright (C) 2013-2018 Free Software Foundation, Inc.
+/* Copyright (C) 2018-2019 Free Software Foundation, Inc.
    Contributed by Jakub Jelinek <jakub@redhat.com>.
 
    This file is part of the GNU Offloading and Multi Processing Library
@@ -23,45 +23,52 @@
    see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
    <http://www.gnu.org/licenses/>.  */
 
+/* This file handles the host TEAMS construct.  */
+
 #include "libgomp.h"
 #include <limits.h>
 
+static unsigned gomp_num_teams = 1, gomp_team_num = 0;
+
 void
-GOMP_teams (unsigned int num_teams, unsigned int thread_limit)
+GOMP_teams_reg (void (*fn) (void *), void *data, unsigned int num_teams,
+		unsigned int thread_limit, unsigned int flags)
 {
+  (void) flags;
+  (void) num_teams;
+  unsigned old_thread_limit_var = 0;
   if (thread_limit)
     {
       struct gomp_task_icv *icv = gomp_icv (true);
+      old_thread_limit_var = icv->thread_limit_var;
       icv->thread_limit_var
 	= thread_limit > INT_MAX ? UINT_MAX : thread_limit;
     }
-  unsigned int num_blocks, block_id;
-  asm ("mov.u32 %0, %%nctaid.x;" : "=r" (num_blocks));
-  asm ("mov.u32 %0, %%ctaid.x;" : "=r" (block_id));
-  if (!num_teams || num_teams >= num_blocks)
-    num_teams = num_blocks;
-  else if (block_id >= num_teams)
+  if (num_teams == 0)
+    num_teams = 3;
+  gomp_num_teams = num_teams;
+  for (gomp_team_num = 0; gomp_team_num < num_teams; gomp_team_num++)
+    fn (data);
+  gomp_num_teams = 1;
+  gomp_team_num = 0;
+  if (thread_limit)
     {
-      gomp_free_thread (nvptx_thrs);
-      asm ("exit;");
+      struct gomp_task_icv *icv = gomp_icv (true);
+      icv->thread_limit_var = old_thread_limit_var;
     }
-  gomp_num_teams_var = num_teams - 1;
 }
 
 int
-omp_pause_resource (omp_pause_resource_t kind, int device_num)
+omp_get_num_teams (void)
 {
-  (void) kind;
-  (void) device_num;
-  return -1;
+  return gomp_num_teams;
 }
 
 int
-omp_pause_resource_all (omp_pause_resource_t kind)
+omp_get_team_num (void)
 {
-  (void) kind;
-  return -1;
+  return gomp_team_num;
 }
 
-ialias (omp_pause_resource)
-ialias (omp_pause_resource_all)
+ialias (omp_get_num_teams)
+ialias (omp_get_team_num)
