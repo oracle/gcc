@@ -15411,3 +15411,8 @@ patching file gcc/dwarf2out.c
 Hunk #23 succeeded at 20611 (offset 10 lines).
 patching file gcc/dwarf2out.h
 Hunk #1 succeeded at 390 (offset 6 lines).
+[oracle/gcc/ol8-u7-x86 4970a0aae4b] ctf-prep-4-dwarf-externalize-some-DWARF-internals-for-needs-of-.patch
+ 3 files changed, 90 insertions(+), 44 deletions(-)
+3104 ctf-prep-5-dejagnu-modularize-gcc-dg-debug-runtest-a-bit.patch -p1
+------- APPLYING ctf-prep-5-dejagnu-modularize-gcc-dg-debug-runtest-a-bit.patch ---------
+patching file gcc/testsuite/lib/gcc-dg.exp
