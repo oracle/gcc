@@ -28728,7 +28728,12 @@ ix86_output_jmp_thunk_or_indirect (const char *thunk_name,
       if (need_prefix == indirect_thunk_prefix_bnd)
 	fprintf (asm_out_file, "\tbnd jmp\t");
       else
-	fprintf (asm_out_file, "\tjmp\t");
+	{
+	  if (REX_INT_REGNO_P (regno)
+	      && ix86_indirect_branch_cs_prefix)
+	    fprintf (asm_out_file, "\tcs\n");
+	  fprintf (asm_out_file, "\tjmp\t");
+	}
       assemble_name (asm_out_file, thunk_name);
       putc ('\n', asm_out_file);
       if ((ix86_harden_sls & harden_sls_indirect_branch))
@@ -28787,7 +28792,12 @@ ix86_output_indirect_branch_via_reg (rtx call_op, bool sibcall_p)
 	  if (need_prefix == indirect_thunk_prefix_bnd)
 	    fprintf (asm_out_file, "\tbnd call\t");
 	  else
-	    fprintf (asm_out_file, "\tcall\t");
+	    {
+	      if (REX_INT_REGNO_P (regno)
+		  && ix86_indirect_branch_cs_prefix)
+		fprintf (asm_out_file, "\tcs\n");
+	      fprintf (asm_out_file, "\tcall\t");
+	    }
 	  assemble_name (asm_out_file, thunk_name);
 	  putc ('\n', asm_out_file);
 	  return;
