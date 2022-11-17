@@ -15198,3 +15198,19 @@ patching file nvptx-as.c
 ------- APPLYING nvptx-tools-glibc.patch ---------
 patching file configure.ac
 patching file configure
+[oracle/gcc/ol8-u7-x86 1dfd61e658a] nvptx-tools-glibc.patch
+ 3 files changed, 20 insertions(+)
+3001 gcc9-fipa-reference-addressable.patch -p1
+------- APPLYING gcc9-fipa-reference-addressable.patch ---------
+cd ..
+patching file gcc/cgraph.h
+patching file gcc/common.opt
+patching file gcc/doc/invoke.texi
+Hunk #1 succeeded at 388 (offset 1 line).
+Hunk #2 succeeded at 7597 (offset 19 lines).
+Hunk #3 succeeded at 8629 (offset 19 lines).
+patching file gcc/ipa-reference.c
+patching file gcc/ipa-visibility.c
+patching file gcc/ipa.c
+patching file gcc/opts.c
+patching file gcc/testsuite/gcc.dg/tree-ssa/writeonly-2.c
