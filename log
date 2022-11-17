@@ -14917,3 +14917,31 @@ patching file gcc/cp/mangle.c
 Hunk #1 succeeded at 1610 (offset -18 lines).
 Hunk #2 succeeded at 2043 (offset 15 lines).
 patching file gcc/testsuite/g++.dg/abi/lambda-defarg1.C
+[oracle/gcc/ol8-u7-x86 2babac050b1] gcc8-rh1981822.patch
+ 3 files changed, 23 insertions(+), 9 deletions(-)
+ create mode 100644 gcc/testsuite/g++.dg/abi/lambda-defarg1.C
+22 gcc8-Wbidi-chars.patch -p1
+------- APPLYING gcc8-Wbidi-chars.patch ---------
+patching file gcc/c-family/c.opt
+patching file gcc/doc/invoke.texi
+patching file gcc/testsuite/c-c++-common/Wbidi-chars-1.c
+patching file gcc/testsuite/c-c++-common/Wbidi-chars-10.c
+patching file gcc/testsuite/c-c++-common/Wbidi-chars-11.c
+patching file gcc/testsuite/c-c++-common/Wbidi-chars-12.c
+patching file gcc/testsuite/c-c++-common/Wbidi-chars-13.c
+patching file gcc/testsuite/c-c++-common/Wbidi-chars-14.c
+patching file gcc/testsuite/c-c++-common/Wbidi-chars-15.c
+patching file gcc/testsuite/c-c++-common/Wbidi-chars-16.c
+patching file gcc/testsuite/c-c++-common/Wbidi-chars-17.c
+patching file gcc/testsuite/c-c++-common/Wbidi-chars-2.c
+patching file gcc/testsuite/c-c++-common/Wbidi-chars-3.c
+patching file gcc/testsuite/c-c++-common/Wbidi-chars-4.c
+patching file gcc/testsuite/c-c++-common/Wbidi-chars-5.c
+patching file gcc/testsuite/c-c++-common/Wbidi-chars-6.c
+patching file gcc/testsuite/c-c++-common/Wbidi-chars-7.c
+patching file gcc/testsuite/c-c++-common/Wbidi-chars-8.c
+patching file gcc/testsuite/c-c++-common/Wbidi-chars-9.c
+patching file libcpp/include/cpplib.h
+patching file libcpp/init.c
+patching file libcpp/internal.h
+patching file libcpp/lex.c
