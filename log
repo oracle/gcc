@@ -15187,3 +15187,8 @@ patching file configure.ac
 patching file include/libiberty.h
 patching file nvptx-as.c
 patching file configure
+[oracle/gcc/ol8-u7-x86 da4ce8310be] nvptx-tools-no-ptxas.patch
+ 5 files changed, 811 insertions(+), 8 deletions(-)
+1001 nvptx-tools-build.patch -p1
+------- APPLYING nvptx-tools-build.patch ---------
+patching file nvptx-as.c
