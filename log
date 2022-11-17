@@ -15416,3 +15416,33 @@ Hunk #1 succeeded at 390 (offset 6 lines).
 3104 ctf-prep-5-dejagnu-modularize-gcc-dg-debug-runtest-a-bit.patch -p1
 ------- APPLYING ctf-prep-5-dejagnu-modularize-gcc-dg-debug-runtest-a-bit.patch ---------
 patching file gcc/testsuite/lib/gcc-dg.exp
+[oracle/gcc/ol8-u7-x86 f9ee91ffdd4] ctf-prep-5-dejagnu-modularize-gcc-dg-debug-runtest-a-bit.patch
+ 2 files changed, 21 insertions(+), 7 deletions(-)
+3200 ctf-1-add-ctf-btf-debug-formats.patch -p1
+------- APPLYING ctf-1-add-ctf-btf-debug-formats.patch ---------
+patching file gcc/Makefile.in
+patching file gcc/btfout.c
+patching file gcc/common.opt
+patching file gcc/ctfc.c
+patching file gcc/ctfc.h
+patching file gcc/ctfout.c
+patching file gcc/dwarf2cfi.c
+Hunk #1 succeeded at 3520 (offset 22 lines).
+patching file gcc/dwarf2ctf.c
+patching file gcc/dwarf2ctf.h
+patching file gcc/dwarf2out.c
+Hunk #2 succeeded at 27886 (offset 26 lines).
+Hunk #3 succeeded at 31202 (offset 26 lines).
+Hunk #4 succeeded at 31894 (offset 26 lines).
+Hunk #5 succeeded at 32040 (offset 26 lines).
+patching file gcc/final.c
+patching file gcc/flag-types.h
+patching file gcc/flags.h
+patching file gcc/gengtype.c
+Hunk #1 succeeded at 1739 (offset 15 lines).
+Hunk #2 succeeded at 5231 (offset 33 lines).
+patching file gcc/opts.c
+patching file gcc/toplev.c
+patching file include/btf.h
+patching file include/ctf.h
+patching file libiberty/simple-object.c
