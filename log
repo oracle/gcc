@@ -15177,3 +15177,13 @@ Hunk #1 succeeded at 28143 (offset 102 lines).
 ------- APPLYING gcc8-harden-4.patch ---------
 patching file gcc/config/i386/i386.c
 patching file gcc/testsuite/gcc.target/i386/harden-sls-6.c
+[oracle/gcc/ol8-u7-x86 d07535b8d49] gcc8-harden-4.patch
+ 3 files changed, 30 insertions(+), 3 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.target/i386/harden-sls-6.c
+1000 nvptx-tools-no-ptxas.patch -p1
+------- APPLYING nvptx-tools-no-ptxas.patch ---------
+cd nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f
+patching file configure.ac
+patching file include/libiberty.h
+patching file nvptx-as.c
+patching file configure
