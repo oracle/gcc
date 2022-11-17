@@ -14716,3 +14716,10 @@ Hunk #2 succeeded at 872 (offset 81 lines).
 Hunk #3 succeeded at 888 (offset 81 lines).
 patching file libgomp/target.c
 Hunk #1 succeeded at 2514 (offset 158 lines).
+[oracle/gcc/ol8-u7-x86 f9dc2469fcf] gcc8-foffload-default.patch
+ 4 files changed, 44 insertions(+), 5 deletions(-)
+10 gcc8-Wno-format-security.patch -p0
+------- APPLYING gcc8-Wno-format-security.patch ---------
+patching file gcc/configure.ac
+patching file gcc/configure
+Hunk #1 succeeded at 6660 (offset 13 lines).
