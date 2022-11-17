@@ -14645,3 +14645,9 @@ Hunk #2 succeeded at 3359 (offset 302 lines).
 Hunk #3 succeeded at 3373 (offset 302 lines).
 patching file libcpp/expr.c
 Hunk #1 succeeded at 788 (offset 116 lines).
+[oracle/gcc/ol8-u7-x86 ad4cf9765f9] gcc8-hack.patch
+ 5 files changed, 6898 insertions(+), 15 deletions(-)
+2 gcc8-i386-libgomp.patch -p0
+------- APPLYING gcc8-i386-libgomp.patch ---------
+patching file libgomp/configure.tgt
+Hunk #1 succeeded at 74 (offset 7 lines).
