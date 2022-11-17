@@ -14753,3 +14753,8 @@ Hunk #2 succeeded at 9280 (offset 68 lines).
 13 gcc8-rh1574936.patch -p0
 ------- APPLYING gcc8-rh1574936.patch ---------
 patching file libgcc/Makefile.in
+[oracle/gcc/ol8-u7-x86 57329f08e92] gcc8-rh1574936.patch
+ 2 files changed, 11 insertions(+)
+14 gcc8-libgcc-hardened.patch -p0
+------- APPLYING gcc8-libgcc-hardened.patch ---------
+patching file libgcc/config/t-slibgcc
