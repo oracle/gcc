@@ -15647,3 +15647,8 @@ patching file gcc/doc/invoke.texi
 Hunk #1 succeeded at 345 (offset 1 line).
 Hunk #2 succeeded at 7090 (offset 20 lines).
 Hunk #3 succeeded at 7151 (offset 20 lines).
+[oracle/gcc/ol8-u7-x86 291f42315e7] ctf-3-add-ctf-btf-documentation.patch
+ 2 files changed, 129 insertions(+), 1 deletion(-)
+3203 ctf-4-libiberty-copy-over-.BTF-section-LTO.patch -p1
+------- APPLYING ctf-4-libiberty-copy-over-.BTF-section-LTO.patch ---------
+patching file libiberty/simple-object.c
