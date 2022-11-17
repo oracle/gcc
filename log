@@ -14723,3 +14723,24 @@ Hunk #1 succeeded at 2514 (offset 158 lines).
 patching file gcc/configure.ac
 patching file gcc/configure
 Hunk #1 succeeded at 6660 (offset 13 lines).
+[oracle/gcc/ol8-u7-x86 186a61093e1] gcc8-Wno-format-security.patch
+ 3 files changed, 9 insertions(+), 2 deletions(-)
+11 gcc8-rh1512529-aarch64.patch -p0
+------- APPLYING gcc8-rh1512529-aarch64.patch ---------
+patching file gcc/config/aarch64/aarch64.c
+Hunk #1 succeeded at 4064 (offset 265 lines).
+Hunk #2 succeeded at 4887 (offset 291 lines).
+Hunk #3 succeeded at 5111 (offset 291 lines).
+Hunk #4 succeeded at 5214 (offset 291 lines).
+Hunk #5 succeeded at 11002 (offset 321 lines).
+Hunk #6 succeeded at 17525 (offset 153 lines).
+Hunk #7 succeeded at 18072 (offset 170 lines).
+patching file gcc/config/aarch64/aarch64.md
+Hunk #1 succeeded at 5952 (offset 140 lines).
+patching file gcc/testsuite/gcc.target/aarch64/stack-check-12.c
+patching file gcc/testsuite/gcc.target/aarch64/stack-check-13.c
+patching file gcc/testsuite/gcc.target/aarch64/stack-check-14.c
+patching file gcc/testsuite/gcc.target/aarch64/stack-check-15.c
+patching file gcc/testsuite/lib/target-supports.exp
+Hunk #1 succeeded at 9269 (offset 68 lines).
+Hunk #2 succeeded at 9280 (offset 68 lines).
