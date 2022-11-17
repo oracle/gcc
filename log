@@ -14859,3 +14859,20 @@ patching file libgomp/single.c
 patching file libgomp/oacc-cuda.c
 patching file libgomp/work.c
 patching file include/gomp-constants.h
+[oracle/gcc/ol8-u7-x86 74eab386c1f] gcc8-libgomp-20190503.patch
+ 54 files changed, 6046 insertions(+), 1373 deletions(-)
+ create mode 100644 libgomp/affinity-fmt.c
+ create mode 100644 libgomp/config/mingw32/affinity-fmt.c
+ create mode 100644 libgomp/config/nvptx/affinity-fmt.c
+ rewrite libgomp/config/nvptx/oacc-parallel.c (100%)
+ create mode 100644 libgomp/config/nvptx/teams.c
+ create mode 100644 libgomp/config/rtems/affinity-fmt.c
+ rewrite libgomp/config/rtems/bar.c (68%)
+ create mode 100644 libgomp/openacc2.f90
+ create mode 100644 libgomp/plugin/cuda-lib.def
+ create mode 100644 libgomp/teams.c
+17 gcc8-libgomp-testsuite.patch -p0
+------- APPLYING gcc8-libgomp-testsuite.patch ---------
+patching file libgomp/testsuite/libgomp-test-support.exp.in
+patching file libgomp/testsuite/lib/libgomp.exp
+Hunk #3 succeeded at 368 (offset 6 lines).
