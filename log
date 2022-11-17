@@ -1,0 +1,433 @@
+ --
+PRODUCT = gcc
+OLBRANCH = ol8-u7-x86
+GITBASE = a3253c88425835d5b339d6998a1110a66ccd8b44
+SPEC = gcc.spec
+GITBRANCH = oracle/gcc/ol8-u7-x86
+OLSVN = /home/opc/Backport/ol8-gcc
+Getting a list of patches to apply...
+~/Backport/ol8-gcc ~/Work/GCC/latest-gcc
+0 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 30 31 32 33 34 35 36 1000 1001 1002 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 2016 2017 3001 3002 3003 3004 3005 3006 3010 3011 3012 3013 3014 3021 3022 3023 3024 3025 3026 3027 3028 3100 3101 3102 3103 3104 3200 3201 3202 3203 3204 3205 3206 3207 3208 3209 3300 3400 3401 3500
+gcc8-hack.patch gcc8-i386-libgomp.patch gcc8-sparc-config-detection.patch gcc8-libgomp-omp_h-multilib.patch gcc8-libtool-no-rpath.patch gcc8-isl-dl.patch gcc8-libstdc++-docs.patch gcc8-no-add-needed.patch gcc8-foffload-default.patch gcc8-Wno-format-security.patch gcc8-rh1512529-aarch64.patch gcc8-mcet.patch gcc8-rh1574936.patch gcc8-libgcc-hardened.patch gcc8-rh1670535.patch gcc8-libgomp-20190503.patch gcc8-libgomp-testsuite.patch gcc8-remove-old-demangle.patch gcc8-rh1960701.patch gcc8-pr100797.patch gcc8-rh1981822.patch gcc8-Wbidi-chars.patch gcc8-pr96796.patch gcc8-pch-tweaks.patch gcc8-aarch64-mtune-neoverse-512tvb.patch gcc8-rh2028609.patch gcc8-libgfortran-default-values.patch gcc8-rh2001788.patch gcc8-rh1668903-1.patch gcc8-rh1668903-2.patch gcc8-rh1668903-3.patch gcc8-harden-1.patch gcc8-harden-2.patch gcc8-harden-3.patch gcc8-harden-4.patch nvptx-tools-no-ptxas.patch nvptx-tools-build.patch nvptx-tools-glibc.patch amp-1-aarch64-retpoline.patch amp-2-revert-2017-10-24-richard.patch amp-3-aarch64-correct-shift-amount.patch amp-4-aarch64-cpu-support-ampere.patch amp-5-aarch64-emag-xgene-cost-model.patch amp-6-update-cost-table-for-xgene1.patch amp-7-aarch64-add-xgene1-prefetch-tuning.patch amp-8-aarch64-fix-xgene1-addrcost-table.patch amp-9-aarch64-adapt-tuning-struct.patch amp-10-add-pipelining-loads.patch amp-11-uncse.patch amp-12-loop-prefetcher-adapt-defaults.patch amp-13-ssa-dont-crash-on-ssa-names.patch amp-14-flag-funroll-more.patch amp-15-bypass-alias.patch amp-16-forced-creation-of-loop-preheader.patch amp-17-noloopalias.patch gcc9-fipa-reference-addressable.patch gcc9-fipa-stack-alignment.patch gcc9-add-fomit-frame-pointer-to-test.patch gcc9-extend-live-patching-option-handling.patch gcc9-ipa-stack-alignment-386-test.patch gcc9-opt-info-inline.patch gcc9-pr47618.patch gcc9-pr86057.patch gcc9-pr85759.patch gcc10-pr91971.patch gcc8-Fix-Wa-with-flto.patch gcc9-add-vec-reverse.patch gcc9-multiple-changes-align.patch gcc9-initial-mcpu-ares-tuning.patch gcc9-add-support-for-neoverse-n1.patch gcc9-pr89832.patch gcc9-pr90581.patch gcc9-pr88994.patch gcc-complex-divide-fix.patch ctf-prep-1-opts-change-write_symbols-to-support-bitmasks.patch ctf-prep-2-dwarf-new-dwarf_debuginfo_p-predicate.patch ctf-prep-3-pr100749-gcc.dg-pch-valid-1.c-fails-after.patch ctf-prep-4-dwarf-externalize-some-DWARF-internals-for-needs-of-.patch ctf-prep-5-dejagnu-modularize-gcc-dg-debug-runtest-a-bit.patch ctf-1-add-ctf-btf-debug-formats.patch ctf-2-add-ctf-btf-testsuites.patch ctf-3-add-ctf-btf-documentation.patch ctf-4-libiberty-copy-over-.BTF-section-LTO.patch ctf-5-support-for-BTF_KIND_FLOAT.patch ctf-6-dwarf2ctf-the-unit-of-sou-field-location-is-bits.patch ctf-7-allow-gt-command-line-option.patch ctf-8-gcc12-debug-102507-ICE-in-btf_finalize.patch ctf-9-gcc12-ctf-Do-not-warn-for-for-GNU-GIMPLE.patch ctf-10-gcc12-ctfc-Free-in-ctfc_delete_container.patch gcc-fix-aarch64-tune-params.patch gcc9-add-support-for-profile-extension.patch gcc10-add-initial-octeontx2-support.patch gcc8-ora34066706.patch
+0 gcc8-hack.patch
+2 gcc8-i386-libgomp.patch
+3 gcc8-sparc-config-detection.patch
+4 gcc8-libgomp-omp_h-multilib.patch
+5 gcc8-libtool-no-rpath.patch
+6 gcc8-isl-dl.patch
+7 gcc8-libstdc++-docs.patch
+8 gcc8-no-add-needed.patch
+9 gcc8-foffload-default.patch
+10 gcc8-Wno-format-security.patch
+11 gcc8-rh1512529-aarch64.patch
+12 gcc8-mcet.patch
+13 gcc8-rh1574936.patch
+14 gcc8-libgcc-hardened.patch
+15 gcc8-rh1670535.patch
+16 gcc8-libgomp-20190503.patch
+17 gcc8-libgomp-testsuite.patch
+18 gcc8-remove-old-demangle.patch
+19 gcc8-rh1960701.patch
+20 gcc8-pr100797.patch
+21 gcc8-rh1981822.patch
+22 gcc8-Wbidi-chars.patch
+23 gcc8-pr96796.patch
+24 gcc8-pch-tweaks.patch
+25 gcc8-aarch64-mtune-neoverse-512tvb.patch
+26 gcc8-rh2028609.patch
+27 gcc8-libgfortran-default-values.patch
+28 gcc8-rh2001788.patch
+30 gcc8-rh1668903-1.patch
+31 gcc8-rh1668903-2.patch
+32 gcc8-rh1668903-3.patch
+33 gcc8-harden-1.patch
+34 gcc8-harden-2.patch
+35 gcc8-harden-3.patch
+36 gcc8-harden-4.patch
+1000 nvptx-tools-no-ptxas.patch
+1001 nvptx-tools-build.patch
+1002 nvptx-tools-glibc.patch
+2001 amp-1-aarch64-retpoline.patch
+2002 amp-2-revert-2017-10-24-richard.patch
+2003 amp-3-aarch64-correct-shift-amount.patch
+2004 amp-4-aarch64-cpu-support-ampere.patch
+2005 amp-5-aarch64-emag-xgene-cost-model.patch
+2006 amp-6-update-cost-table-for-xgene1.patch
+2007 amp-7-aarch64-add-xgene1-prefetch-tuning.patch
+2008 amp-8-aarch64-fix-xgene1-addrcost-table.patch
+2009 amp-9-aarch64-adapt-tuning-struct.patch
+2010 amp-10-add-pipelining-loads.patch
+2011 amp-11-uncse.patch
+2012 amp-12-loop-prefetcher-adapt-defaults.patch
+2013 amp-13-ssa-dont-crash-on-ssa-names.patch
+2014 amp-14-flag-funroll-more.patch
+2015 amp-15-bypass-alias.patch
+2016 amp-16-forced-creation-of-loop-preheader.patch
+2017 amp-17-noloopalias.patch
+3001 gcc9-fipa-reference-addressable.patch
+3002 gcc9-fipa-stack-alignment.patch
+3003 gcc9-add-fomit-frame-pointer-to-test.patch
+3004 gcc9-extend-live-patching-option-handling.patch
+3005 gcc9-ipa-stack-alignment-386-test.patch
+3006 gcc9-opt-info-inline.patch
+3010 gcc9-pr47618.patch
+3011 gcc9-pr86057.patch
+3012 gcc9-pr85759.patch
+3013 gcc10-pr91971.patch
+3014 gcc8-Fix-Wa-with-flto.patch
+3021 gcc9-add-vec-reverse.patch
+3022 gcc9-multiple-changes-align.patch
+3023 gcc9-initial-mcpu-ares-tuning.patch
+3024 gcc9-add-support-for-neoverse-n1.patch
+3025 gcc9-pr89832.patch
+3026 gcc9-pr90581.patch
+3027 gcc9-pr88994.patch
+3028 gcc-complex-divide-fix.patch
+3100 ctf-prep-1-opts-change-write_symbols-to-support-bitmasks.patch
+3101 ctf-prep-2-dwarf-new-dwarf_debuginfo_p-predicate.patch
+3102 ctf-prep-3-pr100749-gcc.dg-pch-valid-1.c-fails-after.patch
+3103 ctf-prep-4-dwarf-externalize-some-DWARF-internals-for-needs-of-.patch
+3104 ctf-prep-5-dejagnu-modularize-gcc-dg-debug-runtest-a-bit.patch
+3200 ctf-1-add-ctf-btf-debug-formats.patch
+3201 ctf-2-add-ctf-btf-testsuites.patch
+3202 ctf-3-add-ctf-btf-documentation.patch
+3203 ctf-4-libiberty-copy-over-.BTF-section-LTO.patch
+3204 ctf-5-support-for-BTF_KIND_FLOAT.patch
+3205 ctf-6-dwarf2ctf-the-unit-of-sou-field-location-is-bits.patch
+3206 ctf-7-allow-gt-command-line-option.patch
+3207 ctf-8-gcc12-debug-102507-ICE-in-btf_finalize.patch
+3208 ctf-9-gcc12-ctf-Do-not-warn-for-for-GNU-GIMPLE.patch
+3209 ctf-10-gcc12-ctfc-Free-in-ctfc_delete_container.patch
+3300 gcc-fix-aarch64-tune-params.patch
+3400 gcc9-add-support-for-profile-extension.patch
+3401 gcc10-add-initial-octeontx2-support.patch
+3500 gcc8-ora34066706.patch
+declare -A patches=([26]="gcc8-rh2028609.patch" [27]="gcc8-libgfortran-default-values.patch" [24]="gcc8-pch-tweaks.patch" [25]="gcc8-aarch64-mtune-neoverse-512tvb.patch" [22]="gcc8-Wbidi-chars.patch" [23]="gcc8-pr96796.patch" [20]="gcc8-pr100797.patch" [21]="gcc8-rh1981822.patch" [28]="gcc8-rh2001788.patch" [13]="gcc8-rh1574936.patch" [12]="gcc8-mcet.patch" [11]="gcc8-rh1512529-aarch64.patch" [10]="gcc8-Wno-format-security.patch" [17]="gcc8-libgomp-testsuite.patch" [16]="gcc8-libgomp-20190503.patch" [15]="gcc8-rh1670535.patch" [14]="gcc8-libgcc-hardened.patch" [19]="gcc8-rh1960701.patch" [18]="gcc8-remove-old-demangle.patch" [3001]="gcc9-fipa-reference-addressable.patch" [3003]="gcc9-add-fomit-frame-pointer-to-test.patch" [3002]="gcc9-fipa-stack-alignment.patch" [3005]="gcc9-ipa-stack-alignment-386-test.patch" [3004]="gcc9-extend-live-patching-option-handling.patch" [3006]="gcc9-opt-info-inline.patch" [1002]="nvptx-tools-glibc.patch" [3300]="gcc-fix-aarch64-tune-params.patch" [1001]="nvptx-tools-build.patch" [1000]="nvptx-tools-no-ptxas.patch" [0]="gcc8-hack.patch" [2]="gcc8-i386-libgomp.patch" [3]="gcc8-sparc-config-detection.patch" [4]="gcc8-libgomp-omp_h-multilib.patch" [5]="gcc8-libtool-no-rpath.patch" [6]="gcc8-isl-dl.patch" [7]="gcc8-libstdc++-docs.patch" [3100]="ctf-prep-1-opts-change-write_symbols-to-support-bitmasks.patch" [8]="gcc8-no-add-needed.patch" [3101]="ctf-prep-2-dwarf-new-dwarf_debuginfo_p-predicate.patch" [9]="gcc8-foffload-default.patch" [3102]="ctf-prep-3-pr100749-gcc.dg-pch-valid-1.c-fails-after.patch" [3103]="ctf-prep-4-dwarf-externalize-some-DWARF-internals-for-needs-of-.patch" [3104]="ctf-prep-5-dejagnu-modularize-gcc-dg-debug-runtest-a-bit.patch" [2011]="amp-11-uncse.patch" [2010]="amp-10-add-pipelining-loads.patch" [3014]="gcc8-Fix-Wa-with-flto.patch" [2013]="amp-13-ssa-dont-crash-on-ssa-names.patch" [2012]="amp-12-loop-prefetcher-adapt-defaults.patch" [3012]="gcc9-pr85759.patch" [2015]="amp-15-bypass-alias.patch" [3013]="gcc10-pr91971.patch" [2014]="amp-14-flag-funroll-more.patch" [3010]="gcc9-pr47618.patch" [2017]="amp-17-noloopalias.patch" [3011]="gcc9-pr86057.patch" [2016]="amp-16-forced-creation-of-loop-preheader.patch" [2006]="amp-6-update-cost-table-for-xgene1.patch" [2007]="amp-7-aarch64-add-xgene1-prefetch-tuning.patch" [2004]="amp-4-aarch64-cpu-support-ampere.patch" [3028]="gcc-complex-divide-fix.patch" [2005]="amp-5-aarch64-emag-xgene-cost-model.patch" [2002]="amp-2-revert-2017-10-24-richard.patch" [2003]="amp-3-aarch64-correct-shift-amount.patch" [2001]="amp-1-aarch64-retpoline.patch" [3023]="gcc9-initial-mcpu-ares-tuning.patch" [3022]="gcc9-multiple-changes-align.patch" [3021]="gcc9-add-vec-reverse.patch" [3027]="gcc9-pr88994.patch" [3026]="gcc9-pr90581.patch" [3025]="gcc9-pr89832.patch" [2008]="amp-8-aarch64-fix-xgene1-addrcost-table.patch" [3024]="gcc9-add-support-for-neoverse-n1.patch" [2009]="amp-9-aarch64-adapt-tuning-struct.patch" [3401]="gcc10-add-initial-octeontx2-support.patch" [3400]="gcc9-add-support-for-profile-extension.patch" [3203]="ctf-4-libiberty-copy-over-.BTF-section-LTO.patch" [3202]="ctf-3-add-ctf-btf-documentation.patch" [3201]="ctf-2-add-ctf-btf-testsuites.patch" [3200]="ctf-1-add-ctf-btf-debug-formats.patch" [3207]="ctf-8-gcc12-debug-102507-ICE-in-btf_finalize.patch" [3206]="ctf-7-allow-gt-command-line-option.patch" [3205]="ctf-6-dwarf2ctf-the-unit-of-sou-field-location-is-bits.patch" [3204]="ctf-5-support-for-BTF_KIND_FLOAT.patch" [31]="gcc8-rh1668903-2.patch" [30]="gcc8-rh1668903-1.patch" [3209]="ctf-10-gcc12-ctfc-Free-in-ctfc_delete_container.patch" [33]="gcc8-harden-1.patch" [3208]="ctf-9-gcc12-ctf-Do-not-warn-for-for-GNU-GIMPLE.patch" [32]="gcc8-rh1668903-3.patch" [3500]="gcc8-ora34066706.patch" [35]="gcc8-harden-3.patch" [34]="gcc8-harden-2.patch" [36]="gcc8-harden-4.patch" )
+0 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 30 31 32 33 34 35 36 1000 1001 1002 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 2016 2017 3001 3002 3003 3004 3005 3006 3010 3011 3012 3013 3014 3021 3022 3023 3024 3025 3026 3027 3028 3100 3101 3102 3103 3104 3200 3201 3202 3203 3204 3205 3206 3207 3208 3209 3300 3400 3401 3500
+-p0 -p0 -p0 -p0 -p0 -p0 -p0 -p0 -p0 -p0 -p0 -p0 -p0 -p0 -p0 -p0 -p0 -p0 -p0 -p0 -p0 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p0 -p0 -p0 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1 -p1
+0 -p0
+2 -p0
+3 -p0
+4 -p0
+5 -p0
+6 -p0
+7 -p0
+8 -p0
+9 -p0
+10 -p0
+11 -p0
+12 -p0
+13 -p0
+14 -p0
+15 -p0
+16 -p0
+17 -p0
+18 -p0
+19 -p0
+20 -p0
+21 -p0
+22 -p1
+23 -p1
+24 -p1
+25 -p1
+26 -p1
+27 -p1
+28 -p1
+30 -p0
+31 -p0
+32 -p0
+33 -p1
+34 -p1
+35 -p1
+36 -p1
+1000 -p1
+1001 -p1
+1002 -p1
+2001 -p1
+2002 -p1
+2003 -p1
+2004 -p1
+2005 -p1
+2006 -p1
+2007 -p1
+2008 -p1
+2009 -p1
+2010 -p1
+2011 -p1
+2012 -p1
+2013 -p1
+2014 -p1
+2015 -p1
+2016 -p1
+2017 -p1
+3001 -p1
+3002 -p1
+3003 -p1
+3004 -p1
+3005 -p1
+3006 -p1
+3010 -p1
+3011 -p1
+3012 -p1
+3013 -p1
+3014 -p1
+3021 -p1
+3022 -p1
+3023 -p1
+3024 -p1
+3025 -p1
+3026 -p1
+3027 -p1
+3028 -p1
+3100 -p1
+3101 -p1
+3102 -p1
+3103 -p1
+3104 -p1
+3200 -p1
+3201 -p1
+3202 -p1
+3203 -p1
+3204 -p1
+3205 -p1
+3206 -p1
+3207 -p1
+3208 -p1
+3209 -p1
+3300 -p1
+3400 -p1
+3401 -p1
+3500 -p1
+declare -A depths=([26]="-p1" [27]="-p1" [24]="-p1" [25]="-p1" [22]="-p1" [23]="-p1" [20]="-p0" [21]="-p0" [28]="-p1" [13]="-p0" [12]="-p0" [11]="-p0" [10]="-p0" [17]="-p0" [16]="-p0" [15]="-p0" [14]="-p0" [19]="-p0" [18]="-p0" [3001]="-p1" [3003]="-p1" [3002]="-p1" [3005]="-p1" [3004]="-p1" [3006]="-p1" [1002]="-p1" [3300]="-p1" [1001]="-p1" [1000]="-p1" [0]="-p0" [2]="-p0" [3]="-p0" [4]="-p0" [5]="-p0" [6]="-p0" [7]="-p0" [3100]="-p1" [8]="-p0" [3101]="-p1" [9]="-p0" [3102]="-p1" [3103]="-p1" [3104]="-p1" [2011]="-p1" [2010]="-p1" [3014]="-p1" [2013]="-p1" [2012]="-p1" [3012]="-p1" [2015]="-p1" [3013]="-p1" [2014]="-p1" [3010]="-p1" [2017]="-p1" [3011]="-p1" [2016]="-p1" [2006]="-p1" [2007]="-p1" [2004]="-p1" [3028]="-p1" [2005]="-p1" [2002]="-p1" [2003]="-p1" [2001]="-p1" [3023]="-p1" [3022]="-p1" [3021]="-p1" [3027]="-p1" [3026]="-p1" [3025]="-p1" [2008]="-p1" [3024]="-p1" [2009]="-p1" [3401]="-p1" [3400]="-p1" [3203]="-p1" [3202]="-p1" [3201]="-p1" [3200]="-p1" [3207]="-p1" [3206]="-p1" [3205]="-p1" [3204]="-p1" [31]="-p0" [30]="-p0" [3209]="-p1" [33]="-p1" [3208]="-p1" [32]="-p0" [3500]="-p1" [35]="-p1" [34]="-p1" [36]="-p1" )
+/home/opc/Backport/ol8-gcc
+0 2 3 4 5 6 7 8 9 10 11 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 30 31 32 33 34 35 36 1000 1001 1002 3001 3002 3003 3004 3005 3006 3010 3011 3012 3013 3014 3025 3026 3027 3028 3100 3101 3102 3103 3104 3200 3201 3202 3203 3204 3205 3206 3207 3208 3209 3500
+declare -a ORDERED_PATCH_NUMBERS=([0]="0" [1]="2" [2]="3" [3]="4" [4]="5" [5]="6" [6]="7" [7]="8" [8]="9" [9]="10" [10]="11" [11]="13" [12]="14" [13]="15" [14]="16" [15]="17" [16]="18" [17]="19" [18]="20" [19]="21" [20]="22" [21]="23" [22]="24" [23]="25" [24]="26" [25]="27" [26]="28" [27]="30" [28]="31" [29]="32" [30]="33" [31]="34" [32]="35" [33]="36" [34]="1000" [35]="1001" [36]="1002" [37]="3001" [38]="3002" [39]="3003" [40]="3004" [41]="3005" [42]="3006" [43]="3010" [44]="3011" [45]="3012" [46]="3013" [47]="3014" [48]="3025" [49]="3026" [50]="3027" [51]="3028" [52]="3100" [53]="3101" [54]="3102" [55]="3103" [56]="3104" [57]="3200" [58]="3201" [59]="3202" [60]="3203" [61]="3204" [62]="3205" [63]="3206" [64]="3207" [65]="3208" [66]="3209" [67]="3500")
+~/Work/GCC/latest-gcc
+Note: switching to 'a3253c88425835d5b339d6998a1110a66ccd8b44'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+HEAD is now at a3253c88425 Update ChangeLog and version files for release
+Switched to branch 'oracle/gcc/ol8-u7-x86'
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/COPYING3
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/Makefile.in
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/README
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/acinclude.m4
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/aclocal.m4
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/config.guess
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/config.sub
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/configure
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/configure.ac
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/dejagnu.exp.in
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/COPYING
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/COPYING3
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/ChangeLog
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/ChangeLog-9103
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/ansidecl.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/demangle.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/dwarf2.def
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/dwarf2.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/dyn-string.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/fibheap.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/filenames.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/floatformat.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/fnmatch.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/getopt.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/hashtab.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/leb128.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/libiberty.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/lto-symtab.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/md5.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/objalloc.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/obstack.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/partition.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/plugin-api.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/safe-ctype.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/sha1.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/simple-object.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/sort.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/splay-tree.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/symcat.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/timeval-utils.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/xregex.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/xregex2.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/include/xtensa-config.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/install-sh
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/.gitignore
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/COPYING.LIB
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/ChangeLog
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/Makefile.in
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/README
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/_doprnt.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/aclocal.m4
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/alloca.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/argv.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/asprintf.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/at-file.texi
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/atexit.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/basename.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/bcmp.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/bcopy.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/bsearch.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/bzero.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/calloc.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/choose-temp.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/clock.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/concat.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/config.h-vms
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/config.in
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/config/
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/config/mh-aix
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/config/mh-cxux7
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/config/mh-fbsd21
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/config/mh-openedition
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/config/mh-windows
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/configure
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/configure.ac
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/configure.com
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/copying-lib.texi
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/copysign.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/cp-demangle.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/cp-demangle.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/cp-demint.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/cplus-dem.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/crc32.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/dwarfnames.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/dyn-string.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/fdmatch.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/ffs.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/fibheap.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/filename_cmp.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/floatformat.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/fnmatch.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/fnmatch.txh
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/fopen_unlocked.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/functions.texi
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/gather-docs
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/getcwd.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/getopt.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/getopt1.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/getpagesize.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/getpwd.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/getruntime.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/gettimeofday.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/hashtab.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/hex.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/index.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/insque.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/lbasename.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/libiberty.texi
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/lrealpath.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/maint-tool
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/make-relative-prefix.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/make-temp-file.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/makefile.vms
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/md5.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/memchr.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/memcmp.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/memcpy.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/memmem.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/memmove.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/mempcpy.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/memset.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/mkstemps.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/msdos.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/objalloc.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/obstack.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/obstacks.texi
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/partition.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/pex-common.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/pex-common.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/pex-djgpp.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/pex-msdos.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/pex-one.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/pex-unix.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/pex-win32.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/pexecute.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/pexecute.txh
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/physmem.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/putenv.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/random.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/regex.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/rename.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/rindex.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/safe-ctype.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/setenv.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/setproctitle.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/sha1.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/sigsetmask.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/simple-object-coff.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/simple-object-common.h
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/simple-object-elf.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/simple-object-mach-o.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/simple-object-xcoff.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/simple-object.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/simple-object.txh
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/snprintf.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/sort.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/spaces.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/splay-tree.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/stack-limit.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/stpcpy.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/stpncpy.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/strcasecmp.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/strchr.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/strdup.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/strerror.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/strncasecmp.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/strncmp.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/strndup.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/strnlen.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/strrchr.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/strsignal.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/strstr.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/strtod.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/strtol.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/strtoul.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/strverscmp.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/testsuite/
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/testsuite/Makefile.in
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/testsuite/demangle-expected
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/testsuite/test-demangle.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/testsuite/test-expandargv.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/testsuite/test-pexecute.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/timeval-utils.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/tmpnam.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/unlink-if-ordinary.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/vasprintf.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/vfork.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/vfprintf.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/vprintf.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/vsnprintf.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/vsprintf.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/waitpid.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/xatexit.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/xexit.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/xmalloc.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/xmemdup.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/xstrdup.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/xstrerror.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/libiberty/xstrndup.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/mkinstalldirs
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/nvptx-as.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/nvptx-ld.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/nvptx-none-run.exp
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/nvptx-run-single
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/nvptx-run.c
+nvptx-tools-c28050f60193b3b95a18866a96f03334e874e78f/version.h
