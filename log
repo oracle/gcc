@@ -15374,3 +15374,26 @@ patching file gcc/opts.c
 patching file gcc/testsuite/gcc.dg/pch/valid-1.c
 patching file gcc/testsuite/lib/dg-pch.exp
 patching file gcc/toplev.c
+[oracle/gcc/ol8-u7-x86 06c31f40398] ctf-prep-1-opts-change-write_symbols-to-support-bitmasks.patch
+ 11 files changed, 177 insertions(+), 35 deletions(-)
+3101 ctf-prep-2-dwarf-new-dwarf_debuginfo_p-predicate.patch -p1
+------- APPLYING ctf-prep-2-dwarf-new-dwarf_debuginfo_p-predicate.patch ---------
+patching file gcc/c-family/c-lex.c
+patching file gcc/config/c6x/c6x.c
+patching file gcc/config/darwin.c
+patching file gcc/config/i386/cygming.h
+patching file gcc/config/i386/darwin.h
+patching file gcc/config/mips/mips.c
+patching file gcc/config/rs6000/rs6000.c
+Hunk #1 succeeded at 34795 (offset 4 lines).
+Hunk #2 succeeded at 36796 (offset 4 lines).
+patching file gcc/dbxout.c
+patching file gcc/dwarf2cfi.c
+Hunk #2 succeeded at 2265 (offset 21 lines).
+Hunk #3 succeeded at 3518 (offset 22 lines).
+patching file gcc/except.c
+patching file gcc/final.c
+patching file gcc/flags.h
+patching file gcc/opts.c
+patching file gcc/targhooks.c
+patching file gcc/toplev.c
