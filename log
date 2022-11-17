@@ -15687,3 +15687,9 @@ patching file gcc/btfout.c
 3208 ctf-9-gcc12-ctf-Do-not-warn-for-for-GNU-GIMPLE.patch -p1
 ------- APPLYING ctf-9-gcc12-ctf-Do-not-warn-for-for-GNU-GIMPLE.patch ---------
 patching file gcc/toplev.c
+[oracle/gcc/ol8-u7-x86 f432944da9b] ctf-9-gcc12-ctf-Do-not-warn-for-for-GNU-GIMPLE.patch
+ 2 files changed, 12 insertions(+), 5 deletions(-)
+3209 ctf-10-gcc12-ctfc-Free-in-ctfc_delete_container.patch -p1
+------- APPLYING ctf-10-gcc12-ctfc-Free-in-ctfc_delete_container.patch ---------
+patching file gcc/ctfc.c
+Hunk #1 succeeded at 928 (offset -16 lines).
