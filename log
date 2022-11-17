@@ -15225,3 +15225,9 @@ Hunk #1 succeeded at 389 (offset 1 line).
 Hunk #2 succeeded at 8634 (offset 19 lines).
 patching file gcc/final.c
 patching file gcc/testsuite/gcc.target/i386/ipa-stack-alignment.c
+[oracle/gcc/ol8-u7-x86 b0008684682] gcc9-fipa-stack-alignment.patch
+ 5 files changed, 36 insertions(+), 2 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.target/i386/ipa-stack-alignment.c
+3003 gcc9-add-fomit-frame-pointer-to-test.patch -p1
+------- APPLYING gcc9-add-fomit-frame-pointer-to-test.patch ---------
+patching file gcc/testsuite/gcc.target/i386/ipa-stack-alignment.c
