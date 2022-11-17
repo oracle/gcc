@@ -15192,3 +15192,9 @@ patching file configure
 1001 nvptx-tools-build.patch -p1
 ------- APPLYING nvptx-tools-build.patch ---------
 patching file nvptx-as.c
+[oracle/gcc/ol8-u7-x86 bd7052ebf21] nvptx-tools-build.patch
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+1002 nvptx-tools-glibc.patch -p1
+------- APPLYING nvptx-tools-glibc.patch ---------
+patching file configure.ac
+patching file configure
