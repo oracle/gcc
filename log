@@ -14907,3 +14907,13 @@ Hunk #2 succeeded at 7923 (offset -395 lines).
 Hunk #3 succeeded at 7937 (offset -395 lines).
 patching file gcc/testsuite/g++.dg/inherit/virtual15.C
 patching file gcc/testsuite/g++.dg/inherit/virtual15a.C
+[oracle/gcc/ol8-u7-x86 789c2e9bd45] gcc8-pr100797.patch
+ 4 files changed, 73 insertions(+), 19 deletions(-)
+ create mode 100644 gcc/testsuite/g++.dg/inherit/virtual15.C
+ create mode 100644 gcc/testsuite/g++.dg/inherit/virtual15a.C
+21 gcc8-rh1981822.patch -p0
+------- APPLYING gcc8-rh1981822.patch ---------
+patching file gcc/cp/mangle.c
+Hunk #1 succeeded at 1610 (offset -18 lines).
+Hunk #2 succeeded at 2043 (offset 15 lines).
+patching file gcc/testsuite/g++.dg/abi/lambda-defarg1.C
