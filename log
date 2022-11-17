@@ -15171,3 +15171,9 @@ patching file gcc/config/i386/i386.c
 patching file gcc/config/i386/i386.opt
 patching file gcc/doc/invoke.texi
 Hunk #1 succeeded at 28143 (offset 102 lines).
+[oracle/gcc/ol8-u7-x86 159960de371] gcc8-harden-3.patch
+ 5 files changed, 19 insertions(+), 8 deletions(-)
+36 gcc8-harden-4.patch -p1
+------- APPLYING gcc8-harden-4.patch ---------
+patching file gcc/config/i386/i386.c
+patching file gcc/testsuite/gcc.target/i386/harden-sls-6.c
