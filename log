@@ -15344,3 +15344,13 @@ patching file libcpp/internal.h
 ------- APPLYING gcc9-pr88994.patch ---------
 patching file gcc/gcov.c
 patching file gcc/gcov-io.c
+[oracle/gcc/ol8-u7-x86 918580fd3b1] gcc9-pr88994.patch
+ 3 files changed, 19 insertions(+), 8 deletions(-)
+3028 gcc-complex-divide-fix.patch -p1
+------- APPLYING gcc-complex-divide-fix.patch ---------
+patching file gcc/c-family/c-cppbuiltin.c
+patching file gcc/testsuite/gcc.c-torture/execute/ieee/cdivchkd.c
+patching file gcc/testsuite/gcc.c-torture/execute/ieee/cdivchkf.c
+patching file gcc/testsuite/gcc.c-torture/execute/ieee/cdivchkld.c
+patching file libgcc/config/rs6000/_divkc3.c
+patching file libgcc/libgcc2.c
