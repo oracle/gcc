@@ -15669,3 +15669,11 @@ patching file include/btf.h
 ------- APPLYING ctf-6-dwarf2ctf-the-unit-of-sou-field-location-is-bits.patch ---------
 patching file gcc/dwarf2ctf.c
 patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-struct-array-2.c
+[oracle/gcc/ol8-u7-x86 c4814b9af7b] ctf-6-dwarf2ctf-the-unit-of-sou-field-location-is-bits.patch
+ 3 files changed, 10 insertions(+), 3 deletions(-)
+3206 ctf-7-allow-gt-command-line-option.patch -p1
+------- APPLYING ctf-7-allow-gt-command-line-option.patch ---------
+patching file gcc/common.opt
+patching file gcc/doc/invoke.texi
+Hunk #1 succeeded at 7158 (offset 20 lines).
+patching file gcc/opts.c
