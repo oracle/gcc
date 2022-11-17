@@ -14675,3 +14675,16 @@ patching file ltmain.sh
 Hunk #1 succeeded at 7103 (offset 1709 lines).
 Hunk #2 succeeded at 7799 (offset 1727 lines).
 Hunk #3 succeeded at 7851 (offset 1729 lines).
+[oracle/gcc/ol8-u7-x86 908fbe29538] gcc8-libtool-no-rpath.patch
+ 2 files changed, 11 insertions(+)
+6 gcc8-isl-dl.patch -p0
+------- APPLYING gcc8-isl-dl.patch ---------
+patching file gcc/Makefile.in
+Hunk #1 succeeded at 1058 (offset 12 lines).
+Hunk #2 succeeded at 2265 (offset 69 lines).
+patching file gcc/graphite.h
+Hunk #2 succeeded at 1047 (offset 2 lines).
+patching file gcc/graphite.c
+patching file gcc/toplev.c
+Hunk #1 succeeded at 97 (offset 3 lines).
+Hunk #2 succeeded at 671 (offset -13 lines).

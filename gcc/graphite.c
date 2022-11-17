@@ -60,6 +60,35 @@ along with GCC; see the file COPYING3.  If not see
 #include "tree-into-ssa.h"
 #include "graphite.h"
 
+__typeof (isl_pointers__) isl_pointers__;
+
+static bool
+init_isl_pointers (void)
+{
+  void *h;
+
+  if (isl_pointers__.inited)
+    return isl_pointers__.h != NULL;
+  h = dlopen ("libisl.so.15", RTLD_LAZY);
+  isl_pointers__.h = h;
+  if (h == NULL)
+    return false;
+#define DYNSYM(x) \
+  do \
+    { \
+      union { __typeof (isl_pointers__.p_##x) p; void *q; } u; \
+      u.q = dlsym (h, #x); \
+      if (u.q == NULL) \
+	return false; \
+      isl_pointers__.p_##x = u.p; \
+    } \
+  while (0)
+  DYNSYMS
+#undef DYNSYM
+  isl_pointers__.inited = true;
+  return true;
+}
+
 /* Print global statistics to FILE.  */
 
 static void
@@ -365,6 +394,15 @@ graphite_transform_loops (void)
   if (parallelized_function_p (cfun->decl))
     return;
 
+  if (number_of_loops (cfun) <= 1)
+    return;
+
+  if (!init_isl_pointers ())
+    {
+      sorry ("Graphite loop optimizations cannot be used");
+      return;
+    }
+
   calculate_dominance_info (CDI_DOMINATORS);
 
   /* We rely on post-dominators during merging of SESE regions so those
@@ -453,6 +491,14 @@ graphite_transform_loops (void)
       release_recorded_exits (cfun);
       tree_estimate_probability (false);
     }
+}
+
+const char *
+get_isl_version (bool force)
+{
+  if (force)
+    init_isl_pointers ();
+  return (isl_pointers__.inited && isl_version) ? isl_version () : "none";
 }
 
 #else /* If isl is not available: #ifndef HAVE_isl.  */
