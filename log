@@ -15403,3 +15403,11 @@ patching file gcc/toplev.c
 ------- APPLYING ctf-prep-3-pr100749-gcc.dg-pch-valid-1.c-fails-after.patch ---------
 patching file gcc/c-family/c-pch.c
 Hunk #1 succeeded at 263 (offset -2 lines).
+[oracle/gcc/ol8-u7-x86 ad70b20b810] ctf-prep-3-pr100749-gcc.dg-pch-valid-1.c-fails-after.patch
+ 2 files changed, 12 insertions(+), 2 deletions(-)
+3103 ctf-prep-4-dwarf-externalize-some-DWARF-internals-for-needs-of-.patch -p1
+------- APPLYING ctf-prep-4-dwarf-externalize-some-DWARF-internals-for-needs-of-.patch ---------
+patching file gcc/dwarf2out.c
+Hunk #23 succeeded at 20611 (offset 10 lines).
+patching file gcc/dwarf2out.h
+Hunk #1 succeeded at 390 (offset 6 lines).
