@@ -15446,3 +15446,106 @@ patching file gcc/toplev.c
 patching file include/btf.h
 patching file include/ctf.h
 patching file libiberty/simple-object.c
+[oracle/gcc/ol8-u7-x86 6bf15278c86] ctf-1-add-ctf-btf-debug-formats.patch
+ 20 files changed, 5382 insertions(+), 39 deletions(-)
+ create mode 100644 gcc/btfout.c
+ create mode 100644 gcc/ctfc.c
+ create mode 100644 gcc/ctfc.h
+ create mode 100644 gcc/ctfout.c
+ create mode 100644 gcc/dwarf2ctf.c
+ create mode 100644 gcc/dwarf2ctf.h
+ create mode 100644 include/btf.h
+ create mode 100644 include/ctf.h
+3201 ctf-2-add-ctf-btf-testsuites.patch -p1
+------- APPLYING ctf-2-add-ctf-btf-testsuites.patch ---------
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-1.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-2.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-anonymous-struct-1.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-anonymous-union-1.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-array-1.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-bitfields-1.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-bitfields-2.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-bitfields-3.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-bitfields-4.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-cvr-quals-1.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-datasec-1.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-enum-1.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-forward-1.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-function-1.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-function-2.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-function-3.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-int-1.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-pointers-1.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-pointers-2.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-struct-1.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-struct-2.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-typedef-1.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-union-1.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-variables-1.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-variables-2.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-variables-3.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf.exp
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-2.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-anonymous-struct-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-anonymous-union-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-array-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-array-2.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-array-3.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-array-4.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-attr-mode-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-attr-used-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-bitfields-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-bitfields-2.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-bitfields-3.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-bitfields-4.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-complex-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-cvr-quals-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-cvr-quals-2.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-cvr-quals-3.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-cvr-quals-4.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-debug-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-debug-2.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-enum-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-enum-2.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-file-scope-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-float-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-forward-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-forward-2.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-func-index-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-function-pointers-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-function-pointers-2.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-function-pointers-3.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-function-pointers-4.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-functions-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-int-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-objt-index-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-pointers-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-pointers-2.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-preamble-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-skip-types-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-skip-types-2.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-skip-types-3.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-skip-types-4.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-skip-types-5.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-skip-types-6.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-skip-types-7.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-skip-types-8.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-str-table-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-struct-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-struct-2.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-struct-array-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-struct-array-2.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-struct-pointer-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-struct-pointer-2.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-typedef-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-typedef-2.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-typedef-3.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-typedef-struct-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-typedef-struct-2.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-typedef-struct-3.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-union-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-variables-1.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf-variables-2.c
+patching file gcc/testsuite/gcc.dg/debug/ctf/ctf.exp
+patching file gcc/testsuite/lib/gcc-dg.exp
