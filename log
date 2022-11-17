@@ -14651,3 +14651,13 @@ Hunk #1 succeeded at 788 (offset 116 lines).
 ------- APPLYING gcc8-i386-libgomp.patch ---------
 patching file libgomp/configure.tgt
 Hunk #1 succeeded at 74 (offset 7 lines).
+[oracle/gcc/ol8-u7-x86 dd62fa3e8da] gcc8-i386-libgomp.patch
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+3 gcc8-sparc-config-detection.patch -p0
+------- APPLYING gcc8-sparc-config-detection.patch ---------
+patching file gcc/config.gcc
+Hunk #1 succeeded at 2917 (offset 127 lines).
+Hunk #2 succeeded at 2971 (offset 127 lines).
+patching file libgcc/config.host
+Hunk #1 succeeded at 1234 (offset 232 lines).
+Hunk #2 succeeded at 1282 (offset 232 lines).
