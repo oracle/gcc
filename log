@@ -15025,3 +15025,13 @@ patching file libcpp/include/line-map.h
 patching file gcc/config/avr/avr.c
 Hunk #1 succeeded at 10220 (offset 131 lines).
 Hunk #2 succeeded at 10233 (offset 131 lines).
+[oracle/gcc/ol8-u7-x86 01adf8bd32d] gcc8-pch-tweaks.patch
+ 16 files changed, 231 insertions(+), 54 deletions(-)
+25 gcc8-aarch64-mtune-neoverse-512tvb.patch -p1
+------- APPLYING gcc8-aarch64-mtune-neoverse-512tvb.patch ---------
+patching file gcc/config/aarch64/aarch64-cores.def
+patching file gcc/config/aarch64/aarch64-tune.md
+patching file gcc/doc/invoke.texi
+Hunk #1 succeeded at 14794 (offset 22 lines).
+Hunk #2 succeeded at 14807 (offset 22 lines).
+Hunk #3 succeeded at 14845 (offset 22 lines).
