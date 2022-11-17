@@ -14744,3 +14744,12 @@ patching file gcc/testsuite/gcc.target/aarch64/stack-check-15.c
 patching file gcc/testsuite/lib/target-supports.exp
 Hunk #1 succeeded at 9269 (offset 68 lines).
 Hunk #2 succeeded at 9280 (offset 68 lines).
+[oracle/gcc/ol8-u7-x86 83f17fc902c] gcc8-rh1512529-aarch64.patch
+ 8 files changed, 363 insertions(+), 13 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.target/aarch64/stack-check-12.c
+ create mode 100644 gcc/testsuite/gcc.target/aarch64/stack-check-13.c
+ create mode 100644 gcc/testsuite/gcc.target/aarch64/stack-check-14.c
+ create mode 100644 gcc/testsuite/gcc.target/aarch64/stack-check-15.c
+13 gcc8-rh1574936.patch -p0
+------- APPLYING gcc8-rh1574936.patch ---------
+patching file libgcc/Makefile.in
