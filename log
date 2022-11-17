@@ -15282,3 +15282,13 @@ patching file libgcc/libgcov-driver-system.c
 patching file libgcc/libgcov-driver-system.c
 patching file libgcc/libgcov-driver.c
 patching file libgcc/libgcov-util.c
+[oracle/gcc/ol8-u7-x86 8d6a35a412b] gcc9-pr86057.patch
+ 4 files changed, 44 insertions(+), 27 deletions(-)
+3012 gcc9-pr85759.patch -p1
+------- APPLYING gcc9-pr85759.patch ---------
+patching file gcc/coverage.c
+patching file gcc/doc/invoke.texi
+Hunk #1 succeeded at 11395 (offset 19 lines).
+patching file gcc/gcov-io.c
+patching file gcc/gcov-io.h
+patching file gcc/gcov.c
