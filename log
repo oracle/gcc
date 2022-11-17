@@ -15652,3 +15652,13 @@ Hunk #3 succeeded at 7151 (offset 20 lines).
 3203 ctf-4-libiberty-copy-over-.BTF-section-LTO.patch -p1
 ------- APPLYING ctf-4-libiberty-copy-over-.BTF-section-LTO.patch ---------
 patching file libiberty/simple-object.c
+[oracle/gcc/ol8-u7-x86 8c022c11d8b] ctf-4-libiberty-copy-over-.BTF-section-LTO.patch
+ 2 files changed, 8 insertions(+)
+3204 ctf-5-support-for-BTF_KIND_FLOAT.patch -p1
+------- APPLYING ctf-5-support-for-BTF_KIND_FLOAT.patch ---------
+patching file gcc/btfout.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-float-1.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-function-3.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-struct-2.c
+patching file gcc/testsuite/gcc.dg/debug/btf/btf-variables-2.c
+patching file include/btf.h
