@@ -15682,3 +15682,8 @@ patching file gcc/opts.c
 3207 ctf-8-gcc12-debug-102507-ICE-in-btf_finalize.patch -p1
 ------- APPLYING ctf-8-gcc12-debug-102507-ICE-in-btf_finalize.patch ---------
 patching file gcc/btfout.c
+[oracle/gcc/ol8-u7-x86 90986c038cf] ctf-8-gcc12-debug-102507-ICE-in-btf_finalize.patch
+ 2 files changed, 8 insertions(+), 3 deletions(-)
+3208 ctf-9-gcc12-ctf-Do-not-warn-for-for-GNU-GIMPLE.patch -p1
+------- APPLYING ctf-9-gcc12-ctf-Do-not-warn-for-for-GNU-GIMPLE.patch ---------
+patching file gcc/toplev.c
