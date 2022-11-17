@@ -15160,3 +15160,14 @@ Hunk #1 succeeded at 1286 (offset 2 lines).
 Hunk #2 succeeded at 28147 (offset 102 lines).
 patching file gcc/testsuite/gcc.target/i386/indirect-thunk-cs-prefix-1.c
 patching file gcc/testsuite/gcc.target/i386/indirect-thunk-cs-prefix-2.c
+[oracle/gcc/ol8-u7-x86 058be8dab22] gcc8-harden-2.patch
+ 6 files changed, 70 insertions(+), 3 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.target/i386/indirect-thunk-cs-prefix-1.c
+ create mode 100644 gcc/testsuite/gcc.target/i386/indirect-thunk-cs-prefix-2.c
+35 gcc8-harden-3.patch -p1
+------- APPLYING gcc8-harden-3.patch ---------
+patching file gcc/config/i386/i386-opts.h
+patching file gcc/config/i386/i386.c
+patching file gcc/config/i386/i386.opt
+patching file gcc/doc/invoke.texi
+Hunk #1 succeeded at 28143 (offset 102 lines).
