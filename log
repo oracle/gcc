@@ -15109,3 +15109,14 @@ patching file gcc/opts.c
 patching file gcc/testsuite/gcc.dg/live-patching-1.c
 patching file gcc/testsuite/gcc.dg/live-patching-2.c
 patching file gcc/testsuite/gcc.dg/live-patching-3.c
+[oracle/gcc/ol8-u7-x86 3d5f13d0e07] gcc8-rh1668903-1.patch
+ 10 files changed, 313 insertions(+)
+ create mode 100644 gcc/testsuite/gcc.dg/live-patching-1.c
+ create mode 100644 gcc/testsuite/gcc.dg/live-patching-2.c
+ create mode 100644 gcc/testsuite/gcc.dg/live-patching-3.c
+31 gcc8-rh1668903-2.patch -p0
+------- APPLYING gcc8-rh1668903-2.patch ---------
+patching file gcc/ipa-inline.c
+Hunk #1 succeeded at 380 (offset -5 lines).
+Hunk #2 succeeded at 422 (offset -5 lines).
+patching file gcc/testsuite/gcc.dg/live-patching-4.c
