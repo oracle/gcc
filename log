@@ -15292,3 +15292,8 @@ Hunk #1 succeeded at 11395 (offset 19 lines).
 patching file gcc/gcov-io.c
 patching file gcc/gcov-io.h
 patching file gcc/gcov.c
+[oracle/gcc/ol8-u7-x86 2cb08f6e86b] gcc9-pr85759.patch
+ 6 files changed, 82 insertions(+), 38 deletions(-)
+3013 gcc10-pr91971.patch -p1
+------- APPLYING gcc10-pr91971.patch ---------
+patching file gcc/coverage.c
