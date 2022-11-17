@@ -15677,3 +15677,8 @@ patching file gcc/common.opt
 patching file gcc/doc/invoke.texi
 Hunk #1 succeeded at 7158 (offset 20 lines).
 patching file gcc/opts.c
+[oracle/gcc/ol8-u7-x86 8016059d629] ctf-7-allow-gt-command-line-option.patch
+ 4 files changed, 20 insertions(+)
+3207 ctf-8-gcc12-debug-102507-ICE-in-btf_finalize.patch -p1
+------- APPLYING ctf-8-gcc12-debug-102507-ICE-in-btf_finalize.patch ---------
+patching file gcc/btfout.c
