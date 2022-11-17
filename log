@@ -15693,3 +15693,8 @@ patching file gcc/toplev.c
 ------- APPLYING ctf-10-gcc12-ctfc-Free-in-ctfc_delete_container.patch ---------
 patching file gcc/ctfc.c
 Hunk #1 succeeded at 928 (offset -16 lines).
+[oracle/gcc/ol8-u7-x86 ecbc7ea706d] ctf-10-gcc12-ctfc-Free-in-ctfc_delete_container.patch
+ 2 files changed, 12 insertions(+), 3 deletions(-)
+3500 gcc8-ora34066706.patch -p1
+------- APPLYING gcc8-ora34066706.patch ---------
+patching file gcc/coverage.c
