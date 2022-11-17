@@ -15078,3 +15078,17 @@ Hunk #3 succeeded at 971 (offset 2 lines).
 Hunk #4 succeeded at 1051 (offset 2 lines).
 Hunk #5 succeeded at 1062 (offset 2 lines).
 Hunk #6 succeeded at 1077 (offset 2 lines).
+[oracle/gcc/ol8-u7-x86 1bec90cd4f4] gcc8-libgfortran-default-values.patch
+ 10 files changed, 321 insertions(+), 16 deletions(-)
+ create mode 100644 gcc/testsuite/gfortran.dg/fmt_f_default_field_width.f90
+ create mode 100644 gcc/testsuite/gfortran.dg/fmt_g_default_field_width.f90
+ create mode 100644 gcc/testsuite/gfortran.dg/fmt_i_default_field_width.f90
+28 gcc8-rh2001788.patch -p1
+------- APPLYING gcc8-rh2001788.patch ---------
+patching file libstdc++-v3/include/bits/regex_compiler.h
+patching file libstdc++-v3/include/bits/regex_compiler.tcc
+patching file libstdc++-v3/testsuite/28_regex/algorithms/regex_match/cstring_bracket_01.cc
+patching file libstdc++-v3/include/bits/regex_compiler.tcc
+Hunk #1 succeeded at 580 (offset -6 lines).
+patching file libstdc++-v3/testsuite/17_intro/names.cc
+patching file libstdc++-v3/include/bits/c++config
