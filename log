@@ -15231,3 +15231,10 @@ patching file gcc/testsuite/gcc.target/i386/ipa-stack-alignment.c
 3003 gcc9-add-fomit-frame-pointer-to-test.patch -p1
 ------- APPLYING gcc9-add-fomit-frame-pointer-to-test.patch ---------
 patching file gcc/testsuite/gcc.target/i386/ipa-stack-alignment.c
+[oracle/gcc/ol8-u7-x86 58d4ca327bc] gcc9-add-fomit-frame-pointer-to-test.patch
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+3004 gcc9-extend-live-patching-option-handling.patch -p1
+------- APPLYING gcc9-extend-live-patching-option-handling.patch ---------
+patching file gcc/opts.c
+patching file gcc/testsuite/gcc.dg/tree-ssa/writeonly-3.c
+patching file gcc/testsuite/gcc.target/i386/ipa-stack-alignment-2.c
