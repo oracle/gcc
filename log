@@ -15267,3 +15267,11 @@ patching file gcc/testsuite/gcc.dg/tree-ssa/inline-3.c
 patching file gcc/testsuite/gcc.dg/tree-ssa/inline-4.c
 patching file gcc/testsuite/gcc.dg/tree-ssa/inline-8.c
 patching file gcc/tree-inline.c
+[oracle/gcc/ol8-u7-x86 b2dbbb9cffa] gcc9-opt-info-inline.patch
+ 17 files changed, 236 insertions(+), 115 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.dg/ipa/fopt-info-inline-1.c
+3010 gcc9-pr47618.patch -p1
+------- APPLYING gcc9-pr47618.patch ---------
+patching file gcc/doc/invoke.texi
+Hunk #1 succeeded at 11396 (offset 19 lines).
+patching file libgcc/libgcov-driver-system.c
