@@ -15317,3 +15317,21 @@ patching file libsanitizer/tsan/tsan_flags.cc
 patching file libsanitizer/tsan/tsan_flags.h
 patching file libsanitizer/tsan/tsan_rtl.cc
 patching file libsanitizer/ubsan/ubsan_flags.cc
+[oracle/gcc/ol8-u7-x86 50b3ba52766] gcc9-pr89832.patch
+ 10 files changed, 52 insertions(+), 23 deletions(-)
+3026 gcc9-pr90581.patch -p1
+------- APPLYING gcc9-pr90581.patch ---------
+patching file gcc/c-family/c-opts.c
+patching file gcc/c-family/c.opt
+Hunk #1 succeeded at 1532 (offset 24 lines).
+patching file gcc/doc/cppopts.texi
+patching file gcc/doc/invoke.texi
+Hunk #1 succeeded at 490 (offset -2 lines).
+patching file gcc/testsuite/c-c++-common/cpp/fmax-include-depth-1a.h
+patching file gcc/testsuite/c-c++-common/cpp/fmax-include-depth-1b.h
+patching file gcc/testsuite/c-c++-common/cpp/fmax-include-depth.c
+patching file libcpp/directives.c
+patching file libcpp/include/cpplib.h
+Hunk #1 succeeded at 563 (offset 15 lines).
+patching file libcpp/init.c
+patching file libcpp/internal.h
