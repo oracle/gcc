@@ -56,7 +56,7 @@ static const char no_checksum[16] = { 0 };
 
 struct c_pch_validity
 {
-  unsigned char debug_info_type;
+  uint32_t pch_write_symbols;
   signed char match[MATCH_SIZE];
   size_t target_data_length;
 };
@@ -113,7 +113,7 @@ pch_init (void)
   gcc_assert (memcmp (executable_checksum, no_checksum, 16) != 0);
 
   memset (&v, '\0', sizeof (v));
-  v.debug_info_type = write_symbols;
+  v.pch_write_symbols = write_symbols;
   {
     size_t i;
     for (i = 0; i < MATCH_SIZE; i++)
@@ -260,14 +260,14 @@ c_common_valid_pch (cpp_reader *pfile, const char *name, int fd)
   /* The allowable debug info combinations are that either the PCH file
      was built with the same as is being used now, or the PCH file was
      built for some kind of debug info but now none is in use.  */
-  if (v.debug_info_type != write_symbols
+  if (v.pch_write_symbols != write_symbols
       && write_symbols != NO_DEBUG)
     {
       if (cpp_get_options (pfile)->warn_invalid_pch)
 	cpp_error (pfile, CPP_DL_WARNING,
-		   "%s: created with -g%s, but used with -g%s", name,
-		   debug_type_names[v.debug_info_type],
-		   debug_type_names[write_symbols]);
+		   "%s: created with '%s' debug info, but used with '%s'", name,
+		   debug_set_names (v.pch_write_symbols),
+		   debug_set_names (write_symbols));
       return 2;
     }
 

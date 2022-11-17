@@ -15354,3 +15354,23 @@ patching file gcc/testsuite/gcc.c-torture/execute/ieee/cdivchkf.c
 patching file gcc/testsuite/gcc.c-torture/execute/ieee/cdivchkld.c
 patching file libgcc/config/rs6000/_divkc3.c
 patching file libgcc/libgcc2.c
+[oracle/gcc/ol8-u7-x86 211e9731ed7] gcc-complex-divide-fix.patch
+ 7 files changed, 714 insertions(+), 30 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.c-torture/execute/ieee/cdivchkd.c
+ create mode 100644 gcc/testsuite/gcc.c-torture/execute/ieee/cdivchkf.c
+ create mode 100644 gcc/testsuite/gcc.c-torture/execute/ieee/cdivchkld.c
+3100 ctf-prep-1-opts-change-write_symbols-to-support-bitmasks.patch -p1
+------- APPLYING ctf-prep-1-opts-change-write_symbols-to-support-bitmasks.patch ---------
+patching file gcc/c-family/c-opts.c
+Hunk #1 succeeded at 1052 (offset 4 lines).
+patching file gcc/c-family/c-pch.c
+Hunk #2 succeeded at 113 (offset -1 lines).
+Hunk #3 succeeded at 260 (offset -2 lines).
+patching file gcc/common.opt
+patching file gcc/flag-types.h
+patching file gcc/flags.h
+patching file gcc/objc/objc-act.c
+patching file gcc/opts.c
+patching file gcc/testsuite/gcc.dg/pch/valid-1.c
+patching file gcc/testsuite/lib/dg-pch.exp
+patching file gcc/toplev.c
