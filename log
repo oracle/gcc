@@ -14695,3 +14695,11 @@ Hunk #2 succeeded at 671 (offset -13 lines).
 patching file libstdc++-v3/doc/html/index.html
 Hunk #1 succeeded at 4 (offset -1 lines).
 patching file libstdc++-v3/doc/html/api.html
+[oracle/gcc/ol8-u7-x86 fc9be15df80] gcc8-libstdc++-docs.patch
+ 3 files changed, 12 insertions(+), 1 deletion(-)
+8 gcc8-no-add-needed.patch -p0
+------- APPLYING gcc8-no-add-needed.patch ---------
+patching file gcc/config/alpha/elf.h
+patching file gcc/config/ia64/linux.h
+patching file gcc/config/gnu-user.h
+patching file gcc/config/rs6000/sysv4.h
