@@ -43,7 +43,7 @@ along with GCC; see the file COPYING3.  If not see
 /* Expand all ARRAY_REF(VIEW_CONVERT_EXPR) gimple assignments into calls to
    internal function based on vector type of selected expansion.
    i.e.:
-     VIEW_CONVERT_EXPR<int[4]>(u)[_1] =  = i_4(D);
+     VIEW_CONVERT_EXPR<int[4]>(u)[_1] = i_4(D);
    =>
      _7 = u;
      _8 = .VEC_SET (_7, i_4(D), _1);
@@ -100,6 +100,7 @@ gimple_expand_vec_set_expr (gimple_stmt_iterator *gsi)
 
 	  gimple_move_vops (ass_stmt, stmt);
 	  gsi_remove (gsi, true);
+	  *gsi = gsi_for_stmt (ass_stmt);
 	}
     }
 
@@ -241,6 +242,14 @@ gimple_expand_vec_cond_expr (gimple_stmt_iterator *gsi,
 			GET_MODE_NUNITS (cmp_op_mode)));
 
   icode = get_vcond_icode (mode, cmp_op_mode, unsignedp);
+  /* Some targets do not have vcondeq and only vcond with NE/EQ
+     but not vcondu, so make sure to also try vcond here as
+     vcond_icode_p would canonicalize the optab query to.  */
+  if (icode == CODE_FOR_nothing
+      && (tcode == NE_EXPR || tcode == EQ_EXPR)
+      && ((icode = get_vcond_icode (mode, cmp_op_mode, !unsignedp))
+	  != CODE_FOR_nothing))
+    unsignedp = !unsignedp;
   if (icode == CODE_FOR_nothing)
     {
       if (tcode == LT_EXPR

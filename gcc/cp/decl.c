@@ -1059,11 +1059,14 @@ decls_match (tree newdecl, tree olddecl, bool record_versions /* = true */)
       if (types_match
 	  && !DECL_EXTERN_C_P (newdecl)
 	  && !DECL_EXTERN_C_P (olddecl)
-	  && record_versions
-	  && maybe_version_functions (newdecl, olddecl,
-				      (!DECL_FUNCTION_VERSIONED (newdecl)
-				       || !DECL_FUNCTION_VERSIONED (olddecl))))
-	return 0;
+	  && targetm.target_option.function_versions (newdecl, olddecl))
+	{
+	  if (record_versions)
+	    maybe_version_functions (newdecl, olddecl,
+				     (!DECL_FUNCTION_VERSIONED (newdecl)
+				      || !DECL_FUNCTION_VERSIONED (olddecl)));
+	  return 0;
+	}
     }
   else if (TREE_CODE (newdecl) == TEMPLATE_DECL)
     {
@@ -2221,8 +2224,8 @@ duplicate_decls (tree newdecl, tree olddecl, bool hiding, bool was_hidden)
 	      check_no_redeclaration_friend_default_args
 		(old_result, new_result);
 	    }
-	  if (!DECL_UNIQUE_FRIEND_P (old_result))
-	    DECL_UNIQUE_FRIEND_P (new_result) = false;
+	  if (!DECL_UNIQUE_FRIEND_P (new_result))
+	    DECL_UNIQUE_FRIEND_P (old_result) = false;
 
 	  check_default_args (newdecl);
 
@@ -2523,7 +2526,12 @@ duplicate_decls (tree newdecl, tree olddecl, bool hiding, bool was_hidden)
       else
 	{
 	  retrofit_lang_decl (newdecl);
-	  DECL_LOCAL_DECL_ALIAS (newdecl) = DECL_LOCAL_DECL_ALIAS (olddecl);
+	  tree alias = DECL_LOCAL_DECL_ALIAS (newdecl)
+	    = DECL_LOCAL_DECL_ALIAS (olddecl);
+	  DECL_ATTRIBUTES (alias)
+	    = (*targetm.merge_decl_attributes) (alias, newdecl);
+	  if (TREE_CODE (newdecl) == FUNCTION_DECL)
+	    merge_attribute_bits (newdecl, alias);
 	}
     }
 
@@ -2581,7 +2589,11 @@ duplicate_decls (tree newdecl, tree olddecl, bool hiding, bool was_hidden)
 		TINFO_USED_TEMPLATE_ID (DECL_TEMPLATE_INFO (olddecl))
 		  = TINFO_USED_TEMPLATE_ID (new_template_info);
 	    }
-	  DECL_TEMPLATE_INFO (newdecl) = DECL_TEMPLATE_INFO (olddecl);
+
+	  if (non_templated_friend_p (olddecl))
+	    /* Don't copy tinfo from a non-templated friend (PR105761).  */;
+	  else
+	    DECL_TEMPLATE_INFO (newdecl) = DECL_TEMPLATE_INFO (olddecl);
 	}
 
       if (DECL_DECLARES_FUNCTION_P (newdecl))
@@ -6283,6 +6295,8 @@ reshape_init_array_1 (tree elt_type, tree max_index, reshape_iter *d,
       tree elt_init;
       constructor_elt *old_cur = d->cur;
 
+      if (d->cur->index)
+	CONSTRUCTOR_IS_DESIGNATED_INIT (new_init) = true;
       check_array_designated_initializer (d->cur, index);
       elt_init = reshape_init_r (elt_type, d,
 				 /*first_initializer_p=*/NULL_TREE,
@@ -6435,6 +6449,7 @@ reshape_init_class (tree type, reshape_iter *d, bool first_initializer_p,
 	    }
 	  else if (TREE_CODE (d->cur->index) == IDENTIFIER_NODE)
 	    {
+	      CONSTRUCTOR_IS_DESIGNATED_INIT (new_init) = true;
 	      field = get_class_binding (type, d->cur->index);
 	      direct_desig = true;
 	    }
@@ -7167,12 +7182,19 @@ check_initializer (tree decl, tree init, int flags, vec<tree, va_gc> **cleanups)
 	      /* Declared constexpr or constinit, but no suitable initializer;
 		 massage init appropriately so we can pass it into
 		 store_init_value for the error.  */
-	      if (CLASS_TYPE_P (type)
-		  && (!init || TREE_CODE (init) == TREE_LIST))
+	      tree new_init = NULL_TREE;
+	      if (!processing_template_decl
+		  && TREE_CODE (init_code) == CALL_EXPR)
+		new_init = build_cplus_new (type, init_code, tf_none);
+	      else if (CLASS_TYPE_P (type)
+		       && (!init || TREE_CODE (init) == TREE_LIST))
+		new_init = build_functional_cast (input_location, type,
+						  init, tf_none);
+	      if (new_init)
 		{
-		  init = build_functional_cast (input_location, type,
-						init, tf_none);
-		  if (TREE_CODE (init) == TARGET_EXPR)
+		  init = new_init;
+		  if (TREE_CODE (init) == TARGET_EXPR
+		      && !(flags & LOOKUP_ONLYCONVERTING))
 		    TARGET_EXPR_DIRECT_INIT_P (init) = true;
 		}
 	      init_code = NULL_TREE;
@@ -7226,6 +7248,10 @@ check_initializer (tree decl, tree init, int flags, vec<tree, va_gc> **cleanups)
 
   if (init && init != error_mark_node)
     init_code = build2 (INIT_EXPR, type, decl, init);
+
+  if (init_code && !TREE_SIDE_EFFECTS (init_code)
+      && init_code != error_mark_node)
+    init_code = NULL_TREE;
 
   if (init_code)
     {
@@ -8300,7 +8326,7 @@ cp_finish_decl (tree decl, tree init, bool init_const_expr_p,
     {
       unsigned i; tree t;
       FOR_EACH_VEC_ELT (*cleanups, i, t)
-	push_cleanup (decl, t, false);
+	push_cleanup (NULL_TREE, t, false);
       release_tree_vector (cleanups);
     }
 
@@ -12656,7 +12682,7 @@ grokdeclarator (const cp_declarator *declarator,
 			  "an array", name);
 		return error_mark_node;
 	      }
-	    if (constinit_p)
+	    if (constinit_p && funcdecl_p)
 	      {
 		error_at (declspecs->locations[ds_constinit],
 			  "%<constinit%> on function return type is not "
@@ -14663,8 +14689,6 @@ copy_fn_p (const_tree d)
 bool
 move_fn_p (const_tree d)
 {
-  gcc_assert (DECL_FUNCTION_MEMBER_P (d));
-
   if (cxx_dialect == cxx98)
     /* There are no move constructors if we are in C++98 mode.  */
     return false;

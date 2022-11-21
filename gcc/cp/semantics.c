@@ -655,7 +655,8 @@ do_pushlevel (scope_kind sk)
 
 /* Queue a cleanup.  CLEANUP is an expression/statement to be executed
    when the current scope is exited.  EH_ONLY is true when this is not
-   meant to apply to normal control flow transfer.  */
+   meant to apply to normal control flow transfer.  DECL is the VAR_DECL
+   being cleaned up, if any, or null for temporaries or subobjects.  */
 
 void
 push_cleanup (tree decl, tree cleanup, bool eh_only)
@@ -10220,7 +10221,7 @@ finish_decltype_type (tree expr, bool id_expression_or_member_access_p,
     }
   else if (processing_template_decl)
     {
-      expr = instantiate_non_dependent_expr_sfinae (expr, complain);
+      expr = instantiate_non_dependent_expr_sfinae (expr, complain|tf_decltype);
       if (expr == error_mark_node)
 	return error_mark_node;
     }

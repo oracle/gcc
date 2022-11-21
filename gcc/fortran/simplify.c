@@ -3092,6 +3092,10 @@ gfc_simplify_extends_type_of (gfc_expr *a, gfc_expr *mold)
   if (UNLIMITED_POLY (a) || UNLIMITED_POLY (mold))
     return NULL;
 
+  if ((a->ts.type == BT_CLASS && !gfc_expr_attr (a).class_ok)
+      || (mold->ts.type == BT_CLASS && !gfc_expr_attr (mold).class_ok))
+    return NULL;
+
   /* Return .false. if the dynamic type can never be an extension.  */
   if ((a->ts.type == BT_CLASS && mold->ts.type == BT_CLASS
        && !gfc_type_is_extension_of
@@ -3502,17 +3506,15 @@ gfc_expr *
 gfc_simplify_index (gfc_expr *x, gfc_expr *y, gfc_expr *b, gfc_expr *kind)
 {
   gfc_expr *result;
-  int back, len, lensub;
-  int i, j, k, count, index = 0, start;
+  bool back;
+  HOST_WIDE_INT len, lensub, start, last, i, index = 0;
+  int k, delta;
 
   if (x->expr_type != EXPR_CONSTANT || y->expr_type != EXPR_CONSTANT
       || ( b != NULL && b->expr_type !=  EXPR_CONSTANT))
     return NULL;
 
-  if (b != NULL && b->value.logical != 0)
-    back = 1;
-  else
-    back = 0;
+  back = (b != NULL && b->value.logical != 0);
 
   k = get_kind (BT_INTEGER, kind, "INDEX", gfc_default_integer_kind);
   if (k == -1)
@@ -3529,111 +3531,40 @@ gfc_simplify_index (gfc_expr *x, gfc_expr *y, gfc_expr *b, gfc_expr *kind)
       return result;
     }
 
-  if (back == 0)
+  if (lensub == 0)
     {
-      if (lensub == 0)
-	{
-	  mpz_set_si (result->value.integer, 1);
-	  return result;
-	}
-      else if (lensub == 1)
-	{
-	  for (i = 0; i < len; i++)
-	    {
-	      for (j = 0; j < lensub; j++)
-		{
-		  if (y->value.character.string[j]
-		      == x->value.character.string[i])
-		    {
-		      index = i + 1;
-		      goto done;
-		    }
-		}
-	    }
-	}
+      if (back)
+	index = len + 1;
       else
-	{
-	  for (i = 0; i < len; i++)
-	    {
-	      for (j = 0; j < lensub; j++)
-		{
-		  if (y->value.character.string[j]
-		      == x->value.character.string[i])
-		    {
-		      start = i;
-		      count = 0;
+	index = 1;
+      goto done;
+    }
 
-		      for (k = 0; k < lensub; k++)
-			{
-			  if (y->value.character.string[k]
-			      == x->value.character.string[k + start])
-			    count++;
-			}
-
-		      if (count == lensub)
-			{
-			  index = start + 1;
-			  goto done;
-			}
-		    }
-		}
-	    }
-	}
-
+  if (!back)
+    {
+      last = len + 1 - lensub;
+      start = 0;
+      delta = 1;
     }
   else
     {
-      if (lensub == 0)
-	{
-	  mpz_set_si (result->value.integer, len + 1);
-	  return result;
-	}
-      else if (lensub == 1)
-	{
-	  for (i = 0; i < len; i++)
-	    {
-	      for (j = 0; j < lensub; j++)
-		{
-		  if (y->value.character.string[j]
-		      == x->value.character.string[len - i])
-		    {
-		      index = len - i + 1;
-		      goto done;
-		    }
-		}
-	    }
-	}
-      else
-	{
-	  for (i = 0; i < len; i++)
-	    {
-	      for (j = 0; j < lensub; j++)
-		{
-		  if (y->value.character.string[j]
-		      == x->value.character.string[len - i])
-		    {
-		      start = len - i;
-		      if (start <= len - lensub)
-			{
-			  count = 0;
-			  for (k = 0; k < lensub; k++)
-			    if (y->value.character.string[k]
-			        == x->value.character.string[k + start])
-			      count++;
+      last = -1;
+      start = len - lensub;
+      delta = -1;
+    }
 
-			  if (count == lensub)
-			    {
-			      index = start + 1;
-			      goto done;
-			    }
-			}
-		      else
-			{
-			  continue;
-			}
-		    }
-		}
-	    }
+  for (; start != last; start += delta)
+    {
+      for (i = 0; i < lensub; i++)
+	{
+	  if (x->value.character.string[start + i]
+	      != y->value.character.string[i])
+	    break;
+	}
+      if (i == lensub)
+	{
+	  index = start + 1;
+	  goto done;
 	}
     }
 
@@ -5915,6 +5846,7 @@ gfc_simplify_findloc (gfc_expr *array, gfc_expr *value, gfc_expr *dim,
   bool back_val = false;
 
   if (!is_constant_array_expr (array)
+      || array->shape == NULL
       || !gfc_is_constant_expr (dim))
     return NULL;
 
@@ -6451,7 +6383,7 @@ gfc_simplify_pack (gfc_expr *array, gfc_expr *mask, gfc_expr *vector)
       /* Copy only those elements of ARRAY to RESULT whose
 	 MASK equals .TRUE..  */
       mask_ctor = gfc_constructor_first (mask->value.constructor);
-      while (mask_ctor)
+      while (mask_ctor && array_ctor)
 	{
 	  if (mask_ctor->expr->value.logical)
 	    {
@@ -7556,8 +7488,9 @@ simplify_size (gfc_expr *array, gfc_expr *dim, int k)
     }
 
   for (ref = array->ref; ref; ref = ref->next)
-    if (ref->type == REF_ARRAY && ref->u.ar.as)
-      gfc_resolve_array_spec (ref->u.ar.as, 0);
+    if (ref->type == REF_ARRAY && ref->u.ar.as
+	&& !gfc_resolve_array_spec (ref->u.ar.as, 0))
+      return NULL;
 
   if (dim == NULL)
     {
@@ -8476,9 +8409,16 @@ gfc_simplify_unpack (gfc_expr *vector, gfc_expr *mask, gfc_expr *field)
     {
       if (mask_ctor->expr->value.logical)
 	{
-	  gcc_assert (vector_ctor);
-	  e = gfc_copy_expr (vector_ctor->expr);
-	  vector_ctor = gfc_constructor_next (vector_ctor);
+	  if (vector_ctor)
+	    {
+	      e = gfc_copy_expr (vector_ctor->expr);
+	      vector_ctor = gfc_constructor_next (vector_ctor);
+	    }
+	  else
+	    {
+	      gfc_free_expr (result);
+	      return NULL;
+	    }
 	}
       else if (field->expr_type == EXPR_ARRAY)
 	e = gfc_copy_expr (field_ctor->expr);

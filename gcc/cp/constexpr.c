@@ -890,7 +890,7 @@ maybe_save_constexpr_fundef (tree fun)
   if (!potential && !DECL_GENERATED_P (fun))
     require_potential_rvalue_constant_expression (massaged);
 
-  if (DECL_CONSTRUCTOR_P (fun)
+  if (DECL_CONSTRUCTOR_P (fun) && !DECL_DEFAULTED_FN (fun)
       && cx_check_missing_mem_inits (DECL_CONTEXT (fun),
 				     massaged, !DECL_GENERATED_P (fun)))
     potential = false;
@@ -4280,19 +4280,18 @@ cxx_eval_bit_cast (const constexpr_ctx *ctx, tree t, bool *non_constant_p,
 static tree
 cxx_eval_logical_expression (const constexpr_ctx *ctx, tree t,
                              tree bailout_value, tree continue_value,
-			     bool lval,
-			     bool *non_constant_p, bool *overflow_p)
+			     bool, bool *non_constant_p, bool *overflow_p)
 {
   tree r;
   tree lhs = cxx_eval_constant_expression (ctx, TREE_OPERAND (t, 0),
-					   lval,
-					   non_constant_p, overflow_p);
+					   /*lval*/false, non_constant_p,
+					   overflow_p);
   VERIFY_CONSTANT (lhs);
   if (tree_int_cst_equal (lhs, bailout_value))
     return lhs;
   gcc_assert (tree_int_cst_equal (lhs, continue_value));
   r = cxx_eval_constant_expression (ctx, TREE_OPERAND (t, 1),
-				    lval, non_constant_p,
+				    /*lval*/false, non_constant_p,
 				    overflow_p);
   VERIFY_CONSTANT (r);
   return r;
@@ -4468,12 +4467,9 @@ cxx_eval_bare_aggregate (const constexpr_ctx *ctx, tree t,
       tree orig_value = value;
       /* Like in cxx_eval_store_expression, omit entries for empty fields.  */
       bool no_slot = TREE_CODE (type) == RECORD_TYPE && is_empty_field (index);
-      if (no_slot)
-	new_ctx = *ctx;
-      else
-	init_subob_ctx (ctx, new_ctx, index, value);
+      init_subob_ctx (ctx, new_ctx, index, value);
       int pos_hint = -1;
-      if (new_ctx.ctor != ctx->ctor)
+      if (new_ctx.ctor != ctx->ctor && !no_slot)
 	{
 	  /* If we built a new CONSTRUCTOR, attach it now so that other
 	     initializers can refer to it.  */
@@ -5579,6 +5575,12 @@ cxx_eval_store_expression (const constexpr_ctx *ctx, tree t,
     {
       /* See above on initialization of empty bases.  */
       gcc_assert (is_empty_class (TREE_TYPE (init)) && !lval);
+      if (!*valp)
+	{
+	  /* But do make sure we have something in *valp.  */
+	  *valp = build_constructor (type, nullptr);
+	  CONSTRUCTOR_NO_CLEARING (*valp) = no_zero_init;
+	}
       return init;
     }
   else
@@ -5671,6 +5673,18 @@ cxx_eval_increment_expression (const constexpr_ctx *ctx, tree t,
       if (!inc)
 	offset = fold_build1 (NEGATE_EXPR, TREE_TYPE (offset), offset);
       mod = fold_build2 (POINTER_PLUS_EXPR, type, val, offset);
+    }
+  else if (c_promoting_integer_type_p (type)
+	   && !TYPE_UNSIGNED (type)
+	   && TYPE_PRECISION (type) < TYPE_PRECISION (integer_type_node))
+    {
+      offset = fold_convert (integer_type_node, offset);
+      mod = fold_convert (integer_type_node, val);
+      tree t = fold_build2 (inc ? PLUS_EXPR : MINUS_EXPR, integer_type_node,
+			    mod, offset);
+      mod = fold_convert (type, t);
+      if (TREE_OVERFLOW_P (mod) && !TREE_OVERFLOW_P (t))
+	TREE_OVERFLOW (mod) = false;
     }
   else
     mod = fold_build2 (inc ? PLUS_EXPR : MINUS_EXPR, type, val, offset);

@@ -4147,14 +4147,6 @@ rs6000_option_override_internal (bool global_init_p)
 	rs6000_isa_flags &= ~OPTION_MASK_BLOCK_OPS_UNALIGNED_VSX;
     }
 
-  if (!(rs6000_isa_flags_explicit & OPTION_MASK_BLOCK_OPS_VECTOR_PAIR))
-    {
-      if (TARGET_MMA && TARGET_EFFICIENT_UNALIGNED_VSX)
-	rs6000_isa_flags |= OPTION_MASK_BLOCK_OPS_VECTOR_PAIR;
-      else
-	rs6000_isa_flags &= ~OPTION_MASK_BLOCK_OPS_VECTOR_PAIR;
-    }
-
   /* Use long double size to select the appropriate long double.  We use
      TYPE_PRECISION to differentiate the 3 different long double types.  We map
      128 into the precision used for TFmode.  */
@@ -5742,33 +5734,68 @@ const char *rs6000_machine;
 const char *
 rs6000_machine_from_flags (void)
 {
-  /* For some CPUs, the machine cannot be determined by ISA flags.  We have to
-     check them first.  */
-  switch (rs6000_cpu)
-    {
-    case PROCESSOR_PPC8540:
-    case PROCESSOR_PPC8548:
-      return "e500";
+  /* e300 and e500 */
+  if (rs6000_cpu == PROCESSOR_PPCE300C2 || rs6000_cpu == PROCESSOR_PPCE300C3)
+    return "e300";
+  if (rs6000_cpu == PROCESSOR_PPC8540 || rs6000_cpu == PROCESSOR_PPC8548)
+    return "e500";
+  if (rs6000_cpu == PROCESSOR_PPCE500MC)
+    return "e500mc";
+  if (rs6000_cpu == PROCESSOR_PPCE500MC64)
+    return "e500mc64";
+  if (rs6000_cpu == PROCESSOR_PPCE5500)
+    return "e5500";
+  if (rs6000_cpu == PROCESSOR_PPCE6500)
+    return "e6500";
 
-    case PROCESSOR_PPCE300C2:
-    case PROCESSOR_PPCE300C3:
-      return "e300";
+  /* 400 series */
+  if (rs6000_cpu == PROCESSOR_PPC403)
+    return "\"403\"";
+  if (rs6000_cpu == PROCESSOR_PPC405)
+    return "\"405\"";
+  if (rs6000_cpu == PROCESSOR_PPC440)
+    return "\"440\"";
+  if (rs6000_cpu == PROCESSOR_PPC476)
+    return "\"476\"";
 
-    case PROCESSOR_PPCE500MC:
-      return "e500mc";
+  /* A2 */
+  if (rs6000_cpu == PROCESSOR_PPCA2)
+    return "a2";
 
-    case PROCESSOR_PPCE500MC64:
-      return "e500mc64";
+  /* Cell BE */
+  if (rs6000_cpu == PROCESSOR_CELL)
+    return "cell";
 
-    case PROCESSOR_PPCE5500:
-      return "e5500";
+  /* Titan */
+  if (rs6000_cpu == PROCESSOR_TITAN)
+    return "titan";
 
-    case PROCESSOR_PPCE6500:
-      return "e6500";
+  /* 500 series and 800 series */
+  if (rs6000_cpu == PROCESSOR_MPCCORE)
+    return "\"821\"";
 
-    default:
-      break;
-    }
+#if 0
+  /* This (and ppc64 below) are disabled here (for now at least) because
+     PROCESSOR_POWERPC, PROCESSOR_POWERPC64, and PROCESSOR_COMMON
+     are #define'd as some of these.  Untangling that is a job for later.  */
+
+  /* 600 series and 700 series, "classic" */
+  if (rs6000_cpu == PROCESSOR_PPC601 || rs6000_cpu == PROCESSOR_PPC603
+      || rs6000_cpu == PROCESSOR_PPC604 || rs6000_cpu == PROCESSOR_PPC604e
+      || rs6000_cpu == PROCESSOR_PPC750)
+    return "ppc";
+#endif
+
+  /* Classic with AltiVec, "G4" */
+  if (rs6000_cpu == PROCESSOR_PPC7400 || rs6000_cpu == PROCESSOR_PPC7450)
+    return "\"7450\"";
+
+#if 0
+  /* The older 64-bit CPUs */
+  if (rs6000_cpu == PROCESSOR_PPC620 || rs6000_cpu == PROCESSOR_PPC630
+      || rs6000_cpu == PROCESSOR_RS64A)
+    return "ppc64";
+#endif
 
   HOST_WIDE_INT flags = rs6000_isa_flags;
 
@@ -25091,6 +25118,11 @@ rs6000_can_inline_p (tree caller, tree callee)
       else
 	caller_isa = rs6000_isa_flags;
 
+      /* Ignore -mpower8-fusion and -mpower10-fusion options for inlining
+	 purposes.  */
+      callee_isa &= ~(OPTION_MASK_P8_FUSION | OPTION_MASK_P10_FUSION);
+      explicit_isa &= ~(OPTION_MASK_P8_FUSION | OPTION_MASK_P10_FUSION);
+
       /* The callee's options must be a subset of the caller's options, i.e.
 	 a vsx function may inline an altivec function, but a no-vsx function
 	 must not inline a vsx function.  However, for those options that the
@@ -28016,28 +28048,6 @@ rs6000_invalid_conversion (const_tree fromtype, const_tree totype)
 	return N_("invalid conversion from type %<__vector_pair%>");
       if (tomode == OOmode)
 	return N_("invalid conversion to type %<__vector_pair%>");
-    }
-  else if (POINTER_TYPE_P (fromtype) && POINTER_TYPE_P (totype))
-    {
-      /* We really care about the modes of the base types.  */
-      frommode = TYPE_MODE (TREE_TYPE (fromtype));
-      tomode = TYPE_MODE (TREE_TYPE (totype));
-
-      /* Do not allow conversions to/from XOmode and OOmode pointer
-	 types, except to/from void pointers.  */
-      if (frommode != tomode
-	  && frommode != VOIDmode
-	  && tomode != VOIDmode)
-	{
-	  if (frommode == XOmode)
-	    return N_("invalid conversion from type %<* __vector_quad%>");
-	  if (tomode == XOmode)
-	    return N_("invalid conversion to type %<* __vector_quad%>");
-	  if (frommode == OOmode)
-	    return N_("invalid conversion from type %<* __vector_pair%>");
-	  if (tomode == OOmode)
-	    return N_("invalid conversion to type %<* __vector_pair%>");
-	}
     }
 
   /* Conversion allowed.  */

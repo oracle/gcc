@@ -5200,8 +5200,9 @@ process_partial_specialization (tree decl)
 	   && !get_partial_spec_bindings (maintmpl, maintmpl, specargs))
     {
       auto_diagnostic_group d;
-      if (permerror (input_location, "partial specialization %qD is not "
-		     "more specialized than", decl))
+      if (pedwarn (input_location, 0,
+		   "partial specialization %qD is not more specialized than",
+		   decl))
 	inform (DECL_SOURCE_LOCATION (maintmpl), "primary template %qD",
 		maintmpl);
     }
@@ -10889,7 +10890,7 @@ uses_template_parms (tree t)
 		   || uses_template_parms (TREE_CHAIN (t)));
   else if (TREE_CODE (t) == TYPE_DECL)
     dependent_p = dependent_type_p (TREE_TYPE (t));
-  else if (t == error_mark_node)
+  else if (t == error_mark_node || TREE_CODE (t) == NAMESPACE_DECL)
     dependent_p = false;
   else
     dependent_p = instantiation_dependent_expression_p (t);
@@ -11134,6 +11135,33 @@ outermost_tinst_level (void)
     while (level->next)
       level = level->next;
   return level;
+}
+
+/* True iff T is a friend function declaration that is not itself a template
+   and is not defined in a class template.  */
+
+bool
+non_templated_friend_p (tree t)
+{
+  if (t && TREE_CODE (t) == FUNCTION_DECL
+      && DECL_UNIQUE_FRIEND_P (t))
+    {
+      tree ti = DECL_TEMPLATE_INFO (t);
+      if (!ti)
+	return true;
+      /* DECL_FRIEND_CONTEXT is set for a friend defined in class.  */
+      if (DECL_FRIEND_CONTEXT (t))
+	return false;
+      /* Non-templated friends in a class template are still represented with a
+	 TEMPLATE_DECL; check that its primary template is the befriending
+	 class.  Note that DECL_PRIMARY_TEMPLATE is null for
+	 template <class T> friend A<T>::f(); */
+      tree tmpl = TI_TEMPLATE (ti);
+      tree primary = DECL_PRIMARY_TEMPLATE (tmpl);
+      return (primary && primary != tmpl);
+    }
+  else
+    return false;
 }
 
 /* DECL is a friend FUNCTION_DECL or TEMPLATE_DECL.  ARGS is the
@@ -12641,7 +12669,13 @@ gen_elem_of_pack_expansion_instantiation (tree pattern,
     t = tsubst_expr (pattern, args, complain, in_decl,
 		     /*integral_constant_expression_p=*/false);
   else
-    t = tsubst (pattern, args, complain, in_decl);
+    {
+      t = tsubst (pattern, args, complain, in_decl);
+      if (is_auto (t) && !ith_elem_is_expansion)
+	/* When expanding the fake auto... pack expansion from add_capture, we
+	   need to mark that the expansion is no longer a pack.  */
+	TEMPLATE_TYPE_PARAMETER_PACK (t) = false;
+    }
 
   /*  If the Ith argument pack element is a pack expansion, then
       the Ith element resulting from the substituting is going to
@@ -14072,7 +14106,7 @@ tsubst_function_decl (tree t, tree args, tsubst_flags_t complain,
       /* This special case arises when we have something like this:
 
 	 template <class T> struct S {
-	 friend void f<int>(int, double);
+	   friend void f<int>(int, double);
 	 };
 
 	 Here, the DECL_TI_TEMPLATE for the friend declaration
@@ -15110,6 +15144,12 @@ tsubst_decl (tree t, tree args, tsubst_flags_t complain)
 	  {
 	    DECL_ORIGINAL_TYPE (r) = NULL_TREE;
 	    set_underlying_type (r);
+
+	    /* common_handle_aligned_attribute doesn't apply the alignment
+	       to DECL_ORIGINAL_TYPE.  */
+	    if (TYPE_USER_ALIGN (TREE_TYPE (t)))
+	      TREE_TYPE (r) = build_aligned_type (TREE_TYPE (r),
+						  TYPE_ALIGN (TREE_TYPE (t)));
 	  }
 
 	layout_decl (r, 0);
@@ -16404,7 +16444,8 @@ tsubst_baselink (tree baselink, tree object_type,
 
   tree binfo_type = BINFO_TYPE (BASELINK_BINFO (baselink));
   binfo_type = tsubst (binfo_type, args, complain, in_decl);
-  bool dependent_p = binfo_type != BINFO_TYPE (BASELINK_BINFO (baselink));
+  bool dependent_p = (binfo_type != BINFO_TYPE (BASELINK_BINFO (baselink))
+		      || optype != BASELINK_OPTYPE (baselink));
 
   if (dependent_p)
     {
@@ -23928,7 +23969,7 @@ unify (tree tparms, tree targs, tree parm, tree arg, int strict,
 	      /* Now check whether the type of this parameter is still
 		 dependent, and give up if so.  */
 	      ++processing_template_decl;
-	      tparm = tsubst (tparm, targs, tf_none, NULL_TREE);
+	      tparm = tsubst (TREE_TYPE (parm), targs, tf_none, NULL_TREE);
 	      --processing_template_decl;
 	      if (uses_template_parms (tparm))
 		return unify_success (explain_p);
@@ -28726,7 +28767,7 @@ rewrite_template_parm (tree olddecl, unsigned index, unsigned level,
 	  const int depth = TMPL_ARGS_DEPTH (tsubst_args);
 	  tree ttargs = make_tree_vec (depth + 1);
 	  for (int i = 0; i < depth; ++i)
-	    TREE_VEC_ELT (ttargs, i) = TREE_VEC_ELT (tsubst_args, i);
+	    TREE_VEC_ELT (ttargs, i) = TMPL_ARGS_LEVEL (tsubst_args, i + 1);
 	  TREE_VEC_ELT (ttargs, depth)
 	    = template_parms_level_to_args (ttparms);
 	  // Substitute ttargs into ttparms to fix references to
@@ -28739,8 +28780,17 @@ rewrite_template_parm (tree olddecl, unsigned index, unsigned level,
 	  ttparms = tsubst_template_parms_level (ttparms, ttargs,
 						 complain);
 	  // Finally, tack the adjusted parms onto tparms.
-	  ttparms = tree_cons (size_int (depth), ttparms,
-			       current_template_parms);
+	  ttparms = tree_cons (size_int (level + 1), ttparms,
+			       copy_node (current_template_parms));
+	  // As with all template template parms, the parameter list captured
+	  // by this template template parm that corresponds to its own level
+	  // should be empty.  This avoids infinite recursion when structurally
+	  // comparing two such rewritten template template parms (PR102479).
+	  gcc_assert (!TREE_VEC_LENGTH
+		      (TREE_VALUE (TREE_CHAIN (DECL_TEMPLATE_PARMS (olddecl)))));
+	  gcc_assert (TMPL_PARMS_DEPTH (TREE_CHAIN (ttparms)) == level);
+	  TREE_VALUE (TREE_CHAIN (ttparms)) = make_tree_vec (0);
+	  // All done.
 	  DECL_TEMPLATE_PARMS (newdecl) = ttparms;
 	}
     }
@@ -29237,6 +29287,11 @@ alias_ctad_tweaks (tree tmpl, tree uguides)
 	    if (TREE_VEC_ELT (targs, i) == NULL_TREE)
 	      ++ndlen;
 	  tree gtparms = make_tree_vec (natparms + ndlen);
+
+	  /* Set current_template_parms as in build_deduction_guide.  */
+	  auto ctp = make_temp_override (current_template_parms);
+	  current_template_parms = copy_node (DECL_TEMPLATE_PARMS (tmpl));
+	  TREE_VALUE (current_template_parms) = gtparms;
 
 	  /* First copy over the parms of A.  */
 	  for (j = 0; j < natparms; ++j)
