@@ -989,9 +989,16 @@ resolve_common_vars (gfc_common_head *common_block, bool named_common)
 
       if (!(csym->ts.u.derived->attr.sequence
 	    || csym->ts.u.derived->attr.is_bind_c))
-	gfc_error_now ("Derived type variable %qs in COMMON at %L "
-		       "has neither the SEQUENCE nor the BIND(C) "
-		       "attribute", csym->name, &csym->declared_at);
+	{
+	  if (flag_dec_sequence)
+	    /* Assume sequence. */
+	    csym->ts.u.derived->attr.sequence = 1;
+	  else
+	    gfc_error_now ("Derived type variable '%s' in COMMON at %L "
+			   "has neither the SEQUENCE nor the BIND(C) "
+			   "attribute", csym->name, &csym->declared_at);
+	}
+
       if (csym->ts.u.derived->attr.alloc_comp)
 	gfc_error_now ("Derived type variable %qs in COMMON at %L "
 		       "has an ultimate component that is "

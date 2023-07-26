@@ -509,6 +509,10 @@ fdec-promotion
 Fortran Var(flag_dec_promotion)
 Add support for type promotion in intrinsic arguments.
 
+fdec-sequence
+Fortran Var(flag_dec_sequence)
+Add the SEQUENCE attribute by default if it's not present.
+
 fdec-structure
 Fortran Var(flag_dec_structure)
 Enable support for DEC STRUCTURE/RECORD.
