@@ -2872,12 +2872,29 @@ variable_decl (int elem)
          but not components of derived types.  */
       else if (gfc_current_state () == COMP_DERIVED)
 	{
-	  gfc_error ("Invalid old style initialization for derived type "
-		     "component at %C");
-	  m = MATCH_ERROR;
-	  goto cleanup;
+	  if (flag_dec_old_init)
+	    {
+	      /* Attempt to match an old-style initializer which is a simple
+		 integer or character expression; this will not work with
+		 multiple values. */
+	      m = gfc_match_init_expr (&initializer);
+	      if (m == MATCH_ERROR)
+		goto cleanup;
+	      else if (m == MATCH_YES)
+		{
+		  m = gfc_match ("/");
+		  if (m != MATCH_YES)
+		    goto cleanup;
+		}
+	    }
+	  else
+	    {
+	      gfc_error ("Invalid old style initialization for derived type "
+			 "component at %C");
+	      m = MATCH_ERROR;
+	      goto cleanup;
+	    }
 	}
-
       /* For structure components, read the initializer as a special
          expression and let the rest of this function apply the initializer
          as usual.  */
