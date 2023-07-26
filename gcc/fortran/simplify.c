@@ -2336,39 +2336,79 @@ gfc_simplify_digits (gfc_expr *x)
 }
 
 
+/* Simplify function which sets the floating-point value of ar from
+   the value of a independently if a is integer of real.  */
+
+static void
+simplify_int_real_promotion (const gfc_expr *a, const gfc_expr *b, mpfr_t *ar)
+{
+  if (a->ts.type == BT_REAL)
+    {
+      mpfr_init2 (*ar, (a->ts.kind * 8));
+      mpfr_set (*ar, a->value.real, GFC_RND_MODE);
+    }
+  else
+    {
+      mpfr_init2 (*ar, (b->ts.kind * 8));
+      mpfr_set_z (*ar, a->value.integer, GFC_RND_MODE);
+    }
+}
+
+
+/* Simplify function which promotes a and b arguments from integer to real if
+   required in ar and br floating-point values. This function returns true if
+   a or b are reals and false otherwise. */
+
+static bool
+simplify_int_real_promotion2 (const gfc_expr *a, const gfc_expr *b, mpfr_t *ar,
+			      mpfr_t *br)
+{
+  if (a->ts.type != BT_REAL && b->ts.type != BT_REAL)
+    return false;
+
+  simplify_int_real_promotion (a, b, ar);
+  simplify_int_real_promotion (b, a, br);
+
+  return true;
+}
+
+
 gfc_expr *
 gfc_simplify_dim (gfc_expr *x, gfc_expr *y)
 {
   gfc_expr *result;
   int kind;
 
+  mpfr_t xr;
+  mpfr_t yr;
+
   if (x->expr_type != EXPR_CONSTANT || y->expr_type != EXPR_CONSTANT)
     return NULL;
 
-  kind = x->ts.kind > y->ts.kind ? x->ts.kind : y->ts.kind;
-  result = gfc_get_constant_expr (x->ts.type, kind, &x->where);
-
-  switch (x->ts.type)
+  if ((x->ts.type != BT_REAL && x->ts.type != BT_INTEGER)
+      || (y->ts.type != BT_REAL && y->ts.type != BT_INTEGER))
     {
-      case BT_INTEGER:
-	if (mpz_cmp (x->value.integer, y->value.integer) > 0)
-	  mpz_sub (result->value.integer, x->value.integer, y->value.integer);
-	else
-	  mpz_set_ui (result->value.integer, 0);
+      gfc_internal_error ("gfc_simplify_dim(): Bad arguments");
+      return NULL;
+    }
 
-	break;
+  kind = x->ts.kind > y->ts.kind ? x->ts.kind : y->ts.kind;
 
-      case BT_REAL:
-	if (mpfr_cmp (x->value.real, y->value.real) > 0)
-	  mpfr_sub (result->value.real, x->value.real, y->value.real,
-		    GFC_RND_MODE);
-	else
-	  mpfr_set_ui (result->value.real, 0, GFC_RND_MODE);
-
-	break;
-
-      default:
-	gfc_internal_error ("gfc_simplify_dim(): Bad type");
+  if (simplify_int_real_promotion2 (x, y, &xr, &yr))
+    {
+      result = gfc_get_constant_expr (BT_REAL, kind, &x->where);
+      if (mpfr_cmp (xr, yr) > 0)
+	mpfr_sub (result->value.real, xr, yr, GFC_RND_MODE);
+      else
+	mpfr_set_ui (result->value.real, 0, GFC_RND_MODE);
+    }
+  else
+    {
+      result = gfc_get_constant_expr (BT_INTEGER, kind, &x->where);
+      if (mpz_cmp (x->value.integer, y->value.integer) > 0)
+	mpz_sub (result->value.integer, x->value.integer, y->value.integer);
+      else
+	mpz_set_ui (result->value.integer, 0);
     }
 
   return range_check (result, "DIM");
@@ -4956,6 +4996,76 @@ min_max_choose (gfc_expr *arg, gfc_expr *extremum, int sign, bool back_val)
 {
   int ret;
 
+  mpfr_t *arp;
+  mpfr_t *erp;
+  mpfr_t ar;
+  mpfr_t er;
+
+  if (arg->ts.type != extremum->ts.type)
+    {
+      if (arg->ts.type == BT_REAL)
+	{
+	  arp = &arg->value.real;
+	}
+      else
+	{
+	  mpfr_init2 (ar, (arg->ts.kind * 8));
+	  mpfr_set_z (ar, arg->value.integer, GFC_RND_MODE);
+	  arp = &ar;
+	}
+
+      if (extremum->ts.type == BT_REAL)
+	{
+	  erp = &extremum->value.real;
+	}
+      else
+	{
+	  mpfr_init2 (er, (extremum->ts.kind * 8));
+	  mpfr_set_z (er, extremum->value.integer, GFC_RND_MODE);
+	  erp = &er;
+	}
+
+      if (mpfr_nan_p (*erp))
+	{
+	  ret = 1;
+	  extremum->ts.type = arg->ts.type;
+	  extremum->ts.kind = arg->ts.kind;
+	  if (arg->ts.type == BT_INTEGER)
+	    {
+	      mpz_init2 (extremum->value.integer, (arg->ts.kind * 8));
+	      mpz_set (extremum->value.integer, arg->value.integer);
+	    }
+	  else
+	    {
+	      mpfr_init2 (extremum->value.real, (arg->ts.kind * 8));
+	      mpfr_set (extremum->value.real, *arp, GFC_RND_MODE);
+	    }
+	}
+      else if (mpfr_nan_p (*arp))
+	ret = -1;
+      else
+	{
+	  ret = mpfr_cmp (*arp, *erp) * sign;
+	  if (ret > 0)
+	    {
+	      extremum->ts.type = arg->ts.type;
+	      extremum->ts.kind = arg->ts.kind;
+	      if (arg->ts.type == BT_INTEGER)
+		{
+		  mpz_init2 (extremum->value.integer, (arg->ts.kind * 8));
+		  mpz_set (extremum->value.integer, arg->value.integer);
+		}
+	      else
+		{
+		  mpfr_init2 (extremum->value.real, (arg->ts.kind * 8));
+		  mpfr_set (extremum->value.real, *arp, GFC_RND_MODE);
+		}
+	    }
+	}
+
+      return ret;
+    }
+
   switch (arg->ts.type)
     {
       case BT_INTEGER:
@@ -5919,7 +6029,9 @@ gfc_simplify_mod (gfc_expr *a, gfc_expr *p)
   gfc_expr *result;
   int kind;
 
-  /* First check p.  */
+  mpfr_t ar;
+  mpfr_t pr;
+
   if (p->expr_type != EXPR_CONSTANT)
     return NULL;
 
@@ -5949,16 +6061,24 @@ gfc_simplify_mod (gfc_expr *a, gfc_expr *p)
   if (a->expr_type != EXPR_CONSTANT)
     return NULL;
 
-  kind = a->ts.kind > p->ts.kind ? a->ts.kind : p->ts.kind;
-  result = gfc_get_constant_expr (a->ts.type, kind, &a->where);
+  if (a->ts.type != BT_REAL && a->ts.type != BT_INTEGER)
+    {
+      gfc_internal_error ("gfc_simplify_mod(): Bad arguments");
+      return NULL;
+    }
 
-  if (a->ts.type == BT_INTEGER)
-    mpz_tdiv_r (result->value.integer, a->value.integer, p->value.integer);
+  kind = a->ts.kind > p->ts.kind ? a->ts.kind : p->ts.kind;
+
+  if (simplify_int_real_promotion2 (a, p, &ar, &pr))
+    {
+      result = gfc_get_constant_expr (BT_REAL, kind, &a->where);
+      gfc_set_model_kind (kind);
+      mpfr_fmod (result->value.real, ar, pr, GFC_RND_MODE);
+    }
   else
     {
-      gfc_set_model_kind (kind);
-      mpfr_fmod (result->value.real, a->value.real, p->value.real,
-		 GFC_RND_MODE);
+      result = gfc_get_constant_expr (BT_INTEGER, kind, &a->where);
+      mpz_tdiv_r (result->value.integer, a->value.integer, p->value.integer);
     }
 
   return range_check (result, "MOD");
@@ -5971,7 +6091,9 @@ gfc_simplify_modulo (gfc_expr *a, gfc_expr *p)
   gfc_expr *result;
   int kind;
 
-  /* First check p.  */
+  mpfr_t ar;
+  mpfr_t pr;
+
   if (p->expr_type != EXPR_CONSTANT)
     return NULL;
 
@@ -5998,28 +6120,36 @@ gfc_simplify_modulo (gfc_expr *a, gfc_expr *p)
 	gfc_internal_error ("gfc_simplify_modulo(): Bad arguments");
     }
 
+  if (a->ts.type != BT_REAL && a->ts.type != BT_INTEGER)
+    {
+      gfc_internal_error ("gfc_simplify_modulo(): Bad arguments");
+      return NULL;
+    }
+
   if (a->expr_type != EXPR_CONSTANT)
     return NULL;
 
   kind = a->ts.kind > p->ts.kind ? a->ts.kind : p->ts.kind;
-  result = gfc_get_constant_expr (a->ts.type, kind, &a->where);
 
-  if (a->ts.type == BT_INTEGER)
-	mpz_fdiv_r (result->value.integer, a->value.integer, p->value.integer);
+  if (simplify_int_real_promotion2 (a, p, &ar, &pr))
+    {
+      result = gfc_get_constant_expr (BT_REAL, kind, &a->where);
+      gfc_set_model_kind (kind);
+      mpfr_fmod (result->value.real, ar, pr, GFC_RND_MODE);
+      if (mpfr_cmp_ui (result->value.real, 0) != 0)
+	{
+	  if (mpfr_signbit (ar) != mpfr_signbit (pr))
+	    mpfr_add (result->value.real, result->value.real, pr,
+		      GFC_RND_MODE);
+	}
+      else
+	mpfr_copysign (result->value.real, result->value.real, pr,
+		       GFC_RND_MODE);
+    }
   else
     {
-      gfc_set_model_kind (kind);
-      mpfr_fmod (result->value.real, a->value.real, p->value.real,
-                 GFC_RND_MODE);
-      if (mpfr_cmp_ui (result->value.real, 0) != 0)
-        {
-          if (mpfr_signbit (a->value.real) != mpfr_signbit (p->value.real))
-            mpfr_add (result->value.real, result->value.real, p->value.real,
-                      GFC_RND_MODE);
-	    }
-	  else
-        mpfr_copysign (result->value.real, result->value.real,
-                       p->value.real, GFC_RND_MODE);
+      result = gfc_get_constant_expr (BT_INTEGER, kind, &a->where);
+      mpz_fdiv_r (result->value.integer, a->value.integer, p->value.integer);
     }
 
   return range_check (result, "MODULO");
@@ -7599,27 +7729,41 @@ gfc_expr *
 gfc_simplify_sign (gfc_expr *x, gfc_expr *y)
 {
   gfc_expr *result;
+  bool neg;
 
   if (x->expr_type != EXPR_CONSTANT || y->expr_type != EXPR_CONSTANT)
     return NULL;
 
   result = gfc_get_constant_expr (x->ts.type, x->ts.kind, &x->where);
 
+  switch (y->ts.type)
+    {
+      case BT_INTEGER:
+	neg = (mpz_sgn (y->value.integer) < 0);
+	break;
+
+      case BT_REAL:
+	neg = (mpfr_sgn (y->value.real) < 0);
+	break;
+
+      default:
+	gfc_internal_error ("Bad type in gfc_simplify_sign");
+    }
+
   switch (x->ts.type)
     {
       case BT_INTEGER:
 	mpz_abs (result->value.integer, x->value.integer);
-	if (mpz_sgn (y->value.integer) < 0)
+	if (neg)
 	  mpz_neg (result->value.integer, result->value.integer);
 	break;
 
       case BT_REAL:
-	if (flag_sign_zero)
+	if (flag_sign_zero && y->ts.type == BT_REAL)
 	  mpfr_copysign (result->value.real, x->value.real, y->value.real,
-			GFC_RND_MODE);
+			 GFC_RND_MODE);
 	else
-	  mpfr_setsign (result->value.real, x->value.real,
-			mpfr_sgn (y->value.real) < 0 ? 1 : 0, GFC_RND_MODE);
+	  mpfr_setsign (result->value.real, x->value.real, neg, GFC_RND_MODE);
 	break;
 
       default:

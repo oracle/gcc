@@ -505,6 +505,10 @@ fdec-old-init
 Fortran Var(flag_dec_old_init)
 Enable support for old style initializers in derived types.
 
+fdec-promotion
+Fortran Var(flag_dec_promotion)
+Add support for type promotion in intrinsic arguments.
+
 fdec-structure
 Fortran Var(flag_dec_structure)
 Enable support for DEC STRUCTURE/RECORD.

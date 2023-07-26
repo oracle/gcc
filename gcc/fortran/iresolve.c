@@ -817,19 +817,22 @@ gfc_resolve_dble (gfc_expr *f, gfc_expr *a)
 void
 gfc_resolve_dim (gfc_expr *f, gfc_expr *a, gfc_expr *p)
 {
-  f->ts.type = a->ts.type;
   if (p != NULL)
-    f->ts.kind = gfc_kind_max (a,p);
-  else
-    f->ts.kind = a->ts.kind;
-
-  if (p != NULL && a->ts.kind != p->ts.kind)
     {
-      if (a->ts.kind == gfc_kind_max (a,p))
-	gfc_convert_type (p, &a->ts, 2);
+      f->ts.kind = gfc_kind_max (a,p);
+      if (a->ts.type == BT_REAL || p->ts.type == BT_REAL)
+	f->ts.type = BT_REAL;
       else
-	gfc_convert_type (a, &p->ts, 2);
+	f->ts.type = BT_INTEGER;
+
+      if (a->ts.kind != f->ts.kind || a->ts.type != f->ts.type)
+	gfc_convert_type (a, &f->ts, 2);
+
+      if (p->ts.kind != f->ts.kind || p->ts.type != f->ts.type)
+	gfc_convert_type (p, &f->ts, 2);
     }
+  else
+    f->ts = a->ts;
 
   f->value.function.name
     = gfc_get_string ("__dim_%c%d", gfc_type_letter (f->ts.type), f->ts.kind);
@@ -1593,14 +1596,17 @@ gfc_resolve_minmax (const char *name, gfc_expr *f, gfc_actual_arglist *args)
   /* Find the largest type kind.  */
   for (a = args->next; a; a = a->next)
     {
+      if (a->expr-> ts.type == BT_REAL)
+	f->ts.type = BT_REAL;
+
       if (a->expr->ts.kind > f->ts.kind)
 	f->ts.kind = a->expr->ts.kind;
     }
 
-  /* Convert all parameters to the required kind.  */
+  /* Convert all parameters to the required type and/or kind.  */
   for (a = args; a; a = a->next)
     {
-      if (a->expr->ts.kind != f->ts.kind)
+      if (a->expr->ts.type != f->ts.type || a->expr->ts.kind != f->ts.kind)
 	gfc_convert_type (a->expr, &f->ts, 2);
     }
 
@@ -2093,19 +2099,22 @@ gfc_resolve_minval (gfc_expr *f, gfc_expr *array, gfc_expr *dim,
 void
 gfc_resolve_mod (gfc_expr *f, gfc_expr *a, gfc_expr *p)
 {
-  f->ts.type = a->ts.type;
   if (p != NULL)
-    f->ts.kind = gfc_kind_max (a,p);
-  else
-    f->ts.kind = a->ts.kind;
-
-  if (p != NULL && a->ts.kind != p->ts.kind)
     {
-      if (a->ts.kind == gfc_kind_max (a,p))
-	gfc_convert_type (p, &a->ts, 2);
+      f->ts.kind = gfc_kind_max (a,p);
+      if (a->ts.type == BT_REAL || p->ts.type == BT_REAL)
+	f->ts.type = BT_REAL;
       else
-	gfc_convert_type (a, &p->ts, 2);
+	f->ts.type = BT_INTEGER;
+
+      if (a->ts.kind != f->ts.kind || a->ts.type != f->ts.type)
+	gfc_convert_type (a, &f->ts, 2);
+
+      if (p->ts.kind != f->ts.kind || p->ts.type != f->ts.type)
+	gfc_convert_type (p, &f->ts, 2);
     }
+  else
+    f->ts = a->ts;
 
   f->value.function.name
     = gfc_get_string ("__mod_%c%d", gfc_type_letter (f->ts.type), f->ts.kind);
@@ -2115,19 +2124,22 @@ gfc_resolve_mod (gfc_expr *f, gfc_expr *a, gfc_expr *p)
 void
 gfc_resolve_modulo (gfc_expr *f, gfc_expr *a, gfc_expr *p)
 {
-  f->ts.type = a->ts.type;
   if (p != NULL)
-    f->ts.kind = gfc_kind_max (a,p);
-  else
-    f->ts.kind = a->ts.kind;
-
-  if (p != NULL && a->ts.kind != p->ts.kind)
     {
-      if (a->ts.kind == gfc_kind_max (a,p))
-	gfc_convert_type (p, &a->ts, 2);
+      f->ts.kind = gfc_kind_max (a,p);
+      if (a->ts.type == BT_REAL || p->ts.type == BT_REAL)
+	f->ts.type = BT_REAL;
       else
-	gfc_convert_type (a, &p->ts, 2);
+	f->ts.type = BT_INTEGER;
+
+      if (a->ts.kind != f->ts.kind || a->ts.type != f->ts.type)
+	gfc_convert_type (a, &f->ts, 2);
+
+      if (p->ts.kind != f->ts.kind || p->ts.type != f->ts.type)
+	gfc_convert_type (p, &f->ts, 2);
     }
+  else
+    f->ts = a->ts;
 
   f->value.function.name
     = gfc_get_string ("__modulo_%c%d", gfc_type_letter (f->ts.type),
@@ -2502,9 +2514,26 @@ gfc_resolve_shift (gfc_expr *f, gfc_expr *i, gfc_expr *shift ATTRIBUTE_UNUSED)
 
 
 void
-gfc_resolve_sign (gfc_expr *f, gfc_expr *a, gfc_expr *b ATTRIBUTE_UNUSED)
+gfc_resolve_sign (gfc_expr *f, gfc_expr *a, gfc_expr *b)
 {
-  f->ts = a->ts;
+  if (b != NULL)
+    {
+      f->ts.kind = gfc_kind_max (a, b);
+      if (a->ts.type == BT_REAL || b->ts.type == BT_REAL)
+	f->ts.type = BT_REAL;
+      else
+	f->ts.type = BT_INTEGER;
+
+      if (a->ts.kind != f->ts.kind || a->ts.type != f->ts.type)
+	gfc_convert_type (a, &f->ts, 2);
+
+      if (b->ts.kind != f->ts.kind || b->ts.type != f->ts.type)
+	gfc_convert_type (b, &f->ts, 2);
+    }
+  else
+    {
+      f->ts = a->ts;
+    }
   f->value.function.name
     = gfc_get_string ("__sign_%c%d", gfc_type_letter (a->ts.type), a->ts.kind);
 }

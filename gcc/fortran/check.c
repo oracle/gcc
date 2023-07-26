@@ -1382,12 +1382,40 @@ gfc_check_allocated (gfc_expr *array)
 }
 
 
+/* Check function where both arguments must be real or integer
+   and warn if they are different types.  */
+
+bool
+check_int_real_promotion (gfc_expr *a, gfc_expr *b)
+{
+  gfc_expr *i;
+
+  if (!int_or_real_check (a, 0))
+    return false;
+
+  if (!int_or_real_check (b, 1))
+    return false;
+
+  if (a->ts.type != b->ts.type)
+    {
+      i = (a->ts.type != BT_REAL ? a : b);
+      gfc_warning_now (OPT_Wconversion, "Conversion from INTEGER to REAL "
+		       "at %L might lose precision", &i->where);
+    }
+
+  return true;
+}
+
+
 /* Common check function where the first argument must be real or
    integer and the second argument must be the same as the first.  */
 
 bool
 gfc_check_a_p (gfc_expr *a, gfc_expr *p)
 {
+  if (flag_dec_promotion)
+    return check_int_real_promotion (a, p);
+
   if (!int_or_real_check (a, 0))
     return false;
 
@@ -3710,6 +3738,41 @@ check_rest (bt type, int kind, gfc_actual_arglist *arglist)
 }
 
 
+/* Check function where all arguments of an argument list must be real
+   or integer.  */
+
+static bool
+check_rest_int_real (gfc_actual_arglist *arglist)
+{
+  gfc_actual_arglist *arg, *tmp;
+  gfc_expr *x;
+  int m, n;
+
+  if (!min_max_args (arglist))
+    return false;
+
+  for (arg = arglist, n=1; arg; arg = arg->next, n++)
+    {
+      x = arg->expr;
+      if (x->ts.type != BT_INTEGER && x->ts.type != BT_REAL)
+	{
+	  gfc_error ("%<a%d%> argument of %qs intrinsic at %L must be "
+		     "INTEGER or REAL", n, gfc_current_intrinsic, &x->where);
+	  return false;
+	}
+
+      for (tmp = arglist, m=1; tmp != arg; tmp = tmp->next, m++)
+	if (!gfc_check_conformance (tmp->expr, x,
+				    "arguments 'a%d' and 'a%d' for "
+				    "intrinsic '%s'", m, n,
+				    gfc_current_intrinsic))
+	  return false;
+    }
+
+  return true;
+}
+
+
 bool
 gfc_check_min_max (gfc_actual_arglist *arg)
 {
@@ -3734,7 +3797,10 @@ gfc_check_min_max (gfc_actual_arglist *arg)
       return false;
     }
 
-  return check_rest (x->ts.type, x->ts.kind, arg);
+  if (flag_dec_promotion && x->ts.type != BT_CHARACTER)
+    return check_rest_int_real (arg);
+  else
+    return check_rest (x->ts.type, x->ts.kind, arg);
 }
 
 
@@ -5089,6 +5155,9 @@ gfc_check_shift (gfc_expr *i, gfc_expr *shift)
 bool
 gfc_check_sign (gfc_expr *a, gfc_expr *b)
 {
+  if (flag_dec_promotion)
+    return check_int_real_promotion (a, b);
+
   if (!int_or_real_check (a, 0))
     return false;
 
