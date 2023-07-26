@@ -187,6 +187,7 @@ read_counts_file (void)
   gcov_unsigned_t fn_ident = 0;
   struct gcov_summary summary;
   unsigned new_summary = 1;
+  bool has_summary_section = false;
   gcov_unsigned_t tag;
   int is_error = 0;
   unsigned lineno_checksum = 0;
@@ -242,6 +243,8 @@ read_counts_file (void)
 	{
 	  struct gcov_summary sum;
 	  unsigned ix;
+
+	  has_summary_section = true;
 
 	  if (new_summary)
 	    memset (&summary, 0, sizeof (summary));
@@ -336,6 +339,10 @@ read_counts_file (void)
 	  break;
 	}
     }
+
+    if (!has_summary_section)
+      error ("Missing PROGRAM_SUMMARY section in the profiling data file"
+	      " %qs", da_file_name);
 
   gcov_close ();
 }
