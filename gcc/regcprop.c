@@ -402,7 +402,8 @@ maybe_mode_change (machine_mode orig_mode, machine_mode copy_mode,
 
   if (orig_mode == new_mode)
     return gen_raw_REG (new_mode, regno);
-  else if (mode_change_ok (orig_mode, new_mode, regno))
+  else if (mode_change_ok (orig_mode, new_mode, regno)
+	   && targetm.narrow_mode_refers_low_part_p (copy_regno))
     {
       int copy_nregs = hard_regno_nregs (copy_regno, copy_mode);
       int use_nregs = hard_regno_nregs (copy_regno, new_mode);

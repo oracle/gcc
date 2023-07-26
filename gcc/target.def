@@ -5259,6 +5259,16 @@ value that the middle-end intended.",
  bool, (machine_mode from, machine_mode to, reg_class_t rclass),
  hook_bool_mode_mode_reg_class_t_true)
 
+/* This hook is used to work around a problem in regcprop. Hardcoded
+assumptions currently prevent it from working correctly for targets
+where the low part of a multi-word register doesn't align to accessing
+the register with a narrower mode.  */
+DEFHOOK_UNDOC
+(narrow_mode_refers_low_part_p,
+"",
+bool, (unsigned int regno),
+hook_bool_uint_true)
+
 /* Change pseudo allocno class calculated by IRA.  */
 DEFHOOK
 (ira_change_pseudo_allocno_class,
