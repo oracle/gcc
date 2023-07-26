@@ -693,6 +693,10 @@ typedef struct GTY (()) machine_function
   struct aarch64_frame frame;
   /* One entry for each hard register.  */
   bool reg_is_wrapped_separately[LAST_SAVED_REGNUM];
+
+  /* How to generate indirec branch.  */
+  ENUM_BITFIELD (indirect_branch) indirect_branch_type : 3;
+
 } machine_function;
 #endif
 

@@ -40,6 +40,7 @@
 #include "regs.h"
 #include "emit-rtl.h"
 #include "recog.h"
+#include "cgraph.h"
 #include "diagnostic.h"
 #include "insn-attr.h"
 #include "alias.h"
@@ -11443,6 +11444,35 @@ aarch64_save_restore_target_globals (tree new_tree)
     TREE_TARGET_GLOBALS (new_tree) = save_target_globals_default_opts ();
 }
 
+static void
+aarch64_set_indirect_branch_type (tree fndecl)
+{
+  if (cfun->machine->indirect_branch_type == indirect_branch_unset)
+    {
+      tree attr = lookup_attribute ("indirect_branch",
+				    DECL_ATTRIBUTES (fndecl));
+      if (attr != NULL)
+	{
+	  tree args = TREE_VALUE (attr);
+	  if (args == NULL)
+	    gcc_unreachable ();
+	  tree cst = TREE_VALUE (args);
+	  if (strcmp (TREE_STRING_POINTER (cst), "keep") == 0)
+	    cfun->machine->indirect_branch_type = indirect_branch_keep;
+	  else if (strcmp (TREE_STRING_POINTER (cst), "thunk") == 0)
+	    cfun->machine->indirect_branch_type = indirect_branch_thunk;
+	  else if (strcmp (TREE_STRING_POINTER (cst), "thunk-inline") == 0)
+	    cfun->machine->indirect_branch_type = indirect_branch_thunk_inline;
+	  else if (strcmp (TREE_STRING_POINTER (cst), "thunk-extern") == 0)
+	    cfun->machine->indirect_branch_type = indirect_branch_thunk_extern;
+	  else
+	    gcc_unreachable ();
+	}
+      else
+	cfun->machine->indirect_branch_type = aarch64_indirect_branch;
+    }
+}
+
 /* Implement TARGET_SET_CURRENT_FUNCTION.  Unpack the codegen decisions
    like tuning and ISA features from the DECL_FUNCTION_SPECIFIC_TARGET
    of the function, if such exists.  This function may be called multiple
@@ -11453,7 +11483,18 @@ static void
 aarch64_set_current_function (tree fndecl)
 {
   if (!fndecl || fndecl == aarch64_previous_fndecl)
-    return;
+    {
+      if (fndecl != NULL_TREE)
+	{
+	  aarch64_set_indirect_branch_type (fndecl);
+	}
+      return;
+    }
+
+  if (fndecl != NULL_TREE)
+    {
+      aarch64_set_indirect_branch_type (fndecl);
+    }
 
   tree old_tree = (aarch64_previous_fndecl
 		   ? DECL_FUNCTION_SPECIFIC_TARGET (aarch64_previous_fndecl)
@@ -11615,6 +11656,42 @@ aarch64_handle_attr_tune (const char *str)
     }
 
   return false;
+}
+
+static tree
+aarch64_handle_fndecl_attribute (tree *node, tree name, tree args, int,
+				 bool *no_add_attrs)
+{
+  if (TREE_CODE (*node) != FUNCTION_DECL)
+    {
+      warning (OPT_Wattributes, "%qE attribute only applies to functions",
+	       name);
+      *no_add_attrs = true;
+    }
+
+  if (is_attribute_p ("indirect_branch", name))
+    {
+      tree cst = TREE_VALUE (args);
+      if (TREE_CODE (cst) != STRING_CST)
+	{
+	  warning (OPT_Wattributes,
+		   "%qE attribute requires a string constant argument",
+		   name);
+	  *no_add_attrs = true;
+	}
+      else if (strcmp (TREE_STRING_POINTER (cst), "keep") != 0
+	       && strcmp (TREE_STRING_POINTER (cst), "thunk") != 0
+	       && strcmp (TREE_STRING_POINTER (cst), "thunk-inline") != 0
+	       && strcmp (TREE_STRING_POINTER (cst), "thunk-extern") != 0)
+	{
+	  warning (OPT_Wattributes,
+		   "argument to %qE attribute is not "
+		   "(keep|thunk|thunk-inline|thunk-extern)", name);
+	  *no_add_attrs = true;
+	}
+    }
+
+  return NULL_TREE;
 }
 
 /* Parse an architecture extensions target attribute string specified in STR.
@@ -15218,6 +15295,215 @@ aarch64_output_ptrue (machine_mode mode, char suffix)
   return buf;
 }
 
+/* Label count for call and return thunks.  It is used to make unique
+   labels in call and return thunks.  */
+static int indirectlabelno;
+
+/* Bit masks of integer registers, which contain branch target, used
+   by call and return thunks functions.  */
+static int indirect_thunks_used;
+
+#ifndef INDIRECT_LABEL
+# define INDIRECT_LABEL "LIND"
+#endif
+
+/* Fills in the label name that should be used for the indirect thunk.  */
+
+static void
+indirect_thunk_name (char name[32], int regno)
+{
+  sprintf (name, "__aarch64_indirect_thunk_%s",
+	   reg_names[regno]);
+}
+
+/* Output a retpoline thunk for aarch64:
+
+	push	lr
+	bl	L2
+L1:	wfe
+	b	L1
+L2:	mov	lr, &L3
+	ret
+L3:	pop	lr
+ */
+
+static void
+output_indirect_thunk (bool save_lr)
+{
+  char indirectlabel1[32];
+  char indirectlabel2[32];
+  char indirectlabel3[32];
+
+  ASM_GENERATE_INTERNAL_LABEL (indirectlabel1, INDIRECT_LABEL,
+			       indirectlabelno++);
+  ASM_GENERATE_INTERNAL_LABEL (indirectlabel2, INDIRECT_LABEL,
+			       indirectlabelno++);
+  ASM_GENERATE_INTERNAL_LABEL (indirectlabel3, INDIRECT_LABEL,
+			       indirectlabelno++);
+
+  if (save_lr)
+    {
+      /* push lr */
+      fputs ("\tstr\tx30, [sp, #-16]!\n", asm_out_file);
+    }
+
+  /* bl L2 */
+  fputs ("\tbl\t", asm_out_file);
+  assemble_name_raw (asm_out_file, indirectlabel2);
+  fputc ('\n', asm_out_file);
+
+  /* L1: wfe/dsb loop */
+  ASM_OUTPUT_INTERNAL_LABEL (asm_out_file, indirectlabel1);
+  fprintf (asm_out_file, "\twfe\n");
+  fputs ("\tb\t", asm_out_file);
+  assemble_name_raw (asm_out_file, indirectlabel1);
+  fputc ('\n', asm_out_file);
+
+  /* L2: lr=&L3; ret */
+  ASM_OUTPUT_INTERNAL_LABEL (asm_out_file, indirectlabel2);
+  fputs ("\tadr\tx30, ", asm_out_file);
+  assemble_name_raw (asm_out_file, indirectlabel3);
+  fputc ('\n', asm_out_file);
+  fputs ("\tret\n", asm_out_file);
+
+  /* L3: */
+  ASM_OUTPUT_INTERNAL_LABEL (asm_out_file, indirectlabel3);
+
+  if (save_lr)
+    {
+      /* pop lr */
+      fputs ("\tldr\tx30, [sp], #16\n", asm_out_file);
+    }
+}
+
+static void
+output_indirect_thunk_function (int regno)
+{
+  char name[32];
+  tree decl;
+
+  /* Create __aarch64_indirect_thunk */
+  indirect_thunk_name (name, regno);
+  decl = build_decl (BUILTINS_LOCATION, FUNCTION_DECL,
+		     get_identifier (name),
+		     build_function_type_list (void_type_node, NULL_TREE));
+  DECL_RESULT (decl) = build_decl (BUILTINS_LOCATION, RESULT_DECL,
+				   NULL_TREE, void_type_node);
+  TREE_PUBLIC (decl) = 1;
+  TREE_STATIC (decl) = 1;
+  DECL_IGNORED_P (decl) = 1;
+
+  cgraph_node::create (decl)->set_comdat_group (DECL_ASSEMBLER_NAME (decl));
+
+  targetm.asm_out.unique_section (decl, 0);
+  switch_to_section (get_named_section (decl, NULL, 0));
+
+  targetm.asm_out.globalize_label (asm_out_file, name);
+  fputs ("\t.hidden\t", asm_out_file);
+  assemble_name (asm_out_file, name);
+  putc ('\n', asm_out_file);
+  ASM_DECLARE_FUNCTION_NAME (asm_out_file, name, decl);
+
+  DECL_INITIAL (decl) = make_node (BLOCK);
+  current_function_decl = decl;
+  allocate_struct_function (decl, false);
+  init_function_start (decl);
+  /* We're about to hide the function body from callees of final_* by
+     emitting it directly; tell them we're a thunk, if they care.  */
+  cfun->is_thunk = true;
+  first_function_block_is_cold = false;
+  /* Make sure unwind info is emitted for the thunk if needed.  */
+  final_start_function (emit_barrier (), asm_out_file, 1);
+
+  output_indirect_thunk (true);
+  rtx xop = gen_rtx_REG (word_mode, regno);
+  output_asm_insn ("br\t%0", &xop);
+
+  final_end_function ();
+  init_insn_lengths ();
+  free_after_compilation (cfun);
+  set_cfun (NULL);
+  current_function_decl = NULL;
+}
+
+const char *
+aarch64_output_branch_register (rtx call_op)
+{
+  char thunk_name_buf[32];
+  char *thunk_name;
+  int regno = REGNO (call_op);
+
+  if (cfun->machine->indirect_branch_type == indirect_branch_thunk_inline)
+    {
+      output_indirect_thunk (true);
+      output_asm_insn ("br\t%0", &call_op);
+    }
+  else if (cfun->machine->indirect_branch_type == indirect_branch_thunk)
+    {
+      indirect_thunks_used |= 1 << regno;
+
+      indirect_thunk_name (thunk_name_buf, regno);
+      thunk_name = thunk_name_buf;
+      fprintf (asm_out_file, "\tb\t%s\n", thunk_name);
+    }
+  else if (cfun->machine->indirect_branch_type == indirect_branch_thunk_extern)
+    {
+      indirect_thunk_name (thunk_name_buf, regno);
+      thunk_name = thunk_name_buf;
+      fprintf (asm_out_file, "\tb\t%s\n", thunk_name);
+    }
+  else
+    {
+      output_asm_insn ("br\t%0", &call_op);
+    }
+  return "";
+}
+
+const char *
+aarch64_output_branch_and_link_register (rtx call_op)
+{
+  char thunk_name_buf[32];
+  char *thunk_name;
+  int regno = REGNO (call_op);
+
+  if (cfun->machine->indirect_branch_type == indirect_branch_thunk_inline)
+    {
+      output_indirect_thunk (true);
+      output_asm_insn ("blr\t%0", &call_op);
+    }
+  else if (cfun->machine->indirect_branch_type == indirect_branch_thunk)
+    {
+      indirect_thunks_used |= 1 << regno;
+
+      indirect_thunk_name (thunk_name_buf, regno);
+      thunk_name = thunk_name_buf;
+      fprintf (asm_out_file, "\tbl\t%s\n", thunk_name);
+    }
+  else if (cfun->machine->indirect_branch_type == indirect_branch_thunk_extern)
+    {
+      indirect_thunk_name (thunk_name_buf, regno);
+      thunk_name = thunk_name_buf;
+      fprintf (asm_out_file, "\tbl\t%s\n", thunk_name);
+    }
+  else
+    {
+      output_asm_insn ("blr\t%0", &call_op);
+    }
+  return "";
+}
+
+static void
+aarch64_code_end (void)
+{
+  int regno;
+
+  for (regno = R0_REGNUM; regno <= SP_REGNUM; regno++)
+    {
+      if (indirect_thunks_used & (1 << regno))
+	output_indirect_thunk_function (regno);
+    }
+}
+
 /* Split operands into moves from op[1] + op[2] into op[0].  */
 
 void
@@ -17612,6 +17898,16 @@ aarch64_select_early_remat_modes (sbitmap modes)
     }
 }
 
+/* Table of valid machine attributes.  */
+
+static const struct attribute_spec aarch64_attribute_table[] =
+{
+  { "indirect_branch", 1, 1, true, false, false, false,
+    aarch64_handle_fndecl_attribute, NULL },
+  /* End element.  */
+  { NULL, 0, 0, false, false, false, false, NULL, NULL }
+};
+
 /* Target-specific selftests.  */
 
 #if CHECKING_P
@@ -17681,6 +17977,9 @@ aarch64_run_selftests (void)
 #define TARGET_ASM_CAN_OUTPUT_MI_THUNK \
   hook_bool_const_tree_hwi_hwi_const_tree_true
 
+#undef TARGET_ASM_CODE_END
+#define TARGET_ASM_CODE_END aarch64_code_end
+
 #undef TARGET_ASM_FILE_START
 #define TARGET_ASM_FILE_START aarch64_start_file
 
@@ -17692,6 +17991,12 @@ aarch64_run_selftests (void)
 
 #undef TARGET_ASM_TRAMPOLINE_TEMPLATE
 #define TARGET_ASM_TRAMPOLINE_TEMPLATE aarch64_asm_trampoline_template
+
+#undef TARGET_ATTRIBUTE_TABLE
+#define TARGET_ATTRIBUTE_TABLE aarch64_attribute_table
+
+#undef TARGET_FUNCTION_ATTRIBUTE_INLINABLE_P
+#define TARGET_FUNCTION_ATTRIBUTE_INLINABLE_P hook_bool_const_tree_true
 
 #undef TARGET_BUILD_BUILTIN_VA_LIST
 #define TARGET_BUILD_BUILTIN_VA_LIST aarch64_build_builtin_va_list

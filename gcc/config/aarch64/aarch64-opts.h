@@ -91,4 +91,13 @@ enum aarch64_sve_vector_bits_enum {
   SVE_2048 = 2048
 };
 
+/* Values for -mindirect-branch option.  */
+enum indirect_branch {
+  indirect_branch_unset = 0,
+  indirect_branch_keep,
+  indirect_branch_thunk,
+  indirect_branch_thunk_inline,
+  indirect_branch_thunk_extern
+};
+
 #endif
