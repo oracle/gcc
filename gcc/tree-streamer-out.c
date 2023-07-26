@@ -476,7 +476,7 @@ streamer_write_tree_bitfields (struct output_block *ob, tree expr)
     pack_ts_translation_unit_decl_value_fields (ob, &bp, expr);
 
   if (CODE_CONTAINS_STRUCT (code, TS_OPTIMIZATION))
-    cl_optimization_stream_out (&bp, TREE_OPTIMIZATION (expr));
+    cl_optimization_stream_out (ob, &bp, TREE_OPTIMIZATION (expr));
 
   if (CODE_CONTAINS_STRUCT (code, TS_BINFO))
     bp_pack_var_len_unsigned (&bp, vec_safe_length (BINFO_BASE_ACCESSES (expr)));
