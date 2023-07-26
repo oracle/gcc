@@ -1,6 +1,6 @@
 // PR c++/87765
 // { dg-do compile { target c++17 } }
-// { dg-additional-options "-fchecking" }
+// { dg-additional-options "-fchecking -fno-report-bug" }
 // { dg-ice "cxx_eval_constant_expression" }
 
 template <int N>

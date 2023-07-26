@@ -1,6 +1,6 @@
 /* Test OpenACC 'kernels' construct decomposition.  */
 
-/* { dg-additional-options "-fchecking --param=openacc-kernels=decompose" } */
+/* { dg-additional-options "-fno-report-bug -fchecking --param=openacc-kernels=decompose" } */
 /* { dg-ice "TODO" }
    { dg-prune-output "during GIMPLE pass: omplower" } */
 

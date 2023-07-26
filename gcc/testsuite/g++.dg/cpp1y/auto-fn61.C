@@ -1,6 +1,6 @@
 // PR c++/88003
 // { dg-do compile { target c++14 } }
-// { dg-additional-options "-fchecking" }
+// { dg-additional-options "-fchecking -fno-report-bug" }
 // { dg-ice "poplevel_class" }
 
 auto test() {
