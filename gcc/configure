@@ -6874,7 +6874,7 @@ else
 fi
 
 if test $enable_build_format_warnings = no; then :
-  wf_opt=-Wno-format
+  wf_opt="-Wno-format -Wno-format-security"
 else
   wf_opt=
 fi
