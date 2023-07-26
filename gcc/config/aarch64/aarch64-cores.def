@@ -63,6 +63,7 @@ AARCH64_CORE("thunderxt83",   thunderxt83,   thunderx,  8A,  AARCH64_FL_FOR_ARCH
 
 /* APM ('P') cores. */
 AARCH64_CORE("xgene1",      xgene1,    xgene1,    8A,  AARCH64_FL_FOR_ARCH8, xgene1, 0x50, 0x000, -1)
+AARCH64_CORE("emag",        emag,      xgene1,    8A,  AARCH64_FL_FOR_ARCH8, emag, 0x50, 0x000, -1)
 
 /* Qualcomm ('Q') cores. */
 AARCH64_CORE("falkor",      falkor,    falkor,    8A,  AARCH64_FL_FOR_ARCH8 | AARCH64_FL_CRC | AARCH64_FL_CRYPTO | AARCH64_FL_RDMA, qdf24xx,   0x51, 0xC00, -1)
