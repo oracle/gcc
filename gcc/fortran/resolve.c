@@ -5187,6 +5187,16 @@ gfc_resolve_substring (gfc_ref *ref, bool *equal_length)
       if (!gfc_resolve_expr (ref->u.ss.start))
 	return false;
 
+      /* In legacy mode, allow non-integer string indexes by converting */
+      if (flag_dec_non_integer_index && ref->u.ss.start->ts.type != BT_INTEGER
+	  && gfc_numeric_ts (&ref->u.ss.start->ts))
+	{
+	  gfc_typespec t;
+	  t.type = BT_INTEGER;
+	  t.kind = ref->u.ss.start->ts.kind;
+	  gfc_convert_type_warn (ref->u.ss.start, &t, 2, 1);
+	}
+
       if (ref->u.ss.start->ts.type != BT_INTEGER)
 	{
 	  gfc_error ("Substring start index at %L must be of type INTEGER",
@@ -5215,6 +5225,16 @@ gfc_resolve_substring (gfc_ref *ref, bool *equal_length)
     {
       if (!gfc_resolve_expr (ref->u.ss.end))
 	return false;
+
+      /* Non-integer string index endings, as for start */
+      if (flag_dec_non_integer_index && ref->u.ss.end->ts.type != BT_INTEGER
+	  && gfc_numeric_ts (&ref->u.ss.end->ts))
+	{
+	  gfc_typespec t;
+	  t.type = BT_INTEGER;
+	  t.kind = ref->u.ss.end->ts.kind;
+	  gfc_convert_type_warn (ref->u.ss.end, &t, 2, 1);
+	}
 
       if (ref->u.ss.end->ts.type != BT_INTEGER)
 	{

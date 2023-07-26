@@ -78,6 +78,7 @@ set_dec_flags (int value)
   SET_BITFLAG (flag_dec_blank_format_item, value, value);
   SET_BITFLAG (flag_dec_char_conversions, value, value);
   SET_BITFLAG (flag_dec_duplicates, value, value);
+  SET_BITFLAG (flag_dec_non_integer_index, value, value);
 }
 
 /* Finalize DEC flags.  */

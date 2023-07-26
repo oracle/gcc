@@ -489,6 +489,10 @@ fdec-math
 Fortran Var(flag_dec_math)
 Enable legacy math intrinsics for compatibility.
 
+fdec-non-integer-index
+Fortran Var(flag_dec_non_integer_index)
+Enable support for non-integer substring indexes.
+
 fdec-structure
 Fortran Var(flag_dec_structure)
 Enable support for DEC STRUCTURE/RECORD.
