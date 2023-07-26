@@ -274,6 +274,8 @@ typedef struct GTY (()) ctf_container
   hash_table <ctfc_dtd_hasher> * GTY (()) ctfc_types;
   /* CTF variables.  */
   hash_table <ctfc_dvd_hasher> * GTY (()) ctfc_vars;
+  /* CTF variables to be ignored.  */
+  hash_table <ctfc_dvd_hasher> * GTY (()) ctfc_ignore_vars;
 
   /* CTF string table.  */
   ctf_strtable_t ctfc_strtable;
@@ -391,6 +393,8 @@ extern bool ctf_type_exists (ctf_container_ref, dw_die_ref, ctf_id_t *);
 extern void ctf_add_cuname (ctf_container_ref, const char *);
 
 extern ctf_dvdef_ref ctf_dvd_lookup (const ctf_container_ref, dw_die_ref);
+extern bool ctf_dvd_ignore_lookup (const ctf_container_ref ctfc,
+				   dw_die_ref die);
 
 extern const char * ctf_add_string (ctf_container_ref, const char *,
 				    uint32_t *, int);
@@ -427,7 +431,7 @@ extern int ctf_add_member_offset (ctf_container_ref, dw_die_ref, const char *,
 extern int ctf_add_function_arg (ctf_container_ref, dw_die_ref,
 				 const char *, ctf_id_t);
 extern int ctf_add_variable (ctf_container_ref, const char *, ctf_id_t,
-			     dw_die_ref, unsigned int);
+			     dw_die_ref, unsigned int, dw_die_ref);
 
 /* CTF section does not emit location information; at this time, location
    information is needed for BTF CO-RE use-cases.  */
