@@ -1,0 +1,1 @@
+#define NVPTX_TOOLS_VERSION "1.0"
