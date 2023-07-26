@@ -1200,8 +1200,11 @@ maybe_set_strlen_range (tree lhs, tree src)
       || array_at_struct_end_p (src))
     return;
 
-  tree type = TREE_TYPE (src);
-  if (tree size = TYPE_SIZE_UNIT (type))
+  src = get_base_address (src);
+  if (!DECL_P (src))
+    return;
+
+  if (tree size = DECL_SIZE_UNIT (src))
     if (size && TREE_CODE (size) == INTEGER_CST)
       {
 	wide_int max = wi::to_wide (size);
