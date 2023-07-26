@@ -1,6 +1,4 @@
-/* Copyright (C) 2014-2018 Free Software Foundation, Inc.
-
-   Contributed by Mentor Embedded.
+/* Copyright (C) 2018-2019 Free Software Foundation, Inc.
 
    This file is part of the GNU Offloading and Multi Processing Library
    (libgomp).
@@ -24,11 +22,30 @@
    see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
    <http://www.gnu.org/licenses/>.  */
 
-#ifndef OACC_PLUGIN_H
-#define OACC_PLUGIN_H 1
-
-extern void GOMP_PLUGIN_async_unmap_vars (void *, int);
-extern void *GOMP_PLUGIN_acc_thread (void);
-extern int GOMP_PLUGIN_acc_default_dim (unsigned int);
-
+#include "libgomp.h"
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
 #endif
+#ifdef HAVE_INTTYPES_H
+# include <inttypes.h>  /* For PRIx64.  */
+#endif
+#ifdef HAVE_UNAME
+#include <sys/utsname.h>
+#endif
+
+/* The HAVE_GETPID and HAVE_GETHOSTNAME configure tests are passing for nvptx,
+   while the nvptx newlib implementation does not support those functions.
+   Override the configure test results here.  */
+#undef HAVE_GETPID
+#undef HAVE_GETHOSTNAME
+
+/* The nvptx newlib implementation does not support fwrite, but it does support
+   write.  Map fwrite to write.  */
+#undef fwrite
+#define fwrite(ptr, size, nmemb, stream) write (1, (ptr), (nmemb) * (size))
+
+#include "../../affinity-fmt.c"
+
