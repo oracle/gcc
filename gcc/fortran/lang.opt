@@ -281,6 +281,10 @@ Wmissing-include-dirs
 Fortran
 ; Documented in C/C++
 
+Wmissing-index
+Fortran Var(warn_missing_index) Warning LangEnabledBy(Fortran,Wall)
+Warn that the lower bound of a missing index will be used.
+
 Wuse-without-only
 Fortran Var(warn_use_without_only) Warning
 Warn about USE statements that have no ONLY qualifier.
@@ -459,6 +463,10 @@ Issue debug information for compiler-generated auxiliary variables.
 fdec
 Fortran Var(flag_dec)
 Enable all DEC language extensions.
+
+fdec-add-missing-indexes
+Fortran Var(flag_dec_add_missing_indexes)
+Enable the addition of missing indexes using their lower bounds.
 
 fdec-blank-format-item
 Fortran Var(flag_dec_blank_format_item)
