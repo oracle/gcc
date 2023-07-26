@@ -481,7 +481,7 @@ AC_ARG_ENABLE(build-format-warnings,
   AS_HELP_STRING([--disable-build-format-warnings],[don't use -Wformat while building GCC]),
   [],[enable_build_format_warnings=yes])
 AS_IF([test $enable_build_format_warnings = no],
-      [wf_opt=-Wno-format],[wf_opt=])
+      [wf_opt="-Wno-format -Wno-format-security"],[wf_opt=])
 ACX_PROG_CXX_WARNING_OPTS(
 	m4_quote(m4_do([-W -Wall -Wno-narrowing -Wwrite-strings ],
 		       [-Wcast-qual $wf_opt])), [loose_warn])
