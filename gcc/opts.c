@@ -2915,6 +2915,7 @@ common_handle_option (struct gcc_options *opts,
 	opts->x_debug_info_level = DINFO_LEVEL_NORMAL;
       break;
 
+    case OPT_gt:
     case OPT_gctf:
       set_debug_level (CTF_DEBUG, false, arg, opts, opts_set, loc);
       /* CTF generation feeds off DWARF dies.  For optimal CTF, switch debug
