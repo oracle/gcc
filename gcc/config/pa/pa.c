@@ -9875,7 +9875,7 @@ pa_arg_partial_bytes (cumulative_args_t cum_v, machine_mode mode,
    to the default text subspace.  */
 
 static void
-som_output_text_section_asm_op (const void *data ATTRIBUTE_UNUSED)
+som_output_text_section_asm_op (const char *data ATTRIBUTE_UNUSED)
 {
   gcc_assert (TARGET_SOM);
   if (TARGET_GAS)
@@ -9919,7 +9919,7 @@ som_output_text_section_asm_op (const void *data ATTRIBUTE_UNUSED)
    sections.  This function is only used with SOM.  */
 
 static void
-som_output_comdat_data_section_asm_op (const void *data)
+som_output_comdat_data_section_asm_op (const char *data)
 {
   in_section = NULL;
   output_section_asm_op (data);
