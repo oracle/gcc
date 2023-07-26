@@ -1216,6 +1216,54 @@ syntax:
   return MATCH_ERROR;
 }
 
+/* This matches the nonstandard kind given after a variable name, like:
+   INTEGER x*2, y*4
+   The per-variable kind will override any kind given in the type
+   declaration.
+*/
+
+static match
+match_per_symbol_kind (int *length)
+{
+  match m;
+  gfc_expr *expr = NULL;
+
+  m = gfc_match_char ('*');
+  if (m != MATCH_YES)
+    return m;
+
+  m = gfc_match_small_literal_int (length, NULL);
+  if (m == MATCH_YES || m == MATCH_ERROR)
+    return m;
+
+  if (gfc_match_char ('(') == MATCH_NO)
+    return MATCH_ERROR;
+
+  m = gfc_match_expr (&expr);
+  if (m == MATCH_YES)
+    {
+      m = MATCH_ERROR; // Assume error
+      if (gfc_expr_check_typed (expr, gfc_current_ns, false))
+	{
+	  if ((expr->expr_type == EXPR_CONSTANT)
+	      && (expr->ts.type == BT_INTEGER))
+	    {
+	      *length = mpz_get_si(expr->value.integer);
+	      m = MATCH_YES;
+	    }
+	}
+
+	if (m == MATCH_YES)
+	  {
+	    if (gfc_match_char (')') == MATCH_NO)
+	       m = MATCH_ERROR;
+  }
+     }
+
+  if (expr != NULL)
+     gfc_free_expr (expr);
+  return m;
+}
 
 /* Special subroutine for finding a symbol.  Check if the name is found
    in the current name space.  If not, and we're compiling a function or
@@ -2476,6 +2524,35 @@ check_function_name (char *name)
 }
 
 
+static match
+match_character_length_clause (gfc_charlen **cl, bool *cl_deferred, int elem)
+{
+  gfc_expr* char_len;
+  char_len = NULL;
+
+  match m = match_char_length (&char_len, cl_deferred, false);
+  if (m == MATCH_YES)
+    {
+      *cl = gfc_new_charlen (gfc_current_ns, NULL);
+      (*cl)->length = char_len;
+    }
+  else if (m == MATCH_NO)
+    {
+      if (elem > 1
+	  && (current_ts.u.cl->length == NULL
+	      || current_ts.u.cl->length->expr_type != EXPR_CONSTANT))
+	{
+	  *cl = gfc_new_charlen (gfc_current_ns, NULL);
+	  (*cl)->length = gfc_copy_expr (current_ts.u.cl->length);
+	}
+      else
+      *cl = current_ts.u.cl;
+
+      *cl_deferred = current_ts.deferred;
+    }
+  return m;
+}
+
 /* Match a variable name with an optional initializer.  When this
    subroutine is called, a variable is expected to be parsed next.
    Depending on what is happening at the moment, updates either the
@@ -2486,7 +2563,7 @@ variable_decl (int elem)
 {
   char name[GFC_MAX_SYMBOL_LEN + 1];
   static unsigned int fill_id = 0;
-  gfc_expr *initializer, *char_len;
+  gfc_expr *initializer;
   gfc_array_spec *as;
   gfc_array_spec *cp_as; /* Extra copy for Cray Pointees.  */
   gfc_charlen *cl;
@@ -2495,11 +2572,15 @@ variable_decl (int elem)
   match m;
   bool t;
   gfc_symbol *sym;
+  match cl_match;
+  match kind_match;
+  int overridden_kind;
   char c;
 
   initializer = NULL;
   as = NULL;
   cp_as = NULL;
+  kind_match = MATCH_NO;
 
   /* When we get here, we've just matched a list of attributes and
      maybe a type and a double colon.  The next thing we expect to see
@@ -2551,6 +2632,28 @@ variable_decl (int elem)
     }
 
   var_locus = gfc_current_locus;
+
+
+  cl = NULL;
+  cl_deferred = false;
+  cl_match = MATCH_NO;
+
+  /* Check for a character length clause before an array clause */
+  if (flag_dec_override_kind)
+    {
+      if (current_ts.type == BT_CHARACTER)
+	{
+	  cl_match = match_character_length_clause (&cl, &cl_deferred, elem);
+	  if (cl_match == MATCH_ERROR)
+	    goto cleanup;
+	}
+      else
+	{
+	  kind_match = match_per_symbol_kind (&overridden_kind);
+	  if (kind_match == MATCH_ERROR)
+	    goto cleanup;
+	}
+    }
 
   /* Now we could see the optional array spec. or character length.  */
   m = gfc_match_array_spec (&as, true, true);
@@ -2712,40 +2815,12 @@ variable_decl (int elem)
 	}
     }
 
-  char_len = NULL;
-  cl = NULL;
-  cl_deferred = false;
-
-  if (current_ts.type == BT_CHARACTER)
+  /* Second chance for a character length clause */
+  if (cl_match == MATCH_NO && current_ts.type == BT_CHARACTER)
     {
-      switch (match_char_length (&char_len, &cl_deferred, false))
-	{
-	case MATCH_YES:
-	  cl = gfc_new_charlen (gfc_current_ns, NULL);
-
-	  cl->length = char_len;
-	  break;
-
-	/* Non-constant lengths need to be copied after the first
-	   element.  Also copy assumed lengths.  */
-	case MATCH_NO:
-	  if (elem > 1
-	      && (current_ts.u.cl->length == NULL
-		  || current_ts.u.cl->length->expr_type != EXPR_CONSTANT))
-	    {
-	      cl = gfc_new_charlen (gfc_current_ns, NULL);
-	      cl->length = gfc_copy_expr (current_ts.u.cl->length);
-	    }
-	  else
-	    cl = current_ts.u.cl;
-
-	  cl_deferred = current_ts.deferred;
-
-	  break;
-
-	case MATCH_ERROR:
-	  goto cleanup;
-	}
+      m = match_character_length_clause (&cl, &cl_deferred, elem);
+      if (m == MATCH_ERROR)
+	goto cleanup;
     }
 
   /* The dummy arguments and result of the abreviated form of MODULE
@@ -2845,6 +2920,19 @@ variable_decl (int elem)
     {
       m = MATCH_ERROR;
       goto cleanup;
+    }
+
+  if (kind_match == MATCH_YES)
+    {
+      gfc_find_symbol (name, gfc_current_ns, 1, &sym);
+      /* sym *must* be found at this point */
+      sym->ts.kind = overridden_kind;
+      if (gfc_validate_kind (sym->ts.type, sym->ts.kind, true) < 0)
+	{
+	  gfc_error ("Kind %d not supported for type %s at %C",
+		     sym->ts.kind, gfc_basic_typename (sym->ts.type));
+	  return MATCH_ERROR;
+	}
     }
 
   if (!check_function_name (name))
