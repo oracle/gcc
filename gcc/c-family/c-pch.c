@@ -58,7 +58,6 @@ struct c_pch_validity
 {
   unsigned char debug_info_type;
   signed char match[MATCH_SIZE];
-  void (*pch_init) (void);
   size_t target_data_length;
 };
 
@@ -123,7 +122,6 @@ pch_init (void)
 	gcc_assert (v.match[i] == *pch_matching[i].flag_var);
       }
   }
-  v.pch_init = &pch_init;
   target_validity = targetm.get_pch_validity (&v.target_data_length);
 
   if (fwrite (partial_pch, IDENT_LENGTH, 1, f) != 1
@@ -286,20 +284,6 @@ c_common_valid_pch (cpp_reader *pfile, const char *name, int fd)
 	  return 2;
 	}
   }
-
-  /* If the text segment was not loaded at the same address as it was
-     when the PCH file was created, function pointers loaded from the
-     PCH will not be valid.  We could in theory remap all the function
-     pointers, but no support for that exists at present.
-     Since we have the same executable, it should only be necessary to
-     check one function.  */
-  if (v.pch_init != &pch_init)
-    {
-      if (cpp_get_options (pfile)->warn_invalid_pch)
-	cpp_error (pfile, CPP_DL_WARNING,
-		   "%s: had text segment at different address", name);
-      return 2;
-    }
 
   /* Check the target-specific validity data.  */
   {
