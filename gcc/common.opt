@@ -2739,6 +2739,11 @@ fnoalias
 Common Report Var(flag_noalias) Optimization
 Assume no aliasing in the whole program.
 
+fnoloopalias
+Common Report Var(flag_noloopalias) Optimization
+Restrict pointer aliasing for function's loops
+(allows more aggressive optimisations).
+
 funwind-tables
 Common Report Var(flag_unwind_tables) Optimization
 Just generate unwind tables for exception handling.
