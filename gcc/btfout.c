@@ -1119,11 +1119,11 @@ btf_finalize (void)
 
   funcs = NULL;
 
+  btf_var_ids->empty ();
+  btf_var_ids = NULL;
+
   free (btf_id_map);
   btf_id_map = NULL;
-
-  ggc_free (btf_var_ids);
-  btf_var_ids = NULL;
 
   ctf_container_ref tu_ctfc = ctf_get_tu_ctfc ();
   ctfc_delete_container (tu_ctfc);
