@@ -3963,7 +3963,6 @@ lookup_uop_fuzzy (const char *op, gfc_symtree *uop)
   return gfc_closest_fuzzy_match (op, candidates);
 }
 
-
 /* Callback finding an impure function as an operand to an .and. or
    .or.  expression.  Remember the last function warned about to
    avoid double warnings when recursing.  */
@@ -4023,6 +4022,22 @@ convert_hollerith_to_character (gfc_expr *e)
     }
 }
 
+/* If E is a logical, convert it to an integer and issue a warning
+   for the conversion.  */
+
+static void
+convert_integer_to_logical (gfc_expr *e)
+{
+  if (e->ts.type == BT_INTEGER)
+    {
+      /* Convert to LOGICAL */
+      gfc_typespec t;
+      t.type = BT_LOGICAL;
+      t.kind = 1;
+      gfc_convert_type_warn (e, &t, 2, 1);
+    }
+}
+
 /* Convert to numeric and issue a warning for the conversion.  */
 
 static void
@@ -4033,6 +4048,22 @@ convert_to_numeric (gfc_expr *a, gfc_expr *b)
   t.type = b->ts.type;
   t.kind = b->ts.kind;
   gfc_convert_type_warn (a, &t, 2, 1);
+}
+
+/* If E is a logical, convert it to an integer and issue a warning
+   for the conversion.  */
+
+static void
+convert_logical_to_integer (gfc_expr *e)
+{
+  if (e->ts.type == BT_LOGICAL)
+    {
+      /* Convert to INTEGER */
+      gfc_typespec t;
+      t.type = BT_INTEGER;
+      t.kind = 1;
+      gfc_convert_type_warn (e, &t, 2, 1);
+    }
 }
 
 /* Resolve an operator expression node.  This can involve replacing the
@@ -4123,6 +4154,12 @@ resolve_operator (gfc_expr *e)
     case INTRINSIC_TIMES:
     case INTRINSIC_DIVIDE:
     case INTRINSIC_POWER:
+      if (flag_logical_as_integer)
+	{
+	  convert_logical_to_integer (op1);
+	  convert_logical_to_integer (op2);
+	}
+
       if (gfc_numeric_ts (&op1->ts) && gfc_numeric_ts (&op2->ts))
 	{
 	  gfc_type_convert_binary (e, 1);
@@ -4159,6 +4196,13 @@ resolve_operator (gfc_expr *e)
     case INTRINSIC_OR:
     case INTRINSIC_EQV:
     case INTRINSIC_NEQV:
+
+      if (flag_logical_as_integer)
+	{
+	  convert_integer_to_logical (op1);
+	  convert_integer_to_logical (op2);
+	}
+
       if (op1->ts.type == BT_LOGICAL && op2->ts.type == BT_LOGICAL)
 	{
 	  e->ts.type = BT_LOGICAL;
@@ -4210,6 +4254,9 @@ resolve_operator (gfc_expr *e)
 	  goto simplify_op;
 	}
 
+      if (flag_logical_as_integer)
+	convert_integer_to_logical (op1);
+
       if (op1->ts.type == BT_LOGICAL)
 	{
 	  e->ts.type = BT_LOGICAL;
@@ -4248,6 +4295,12 @@ resolve_operator (gfc_expr *e)
 	{
 	  convert_hollerith_to_character (op1);
 	  convert_hollerith_to_character (op2);
+	}
+
+      if (flag_logical_as_integer)
+	{
+	  convert_logical_to_integer (op1);
+	  convert_logical_to_integer (op2);
 	}
 
       if (op1->ts.type == BT_CHARACTER && op2->ts.type == BT_CHARACTER
