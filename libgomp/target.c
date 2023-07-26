@@ -3182,7 +3182,7 @@ gomp_load_plugin_for_device (struct gomp_device_descr *device,
 
   void *plugin_handle = dlopen (plugin_name, RTLD_LAZY);
   if (!plugin_handle)
-    goto dl_fail;
+    return 0;
 
   /* Check if all required functions are available in the plugin and store
      their handlers.  None of the symbols can legitimately be NULL,

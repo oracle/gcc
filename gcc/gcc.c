@@ -319,6 +319,10 @@ static const char *spec_host_machine = DEFAULT_REAL_TARGET_MACHINE;
 
 static char *offload_targets = NULL;
 
+/* Set to true if -foffload has not been used and offload_targets
+   is set to the configured in default.  */
+static bool offload_targets_default;
+
 /* Nonzero if cross-compiling.
    When -b is used, the value comes from the `specs' file.  */
 
@@ -4835,7 +4839,10 @@ process_command (unsigned int decoded_options_count,
   /* If the user didn't specify any, default to all configured offload
      targets.  */
   if (ENABLE_OFFLOADING && offload_targets == NULL)
-    handle_foffload_option (OFFLOAD_TARGETS);
+    {
+      handle_foffload_option (OFFLOAD_TARGETS);
+      offload_targets_default = true;
+    }
 
   /* Handle -gtoggle as it would later in toplev.c:process_options to
      make the debug-level-gt spec function work as expected.  */
@@ -8502,6 +8509,8 @@ driver::maybe_putenv_OFFLOAD_TARGETS () const
       obstack_grow (&collect_obstack, offload_targets,
 		    strlen (offload_targets) + 1);
       xputenv (XOBFINISH (&collect_obstack, char *));
+      if (offload_targets_default)
+	xputenv ("OFFLOAD_TARGET_DEFAULT=1");
     }
 
   free (offload_targets);

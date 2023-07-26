@@ -52,6 +52,7 @@ along with GCC; see the file COPYING3.  If not see
 /* Environment variable, used for passing the names of offload targets from GCC
    driver to lto-wrapper.  */
 #define OFFLOAD_TARGET_NAMES_ENV	"OFFLOAD_TARGET_NAMES"
+#define OFFLOAD_TARGET_DEFAULT_ENV	"OFFLOAD_TARGET_DEFAULT"
 
 /* By default there is no special suffix for target executables.  */
 #ifdef TARGET_EXECUTABLE_SUFFIX
@@ -907,6 +908,12 @@ compile_offload_image (const char *target, const char *compiler_path,
 	break;
       }
 
+  if (!compiler && getenv (OFFLOAD_TARGET_DEFAULT_ENV))
+    {
+      free_array_of_ptrs ((void **) paths, n_paths);
+      return NULL;
+    }
+
   if (!compiler)
     fatal_error (input_location,
 		 "could not find %s in %s (consider using %<-B%>)",
@@ -976,6 +983,7 @@ compile_images_for_offload_targets (unsigned in_argc, char *in_argv[],
   if (!target_names)
     return;
   unsigned num_targets = parse_env_var (target_names, &names, NULL);
+  int next_name_entry = 0;
 
   const char *compiler_path = getenv ("COMPILER_PATH");
   if (!compiler_path)
@@ -986,13 +994,19 @@ compile_images_for_offload_targets (unsigned in_argc, char *in_argv[],
   offload_names = XCNEWVEC (char *, num_targets + 1);
   for (unsigned i = 0; i < num_targets; i++)
     {
-      offload_names[i]
+      offload_names[next_name_entry]
 	= compile_offload_image (names[i], compiler_path, in_argc, in_argv,
 				 compiler_opts, compiler_opt_count,
 				 linker_opts, linker_opt_count);
-      if (!offload_names[i])
-	fatal_error (input_location,
-		     "problem with building target image for %s", names[i]);
+      if (!offload_names[next_name_entry])
+	continue;
+      next_name_entry++;
+    }
+
+  if (next_name_entry == 0)
+    {
+      free (offload_names);
+      offload_names = NULL;
     }
 
  out:
