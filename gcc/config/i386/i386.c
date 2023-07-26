@@ -29083,11 +29083,14 @@ ix86_output_indirect_function_return (rtx ret_op)
 	}
       else
 	output_indirect_thunk (need_prefix, regno);
-
-      return "";
     }
   else
-    return "%!jmp\t%A0";
+    {
+      output_asm_insn ("%!jmp\t%A0", &ret_op);
+      if (ix86_harden_sls & harden_sls_indirect_jmp)
+	fputs ("\tint3\n", asm_out_file);
+    }
+  return "";
 }
 
 /* Split simple return with popping POPC bytes from stack to indirect
