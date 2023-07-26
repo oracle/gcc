@@ -1526,8 +1526,7 @@ process_options (void)
     debug_nonbind_markers_p
       = (optimize
 	 && debug_info_level >= DINFO_LEVEL_NORMAL
-	 && (write_symbols == DWARF2_DEBUG
-	     || write_symbols == VMS_AND_DWARF2_DEBUG)
+	 && dwarf_debuginfo_p ()
 	 && !(flag_selective_scheduling || flag_selective_scheduling2));
 
   if (dwarf2out_as_loc_support == AUTODETECT_VALUE)
@@ -1542,8 +1541,7 @@ process_options (void)
       debug_variable_location_views
 	= (flag_var_tracking
 	   && debug_info_level >= DINFO_LEVEL_NORMAL
-	   && (write_symbols == DWARF2_DEBUG
-	       || write_symbols == VMS_AND_DWARF2_DEBUG)
+	   && dwarf_debuginfo_p ()
 	   && !dwarf_strict
 	   && dwarf2out_as_loc_support
 	   && dwarf2out_as_locview_support);
