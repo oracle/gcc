@@ -3489,8 +3489,6 @@ static cpp_macro *
 create_iso_definition (cpp_reader *pfile)
 {
   bool following_paste_op = false;
-  const char *paste_op_error_msg =
-    N_("'##' cannot appear at either end of a macro expansion");
   unsigned int num_extra_tokens = 0;
   unsigned nparms = 0;
   cpp_hashnode **params = NULL;
@@ -3615,7 +3613,9 @@ create_iso_definition (cpp_reader *pfile)
 	     function-like macros, but not at the end.  */
 	  if (following_paste_op)
 	    {
-	      cpp_error (pfile, CPP_DL_ERROR, paste_op_error_msg);
+	      cpp_error (pfile, CPP_DL_ERROR,
+			 "'##' cannot appear at either end of a macro "
+			 "expansion");
 	      goto out;
 	    }
 	  if (!vaopt_tracker.completed ())
@@ -3630,7 +3630,9 @@ create_iso_definition (cpp_reader *pfile)
 	     function-like macros, but not at the beginning.  */
 	  if (macro->count == 1)
 	    {
-	      cpp_error (pfile, CPP_DL_ERROR, paste_op_error_msg);
+	      cpp_error (pfile, CPP_DL_ERROR,
+			 "'##' cannot appear at either end of a macro "
+			 "expansion");
 	      goto out;
 	    }
 
