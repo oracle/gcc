@@ -97,6 +97,7 @@ along with GCC; see the file COPYING3.  If not see
 
 #ifdef HAVE_isl
 #include <isl/version.h>
+extern const char *get_isl_version (bool);
 #endif
 
 static void general_init (const char *, bool);
@@ -670,7 +671,7 @@ print_version (FILE *file, const char *indent, bool show_global_state)
 #ifndef HAVE_isl
 	   "none"
 #else
-	   isl_version ()
+	   get_isl_version (*indent == 0)
 #endif
 	   );
   if (strcmp (GCC_GMP_STRINGIFY_VERSION, gmp_version))
