@@ -469,6 +469,10 @@ Fortran Var(flag_dec_char_conversions)
 Enable the use of character literals in assignments and data statements
 for non-character variables.
 
+fdec-duplicates
+Fortran Var(flag_dec_duplicates)
+Allow varibles to be duplicated in the type specification matches.
+
 fdec-include
 Fortran Var(flag_dec_include)
 Enable legacy parsing of INCLUDE as statement.
