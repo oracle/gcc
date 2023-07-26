@@ -563,6 +563,9 @@ struct cpp_options
 
   /* True enables canonicalization of system header file paths. */
   bool canonical_system_headers;
+
+  /* The maximum depth of the nested #include.  */
+  unsigned int max_include_depth;
 };
 
 /* Callback for header lookup for HEADER, which is the name of a
