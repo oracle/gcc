@@ -264,7 +264,8 @@ Objective-C and Objective-C++ Dialects}.
 -Walloc-zero  -Walloc-size-larger-than=@var{n}
 -Walloca  -Walloca-larger-than=@var{n} @gol
 -Wno-aggressive-loop-optimizations  -Warray-bounds  -Warray-bounds=@var{n} @gol
--Wno-attributes  -Wbool-compare  -Wbool-operation @gol
+-Wno-attributes  -Wbidi-chars=@r{[}none@r{|}unpaired@r{|}any@r{]} @gol 
+-Wbool-compare  -Wbool-operation @gol
 -Wno-builtin-declaration-mismatch @gol
 -Wno-builtin-macro-redefined  -Wc90-c99-compat  -Wc99-c11-compat @gol
 -Wc++-compat  -Wc++11-compat  -Wc++14-compat  @gol
@@ -5605,6 +5606,23 @@ false positives and is deactivated by default.
 Warn about declarations using the @code{alias} and similar attributes whose
 target is incompatible with the type of the alias.  @xref{Function Attributes,
 ,Declaring Attributes of Functions}.
+
+@item -Wbidi-chars=@r{[}none@r{|}unpaired@r{|}any@r{]}
+@opindex Wbidi-chars=
+@opindex Wbidi-chars
+@opindex Wno-bidi-chars
+Warn about possibly misleading UTF-8 bidirectional control characters in
+comments, string literals, character constants, and identifiers.  Such
+characters can change left-to-right writing direction into right-to-left
+(and vice versa), which can cause confusion between the logical order and
+visual order.  This may be dangerous; for instance, it may seem that a piece
+of code is not commented out, whereas it in fact is.
+
+There are three levels of warning supported by GCC@.  The default is
+@option{-Wbidi-chars=unpaired}, which warns about improperly terminated
+bidi contexts.  @option{-Wbidi-chars=none} turns the warning off.
+@option{-Wbidi-chars=any} warns about any use of bidirectional control
+characters.
 
 @item -Wbool-compare
 @opindex Wno-bool-compare
