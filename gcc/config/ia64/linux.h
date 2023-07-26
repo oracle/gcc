@@ -76,7 +76,7 @@ do {						\
    Signalize that because we have fde-glibc, we don't need all C shared libs
    linked against -lgcc_s.  */
 #undef LINK_EH_SPEC
-#define LINK_EH_SPEC ""
+#define LINK_EH_SPEC "--no-add-needed "
 
 #undef TARGET_INIT_LIBFUNCS
 #define TARGET_INIT_LIBFUNCS ia64_soft_fp_init_libfuncs
