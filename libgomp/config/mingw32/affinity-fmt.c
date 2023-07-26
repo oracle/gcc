@@ -1,4 +1,4 @@
-/* Copyright (C) 2013-2018 Free Software Foundation, Inc.
+/* Copyright (C) 2018-2019 Free Software Foundation, Inc.
    Contributed by Jakub Jelinek <jakub@redhat.com>.
 
    This file is part of the GNU Offloading and Multi Processing Library
@@ -24,44 +24,45 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include "libgomp.h"
-#include <limits.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#ifdef HAVE_INTTYPES_H
+# include <inttypes.h>  /* For PRIx64.  */
+#endif
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <errno.h>
 
-void
-GOMP_teams (unsigned int num_teams, unsigned int thread_limit)
+static int
+gomp_gethostname (char *name, size_t len)
 {
-  if (thread_limit)
+  /* On Win9x GetComputerName fails if the input size is less
+     than MAX_COMPUTERNAME_LENGTH + 1.  */
+  char buffer[MAX_COMPUTERNAME_LENGTH + 1];
+  DWORD size = sizeof (buffer);
+  int ret = 0;
+
+  if (!GetComputerName (buffer, &size))
+    return -1;
+
+  if ((size = strlen (buffer) + 1) > len)
     {
-      struct gomp_task_icv *icv = gomp_icv (true);
-      icv->thread_limit_var
-	= thread_limit > INT_MAX ? UINT_MAX : thread_limit;
+      errno = EINVAL;
+      /* Truncate as per POSIX spec.  We do not NUL-terminate. */
+      size = len;
+      ret = -1;
     }
-  unsigned int num_blocks, block_id;
-  asm ("mov.u32 %0, %%nctaid.x;" : "=r" (num_blocks));
-  asm ("mov.u32 %0, %%ctaid.x;" : "=r" (block_id));
-  if (!num_teams || num_teams >= num_blocks)
-    num_teams = num_blocks;
-  else if (block_id >= num_teams)
-    {
-      gomp_free_thread (nvptx_thrs);
-      asm ("exit;");
-    }
-  gomp_num_teams_var = num_teams - 1;
+  memcpy (name, buffer, (size_t) size);
+
+  return ret;
 }
 
-int
-omp_pause_resource (omp_pause_resource_t kind, int device_num)
-{
-  (void) kind;
-  (void) device_num;
-  return -1;
-}
+#undef gethostname
+#define gethostname gomp_gethostname
+#define  HAVE_GETHOSTNAME 1
 
-int
-omp_pause_resource_all (omp_pause_resource_t kind)
-{
-  (void) kind;
-  return -1;
-}
-
-ialias (omp_pause_resource)
-ialias (omp_pause_resource_all)
+#include "../../affinity-fmt.c"
