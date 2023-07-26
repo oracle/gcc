@@ -10874,10 +10874,31 @@ gfc_resolve_blocks (gfc_code *b, gfc_namespace *ns)
       switch (b->op)
 	{
 	case EXEC_IF:
-	  if (t && b->expr1 != NULL
-	      && (b->expr1->ts.type != BT_LOGICAL || b->expr1->rank != 0))
-	    gfc_error ("IF clause at %L requires a scalar LOGICAL expression",
-		       &b->expr1->where);
+	  if (t && b->expr1 != NULL)
+	    {
+	      if (flag_dec_non_logical_if && b->expr1->ts.type != BT_LOGICAL)
+		{
+		  gfc_expr* cast;
+		  cast = gfc_ne (b->expr1,
+				 gfc_get_int_expr (1, &gfc_current_locus, 0),
+				 INTRINSIC_NE);
+		  if (cast == NULL)
+		    gfc_internal_error ("gfc_resolve_blocks(): Failed to cast "
+					"to LOGICAL in IF");
+		  b->expr1 = cast;
+		  if (warn_conversion_extra)
+		    {
+		      gfc_warning (OPT_Wconversion_extra, "Non-LOGICAL type in"
+				   " IF statement condition %L will be true if"
+				   " it evaluates to nonzero",
+				   &b->expr1->where);
+		    }
+		}
+
+	      if ((b->expr1->ts.type != BT_LOGICAL || b->expr1->rank != 0))
+		gfc_error ("IF clause at %L requires a scalar LOGICAL "
+			   "expression", &b->expr1->where);
+	    }
 	  break;
 
 	case EXEC_WHERE:
@@ -12185,11 +12206,32 @@ start:
 	  break;
 
 	case EXEC_IF:
-	  if (t && code->expr1 != NULL
-	      && (code->expr1->ts.type != BT_LOGICAL
-		  || code->expr1->rank != 0))
-	    gfc_error ("IF clause at %L requires a scalar LOGICAL expression",
-		       &code->expr1->where);
+	  if (t && code->expr1 != NULL)
+	    {
+	      if (flag_dec_non_logical_if
+		  && code->expr1->ts.type != BT_LOGICAL)
+		{
+		  gfc_expr* cast;
+		  cast = gfc_ne (code->expr1,
+				 gfc_get_int_expr (1, &gfc_current_locus, 0),
+				 INTRINSIC_NE);
+		  if (cast == NULL)
+		    gfc_internal_error ("gfc_resolve_code(): Failed to cast "
+					"to LOGICAL in IF");
+		  code->expr1 = cast;
+		  if (warn_conversion_extra)
+		    {
+		      gfc_warning (OPT_Wconversion_extra, "Non-LOGICAL type in"
+				   " IF statement condition %L will be true if"
+				   " it evaluates to nonzero",
+				   &code->expr1->where);
+		    }
+		}
+
+	      if (code->expr1->ts.type != BT_LOGICAL || code->expr1->rank != 0)
+		gfc_error ("IF clause at %L requires a scalar LOGICAL "
+			   "expression", &code->expr1->where);
+	    }
 	  break;
 
 	case EXEC_CALL:

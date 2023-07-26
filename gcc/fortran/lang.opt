@@ -497,6 +497,10 @@ fdec-override-kind
 Fortran Var(flag_dec_override_kind)
 Enable support for per variable kind specification.
 
+fdec-non-logical-if
+Fortran Var(flag_dec_non_logical_if)
+Enable support for non-logical expressions in if statements.
+
 fdec-old-init
 Fortran Var(flag_dec_old_init)
 Enable support for old style initializers in derived types.
