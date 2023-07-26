@@ -426,9 +426,9 @@ lang_specific_driver (cl_decoded_option **in_decoded_options,
   /* Add `-lgphobos' if we haven't already done so.  */
   if (phobos_library != PHOBOS_NOLINK)
     {
-      /* Default to static linking.  */
-      if (phobos_library != PHOBOS_DYNAMIC)
-	phobos_library = PHOBOS_STATIC;
+      /* Default to shared linking.  */
+      if (phobos_library != PHOBOS_STATIC)
+	phobos_library = PHOBOS_DYNAMIC;
 
 #ifdef HAVE_LD_STATIC_DYNAMIC
       if (phobos_library == PHOBOS_STATIC && !static_link)
