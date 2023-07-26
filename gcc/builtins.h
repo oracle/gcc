@@ -112,6 +112,7 @@ extern tree mathfn_built_in (tree, combined_fn);
 extern tree mathfn_built_in_type (combined_fn);
 extern rtx builtin_strncpy_read_str (void *, HOST_WIDE_INT, scalar_int_mode);
 extern rtx builtin_memset_read_str (void *, HOST_WIDE_INT, scalar_int_mode);
+extern rtx expand_builtin_memset (tree, rtx, machine_mode);
 extern rtx expand_builtin_saveregs (void);
 extern tree std_build_builtin_va_list (void);
 extern tree std_fn_abi_va_list (tree);
