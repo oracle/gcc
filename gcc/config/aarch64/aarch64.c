@@ -4285,9 +4285,11 @@ aarch64_layout_frame (void)
     max_push_offset = 256;
 
   HOST_WIDE_INT const_size, const_fp_offset;
-  if (cfun->machine->frame.frame_size.is_constant (&const_size)
-      && const_size < max_push_offset
-      && known_eq (crtl->outgoing_args_size, 0))
+  if (cfun->machine->frame.saved_regs_size == 0)
+    cfun->machine->frame.initial_adjust = cfun->machine->frame.frame_size;
+  else if (cfun->machine->frame.frame_size.is_constant (&const_size)
+	   && const_size < max_push_offset
+	   && known_eq (crtl->outgoing_args_size, 0))
     {
       /* Simple, small frame with no outgoing arguments:
 	 stp reg1, reg2, [sp, -frame_size]!
