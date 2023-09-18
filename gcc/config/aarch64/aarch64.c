@@ -4273,7 +4273,8 @@ aarch64_layout_frame (void)
     = (cfun->machine->frame.hard_fp_offset
        + cfun->machine->frame.bytes_below_hard_fp);
 
-  cfun->machine->frame.locals_offset = cfun->machine->frame.saved_varargs_size;
+  cfun->machine->frame.bytes_above_locals
+    = cfun->machine->frame.saved_varargs_size;
 
   cfun->machine->frame.initial_adjust = 0;
   cfun->machine->frame.final_adjust = 0;
@@ -7896,14 +7897,14 @@ aarch64_initial_elimination_offset (unsigned from, unsigned to)
 
       if (from == FRAME_POINTER_REGNUM)
 	return cfun->machine->frame.hard_fp_offset
-	       - cfun->machine->frame.locals_offset;
+	       - cfun->machine->frame.bytes_above_locals;
     }
 
   if (to == STACK_POINTER_REGNUM)
     {
       if (from == FRAME_POINTER_REGNUM)
-	  return cfun->machine->frame.frame_size
-		 - cfun->machine->frame.locals_offset;
+	return cfun->machine->frame.frame_size
+	       - cfun->machine->frame.bytes_above_locals;
     }
 
   return cfun->machine->frame.frame_size;
