@@ -156,6 +156,11 @@ const struct processor_costs *ix86_cost = NULL;
 #define m_CORE_ALL (m_CORE2 | m_NEHALEM  | m_SANDYBRIDGE | m_CORE_AVX2)
 #define m_INTEL (HOST_WIDE_INT_1U<<PROCESSOR_INTEL)
 
+/* Gather Data Sampling / CVE-2022-40982 / INTEL-SA-00828.
+   Software mitigation.  */
+#define m_GDS (m_SKYLAKE | m_SKYLAKE_AVX512 | m_CANNONLAKE \
+              | m_ICELAKE_CLIENT | m_ICELAKE_SERVER) 
+
 #define m_GEODE (HOST_WIDE_INT_1U<<PROCESSOR_GEODE)
 #define m_K6 (HOST_WIDE_INT_1U<<PROCESSOR_K6)
 #define m_K6_GEODE (m_K6 | m_GEODE)
