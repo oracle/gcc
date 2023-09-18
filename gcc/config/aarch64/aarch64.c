@@ -4261,7 +4261,7 @@ aarch64_layout_frame (void)
   HOST_WIDE_INT varargs_and_saved_regs_size
     = offset + cfun->machine->frame.saved_varargs_size;
 
-  cfun->machine->frame.hard_fp_offset
+  cfun->machine->frame.bytes_above_hard_fp
     = aligned_upper_bound (varargs_and_saved_regs_size
 			   + get_frame_size (),
 			   STACK_BOUNDARY / BITS_PER_UNIT);
@@ -4270,7 +4270,7 @@ aarch64_layout_frame (void)
   gcc_assert (multiple_p (cfun->machine->frame.bytes_below_hard_fp,
 			  STACK_BOUNDARY / BITS_PER_UNIT));
   cfun->machine->frame.frame_size
-    = (cfun->machine->frame.hard_fp_offset
+    = (cfun->machine->frame.bytes_above_hard_fp
        + cfun->machine->frame.bytes_below_hard_fp);
 
   cfun->machine->frame.bytes_above_locals
@@ -4302,7 +4302,7 @@ aarch64_layout_frame (void)
   else if (known_lt (cfun->machine->frame.bytes_below_hard_fp
 		     + cfun->machine->frame.saved_regs_size, 512)
 	   && !(cfun->calls_alloca
-		&& known_lt (cfun->machine->frame.hard_fp_offset,
+		&& known_lt (cfun->machine->frame.bytes_above_hard_fp,
 			     max_push_offset)))
     {
       /* Frame with small area below the saved registers:
@@ -4311,14 +4311,14 @@ aarch64_layout_frame (void)
 	 stp reg3, reg4, [sp, bytes_below_hard_fp + 16]  */
       cfun->machine->frame.initial_adjust = cfun->machine->frame.frame_size;
       cfun->machine->frame.callee_offset
-	= cfun->machine->frame.frame_size - cfun->machine->frame.hard_fp_offset;
+	= cfun->machine->frame.frame_size - cfun->machine->frame.bytes_above_hard_fp;
     }
-  else if (cfun->machine->frame.hard_fp_offset.is_constant (&const_fp_offset)
+  else if (cfun->machine->frame.bytes_above_hard_fp.is_constant (&const_fp_offset)
 	   && const_fp_offset < max_push_offset)
     {
       /* Frame with large area below the saved registers, but with a
 	 small area above:
-	 stp reg1, reg2, [sp, -hard_fp_offset]!
+	 stp reg1, reg2, [sp, -bytes_above_hard_fp]!
 	 stp reg3, reg4, [sp, 16]
 	 sub sp, sp, bytes_below_hard_fp  */
       cfun->machine->frame.callee_adjust = const_fp_offset;
@@ -4328,12 +4328,13 @@ aarch64_layout_frame (void)
   else
     {
       /* General case:
-	 sub sp, sp, hard_fp_offset
+	 sub sp, sp, bytes_above_hard_fp
 	 stp x29, x30, [sp, 0]
 	 add x29, sp, 0
 	 stp reg3, reg4, [sp, 16]
 	 sub sp, sp, bytes_below_hard_fp  */
-      cfun->machine->frame.initial_adjust = cfun->machine->frame.hard_fp_offset;
+      cfun->machine->frame.initial_adjust
+	= cfun->machine->frame.bytes_above_hard_fp;
       cfun->machine->frame.final_adjust
 	= cfun->machine->frame.frame_size - cfun->machine->frame.initial_adjust;
     }
@@ -7893,10 +7894,10 @@ aarch64_initial_elimination_offset (unsigned from, unsigned to)
   if (to == HARD_FRAME_POINTER_REGNUM)
     {
       if (from == ARG_POINTER_REGNUM)
-	return cfun->machine->frame.hard_fp_offset;
+	return cfun->machine->frame.bytes_above_hard_fp;
 
       if (from == FRAME_POINTER_REGNUM)
-	return cfun->machine->frame.hard_fp_offset
+	return cfun->machine->frame.bytes_above_hard_fp
 	       - cfun->machine->frame.bytes_above_locals;
     }
 
